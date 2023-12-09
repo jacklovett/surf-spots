@@ -1,26 +1,35 @@
 import React, { useState, useEffect } from 'react'
 import './App.css'
+import { SurfSpot, getAllSurfSpots } from './Controllers/surfSpotsController'
 
 function App() {
-  const [backendResponse, setBackendResponse] = useState<string>('')
+  const [surfSpots, setSurfSpots] = useState<SurfSpot[]>([])
 
   useEffect(() => {
-    // Make a GET request to your backend endpoint
-    fetch('http://localhost:3001/') // Assuming your backend is running on localhost:3001
-      .then(response => response.text())
-      .then(data => {
-        setBackendResponse(data)
-      })
-      .catch(error => {
-        console.error('Error fetching data from backend:', error)
-      })
-  }, [])
+    const fetchSurfSpots = async () => {
+      try {
+        const surfSpotsData = await getAllSurfSpots()
+        setSurfSpots(surfSpotsData)
+      } catch (error) {
+        console.error('Error fetching surf spots:', error)
+      }
+    }
+
+    fetchSurfSpots()
+  }, []) // The empty dependency array ensures that this effect runs only once, similar to componentDidMount
 
   return (
     <div className="App">
       <header className="App-header">
         <h1>SurfSpots</h1>
-        <p>{backendResponse}</p>
+        {surfSpots.length > 0 && (
+          <ul>
+            {surfSpots.map(surfSpot => (
+              <li key={surfSpot.id}>{surfSpot.name}</li>
+            ))}
+          </ul>
+        )}
+        {surfSpots.length === 0 && <p>No surf spots found</p>}
       </header>
     </div>
   )
