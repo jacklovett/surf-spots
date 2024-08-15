@@ -1,36 +1,5 @@
-import { get, post, edit, deleteData } from './../Managers/networkManager'
-
-// surfSpotTypes.ts
-
-export interface Coordinates {
-  longitude: number
-  latitude: number
-}
-
-export interface SurfSpot {
-  id: string // Assuming id is a string
-  country: string
-  region: string
-  name: string
-  description: string
-  coordinates: Coordinates
-}
-
-export interface NewSurfSpot {
-  country: string
-  region: string
-  name: string
-  description: string
-  coordinates: Coordinates
-}
-
-export interface UpdatedSurfSpot {
-  country?: string
-  region?: string
-  name?: string
-  description?: string
-  coordinates?: Coordinates
-}
+import { get, post, edit, deleteData } from '../Managers/networkManager'
+import { NewSurfSpot, SurfSpot, UpdatedSurfSpot } from './surfSpotsTypes'
 
 export const getAllSurfSpots = async (): Promise<Array<SurfSpot>> => {
   try {
@@ -53,11 +22,11 @@ export const getSurfSpotById = async (id: string): Promise<SurfSpot | null> => {
 }
 
 export const createSurfSpot = async (
-  newSurfSpot: SurfSpot,
+  newSurfSpot: NewSurfSpot,
 ): Promise<SurfSpot | null> => {
   try {
-    const createdSurfSpot = await post<SurfSpot>('', newSurfSpot)
-    return createdSurfSpot
+    const createdSurfSpot = await post<NewSurfSpot>('', newSurfSpot)
+    return createdSurfSpot as SurfSpot
   } catch (error) {
     console.error('Error creating surf spot:', error)
     return null

@@ -1,37 +1,17 @@
-import React, { useState, useEffect } from 'react'
-import './App.css'
-import { SurfSpot, getAllSurfSpots } from './Controllers/surfSpotsController'
+import { HashRouter as Router, Routes, Route } from 'react-router-dom'
+import { Home, Overview, PageNotFound, SurfSpotEditor } from './Views'
 
 function App() {
-  const [surfSpots, setSurfSpots] = useState<SurfSpot[]>([])
-
-  useEffect(() => {
-    const fetchSurfSpots = async () => {
-      try {
-        const surfSpotsData = await getAllSurfSpots()
-        setSurfSpots(surfSpotsData)
-      } catch (error) {
-        console.error('Error fetching surf spots:', error)
-      }
-    }
-
-    fetchSurfSpots()
-  }, []) // The empty dependency array ensures that this effect runs only once, similar to componentDidMount
-
   return (
-    <div className="App">
-      <header className="App-header">
-        <h1>SurfSpots</h1>
-        {surfSpots.length > 0 && (
-          <ul>
-            {surfSpots.map(surfSpot => (
-              <li key={surfSpot.id}>{surfSpot.name}</li>
-            ))}
-          </ul>
-        )}
-        {surfSpots.length === 0 && <p>No surf spots found</p>}
-      </header>
-    </div>
+    <Router>
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="/overview" element={<Overview />} />
+        <Route path="/add" element={<SurfSpotEditor />} />
+        <Route path="/edit/:id" element={<SurfSpotEditor />} />
+        <Route path="*" element={<PageNotFound />} />
+      </Routes>
+    </Router>
   )
 }
 

@@ -1,0 +1,65 @@
+.surf-spot-container {
+  padding: 1rem;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.actions {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+}
+
+.action-button {
+  padding: 0.5rem 1rem;
+  font-size: 1rem;
+  cursor: pointer;
+}
+
+.content-container {
+  background-color: #f9f9f9;
+  padding: 1rem;
+  border-radius: 4px;
+}
+
+.status-message {
+  text-align: center;
+  font-size: 1.2rem;
+  color: #333;
+}
+
+.status-message.error {
+  color: #e74c3c; /* Red color for errors */
+}
+
+.surf-spot-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.list-item {
+  padding: 0.5rem;
+  border-bottom: 1px solid #ddd;
+}
+
+.select-button {
+  display: block;
+  width: 100%;
+  text-align: left;
+  padding: 0.5rem;
+  font-size: 1rem;
+  background: none;
+  border: none;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+.select-button:hover {
+  background-color: #f0f0f0;
+}
+
+.select-button.selected {
+  background-color: #dfe6e9; /* Light grey for selected items */
+  font-weight: bold;
+}

@@ -1,7 +1,6 @@
 const apiUrl = 'http://localhost:3000/'
 
 export const get = async <T>(endpoint: string): Promise<T | null> => {
-  // write me
   try {
     const response = await fetch(`${apiUrl}/${endpoint}`)
     if (response.ok) {
@@ -18,7 +17,6 @@ export const get = async <T>(endpoint: string): Promise<T | null> => {
 }
 
 export const post = async <T>(endpoint: string, body: T): Promise<T | null> => {
-  // write me
   try {
     const response = await fetch(`${apiUrl}/${endpoint}`, {
       method: 'POST',
