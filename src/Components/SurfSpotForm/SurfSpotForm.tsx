@@ -1,5 +1,5 @@
 import React from 'react'
-import { SurfSpot, Coordinates } from '../../Controllers/surfSpotsTypes'
+import { SurfSpot, Coordinates } from '../../Controllers/surfSpotController'
 
 interface SurfSpotFormProps {
   form: SurfSpot | Partial<SurfSpot>

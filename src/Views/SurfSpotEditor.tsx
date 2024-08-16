@@ -3,7 +3,7 @@ import { useDispatch, useSelector } from 'react-redux'
 import { useParams, useNavigate } from 'react-router-dom'
 import SurfSpotForm from '../Components/SurfSpotForm/SurfSpotForm'
 
-import { SurfSpot, UpdatedSurfSpot } from '../Controllers/surfSpotsTypes'
+import { SurfSpot, UpdatedSurfSpot } from '../Controllers/surfSpotController'
 import { AppDispatch } from '../Store'
 import {
   addNewSurfSpot,

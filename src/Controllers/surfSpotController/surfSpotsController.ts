@@ -1,5 +1,5 @@
-import { get, post, edit, deleteData } from '../Managers/networkManager'
-import { NewSurfSpot, SurfSpot, UpdatedSurfSpot } from './surfSpotsTypes'
+import { get, edit, post, deleteData } from '../networkController'
+import { NewSurfSpot, SurfSpot, UpdatedSurfSpot } from './index'
 
 export const getAllSurfSpots = async (): Promise<Array<SurfSpot>> => {
   try {

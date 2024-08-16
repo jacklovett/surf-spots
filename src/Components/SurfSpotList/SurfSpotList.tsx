@@ -3,7 +3,7 @@ import { useSelector, useDispatch } from 'react-redux'
 import { useNavigate } from 'react-router-dom'
 import { AppDispatch } from '../../Store'
 
-import { SurfSpot } from '../../Controllers/surfSpotsTypes'
+import { SurfSpot } from '../../Controllers/surfSpotController'
 import { fetchAllSurfSpots, selectSurfSpotsState } from '../../Store/surfSpots'
 import Button from '../Button'
 

@@ -1,12 +1,12 @@
-import { deleteSurfSpot } from '../../Controllers/surfSpotsController'
-import { SurfSpot } from '../../Controllers/surfSpotsTypes'
-import { AsyncState } from '../utils'
+import { SurfSpot } from '../../Controllers/surfSpotController'
 import {
   addNewSurfSpot,
   editSurfSpot,
   fetchAllSurfSpots,
   fetchSurfSpotById,
-} from './surfSpotsThunk'
+  deleteSurfSpotById,
+} from '../../Services/surfSpotService'
+import { AsyncState } from '../storeUtils'
 
 // State
 
@@ -23,7 +23,7 @@ export const selectSurfSpotsState = (state: SurfSpotsState) => state
 
 export {
   addNewSurfSpot,
-  deleteSurfSpot,
+  deleteSurfSpotById,
   editSurfSpot,
   fetchAllSurfSpots,
   fetchSurfSpotById,

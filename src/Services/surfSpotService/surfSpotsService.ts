@@ -1,28 +1,20 @@
-// src/features/surfSpots/surfSpotsThunks.ts
 import { createAsyncThunk } from '@reduxjs/toolkit'
 import {
   SurfSpot,
   NewSurfSpot,
   UpdatedSurfSpot,
-} from '../../Controllers/surfSpotsTypes'
-import {
+  deleteSurfSpot,
+  createSurfSpot,
   getAllSurfSpots,
   getSurfSpotById,
-  createSurfSpot,
   updateSurfSpot,
-  deleteSurfSpot,
-} from '../../Controllers/surfSpotsController'
-
-// Define AsyncThunkConfig with rejectValue type
-type AsyncThunkConfig = {
-  rejectValue: string
-}
+} from '../../Controllers/surfSpotController'
 
 // Fetch all surf spots
 export const fetchAllSurfSpots = createAsyncThunk<
   SurfSpot[],
   void,
-  AsyncThunkConfig
+  { rejectValue: string }
 >('surfSpots/fetchAll', async (_, { rejectWithValue }) => {
   try {
     return await getAllSurfSpots()
@@ -33,41 +25,34 @@ export const fetchAllSurfSpots = createAsyncThunk<
   }
 })
 
-// Fetch a specific surf spot by ID
+// Fetch a surf spot by ID
 export const fetchSurfSpotById = createAsyncThunk<
   SurfSpot,
   string,
-  AsyncThunkConfig
+  { rejectValue: string }
 >('surfSpots/fetchById', async (id, { rejectWithValue }) => {
   try {
     const spot = await getSurfSpotById(id)
-    if (spot) {
-      return spot
-    } else {
-      return rejectWithValue(`Surf spot with ID ${id} not found`)
-    }
+    if (spot) return spot
+    return rejectWithValue(`Surf spot with ID ${id} not found`)
   } catch (error) {
     return rejectWithValue(
-      error instanceof Error ? error.message : 'Failed to fetch the surf spot',
+      error instanceof Error ? error.message : 'Failed to fetch surf spot',
     )
   }
 })
 
 // Add a new surf spot
 export const addNewSurfSpot = createAsyncThunk<
-  SurfSpot, // Expected return type
-  NewSurfSpot, // Argument type
-  { rejectValue: string } // Rejected value type
+  SurfSpot,
+  NewSurfSpot,
+  { rejectValue: string }
 >('surfSpots/addNew', async (newSurfSpot, { rejectWithValue }) => {
   try {
     const createdSpot = await createSurfSpot(newSurfSpot)
-    if (createdSpot) {
-      return createdSpot // Return the created surf spot
-    } else {
-      return rejectWithValue('Failed to create a new surf spot')
-    }
+    if (createdSpot) return createdSpot
+    return rejectWithValue('Failed to create a new surf spot')
   } catch (error) {
-    // Handle errors and return a string message
     return rejectWithValue(
       error instanceof Error
         ? error.message
@@ -76,19 +61,16 @@ export const addNewSurfSpot = createAsyncThunk<
   }
 })
 
-// Edit an existing surf spot
+// Edit a surf spot
 export const editSurfSpot = createAsyncThunk<
   { id: string; updatedSpot: UpdatedSurfSpot },
   { id: string; updatedSpot: UpdatedSurfSpot },
-  AsyncThunkConfig
+  { rejectValue: string }
 >('surfSpots/edit', async ({ id, updatedSpot }, { rejectWithValue }) => {
   try {
     const success = await updateSurfSpot(id, updatedSpot)
-    if (success) {
-      return { id, updatedSpot }
-    } else {
-      return rejectWithValue('Failed to update surf spot')
-    }
+    if (success) return { id, updatedSpot }
+    return rejectWithValue('Failed to update surf spot')
   } catch (error) {
     return rejectWithValue(
       error instanceof Error ? error.message : 'Failed to update surf spot',
@@ -96,19 +78,16 @@ export const editSurfSpot = createAsyncThunk<
   }
 })
 
-// Delete a surf spot by ID
+// Delete a surf spot
 export const deleteSurfSpotById = createAsyncThunk<
   string,
   string,
-  AsyncThunkConfig
+  { rejectValue: string }
 >('surfSpots/delete', async (id, { rejectWithValue }) => {
   try {
     const success = await deleteSurfSpot(id)
-    if (success) {
-      return id
-    } else {
-      return rejectWithValue('Failed to delete surf spot')
-    }
+    if (success) return id
+    return rejectWithValue('Failed to delete surf spot')
   } catch (error) {
     return rejectWithValue(
       error instanceof Error ? error.message : 'Failed to delete surf spot',

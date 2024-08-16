@@ -1,3 +1,11 @@
+import {
+  createSurfSpot,
+  deleteSurfSpot,
+  getAllSurfSpots,
+  getSurfSpotById,
+  updateSurfSpot,
+} from './surfSpotsController'
+
 export interface Coordinates {
   longitude: number
   latitude: number
@@ -29,4 +37,12 @@ export interface UpdatedSurfSpot {
   description?: string
   coordinates?: Coordinates
   rating: number
+}
+
+export {
+  getAllSurfSpots,
+  getSurfSpotById,
+  createSurfSpot,
+  updateSurfSpot,
+  deleteSurfSpot,
 }
