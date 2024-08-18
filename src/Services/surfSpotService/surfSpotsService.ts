@@ -62,7 +62,6 @@ export const addNewSurfSpot = createAsyncThunk<
 
 // Edit a surf spot
 export const editSurfSpot = createAsyncThunk<
-  { id: string; updatedSpot: UpdatedSurfSpot },
   { id: string; updatedSpot: SurfSpot },
   { id: string; updatedSpot: SurfSpot },
   { rejectValue: string }
