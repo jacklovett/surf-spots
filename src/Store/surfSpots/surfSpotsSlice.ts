@@ -52,11 +52,8 @@ const surfSpotsSlice = createSlice({
       })
       // Handle the fulfilled state for editing a surf spot
       .addCase(editSurfSpot.fulfilled, (state, action) => {
-        const { id, updatedSpot } = action.payload
-        state.data = updateOrAddItem<SurfSpot>(state.data, {
-          id,
-          ...updatedSpot,
-        } as SurfSpot)
+        const { updatedSpot } = action.payload
+        state.data = updateOrAddItem<SurfSpot>(state.data, updatedSpot)
       })
       // Handle the fulfilled state for deleting a surf spot by ID
       .addCase(deleteSurfSpotById.fulfilled, (state, action) => {

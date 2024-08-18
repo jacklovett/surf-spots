@@ -11,32 +11,27 @@ export interface Coordinates {
   latitude: number
 }
 
+export type Continents =
+  | 'Africa'
+  | 'Antartica'
+  | 'Asia'
+  | 'Australia'
+  | 'Europe'
+  | 'North America'
+  | 'South America'
+
 export interface SurfSpot extends NewSurfSpot {
   id: string // Assuming id is a string
-  country: string
-  region: string
-  name: string
-  description: string
-  coordinates: Coordinates
-  rating: number
 }
 
 export interface NewSurfSpot {
   country: string
   region: string
+  continent: Continents
   name: string
   description: string
-  coordinates: Coordinates
   rating: number
-}
-
-export interface UpdatedSurfSpot {
-  country?: string
-  region?: string
-  name?: string
-  description?: string
   coordinates?: Coordinates
-  rating: number
 }
 
 export {

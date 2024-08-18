@@ -1,56 +1,56 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, ChangeEvent, FormEvent } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { useParams, useNavigate } from 'react-router-dom'
-import SurfSpotForm from '../Components/SurfSpotForm/SurfSpotForm'
 
-import { SurfSpot, UpdatedSurfSpot } from '../Controllers/surfSpotController'
+import { Page, SurfSpotForm } from '../Components'
+import { SurfSpot } from '../Controllers/surfSpotController'
 import { AppDispatch } from '../Store'
 import {
   addNewSurfSpot,
   editSurfSpot,
   fetchSurfSpotById,
-  selectSurfSpotsState,
+  selectSurfSpotById,
+  selectSurfSpotsLoading,
+  selectSurfSpotsError,
 } from '../Store/surfSpots'
 
 const SurfSpotEditor = () => {
   const { id } = useParams<{ id?: string }>()
   const dispatch: AppDispatch = useDispatch()
   const navigate = useNavigate()
-  const [form, setForm] = useState<Partial<SurfSpot>>({
-    country: '',
-    region: '',
-    name: '',
-    description: '',
-    coordinates: { longitude: 0, latitude: 0 },
-    rating: 0,
-  })
-
-  const surfSpotState = useSelector(selectSurfSpotsState)
-  const { loading, error } = surfSpotState
 
   const isEditing = Boolean(id)
 
-  useEffect(() => {
-    if (isEditing && id) {
-      const fetchSpot = async () => {
-        try {
-          const spot = await dispatch(fetchSurfSpotById(id)).unwrap() // Unwrap the thunk result
-          if (spot) {
-            setForm(spot) // Only set the form if the spot is not null
-          } else {
-            console.error(`Surf spot with id ${id} was not found.`)
-          }
-        } catch (e) {
-          console.error(e)
-        }
-      }
-      fetchSpot()
-    }
-  }, [id, dispatch, isEditing])
+  // Use the selector for fetching surf spot by ID
+  const surfSpot = useSelector(selectSurfSpotById(id || ''))
+  const loading = useSelector(selectSurfSpotsLoading)
+  const error = useSelector(selectSurfSpotsError)
 
-  const onChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
-  ) => {
+  const [form, setForm] = useState<Partial<SurfSpot>>(
+    surfSpot || {
+      country: '',
+      continent: 'Asia',
+      region: '',
+      name: '',
+      description: '',
+      coordinates: { longitude: 0, latitude: 0 },
+      rating: 0,
+    },
+  )
+
+  // Only fetch the surf spot if in editing mode and the data is not already present
+  useEffect(() => {
+    if (isEditing && id && !surfSpot) {
+      dispatch(fetchSurfSpotById(id))
+        .unwrap()
+        .then((spot) => {
+          if (spot) setForm(spot)
+        })
+        .catch(console.error)
+    }
+  }, [id, isEditing, surfSpot, dispatch])
+
+  const onChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target
     setForm((prevForm) => ({
       ...prevForm,
@@ -59,29 +59,41 @@ const SurfSpotEditor = () => {
     }))
   }
 
-  const onSubmit = async (e: React.FormEvent) => {
+  const onSubmit = async (e: FormEvent) => {
     e.preventDefault()
     try {
       if (isEditing && id) {
         await dispatch(
-          editSurfSpot({ id, updatedSpot: form as UpdatedSurfSpot }),
-        ).unwrap() // Unwrap the thunk result
+          editSurfSpot({ id, updatedSpot: form as SurfSpot }),
+        ).unwrap()
       } else {
-        await dispatch(addNewSurfSpot(form as SurfSpot)).unwrap() // Unwrap the thunk result
+        await dispatch(addNewSurfSpot(form as SurfSpot)).unwrap()
       }
-      navigate('/')
+      navigate('/overview')
     } catch (err) {
       console.error(err)
     }
   }
 
   if (loading && isEditing) return <p>Loading...</p>
+  if (error) return <p>Error: {error}</p>
 
   return (
-    <div>
-      <h1>{isEditing ? 'Edit Surf Spot' : 'Add Surf Spot'}</h1>
-      <SurfSpotForm {...{ form, onChange, onSubmit, loading, error }} />
-    </div>
+    <Page
+      title={isEditing ? 'Edit Surf Spot' : 'Add Surf Spot'}
+      content={
+        <SurfSpotForm
+          {...{
+            form,
+            onChange,
+            onSubmit,
+            onReturn: () => navigate('/overview'),
+            loading,
+            error,
+          }}
+        />
+      }
+    />
   )
 }
 

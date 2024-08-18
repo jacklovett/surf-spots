@@ -1,0 +1,37 @@
+// _fonts.scss
+@import url('https://fonts.googleapis.com/css2?family=Lobster&family=Quicksand:wght@400;700&display=swap');
+
+/* Color Palette */
+$primary-color: #007b9e;
+$secondary-color: #00a6a2;
+$white: #ffffff;
+$background-color: #f4f9fc;
+$text-color: #333333;
+$heading-color: $primary-color;
+$accent-color: #ff7043;
+$focus-color: #0056b3;
+$disabled-color: #999999;
+
+$success: green;
+$warn: yellow;
+$error: red;
+
+$scrollbar-color: #d9d9d9;
+
+/* Typography */
+$font-family-base: 'Quicksand', 'Roboto', Arial, sans-serif;
+$font-family-heading: 'Lobster', cursive;
+
+$font-size-base: 1rem; // 16px
+$font-size-small: 0.875rem; // 14px
+$font-size-large: 1.25rem; // 20px
+
+/* Spacing */
+$spacing-unit: 1rem; // 16px base spacing
+$spacing-small: 0.5rem;
+$spacing-large: 2rem;
+
+/* Borders & Shadows */
+$content-border-radius: 4px;
+$button-border-radius: 10px;
+$box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);

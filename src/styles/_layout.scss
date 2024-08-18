@@ -1,0 +1,81 @@
+/* _layout.scss */
+
+/* Base Flexbox Utilities */
+%flex-base {
+  display: flex;
+}
+
+%flex-center {
+  @extend %flex-base;
+  justify-content: center;
+  align-items: center;
+}
+
+%flex-space-between {
+  @extend %flex-base;
+  justify-content: space-between;
+  align-items: center;
+}
+
+%flex-space-around {
+  @extend %flex-base;
+  justify-content: space-around;
+  align-items: center;
+}
+
+%flex-end {
+  @extend %flex-base;
+  justify-content: end;
+}
+
+/* Flexbox Utilities */
+.row {
+  @extend %flex-base;
+  flex-direction: row;
+  flex-wrap: wrap;
+  margin: -$spacing-small; /* Adjust spacing between columns */
+}
+
+.column {
+  @extend %flex-base;
+  flex: 1;
+  flex-direction: column;
+}
+
+.center {
+  @extend %flex-center;
+}
+
+.center-horizontal {
+  @extend %flex-base;
+  justify-content: center;
+}
+
+.center-vertical {
+  @extend %flex-base;
+  align-items: center;
+}
+
+.space-between {
+  @extend %flex-space-between;
+}
+
+.space-around {
+  @extend %flex-space-around;
+}
+
+.content-container {
+  @include container(
+    100%,
+    640px,
+    840px
+  ); // Full width on mobile, 640px on tablet, 960px on desktop
+}
+
+.card {
+  box-shadow: $box-shadow;
+  background: $white;
+  padding: $spacing-unit;
+  margin: $spacing-unit;
+  border-radius: $button-border-radius;
+}

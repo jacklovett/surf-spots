@@ -1,0 +1,36 @@
+.form-item {
+  @extend %flex-base;
+  flex-direction: column;
+  padding-bottom: $spacing-unit;
+  width: 100%;
+}
+
+label {
+  margin-bottom: $spacing-small;
+  font-weight: bold;
+  color: $primary-color;
+}
+
+input,
+textarea {
+  width: 100%;
+  border: 1px solid #ccc; /* Subtle border */
+  border-radius: $content-border-radius;
+}
+
+textarea {
+  resize: vertical; /* Allow vertical resize */
+  min-height: 100px; /* Give the textarea a reasonable default height */
+}
+
+input:focus,
+textarea:focus {
+  border-color: #0077b6;
+  box-shadow: 0 0 4px rgba(0, 119, 182, 0.5);
+  outline: none;
+}
+
+.form-error {
+  color: $error;
+  font-size: $font-size-small;
+}

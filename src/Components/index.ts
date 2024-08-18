@@ -1,5 +1,7 @@
 import Button from './Button'
+import Page from './Page'
 import SurfSpotForm from './SurfSpotForm'
 import SurfSpotList from './SurfSpotList'
+import Widget from './Widget'
 
-export { Button, SurfSpotList, SurfSpotForm }
+export { Button, Page, SurfSpotList, SurfSpotForm, Widget }

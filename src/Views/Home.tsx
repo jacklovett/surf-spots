@@ -1,19 +1,23 @@
 import React from 'react'
-import { Link } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
+
+import { Button, Page } from '../Components'
 
 const Home = () => {
+  const navigate = useNavigate()
   return (
-    <div>
-      <header className="header">
-        <h1>Welcome to Surf Spots</h1>
-      </header>
-      <div className="actions">
-        <Link to="/add" className="action-button">
-          Add Surf Spot
-        </Link>
-      </div>
-      <div className="content-container"></div>
-    </div>
+    <Page
+      title="Welcome to Surf Spots"
+      content={
+        <div className="center column">
+          <p className="description mb-1">
+            Discover the best surf spots around the world and share your
+            favorites with the community.
+          </p>
+          <Button label="Get Started!" onClick={() => navigate('/overview')} />
+        </div>
+      }
+    />
   )
 }
 

@@ -1,0 +1,16 @@
+header {
+  padding: $spacing-unit 0;
+  text-align: center;
+}
+
+footer {
+  text-align: center;
+  font-size: $font-size-small;
+}
+
+.page {
+  @extend %flex-base;
+  flex-direction: column;
+  min-height: 100vh;
+  padding: $spacing-unit;
+}

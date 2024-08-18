@@ -1,10 +1,31 @@
 import { get, edit, post, deleteData } from '../networkController'
-import { NewSurfSpot, SurfSpot, UpdatedSurfSpot } from './index'
+import { NewSurfSpot, SurfSpot } from './index'
 
 export const getAllSurfSpots = async (): Promise<Array<SurfSpot>> => {
   try {
     const surfSpots = await get<Array<SurfSpot>>('surf-spots')
     return surfSpots ?? []
+    // test data
+    // return [
+    //   {
+    //     id: '1',
+    //     name: 'Costa da Caparica',
+    //     country: 'Portugal',
+    //     continent: 'Europe',
+    //     region: 'Lisbon',
+    //     rating: 2,
+    //     description: '',
+    //   },
+    //   {
+    //     id: '2',
+    //     name: 'Fistral',
+    //     country: 'United Kingdom',
+    //     continent: 'Europe',
+    //     region: 'Cornwall',
+    //     rating: 3,
+    //     description: '',
+    //   },
+    // ]
   } catch (error) {
     console.error('Error fetching surf spots:', error)
     return []
@@ -35,7 +56,7 @@ export const createSurfSpot = async (
 
 export const updateSurfSpot = async (
   id: string,
-  updatedSurfSpot: UpdatedSurfSpot,
+  updatedSurfSpot: SurfSpot,
 ): Promise<boolean> => {
   try {
     await edit(`${id}`, updatedSurfSpot)

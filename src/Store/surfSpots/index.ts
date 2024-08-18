@@ -1,3 +1,4 @@
+import { createSelector } from '@reduxjs/toolkit'
 import { SurfSpot } from '../../Controllers/surfSpotController'
 import {
   addNewSurfSpot,
@@ -19,7 +20,16 @@ export const initialState: SurfSpotsState = {
 }
 
 // Selector
-export const selectSurfSpotsState = (state: SurfSpotsState) => state
+const selectSurfSpotsState = (state: { surfSpots: SurfSpotsState }) =>
+  state.surfSpots
+const selectSurfSpotById = (id: string) =>
+  createSelector([selectSurfSpotsState], (surfSpots) =>
+    surfSpots.data.find((spot: SurfSpot) => spot.id === id),
+  )
+const selectSurfSpotsLoading = (state: { surfSpots: SurfSpotsState }) =>
+  state.surfSpots.loading
+const selectSurfSpotsError = (state: { surfSpots: SurfSpotsState }) =>
+  state.surfSpots.error
 
 export {
   addNewSurfSpot,
@@ -27,4 +37,8 @@ export {
   editSurfSpot,
   fetchAllSurfSpots,
   fetchSurfSpotById,
+  selectSurfSpotsState,
+  selectSurfSpotById,
+  selectSurfSpotsError,
+  selectSurfSpotsLoading,
 }

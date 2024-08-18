@@ -2,7 +2,6 @@ import { createAsyncThunk } from '@reduxjs/toolkit'
 import {
   SurfSpot,
   NewSurfSpot,
-  UpdatedSurfSpot,
   deleteSurfSpot,
   createSurfSpot,
   getAllSurfSpots,
@@ -64,7 +63,8 @@ export const addNewSurfSpot = createAsyncThunk<
 // Edit a surf spot
 export const editSurfSpot = createAsyncThunk<
   { id: string; updatedSpot: UpdatedSurfSpot },
-  { id: string; updatedSpot: UpdatedSurfSpot },
+  { id: string; updatedSpot: SurfSpot },
+  { id: string; updatedSpot: SurfSpot },
   { rejectValue: string }
 >('surfSpots/edit', async ({ id, updatedSpot }, { rejectWithValue }) => {
   try {

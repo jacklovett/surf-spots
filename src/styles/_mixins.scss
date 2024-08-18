@@ -1,0 +1,64 @@
+/* _mixins.scss */
+
+/* Responsive Typography */
+@mixin responsive-font(
+  $min-size,
+  $max-size,
+  $min-screen: 320px,
+  $max-screen: 1200px
+) {
+  font-size: $min-size;
+
+  @media (min-width: $min-screen) {
+    font-size: calc(
+      #{$min-size} + (#{$max-size} - #{$min-size}) * ((100vw - #{$min-screen}) /
+            (#{$max-screen} - #{$min-screen}))
+    );
+  }
+
+  @media (min-width: $max-screen) {
+    font-size: $max-size;
+  }
+}
+
+/* Media Queries */
+@mixin media($breakpoint) {
+  @if $breakpoint == mobile {
+    @media (max-width: 600px) {
+      @content;
+    }
+  } @else if $breakpoint == tablet {
+    @media (max-width: 900px) {
+      @content;
+    }
+  } @else if $breakpoint == desktop {
+    @media (min-width: 900px) {
+      @content;
+    }
+  }
+}
+
+/* Container Mixin */
+
+/* Generalized Container Mixin */
+@mixin container(
+  $default-width: 100%,
+  $tablet-width: null,
+  $desktop-width: null
+) {
+  width: 100%;
+  margin: 0 auto;
+  max-width: $default-width;
+
+  @if $tablet-width {
+    @media (max-width: 900px) {
+      max-width: $tablet-width;
+    }
+  }
+
+  @if $desktop-width {
+    @media (min-width: 901px) {
+      max-width: $desktop-width;
+    }
+  }
+}

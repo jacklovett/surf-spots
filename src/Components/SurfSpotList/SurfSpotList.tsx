@@ -1,75 +1,62 @@
-import { useEffect, useState } from 'react'
-import { useSelector, useDispatch } from 'react-redux'
-import { useNavigate } from 'react-router-dom'
-import { AppDispatch } from '../../Store'
-
 import { SurfSpot } from '../../Controllers/surfSpotController'
-import { fetchAllSurfSpots, selectSurfSpotsState } from '../../Store/surfSpots'
 import Button from '../Button'
 
-const SurfSpotList = (): JSX.Element => {
-  const dispatch: AppDispatch = useDispatch()
-  const navigate = useNavigate()
-  const surfSpotsState = useSelector(selectSurfSpotsState)
-  const { data, loading, error } = surfSpotsState
+interface IProps {
+  surfSpots: SurfSpot[]
+  selectedSurfSpot: SurfSpot | null
+  setSelectedSurfSpot: (surfSpot: SurfSpot) => void
+  navigate: (path: string) => void
+}
 
-  const [selectedSurfSpot, setSelectedSurfSpot] = useState<string | null>(null)
-
-  useEffect(() => {
-    dispatch(fetchAllSurfSpots()) // Dispatch the thunk to fetch surf spots
-  }, [dispatch])
-
-  const renderContent = () => {
-    if (loading) {
-      return <p className="status-message">Loading...</p>
-    }
-
-    if (error) {
-      return <p className="status-message error">Error: {error}</p>
-    }
-
-    if (data?.length === 0) {
-      return <p className="status-message">No surf spots found</p>
-    }
-
-    return (
-      <ul className="surf-spot-list">
-        {data?.map((surfSpot: SurfSpot) => {
-          const { id, name } = surfSpot
-          return (
-            <li key={id} className="list-item">
-              <button
-                className={`select-button ${
-                  selectedSurfSpot === id ? 'selected' : ''
-                }`}
-                onClick={() =>
-                  setSelectedSurfSpot(selectedSurfSpot === id ? null : id)
-                }
-              >
-                {name}
-              </button>
-            </li>
-          )
-        })}
-      </ul>
-    )
-  }
+const SurfSpotList = (props: IProps): JSX.Element => {
+  const { surfSpots, selectedSurfSpot, setSelectedSurfSpot, navigate } = props
 
   return (
-    <div className="surf-spot-container">
-      <header className="App-header">
-        <h1>Surf Spots</h1>
-      </header>
+    <div className="card surf-spots">
       <div className="actions">
-        <Button onClick={() => navigate('/add-surf-spot')} label="Add" />
         {selectedSurfSpot && (
           <Button
-            onClick={() => navigate(`/edit-surf-spot/${selectedSurfSpot}`)}
+            onClick={() => navigate(`/edit-surf-spot/${selectedSurfSpot.id}`)}
             label="Edit"
           />
         )}
+        <Button onClick={() => navigate('/add-surf-spot')} label="Add" />
       </div>
-      <div className="content-container">{renderContent()}</div>
+      <div className="surf-spot-container">
+        <table className="surf-spot-table">
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Region</th>
+              <th>Country</th>
+              <th>Continent</th>
+              <th>Rating</th>
+            </tr>
+          </thead>
+          <tbody>
+            {surfSpots?.map((surfSpot: SurfSpot) => {
+              const { id, name, country, continent, region, rating } = surfSpot
+              console.log(selectedSurfSpot)
+              console.log(selectedSurfSpot?.id === id)
+              return (
+                <tr
+                  key={id}
+                  className={`table-row ${
+                    selectedSurfSpot?.id === id ? 'selected' : ''
+                  }`}
+                  onClick={() => setSelectedSurfSpot(surfSpot)}
+                >
+                  <td>{name}</td>
+                  <td>{region}</td>
+                  <td>{country}</td>
+                  <td>{continent}</td>
+                  <td className="center-td">{rating}</td>
+                </tr>
+              )
+            })}
+          </tbody>
+        </table>
+      </div>
     </div>
   )
 }

@@ -7,8 +7,8 @@ function App() {
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/overview" element={<Overview />} />
-        <Route path="/add" element={<SurfSpotEditor />} />
-        <Route path="/edit/:id" element={<SurfSpotEditor />} />
+        <Route path="/add-surf-spot" element={<SurfSpotEditor />} />
+        <Route path="/edit-surf-spot/:id" element={<SurfSpotEditor />} />
         <Route path="*" element={<PageNotFound />} />
       </Routes>
     </Router>
