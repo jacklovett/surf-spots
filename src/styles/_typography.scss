@@ -1,5 +1,12 @@
 /* _typography.scss */
 
+@font-face {
+  font-family: 'Agbalumo';
+  src: url('./../../public/fonts/Agbalumo.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+
 body {
   font-family: $font-family-base;
   font-size: $font-size-base;
@@ -8,11 +15,7 @@ body {
 }
 
 h1,
-h2,
-h3,
-h4,
-h5,
-h6 {
+h2 {
   font-family: $font-family-heading;
   color: $heading-color;
   margin-bottom: $spacing-small;
@@ -24,6 +27,11 @@ h1 {
 
 h2 {
   font-size: 1.75rem;
+}
+
+h3 {
+  font-size: 1.5rem;
+  color: $primary-color;
 }
 
 p {

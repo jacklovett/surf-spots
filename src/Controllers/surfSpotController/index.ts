@@ -31,6 +31,7 @@ export interface NewSurfSpot {
   name: string
   description: string
   rating: number
+  type: string
   coordinates?: Coordinates
 }
 

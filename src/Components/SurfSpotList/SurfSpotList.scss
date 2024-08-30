@@ -1,9 +1,6 @@
-.surf-spots {
-  margin-top: 0;
-}
-
 .actions {
   @extend %flex-end;
+  flex-wrap: wrap;
   gap: $spacing-small;
 }
 
@@ -19,12 +16,13 @@
 .surf-spot-container {
   overflow-x: auto;
   -webkit-overflow-scrolling: touch; /* Smooth scrolling for mobile */
+  font-size: $font-size-small;
 }
 
 .surf-spot-table {
   width: 100%;
   border-collapse: collapse;
-  margin: $spacing-unit 0;
+  margin-bottom: $spacing-small;
 }
 
 .surf-spot-table th,
@@ -35,22 +33,19 @@
 }
 
 .surf-spot-table thead tr {
-  border-top: solid 2px $primary-color;
   border-bottom: solid 2px $primary-color;
 }
 
 .surf-spot-table tr {
   border-bottom: solid 1px $primary-color;
 
-  &.selected {
-    color: $primary-color;
-  }
-
   &:hover {
     color: lighten($primary-color, 15%);
+    cursor: pointer;
   }
 }
 
-td.center-td {
+td.center-td,
+th.center-td {
   text-align: center;
 }

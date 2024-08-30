@@ -1,33 +1,49 @@
 /* Define button base styles */
 .button {
   background-color: $primary-color;
-  color: $background-color;
+  color: $white;
   padding: $spacing-small $spacing-unit;
   border: none;
   border-radius: $button-border-radius;
   font-family: $font-family-base;
-  font-size: $font-size-base;
+  font-size: $font-size-small;
   font-weight: bold;
   cursor: pointer;
   transition: background-color 0.3s, transform 0.2s;
   text-align: center;
   display: inline-block;
 
-  /* Add focus outline for accessibility */
-  &:focus {
-    outline: 3px solid $focus-color;
-    outline-offset: 2px;
+  &.secondary {
+    background-color: darken($white, 10%);
+    color: $primary-color;
+  }
+
+  &.alternate {
+    background-color: transparent;
+    color: $secondary-color;
+    border: solid 4px $secondary-color;
+    font-size: $font-size-base;
   }
 
   /* Add hover state */
   &:hover {
-    background-color: darken($primary-color, 10%);
-    transform: scale(1.05);
+    background-color: darken($primary-color, 5%);
+    transform: scale(1.025);
+
+    &.secondary {
+      background-color: darken($disabled-color, 5%);
+    }
+
+    &.alternate {
+      background-color: darken($secondary-color, 5%);
+      border: solid 4px darken($secondary-color, 5%);
+      color: $primary-color;
+    }
   }
 
   /* Add active state */
   &:active {
-    background-color: darken($primary-color, 15%);
+    background-color: darken($primary-color, 10%);
     transform: scale(0.95);
   }
 
@@ -40,15 +56,6 @@
 }
 
 /* Define button variants */
-.button--primary {
-  background-color: $primary-color;
-  color: $text-color;
-}
-
-.button--secondary {
-  background-color: $secondary-color;
-  color: $text-color;
-}
 
 .button--danger {
   background-color: $error;

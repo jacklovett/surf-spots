@@ -6,10 +6,9 @@ const PageNotFound = () => {
   const navigate = useNavigate()
   return (
     <Page
-      title=""
       content={
         <div className="center column">
-          <h1>{'404: Page not found'}</h1>
+          <h1>404: Page not found</h1>
           <p>Looks like you've explored too much!</p>
           <Button label="Go Back" onClick={() => navigate('/')} />
         </div>

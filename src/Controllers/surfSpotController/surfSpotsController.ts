@@ -13,8 +13,9 @@ export const getAllSurfSpots = async (): Promise<Array<SurfSpot>> => {
     //     country: 'Portugal',
     //     continent: 'Europe',
     //     region: 'Lisbon',
-    //     rating: 2,
+    //     rating: 4,
     //     description: '',
+    //     type: 'Beach break',
     //   },
     //   {
     //     id: '2',
@@ -24,6 +25,17 @@ export const getAllSurfSpots = async (): Promise<Array<SurfSpot>> => {
     //     region: 'Cornwall',
     //     rating: 3,
     //     description: '',
+    //     type: 'Beach break',
+    //   },
+    //   {
+    //     id: '3',
+    //     name: 'East Runton',
+    //     country: 'United Kingdom',
+    //     continent: 'Europe',
+    //     region: 'Norfolk',
+    //     rating: 2,
+    //     description: '',
+    //     type: 'Beach break',
     //   },
     // ]
   } catch (error) {

@@ -65,6 +65,7 @@
 }
 
 .content-container {
+  padding: $spacing-unit;
   @include container(
     100%,
     640px,
@@ -76,6 +77,11 @@
   box-shadow: $box-shadow;
   background: $white;
   padding: $spacing-unit;
-  margin: $spacing-unit;
+  margin: $spacing-unit 0;
   border-radius: $button-border-radius;
+}
+
+.details {
+  @extend %flex-base;
+  gap: $spacing-unit;
 }

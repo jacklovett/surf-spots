@@ -1,7 +1,7 @@
 {
-  "proxy": "http://localhost:3001",
+  "proxy": "http://localhost:3000",
   "name": "surf-spots",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "private": true,
   "scripts": {
     "start": "react-scripts start",

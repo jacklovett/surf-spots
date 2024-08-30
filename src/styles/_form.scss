@@ -1,3 +1,11 @@
+form {
+  margin-top: $spacing-unit;
+
+  &.actions {
+    margin-top: $spacing-unit;
+  }
+}
+
 .form-item {
   @extend %flex-base;
   flex-direction: column;
@@ -14,8 +22,8 @@ label {
 input,
 textarea {
   width: 100%;
-  border: 1px solid #ccc; /* Subtle border */
-  border-radius: $content-border-radius;
+  border: 1px solid $outline-color; /* Subtle border */
+  border-radius: $form-border-radius;
 }
 
 textarea {
@@ -33,4 +41,9 @@ textarea:focus {
 .form-error {
   color: $error;
   font-size: $font-size-small;
+}
+
+.coordinates {
+  @extend %flex-base;
+  gap: $spacing-unit;
 }

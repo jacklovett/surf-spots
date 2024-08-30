@@ -1,11 +1,9 @@
-import React from 'react'
-
 interface IProps {
   label: string
-  onClick: () => void
+  onClick?: () => void
   type?: 'button' | 'submit'
   disabled?: boolean
-  variant?: 'primary' | 'secondary'
+  variant?: 'primary' | 'secondary' | 'alternate'
   ariaLabel?: string // Optional: Only use if additional context is needed
 }
 

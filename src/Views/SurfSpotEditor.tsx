@@ -1,8 +1,7 @@
-import React, { useState, useEffect, ChangeEvent, FormEvent } from 'react'
+import { useState, useEffect, ChangeEvent, FormEvent, FocusEvent } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { useParams, useNavigate } from 'react-router-dom'
 
-import { Page, SurfSpotForm } from '../Components'
 import { SurfSpot } from '../Controllers/surfSpotController'
 import { AppDispatch } from '../Store'
 import {
@@ -13,6 +12,7 @@ import {
   selectSurfSpotsLoading,
   selectSurfSpotsError,
 } from '../Store/surfSpots'
+import { Page, Form, FormItem } from '../Components'
 
 const SurfSpotEditor = () => {
   const { id } = useParams<{ id?: string }>()
@@ -21,7 +21,6 @@ const SurfSpotEditor = () => {
 
   const isEditing = Boolean(id)
 
-  // Use the selector for fetching surf spot by ID
   const surfSpot = useSelector(selectSurfSpotById(id || ''))
   const loading = useSelector(selectSurfSpotsLoading)
   const error = useSelector(selectSurfSpotsError)
@@ -38,7 +37,8 @@ const SurfSpotEditor = () => {
     },
   )
 
-  // Only fetch the surf spot if in editing mode and the data is not already present
+  const [touchedFields, setTouchedFields] = useState<Set<string>>(new Set())
+
   useEffect(() => {
     if (isEditing && id && !surfSpot) {
       dispatch(fetchSurfSpotById(id))
@@ -50,13 +50,21 @@ const SurfSpotEditor = () => {
     }
   }, [id, isEditing, surfSpot, dispatch])
 
-  const onChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const onChange = (
+    e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>,
+  ) => {
     const { name, value } = e.target
     setForm((prevForm) => ({
       ...prevForm,
       [name]:
         name === 'longitude' || name === 'latitude' ? parseFloat(value) : value,
     }))
+  }
+
+  const onBlur = (
+    e: FocusEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>,
+  ) => {
+    setTouchedFields((prev) => new Set(prev).add(e.target.name))
   }
 
   const onSubmit = async (e: FormEvent) => {
@@ -69,30 +77,149 @@ const SurfSpotEditor = () => {
       } else {
         await dispatch(addNewSurfSpot(form as SurfSpot)).unwrap()
       }
-      navigate('/overview')
+      navigate('/surf-spots')
     } catch (err) {
       console.error(err)
     }
   }
 
-  if (loading && isEditing) return <p>Loading...</p>
-  if (error) return <p>Error: {error}</p>
-
   return (
     <Page
-      title={isEditing ? 'Edit Surf Spot' : 'Add Surf Spot'}
+      showHeader
       content={
-        <SurfSpotForm
-          {...{
-            form,
-            onChange,
-            onSubmit,
-            onReturn: () => navigate('/overview'),
-            loading,
-            error,
-          }}
-        />
+        <div className="column center-vertical">
+          <h3>{isEditing ? 'Edit Surf Spot' : 'Add Surf Spot'}</h3>
+          <Form
+            onSubmit={onSubmit}
+            onReturn={() => navigate('/surf-spots')}
+            loading={loading}
+            error={error}
+          >
+            <FormItem
+              field={{
+                label: 'Name',
+                name: 'name',
+                type: 'text',
+                validationRules: {
+                  required: true,
+                  minLength: 2,
+                  maxLength: 50,
+                  validationMessage: 'Name is required (2-50 characters).',
+                },
+              }}
+              value={form.name || ''}
+              onChange={onChange}
+              onBlur={onBlur}
+              touchedFields={touchedFields}
+            />
+            <FormItem
+              field={{
+                label: 'Country',
+                name: 'country',
+                type: 'text',
+                validationRules: {
+                  required: true,
+                  minLength: 2,
+                  maxLength: 50,
+                  validationMessage: 'Country is required (2-50 characters).',
+                },
+              }}
+              value={form.country || ''}
+              onChange={onChange}
+              onBlur={onBlur}
+              touchedFields={touchedFields}
+            />
+            <FormItem
+              field={{
+                label: 'Region',
+                name: 'region',
+                type: 'text',
+                validationRules: {
+                  required: true,
+                  validationMessage: 'Region is required.',
+                },
+              }}
+              value={form.region || ''}
+              onChange={onChange}
+              onBlur={onBlur}
+              touchedFields={touchedFields}
+            />
+            <FormItem
+              field={{
+                label: 'Rating',
+                name: 'rating',
+                type: 'number',
+                validationRules: {
+                  required: true,
+                  min: 0,
+                  max: 5,
+                  validationMessage: 'Rating must be between 0 and 5.',
+                },
+              }}
+              value={form.rating || 0}
+              onChange={onChange}
+              onBlur={onBlur}
+              touchedFields={touchedFields}
+            />
+            <div className="coordinates">
+              <FormItem
+                field={{
+                  label: 'Longitude',
+                  name: 'longitude',
+                  type: 'number',
+                  validationRules: {
+                    required: true,
+                    min: -180,
+                    max: 180,
+                    validationMessage:
+                      'Longitude must be between -180 and 180.',
+                  },
+                }}
+                value={form.coordinates?.longitude || 0}
+                onChange={onChange}
+                onBlur={onBlur}
+                touchedFields={touchedFields}
+              />
+              <FormItem
+                field={{
+                  label: 'Latitude',
+                  name: 'latitude',
+                  type: 'number',
+                  validationRules: {
+                    required: true,
+                    min: -90,
+                    max: 90,
+                    validationMessage: 'Latitude must be between -90 and 90.',
+                  },
+                }}
+                value={form.coordinates?.latitude || 0}
+                onChange={onChange}
+                onBlur={onBlur}
+                touchedFields={touchedFields}
+              />
+            </div>
+            <FormItem
+              field={{
+                label: 'Description',
+                name: 'description',
+                type: 'textarea',
+                validationRules: {
+                  minLength: 10,
+                  maxLength: 150,
+                  validationMessage:
+                    'Description must be between 10 and 150 characters.',
+                },
+              }}
+              value={form.description || ''}
+              onChange={onChange}
+              onBlur={onBlur}
+              touchedFields={touchedFields}
+            />
+          </Form>
+        </div>
       }
+      loading={loading}
+      error={error}
     />
   )
 }

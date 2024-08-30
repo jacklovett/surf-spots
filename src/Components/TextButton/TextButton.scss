@@ -1,0 +1,32 @@
+button.text-button {
+  background: none;
+  border: none;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  color: $primary-color;
+
+  .text-button-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: calc(2 * $font-size-x-small);
+    height: calc(2 * $font-size-x-small);
+    background-color: $primary-color;
+    color: $white;
+    border-radius: 50%;
+    margin-right: 0.25rem;
+
+    svg {
+      width: $font-size-small;
+      height: $font-size-small;
+      stroke: $white;
+      margin: -2px;
+    }
+  }
+
+  p {
+    font-size: $font-size-x-small;
+  }
+}

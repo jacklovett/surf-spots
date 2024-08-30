@@ -1,4 +1,3 @@
-import React from 'react'
 import { useNavigate } from 'react-router-dom'
 
 import { Button, Page } from '../Components'
@@ -7,14 +6,19 @@ const Home = () => {
   const navigate = useNavigate()
   return (
     <Page
-      title="Welcome to Surf Spots"
+      isAlternate
       content={
         <div className="center column">
-          <p className="description mb-1">
-            Discover the best surf spots around the world and share your
-            favorites with the community.
+          <img src="/images/png/logo.png" width="240" alt="Surf spots logo" />
+          <p className="description">
+            Track all your past surf destinations and explore new ones, all in
+            one place.
           </p>
-          <Button label="Get Started!" onClick={() => navigate('/overview')} />
+          <Button
+            label="Get Started!"
+            onClick={() => navigate('/surf-spots')}
+            variant="alternate"
+          />
         </div>
       }
     />

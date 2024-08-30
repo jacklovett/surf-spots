@@ -3,60 +3,76 @@ import Button from '../Button'
 
 interface IProps {
   surfSpots: SurfSpot[]
-  selectedSurfSpot: SurfSpot | null
-  setSelectedSurfSpot: (surfSpot: SurfSpot) => void
   navigate: (path: string) => void
 }
 
 const SurfSpotList = (props: IProps): JSX.Element => {
-  const { surfSpots, selectedSurfSpot, setSelectedSurfSpot, navigate } = props
+  const { surfSpots, navigate } = props
+  // Group surf spots by continent, then by country
+  const groupedSurfSpots = surfSpots.reduce((groupedSpots, spot) => {
+    const { continent, country } = spot
+    // Initialize the continent group if it doesn't exist in the accumulator
+    groupedSpots[continent] = groupedSpots[continent] || {}
+    // Initialize the country group within the continent if it doesn't exist
+    groupedSpots[continent][country] = groupedSpots[continent][country] || []
+    // Add the current surf spot to the correct country group
+    groupedSpots[continent][country].push(spot)
+    // Return the updated accumulator so it can be used in the next iteration
+    return groupedSpots
+  }, {} as Record<string, Record<string, SurfSpot[]>>)
 
   return (
-    <div className="card surf-spots">
+    <div>
+      {/* Action buttons for editing or adding surf spots */}
       <div className="actions">
-        {selectedSurfSpot && (
-          <Button
-            onClick={() => navigate(`/edit-surf-spot/${selectedSurfSpot.id}`)}
-            label="Edit"
-          />
-        )}
-        <Button onClick={() => navigate('/add-surf-spot')} label="Add" />
+        <Button
+          onClick={() => navigate('/add-surf-spot')}
+          label="Create new spot"
+        />
       </div>
-      <div className="surf-spot-container">
-        <table className="surf-spot-table">
-          <thead>
-            <tr>
-              <th>Name</th>
-              <th>Region</th>
-              <th>Country</th>
-              <th>Continent</th>
-              <th>Rating</th>
-            </tr>
-          </thead>
-          <tbody>
-            {surfSpots?.map((surfSpot: SurfSpot) => {
-              const { id, name, country, continent, region, rating } = surfSpot
-              console.log(selectedSurfSpot)
-              console.log(selectedSurfSpot?.id === id)
-              return (
-                <tr
-                  key={id}
-                  className={`table-row ${
-                    selectedSurfSpot?.id === id ? 'selected' : ''
-                  }`}
-                  onClick={() => setSelectedSurfSpot(surfSpot)}
-                >
-                  <td>{name}</td>
-                  <td>{region}</td>
-                  <td>{country}</td>
-                  <td>{continent}</td>
-                  <td className="center-td">{rating}</td>
-                </tr>
-              )
-            })}
-          </tbody>
-        </table>
-      </div>
+      {/* Iterate over each continent */}
+      {Object.keys(groupedSurfSpots).map((continent) => (
+        <div key={continent}>
+          <h3 className="surf-spot-region">{continent}</h3>
+          {/* Iterate over each country within the continent */}
+          {Object.keys(groupedSurfSpots[continent]).map((country) => (
+            <div key={country}>
+              <h4 className="surf-spot-region">{country}</h4>
+              {/* Card containing the surf spots table */}
+              <div className="card surf-spot-container">
+                <table className="surf-spot-table">
+                  <thead>
+                    <tr>
+                      <th>Name</th>
+                      <th>Region</th>
+                      <th>Type</th>
+                      <th className="center-td">Rating</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {/* Iterate over surf spots in the country */}
+                    {groupedSurfSpots[continent][country].map((spot) => {
+                      const { id, name, rating, region, type } = spot
+                      return (
+                        <tr
+                          key={spot.id}
+                          className="table-row"
+                          onClick={() => navigate(`/surf-spot/${id}`)}
+                        >
+                          <td>{name}</td>
+                          <td>{region}</td>
+                          <td>{type}</td>
+                          <td className="center-td">{rating}</td>
+                        </tr>
+                      )
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          ))}
+        </div>
+      ))}
     </div>
   )
 }
