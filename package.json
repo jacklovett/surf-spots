@@ -1,5 +1,5 @@
 {
-  "proxy": "http://localhost:3000",
+  "proxy": "http://localhost:8080",
   "name": "surf-spots",
   "version": "0.1.1",
   "private": true,

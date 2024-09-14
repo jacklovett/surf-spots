@@ -1,13 +1,13 @@
 import { ChangeEvent, FocusEvent } from 'react'
-import { ValidationRules } from './index'
+import { FormItemType, ValidationRules } from './index'
 
 interface IProps {
   field: {
     label: string
     name: string
-    type: 'text' | 'number' | 'textarea' | 'select'
+    type: FormItemType
     validationRules?: ValidationRules
-    options?: { value: string | number; label: string }[] // For select fields
+    options?: { value: string | number; label: string }[]
   }
   value?: string | number
   onChange: (

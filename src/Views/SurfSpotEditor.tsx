@@ -2,17 +2,23 @@ import { useState, useEffect, ChangeEvent, FormEvent, FocusEvent } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { useParams, useNavigate } from 'react-router-dom'
 
-import { SurfSpot } from '../Controllers/surfSpotController'
+import {
+  Coordinates,
+  SurfSpot,
+  SurfSpotType,
+} from '../Controllers/surfSpotController'
 import { AppDispatch } from '../Store'
 import {
-  addNewSurfSpot,
-  editSurfSpot,
-  fetchSurfSpotById,
   selectSurfSpotById,
   selectSurfSpotsLoading,
   selectSurfSpotsError,
 } from '../Store/surfSpots'
 import { Page, Form, FormItem } from '../Components'
+import {
+  addNewSurfSpot,
+  editSurfSpot,
+  fetchSurfSpotById,
+} from '../Services/surfSpotService'
 
 const SurfSpotEditor = () => {
   const { id } = useParams<{ id?: string }>()
@@ -31,51 +37,75 @@ const SurfSpotEditor = () => {
       continent: 'Asia',
       region: '',
       name: '',
+      type: SurfSpotType.BeachBreak,
       description: '',
-      coordinates: { longitude: 0, latitude: 0 },
+      coordinates: { longitude: 0, latitude: 0 } as Coordinates,
       rating: 0,
     },
   )
 
   const [touchedFields, setTouchedFields] = useState<Set<string>>(new Set())
 
+  // Fetch the surf spot if it is not already in the state
   useEffect(() => {
-    if (isEditing && id && !surfSpot) {
-      dispatch(fetchSurfSpotById(id))
-        .unwrap()
-        .then((spot) => {
-          if (spot) setForm(spot)
-        })
-        .catch(console.error)
+    if (id && !surfSpot) {
+      dispatch(fetchSurfSpotById(id)).catch(console.error)
     }
   }, [id, isEditing, surfSpot, dispatch])
 
+  // Update form state when surfSpot is available
+  useEffect(() => {
+    if (surfSpot) {
+      setForm(surfSpot)
+    }
+  }, [surfSpot])
+
+  // New helper function that handles form input changes
+  const handleInputChange = (name: string, value: string | number) => {
+    setForm((prevForm) => {
+      // Ensure the coordinates object is always present
+      const updatedCoordinates = prevForm.coordinates || {
+        longitude: 0,
+        latitude: 0,
+      }
+
+      if (name === 'longitude' || name === 'latitude') {
+        return {
+          ...prevForm,
+          coordinates: {
+            ...updatedCoordinates, // Safely update nested coordinates
+            [name]: parseFloat(value as string),
+          },
+        }
+      }
+
+      // Handle all other fields
+      return {
+        ...prevForm,
+        [name]: value,
+      }
+    })
+  }
+
+  // Updated onChange event handler that uses handleInputChange
   const onChange = (
     e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>,
   ) => {
     const { name, value } = e.target
-    setForm((prevForm) => ({
-      ...prevForm,
-      [name]:
-        name === 'longitude' || name === 'latitude' ? parseFloat(value) : value,
-    }))
+    handleInputChange(name, value) // Simply call the helper function here
   }
 
   const onBlur = (
     e: FocusEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>,
-  ) => {
-    setTouchedFields((prev) => new Set(prev).add(e.target.name))
-  }
+  ) => setTouchedFields((prev) => new Set(prev).add(e.target.name))
 
   const onSubmit = async (e: FormEvent) => {
     e.preventDefault()
     try {
       if (isEditing && id) {
-        await dispatch(
-          editSurfSpot({ id, updatedSpot: form as SurfSpot }),
-        ).unwrap()
+        await dispatch(editSurfSpot(id, form as SurfSpot))
       } else {
-        await dispatch(addNewSurfSpot(form as SurfSpot)).unwrap()
+        await dispatch(addNewSurfSpot(form as SurfSpot))
       }
       navigate('/surf-spots')
     } catch (err) {
@@ -168,14 +198,14 @@ const SurfSpotEditor = () => {
                   name: 'longitude',
                   type: 'number',
                   validationRules: {
-                    required: true,
+                    required: false,
                     min: -180,
                     max: 180,
                     validationMessage:
                       'Longitude must be between -180 and 180.',
                   },
                 }}
-                value={form.coordinates?.longitude || 0}
+                value={form.coordinates?.longitude || ''}
                 onChange={onChange}
                 onBlur={onBlur}
                 touchedFields={touchedFields}
@@ -186,18 +216,42 @@ const SurfSpotEditor = () => {
                   name: 'latitude',
                   type: 'number',
                   validationRules: {
-                    required: true,
+                    required: false,
                     min: -90,
                     max: 90,
                     validationMessage: 'Latitude must be between -90 and 90.',
                   },
                 }}
-                value={form.coordinates?.latitude || 0}
+                value={form.coordinates?.latitude || ''}
                 onChange={onChange}
                 onBlur={onBlur}
                 touchedFields={touchedFields}
               />
             </div>
+            <FormItem
+              field={{
+                label: 'Type',
+                name: 'type',
+                type: 'select',
+                options: [
+                  {
+                    value: SurfSpotType.BeachBreak,
+                    label: SurfSpotType.BeachBreak,
+                  },
+                  {
+                    value: SurfSpotType.PointBreak,
+                    label: 'Point Break',
+                  },
+                  {
+                    value: SurfSpotType.ReefBreak,
+                    label: 'Reef Break',
+                  },
+                ],
+              }}
+              onChange={onChange}
+              onBlur={onBlur}
+              touchedFields={touchedFields}
+            />
             <FormItem
               field={{
                 label: 'Description',
@@ -207,7 +261,7 @@ const SurfSpotEditor = () => {
                   minLength: 10,
                   maxLength: 150,
                   validationMessage:
-                    'Description must be between 10 and 150 characters.',
+                    'Description must be between 10 and 300 characters.',
                 },
               }}
               value={form.description || ''}

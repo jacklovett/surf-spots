@@ -22,19 +22,16 @@ export const Icon = (props: IProps) => {
       case 'plus':
         return (
           <svg {...commonIconStyles} viewBox="0 0 24 24">
-            <line x1="12" y1="4" x2="12" y2="20" />{' '}
-            {/* Vertical line centered */}
-            <line x1="4" y1="12" x2="20" y2="12" />{' '}
-            {/* Horizontal line centered */}
+            <line x1="12" y1="4" x2="12" y2="20" />
+            <line x1="4" y1="12" x2="20" y2="12" />
           </svg>
         )
       case 'bin':
         return (
           <svg {...commonIconStyles} viewBox="0 0 24 24">
-            <polyline points="3 6 5 6 21 6" /> {/* Top border */}
-            <path d="M19 6L17.4 19a2 2 0 0 1-2 1.8H8.6a2 2 0 0 1-2-1.8L5 6M10 11v6M14 11v6" />{' '}
-            {/* Bin body */}
-            <path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2" /> {/* Bin lid */}
+            <polyline points="3 6 5 6 21 6" />
+            <path d="M19 6L17.4 19a2 2 0 0 1-2 1.8H8.6a2 2 0 0 1-2-1.8L5 6M10 11v6M14 11v6" />
+            <path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2" />
           </svg>
         )
       case 'heart':
@@ -66,12 +63,12 @@ export const Icon = (props: IProps) => {
             <line x1="21" y1="12" x2="10" y2="12" />
           </svg>
         )
-      case 'wave':
+      case 'pin':
         return (
           <svg {...commonIconStyles} viewBox="0 0 24 24">
-            <path d="M2 17c1.5-1 3.5-1 5.2 0 1.7 1 3.7 1 5.2 0 1.5-1 3.5-1 5.2 0 1.7 1 3.7 1 5.2 0" />
-            <path d="M2 12c1.5-1 3.5-1 5.2 0 1.7 1 3.7 1 5.2 0 1.5-1 3.5-1 5.2 0 1.7 1 3.7 1 5.2 0" />
-            <path d="M2 7c1.5-1 3.5-1 5.2 0 1.7 1 3.7 1 5.2 0 1.5-1 3.5-1 5.2 0 1.7 1 3.7 1 5.2 0" />
+            <path d="M12 2C8.5 2 7.5 4 7.5 6.5C7.5 9.5 12 17.5 12 17.5S16.5 9.5 16.5 6.5C16.5 4 14.5 2 12 2ZM12 9C10.8 9 9.8 8 9.8 6.8C9.8 5.6 10.8 4.6 12 4.6C13.2 4.6 14.2 5.6 14.2 6.8C14.2 8 13.2 9 12 9Z" />
+            <path d="M2 21.5c1.5-1 3.5-1 5.2 0 1.7 1 3.7 1 5.2 0 1.5-1 3.5-1 5.2 0 1.7 1 3.7 1 5.2 0" />
+            <path d="M2 18.5c1.5-1 3.5-1 5.2 0 1.7 1 3.7 1 5.2 0 1.5-1 3.5-1 5.2 0 1.7 1 3.7 1 5.2 0" />
           </svg>
         )
       default:

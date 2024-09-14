@@ -20,9 +20,10 @@ label {
 }
 
 input,
-textarea {
+textarea,
+select {
   width: 100%;
-  border: 1px solid $outline-color; /* Subtle border */
+  border: 1px solid $outline-color;
   border-radius: $form-border-radius;
 }
 
@@ -32,8 +33,9 @@ textarea {
 }
 
 input:focus,
-textarea:focus {
-  border-color: #0077b6;
+textarea:focus,
+select:focus {
+  border-color: $focus-color;
   box-shadow: 0 0 4px rgba(0, 119, 182, 0.5);
   outline: none;
 }

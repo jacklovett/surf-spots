@@ -4,9 +4,9 @@ export type IconKey =
   | 'bin'
   | 'cog'
   | 'heart'
-  | 'logout'
+  | 'logout'  
+  | 'pin'
   | 'plus'
   | 'profile'
-  | 'wave'
 
 export default Icon

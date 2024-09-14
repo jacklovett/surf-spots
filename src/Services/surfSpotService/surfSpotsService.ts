@@ -1,95 +1,113 @@
-import { createAsyncThunk } from '@reduxjs/toolkit'
+import { Dispatch } from 'redux'
 import {
-  SurfSpot,
-  NewSurfSpot,
-  deleteSurfSpot,
-  createSurfSpot,
   getAllSurfSpots,
   getSurfSpotById,
+  createSurfSpot,
   updateSurfSpot,
+  deleteSurfSpot,
+  NewSurfSpot,
+  SurfSpot,
 } from '../../Controllers/surfSpotController'
+import {
+  addSurfSpotSuccess,
+  addSurfSpotFailure,
+  deleteSurfSpotSuccess,
+  editSurfSpotSuccess,
+  fetchSurfSpotsFailure,
+  fetchSurfSpotsRequest,
+  fetchSurfSpotsSuccess,
+  fetchSurfSpotSuccess,
+  editSurfSpotFailure,
+  deleteSurfSpotFailure,
+} from '../../Store/surfSpots'
 
 // Fetch all surf spots
-export const fetchAllSurfSpots = createAsyncThunk<
-  SurfSpot[],
-  void,
-  { rejectValue: string }
->('surfSpots/fetchAll', async (_, { rejectWithValue }) => {
+export const fetchAllSurfSpots = () => async (dispatch: Dispatch) => {
+  dispatch(fetchSurfSpotsRequest())
+
   try {
-    return await getAllSurfSpots()
+    const response = await getAllSurfSpots()
+    dispatch(fetchSurfSpotsSuccess(response))
   } catch (error) {
-    return rejectWithValue(
-      error instanceof Error ? error.message : 'Failed to fetch surf spots',
+    dispatch(
+      fetchSurfSpotsFailure(
+        error instanceof Error ? error.message : 'Failed to fetch surf spots',
+      ),
     )
   }
-})
+}
 
 // Fetch a surf spot by ID
-export const fetchSurfSpotById = createAsyncThunk<
-  SurfSpot,
-  string,
-  { rejectValue: string }
->('surfSpots/fetchById', async (id, { rejectWithValue }) => {
+export const fetchSurfSpotById = (id: string) => async (dispatch: Dispatch) => {
+  dispatch(fetchSurfSpotsRequest())
+
   try {
     const spot = await getSurfSpotById(id)
-    if (spot) return spot
-    return rejectWithValue(`Surf spot with ID ${id} not found`)
+    if (spot) {
+      dispatch(fetchSurfSpotSuccess(spot))
+    }
   } catch (error) {
-    return rejectWithValue(
-      error instanceof Error ? error.message : 'Failed to fetch surf spot',
+    dispatch(
+      fetchSurfSpotsFailure(
+        error instanceof Error
+          ? error.message
+          : `Failed to fetch surf spot with ID ${id}`,
+      ),
     )
   }
-})
+}
 
 // Add a new surf spot
-export const addNewSurfSpot = createAsyncThunk<
-  SurfSpot,
-  NewSurfSpot,
-  { rejectValue: string }
->('surfSpots/addNew', async (newSurfSpot, { rejectWithValue }) => {
-  try {
-    const createdSpot = await createSurfSpot(newSurfSpot)
-    if (createdSpot) return createdSpot
-    return rejectWithValue('Failed to create a new surf spot')
-  } catch (error) {
-    return rejectWithValue(
-      error instanceof Error
-        ? error.message
-        : 'Failed to create a new surf spot',
-    )
+export const addNewSurfSpot =
+  (newSurfSpot: NewSurfSpot) => async (dispatch: Dispatch) => {
+    try {
+      const createdSurfSpot = await createSurfSpot(newSurfSpot)
+      if (createdSurfSpot) {
+        dispatch(addSurfSpotSuccess(createdSurfSpot)) // No need for fetch request action
+      }
+    } catch (error) {
+      dispatch(
+        addSurfSpotFailure(
+          error instanceof Error
+            ? error.message
+            : 'Failed to create new surf spot',
+        ),
+      )
+    }
   }
-})
 
-// Edit a surf spot
-export const editSurfSpot = createAsyncThunk<
-  { id: string; updatedSpot: SurfSpot },
-  { id: string; updatedSpot: SurfSpot },
-  { rejectValue: string }
->('surfSpots/edit', async ({ id, updatedSpot }, { rejectWithValue }) => {
-  try {
-    const success = await updateSurfSpot(id, updatedSpot)
-    if (success) return { id, updatedSpot }
-    return rejectWithValue('Failed to update surf spot')
-  } catch (error) {
-    return rejectWithValue(
-      error instanceof Error ? error.message : 'Failed to update surf spot',
-    )
+// Edit an existing surf spot
+export const editSurfSpot =
+  (id: string, updatedSpot: SurfSpot) => async (dispatch: Dispatch) => {
+    try {
+      const response = await updateSurfSpot(id, updatedSpot)
+      if (response) {
+        dispatch(editSurfSpotSuccess(updatedSpot)) // No fetch request needed here either
+      }
+    } catch (error) {
+      dispatch(
+        editSurfSpotFailure(
+          error instanceof Error
+            ? error.message
+            : `Failed to update surf spot with ID ${id}`,
+        ),
+      )
+    }
   }
-})
 
 // Delete a surf spot
-export const deleteSurfSpotById = createAsyncThunk<
-  string,
-  string,
-  { rejectValue: string }
->('surfSpots/delete', async (id, { rejectWithValue }) => {
-  try {
-    const success = await deleteSurfSpot(id)
-    if (success) return id
-    return rejectWithValue('Failed to delete surf spot')
-  } catch (error) {
-    return rejectWithValue(
-      error instanceof Error ? error.message : 'Failed to delete surf spot',
-    )
+export const deleteSurfSpotById =
+  (id: string) => async (dispatch: Dispatch) => {
+    try {
+      await deleteSurfSpot(id)
+      dispatch(deleteSurfSpotSuccess(id)) // Only dispatch the success action
+    } catch (error) {
+      dispatch(
+        deleteSurfSpotFailure(
+          error instanceof Error
+            ? error.message
+            : `Failed to delete surf spot with ID ${id}`,
+        ),
+      )
+    }
   }
-})

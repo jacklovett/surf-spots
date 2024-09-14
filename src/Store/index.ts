@@ -1,9 +1,11 @@
 import { configureStore } from '@reduxjs/toolkit'
 import surfSpotsReducer from './surfSpots/surfSpotsSlice'
+import userSliceReducer from './user/userSlice'
 
 export const store = configureStore({
   reducer: {
     surfSpots: surfSpotsReducer,
+    user: userSliceReducer,
   },
 })
 

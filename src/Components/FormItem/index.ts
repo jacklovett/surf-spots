@@ -1,6 +1,8 @@
 import { HTMLInputTypeAttribute } from 'react'
 import { FormItem } from './FormItem'
 
+export type FormItemType = 'text' | 'number' | 'textarea' | 'select'
+
 export interface ValidationRules {
   required?: boolean
   minLength?: number

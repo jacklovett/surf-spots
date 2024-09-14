@@ -36,7 +36,7 @@ const Menu = () => {
   const spotsMenuItems: MenuItem[] = [
     {
       key: 'my-surf-spots',
-      icon: 'wave',
+      icon: 'pin',
       label: 'Surfed Spots',
       path: '/my-surf-spots',
     },

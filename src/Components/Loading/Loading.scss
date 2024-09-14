@@ -1,0 +1,37 @@
+.wave-dots {
+  @extend %flex-space-between;
+  width: calc(2 * $spacing-unit);
+}
+
+.dot {
+  width: $spacing-small;
+  height: $spacing-small;
+  background: $primary-color;
+  border-radius: 50%;
+  animation: wave 3s infinite ease-in-out;
+}
+
+.dot:nth-child(1) {
+  animation-delay: 1.5s;
+}
+
+.dot:nth-child(2) {
+  animation-delay: 2s;
+}
+
+.dot:nth-child(3) {
+  animation-delay: 2.5s;
+}
+
+@keyframes wave {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  25% {
+    transform: translateY(-$spacing-unit);
+  }
+  50% {
+    transform: translateY(0);
+  }
+}

@@ -7,21 +7,26 @@ import {
 } from './surfSpotsController'
 
 export interface Coordinates {
-  longitude: number
-  latitude: number
+  longitude?: number
+  latitude?: number
 }
 
 export type Continents =
   | 'Africa'
-  | 'Antartica'
   | 'Asia'
   | 'Australia'
   | 'Europe'
   | 'North America'
   | 'South America'
 
+export enum SurfSpotType {
+  BeachBreak = 'Beach Break',
+  ReefBreak = 'Reef Break',
+  PointBreak = 'Point Break',
+}
+
 export interface SurfSpot extends NewSurfSpot {
-  id: string // Assuming id is a string
+  id: string
 }
 
 export interface NewSurfSpot {
@@ -31,7 +36,7 @@ export interface NewSurfSpot {
   name: string
   description: string
   rating: number
-  type: string
+  type: SurfSpotType
   coordinates?: Coordinates
 }
 

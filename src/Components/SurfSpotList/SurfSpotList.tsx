@@ -1,5 +1,4 @@
 import { SurfSpot } from '../../Controllers/surfSpotController'
-import Button from '../Button'
 
 interface IProps {
   surfSpots: SurfSpot[]
@@ -22,14 +21,7 @@ const SurfSpotList = (props: IProps): JSX.Element => {
   }, {} as Record<string, Record<string, SurfSpot[]>>)
 
   return (
-    <div>
-      {/* Action buttons for editing or adding surf spots */}
-      <div className="actions">
-        <Button
-          onClick={() => navigate('/add-surf-spot')}
-          label="Create new spot"
-        />
-      </div>
+    <>
       {/* Iterate over each continent */}
       {Object.keys(groupedSurfSpots).map((continent) => (
         <div key={continent}>
@@ -73,7 +65,7 @@ const SurfSpotList = (props: IProps): JSX.Element => {
           ))}
         </div>
       ))}
-    </div>
+    </>
   )
 }
 

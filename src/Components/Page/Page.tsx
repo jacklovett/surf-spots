@@ -1,6 +1,6 @@
 import { ReactNode } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { ErrorBoundary, Menu } from '../index'
+import { ContentStatus, ErrorBoundary, Loading, Menu } from '../index'
 
 interface IProps {
   content: ReactNode
@@ -20,15 +20,20 @@ export const Page = (props: IProps) => {
   const renderContent = () => {
     if (loading || error) {
       return (
-        <div className="center column">
-          {loading && <p>Loading...</p>}
+        <>
+          {loading && <ContentStatus content={<Loading />} />}
           {error && (
-            <>
-              <h4>Error</h4>
-              <p>{error}</p>
-            </>
+            <ContentStatus
+              content={
+                <>
+                  <h4>Error</h4>
+                  <p>{error}</p>
+                </>
+              }
+              isError
+            />
           )}
-        </div>
+        </>
       )
     }
 

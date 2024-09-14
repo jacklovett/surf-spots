@@ -1,4 +1,4 @@
-const apiUrl = 'http://localhost:3000/'
+const apiUrl = 'http://localhost:8080'
 
 export const get = async <T>(endpoint: string): Promise<T | null> => {
   try {

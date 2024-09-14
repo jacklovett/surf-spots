@@ -2,47 +2,68 @@ import { useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useDispatch, useSelector } from 'react-redux'
 
-import { fetchAllSurfSpots, selectSurfSpotsState } from '../Store/surfSpots'
-
-import { ErrorBoundary, Page, SurfSpotList } from '../Components'
 import { AppDispatch } from '../Store'
+import { fetchAllSurfSpots } from '../Services/surfSpotService'
+import {
+  selectSurfSpots,
+  selectSurfSpotsError,
+  selectSurfSpotsLoading,
+} from '../Store/surfSpots'
+
+import {
+  Button,
+  ContentStatus,
+  ErrorBoundary,
+  Page,
+  SurfSpotList,
+} from '../Components'
 
 const SurfSpots = () => {
   const dispatch: AppDispatch = useDispatch()
   const navigate = useNavigate()
 
-  const { data: surfSpots, error, loading } = useSelector(selectSurfSpotsState)
+  const surfSpots = useSelector(selectSurfSpots)
+  const error = useSelector(selectSurfSpotsError)
+  const loading = useSelector(selectSurfSpotsLoading)
 
   useEffect(() => {
-    dispatch(fetchAllSurfSpots()) // Dispatch the thunk to fetch surf spots
+    dispatch(fetchAllSurfSpots())
   }, [dispatch])
 
-  const renderStatusMessage = (message: string, isError = false) => (
-    <div className="center column">
-      <p className={`status-message ${isError ? 'error' : ''}`}>{message}</p>
-    </div>
-  )
-
   const renderContent = () => {
-    if (loading) return renderStatusMessage('Loading...')
-    if (error) return renderStatusMessage(`Error: ${error}`, true)
-    if (!surfSpots?.length) return renderStatusMessage('No surf spots found')
+    const surfSpotsFound = surfSpots?.length > 0
 
     return (
-      <div>
-        <ErrorBoundary message="Unable to load surf spot list">
-          <SurfSpotList
-            {...{
-              surfSpots,
-              navigate,
-            }}
+      <div className="column">
+        <div className="actions">
+          <Button
+            onClick={() => navigate('/add-surf-spot')}
+            label="Create new spot"
           />
+        </div>
+        <ErrorBoundary message="Unable to load surf spot list">
+          {!surfSpotsFound && <ContentStatus content="No surf spots found" />}
+          {surfSpotsFound && (
+            <SurfSpotList
+              {...{
+                surfSpots,
+                navigate,
+              }}
+            />
+          )}
         </ErrorBoundary>
       </div>
     )
   }
 
-  return <Page showHeader content={renderContent()} />
+  return (
+    <Page
+      showHeader
+      content={renderContent()}
+      loading={loading}
+      error={error}
+    />
+  )
 }
 
 export default SurfSpots

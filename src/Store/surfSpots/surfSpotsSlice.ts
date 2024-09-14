@@ -1,64 +1,74 @@
-import { createSlice } from '@reduxjs/toolkit'
-import {
-  fetchAllSurfSpots,
-  fetchSurfSpotById,
-  addNewSurfSpot,
-  editSurfSpot,
-  deleteSurfSpotById,
-} from '../../Services/surfSpotService'
-import { initialState } from './index'
+import { createSlice, PayloadAction } from '@reduxjs/toolkit'
 import { SurfSpot } from '../../Controllers/surfSpotController'
 import { updateOrAddItem } from '../storeUtils'
+import { SurfSpotsState } from './index'
 
+// Define and export initialState
+export const initialState: SurfSpotsState = {
+  surfSpots: [],
+  loading: false,
+  error: null,
+}
+
+// Create the slice
 const surfSpotsSlice = createSlice({
   name: 'surfSpots',
   initialState,
-  reducers: {}, // No synchronous reducers defined here, but only async actions are used
-  extraReducers: (builder) =>
-    builder
-      // Handle the pending state for fetching all surf spots
-      .addCase(fetchAllSurfSpots.pending, (state) => {
-        state.loading = true
-        state.error = null
-      })
-      // Handle the fulfilled state for fetching all surf spots
-      .addCase(fetchAllSurfSpots.fulfilled, (state, action) => {
-        state.loading = false
-        state.data = action.payload
-      })
-      // Handle the rejected state for fetching all surf spots
-      .addCase(fetchAllSurfSpots.rejected, (state, action) => {
-        state.loading = false
-        state.error = action.payload as string
-      })
-      // Handle the pending state for fetching a surf spot by ID
-      .addCase(fetchSurfSpotById.pending, (state) => {
-        state.loading = true
-        state.error = null
-      })
-      // Handle the fulfilled state for fetching a surf spot by ID
-      .addCase(fetchSurfSpotById.fulfilled, (state, action) => {
-        state.loading = false
-        state.data = updateOrAddItem(state.data, action.payload)
-      })
-      // Handle the rejected state for fetching a surf spot by ID
-      .addCase(fetchSurfSpotById.rejected, (state, action) => {
-        state.loading = false
-        state.error = action.payload as string
-      })
-      // Handle the fulfilled state for adding a new surf spot
-      .addCase(addNewSurfSpot.fulfilled, (state, action) => {
-        state.data.push(action.payload)
-      })
-      // Handle the fulfilled state for editing a surf spot
-      .addCase(editSurfSpot.fulfilled, (state, action) => {
-        const { updatedSpot } = action.payload
-        state.data = updateOrAddItem<SurfSpot>(state.data, updatedSpot)
-      })
-      // Handle the fulfilled state for deleting a surf spot by ID
-      .addCase(deleteSurfSpotById.fulfilled, (state, action) => {
-        state.data = state.data.filter((spot) => spot.id !== action.payload)
-      }),
+  reducers: {
+    fetchSurfSpotsRequest: (state) => {
+      state.loading = true
+      state.error = null
+    },
+    fetchSurfSpotsSuccess: (state, action: PayloadAction<SurfSpot[]>) => {
+      state.loading = false
+      state.surfSpots = action.payload
+    },
+    fetchSurfSpotsFailure: (state, action: PayloadAction<string>) => {
+      state.loading = false
+      state.error = action.payload
+    },
+    fetchSurfSpotSuccess: (state, action: PayloadAction<SurfSpot>) => {
+      state.loading = false
+      state.surfSpots = updateOrAddItem(state.surfSpots, action.payload)
+    },
+    addSurfSpotSuccess: (state, action: PayloadAction<SurfSpot>) => {
+      state.surfSpots = updateOrAddItem(state.surfSpots, action.payload)
+    },
+    addSurfSpotFailure: (state, action: PayloadAction<string>) => {
+      state.error = action.payload
+    },
+    editSurfSpotSuccess: (state, action: PayloadAction<SurfSpot>) => {
+      state.surfSpots = updateOrAddItem(state.surfSpots, action.payload)
+    },
+    editSurfSpotFailure: (state, action: PayloadAction<string>) => {
+      state.error = action.payload
+    },
+    deleteSurfSpotSuccess: (state, action: PayloadAction<string>) => {
+      state.surfSpots = state.surfSpots.filter(
+        (spot) => spot.id !== action.payload,
+      )
+      state.loading = false // is this needed? or do we need a deleteSurfSpotRequest action?
+    },
+    deleteSurfSpotFailure: (state, action: PayloadAction<string>) => {
+      state.error = action.payload
+      state.loading = false
+    },
+  },
 })
 
+// Export actions
+export const {
+  fetchSurfSpotsRequest,
+  fetchSurfSpotsSuccess,
+  fetchSurfSpotsFailure,
+  fetchSurfSpotSuccess,
+  addSurfSpotSuccess,
+  addSurfSpotFailure,
+  editSurfSpotSuccess,
+  editSurfSpotFailure,
+  deleteSurfSpotSuccess,
+  deleteSurfSpotFailure,
+} = surfSpotsSlice.actions
+
+// Export the reducer
 export default surfSpotsSlice.reducer

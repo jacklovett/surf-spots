@@ -3,7 +3,7 @@ import { NewSurfSpot, SurfSpot } from './index'
 
 export const getAllSurfSpots = async (): Promise<Array<SurfSpot>> => {
   try {
-    const surfSpots = await get<Array<SurfSpot>>('surf-spots')
+    const surfSpots = await get<Array<SurfSpot>>('api/surf-spots')
     return surfSpots ?? []
     // test data
     // return [
@@ -58,7 +58,10 @@ export const createSurfSpot = async (
   newSurfSpot: NewSurfSpot,
 ): Promise<SurfSpot | null> => {
   try {
-    const createdSurfSpot = await post<NewSurfSpot>('', newSurfSpot)
+    const createdSurfSpot = await post<NewSurfSpot>(
+      'api/surf-spots',
+      newSurfSpot,
+    )
     return createdSurfSpot as SurfSpot
   } catch (error) {
     console.error('Error creating surf spot:', error)

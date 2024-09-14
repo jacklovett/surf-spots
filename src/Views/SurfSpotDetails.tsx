@@ -8,8 +8,8 @@ import {
   selectSurfSpotById,
   selectSurfSpotsLoading,
   selectSurfSpotsError,
-  fetchSurfSpotById,
 } from '../Store/surfSpots'
+import { fetchSurfSpotById } from '../Services/surfSpotService'
 
 const SurfSpotDetails = () => {
   const { id } = useParams<{ id?: string }>()
@@ -25,7 +25,7 @@ const SurfSpotDetails = () => {
 
   useEffect(() => {
     if (id && !surfSpot) {
-      dispatch(fetchSurfSpotById(id)).unwrap().catch(console.error)
+      dispatch(fetchSurfSpotById(id)).catch(console.error)
     }
   }, [id, surfSpot, dispatch])
 
@@ -49,14 +49,14 @@ const SurfSpotDetails = () => {
             onClick={() => navigate('/surf-spots')}
             iconKey="heart"
           />
-          {isSurfedSpot && (
+          {!isSurfedSpot && (
             <TextButton
               text="Add to surfed spots"
               onClick={() => navigate('/surf-spots')}
               iconKey="plus"
             />
           )}
-          {!isSurfedSpot && (
+          {isSurfedSpot && (
             <TextButton
               text="Remove from surfed spots"
               onClick={() => navigate('/surf-spots')}
