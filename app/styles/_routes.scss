@@ -1,0 +1,17 @@
+section {
+  height: 100%;
+}
+
+.title {
+  text-transform: capitalize;
+}
+
+.list-map {
+  @extend %flex-base;
+  flex-wrap: wrap;
+  align-items: center;
+
+  & a {
+    padding: $spacing-small;
+  }
+}

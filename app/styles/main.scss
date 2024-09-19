@@ -1,0 +1,30 @@
+/* main.scss */
+
+// Import order matters
+@import 'reset';
+@import 'variables';
+@import 'mixins';
+@import 'typography';
+@import 'layout';
+@import 'form';
+@import 'components';
+@import 'routes';
+
+/* Base Styles */
+
+body {
+  background-color: $background-color;
+}
+
+.description {
+  max-width: 480px;
+  font-size: $font-size-large;
+  text-align: center;
+  margin: $spacing-large 0;
+}
+
+/* Global Utilities */
+
+.hidden {
+  display: none;
+}

@@ -1,0 +1,140 @@
+.menu {
+  @extend %flex-base;
+  position: relative;
+  margin: 0 $spacing-unit;
+
+  .desktop-menu {
+    @extend %flex-base;
+    gap: $spacing-unit;
+    cursor: pointer;
+
+    ul {
+      @extend %flex-base;
+      gap: $spacing-unit;
+    }
+
+    .nav-item {
+      @extend %flex-base;
+      align-items: center;
+      gap: $spacing-small;
+
+      &:hover {
+        opacity: 0.6;
+      }
+    }
+  }
+
+  .menu-section {
+    border-top: solid 1px $outline-color;
+  }
+
+  .menu-icon {
+    margin-bottom: -4px;
+  }
+
+  .menu-item {
+    @extend %flex-base;
+    height: 56px;
+    gap: $spacing-unit;
+  }
+
+  .dropdown-menu {
+    position: absolute;
+    top: 48px;
+    right: 0;
+    width: 240px;
+    text-align: left;
+    background-color: $white;
+    box-shadow: $box-shadow;
+    border-radius: $content-border-radius;
+    z-index: 10;
+
+    ul {
+      list-style: none;
+
+      li {
+        padding: $spacing-unit;
+        cursor: pointer;
+
+        &:hover {
+          background-color: #f2f2f2;
+        }
+      }
+    }
+  }
+
+  .hamburger-icon {
+    display: none;
+    flex-direction: column;
+    cursor: pointer;
+
+    span {
+      width: 24px;
+      height: 2px;
+      background-color: $primary-color;
+      margin: 2px 0;
+    }
+  }
+
+  .sidebar-menu {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: calc(100% - $spacing-large);
+    height: 100%;
+    background-color: $white;
+    box-shadow: $box-shadow;
+    z-index: 20;
+    transform: translateX(0);
+    transition: transform 0.3s ease;
+
+    .sidebar-header {
+      padding: $spacing-unit;
+      height: $header-height;
+      display: flex;
+      justify-content: flex-end;
+      align-items: center;
+      border-bottom: solid 1px $outline-color;
+
+      button {
+        background: none;
+        border: none;
+        font-size: 18px;
+        cursor: pointer;
+      }
+    }
+
+    .sidebar-content {
+      height: calc(100% - $header-height);
+      overflow-y: auto;
+
+      ul {
+        list-style: none;
+        padding: 0;
+
+        li {
+          padding: $spacing-unit;
+          cursor: pointer;
+
+          &:hover {
+            background-color: #f2f2f2;
+          }
+        }
+      }
+    }
+  }
+
+  @media (max-width: 704px) {
+    .desktop-menu {
+      display: none;
+    }
+
+    .hamburger-icon {
+      display: flex;
+    }
+
+    .dropdown-menu {
+      display: none;
+    }
+  }
+}

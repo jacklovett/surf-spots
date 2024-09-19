@@ -1,0 +1,39 @@
+header {
+  text-align: center;
+  border-bottom: solid 1px $outline-color;
+  align-items: center;
+
+  .logo {
+    cursor: pointer;
+    margin-left: $spacing-small;
+  }
+}
+
+footer {
+  text-align: center;
+  p {
+    font-size: $font-size-x-small;
+  }
+}
+
+.page {
+  @extend %flex-base;
+  flex-direction: column;
+  min-height: 100vh;
+  height: 100%;
+
+  &.alternate {
+    color: $white;
+    background: $primary-color;
+
+    & h1,
+    h2,
+    h3 {
+      color: $white;
+    }
+  }
+}
+
+.content {
+  padding-top: $spacing-unit;
+}

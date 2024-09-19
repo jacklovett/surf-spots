@@ -1,0 +1,63 @@
+/* Define button base styles */
+.button {
+  background-color: $primary-color;
+  color: $white;
+  padding: $spacing-small $spacing-unit;
+  border: none;
+  border-radius: $button-border-radius;
+  font-family: $font-family-base;
+  font-size: $font-size-small;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.3s, transform 0.2s;
+  text-align: center;
+  display: inline-block;
+
+  &.secondary {
+    background: adjust-color($white, $lightness: -10%);
+    color: $primary-color;
+  }
+
+  &.alternate {
+    background-color: transparent;
+    color: $white;
+    border: solid 4px $white;
+    font-size: $font-size-base;
+  }
+
+  /* Add hover state */
+  &:hover {
+    background: adjust-color($primary-color, $lightness: -5%);
+    transform: scale(1.025);
+
+    &.secondary {
+      background: adjust-color($disabled-color, $lightness: -5%);
+    }
+
+    &.alternate {
+      background: adjust-color($secondary-color, $lightness: -15%);
+      border: solid 4px adjust-color($secondary-color, $lightness: -15%);
+      color: $white;
+    }
+  }
+
+  /* Add active state */
+  &:active {
+    background: adjust-color($primary-color, $lightness: -10%);
+    transform: scale(0.95);
+  }
+
+  /* Add disabled state */
+  &:disabled {
+    background: $disabled-color;
+    cursor: not-allowed;
+    opacity: 0.6;
+  }
+}
+
+/* Define button variants */
+
+.button--danger {
+  background-color: $error;
+  color: $text-color;
+}

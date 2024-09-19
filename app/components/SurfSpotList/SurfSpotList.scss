@@ -1,0 +1,51 @@
+.actions {
+  @extend %flex-end;
+  flex-wrap: wrap;
+  gap: $spacing-small;
+}
+
+.surf-spot-container::-webkit-scrollbar {
+  height: 4px;
+}
+
+.surf-spot-container::-webkit-scrollbar-thumb {
+  background: $scrollbar-color;
+  border-radius: 4px;
+}
+
+.surf-spot-container {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch; /* Smooth scrolling for mobile */
+  font-size: $font-size-small;
+}
+
+.surf-spot-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: $spacing-small;
+}
+
+.surf-spot-table th,
+.surf-spot-table td {
+  padding: $spacing-small;
+  text-align: left;
+  white-space: nowrap;
+}
+
+.surf-spot-table thead tr {
+  border-bottom: solid 2px $primary-color;
+}
+
+.surf-spot-table tr {
+  border-bottom: solid 1px $primary-color;
+
+  &:hover {
+    color: adjust-color($primary-color, $lightness: 15%);
+    cursor: pointer;
+  }
+}
+
+td.center-td,
+th.center-td {
+  text-align: center;
+}
