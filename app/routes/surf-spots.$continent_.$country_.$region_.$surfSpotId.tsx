@@ -1,9 +1,8 @@
 import { useNavigate, useParams } from '@remix-run/react'
-import { Button, Page } from '~/components'
-import TextButton from '~/components/TextButton'
+import { Button, TextButton } from '~/components'
 import { SurfSpotType } from '~/types/surfSpots'
 
-export default function Region() {
+export default function SurfSpot() {
   const { continent, country, region, surfSpotId } = useParams()
   const id = surfSpotId
 

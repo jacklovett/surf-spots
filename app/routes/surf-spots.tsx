@@ -1,11 +1,58 @@
-import { Outlet, useNavigate, useParams } from '@remix-run/react'
-import { useState } from 'react'
-import { Button, Page } from '~/components'
+import { useEffect, useState } from 'react'
+import { Outlet, useLocation, useNavigate, useParams } from '@remix-run/react'
+import { Breadcrumb, Button, Page } from '~/components'
+import { BreadcrumbItem } from '~/components/Breadcrumb'
 
 export default function SurfSpots() {
   const navigate = useNavigate()
-  const params = useParams()
+  const { pathname } = useLocation()
   const [isListView, setIsListView] = useState<boolean>(false)
+
+  useEffect(() => {
+    if (pathname === '/surf-spots') {
+      setIsListView(false)
+    }
+  }, [pathname])
+
+  const generateBreadcrumbItems = (): BreadcrumbItem[] => {
+    const breadcrumbItems: BreadcrumbItem[] = [
+      { label: 'World', link: '/surf-spots' },
+    ]
+    const { continent, country, region, surfSpot } = useParams()
+
+    if (continent) {
+      breadcrumbItems.push({
+        label: continent,
+        link: `/surf-spots/continents/${continent}`,
+      })
+    }
+
+    if (country) {
+      breadcrumbItems.push({
+        label: country,
+        link: `/surf-spots/continents/${continent}/${country}`,
+      })
+    }
+
+    if (region) {
+      breadcrumbItems.push({
+        label: region,
+        link: `/surf-spots/continents/${continent}/${country}/${region}`,
+      })
+    }
+
+    if (surfSpot) {
+      breadcrumbItems.push({
+        label: surfSpot,
+        link: `/surf-spots/continents/${continent}/${country}/${region}/${surfSpot}`,
+      })
+    }
+
+    return breadcrumbItems
+  }
+
+  const breadcrumbs = generateBreadcrumbItems()
+
   return (
     <Page showHeader>
       <div className="row space-between center-vertical">
@@ -37,9 +84,7 @@ export default function SurfSpots() {
         )}
         {isListView && (
           <div className="column">
-            <div>
-              <p>{`World > Europe > Portugal > Algarve > Luz`}</p>
-            </div>
+            <Breadcrumb items={breadcrumbs} />
             <Outlet />
           </div>
         )}

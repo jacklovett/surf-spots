@@ -1,9 +1,25 @@
-import { useNavigate, useParams } from '@remix-run/react'
+import { json, useLoaderData, useNavigate, useParams } from '@remix-run/react'
 import { useState, ChangeEvent, FormEvent, FocusEvent, useEffect } from 'react'
 import { FormComponent, FormItem, Page } from '~/components'
+import { get } from '~/services/networkService'
 import { Coordinates, SurfSpot, SurfSpotType } from '~/types/surfSpots'
 
-export default function AddSurfSpot() {
+interface LoaderData {
+  surfSpot: SurfSpot
+}
+
+export const loader = async (params: { surfSpotId: string }) => {
+  const { surfSpotId } = params
+  const surfSpot = await get<SurfSpot>(`/api/surf-spots/${surfSpotId}`)
+
+  if (!surfSpot) {
+    throw new Error('Surf spot details not found')
+  }
+
+  return json<LoaderData>({ surfSpot })
+}
+
+export default function EditSurfSpot() {
   const { id } = useParams()
 
   const navigate = useNavigate()
@@ -12,18 +28,7 @@ export default function AddSurfSpot() {
     throw new Error('No surf spot to edit')
   }
 
-  const surfSpot: SurfSpot = {
-    id,
-    country: 'Portugal',
-    continent: 'Europe',
-    region: 'Lisbon',
-    name: 'Costa da Caparica',
-    type: SurfSpotType.BeachBreak,
-    description:
-      'Long stretch of sandy beaches close to the capital city of Lisbon.',
-    coordinates: { longitude: 0, latitude: 0 } as Coordinates,
-    rating: 4,
-  }
+  const { surfSpot } = useLoaderData<LoaderData>()
 
   const loading = false
   const error = null

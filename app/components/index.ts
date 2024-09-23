@@ -10,8 +10,10 @@ import Menu from './Menu'
 import SurfSpotList from './SurfSpotList'
 import TextButton from './TextButton'
 import Widget from './Widget'
+import Breadcrumb from './Breadcrumb'
 
 export {
+  Breadcrumb,
   Button,
   ContentStatus,
   ErrorBoundary,
