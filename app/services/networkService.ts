@@ -1,8 +1,10 @@
-const apiUrl = 'http://localhost:8080'
+const apiUrl = 'http://localhost:8080/api'
 
-export const get = async <T>(endpoint: string): Promise<T | null> => {
+export const get = async <T>(endpoint: string): Promise<T | undefined> => {
   try {
+    console.log(`${apiUrl}/${endpoint}`)
     const response = await fetch(`${apiUrl}/${endpoint}`)
+    console.log(response)
     if (response.ok) {
       const data = await response.json()
       return data
@@ -12,8 +14,6 @@ export const get = async <T>(endpoint: string): Promise<T | null> => {
   } catch (error) {
     console.log(error)
   }
-
-  return null
 }
 
 export const post = async <T>(endpoint: string, body: T): Promise<T | null> => {

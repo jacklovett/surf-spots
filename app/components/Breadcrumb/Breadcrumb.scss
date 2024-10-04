@@ -1,9 +1,13 @@
 .breadcrumb {
   .breadcrumb-list {
     display: flex;
+    flex-wrap: wrap;
     list-style: none;
     padding: 0;
     margin: 0;
+    padding-bottom: $spacing-small;
+    margin-bottom: $spacing-small;
+    border-bottom: solid 1px $outline-color;
   }
 
   .breadcrumb-item:not(:last-child)::after {
@@ -14,6 +18,7 @@
   .breadcrumb-link {
     text-decoration: underline;
     text-transform: capitalize;
+    text-wrap: nowrap;
   }
 
   .breadcrumb-current {

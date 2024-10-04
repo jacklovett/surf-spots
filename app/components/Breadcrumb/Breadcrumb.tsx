@@ -1,5 +1,5 @@
 import { Link } from '@remix-run/react'
-import { BreadcrumbItem } from './index'
+import { BreadcrumbItem, formatSlug } from './index'
 
 interface IProps {
   items: BreadcrumbItem[]
@@ -12,14 +12,15 @@ export const Breadcrumb = (props: IProps) => {
       <ul className="breadcrumb-list">
         {items.map((item, index) => {
           const { label, link } = item
+          const displayLabel = formatSlug(label)
           return (
             <li key={index} className="breadcrumb-item center-vertical">
               {index < items.length - 1 ? (
                 <Link to={link} className="breadcrumb-link">
-                  {label}
+                  {displayLabel}
                 </Link>
               ) : (
-                <span className="breadcrumb-current">{label}</span>
+                <span className="breadcrumb-current">{displayLabel}</span>
               )}
             </li>
           )

@@ -14,7 +14,7 @@ export default function Index() {
   const navigate = useNavigate()
   return (
     <Page isAlternate>
-      <div className="center column">
+      <div className="alternate-content">
         <img src="/images/png/logo.png" width="240" alt="Surf spots logo" />
         <p className="description">
           Track all your past surf destinations and explore new ones, all in one

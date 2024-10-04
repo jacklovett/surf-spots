@@ -1,4 +1,12 @@
+import { MetaFunction } from '@remix-run/react'
 import { Page } from '~/components'
+
+export const meta: MetaFunction = () => {
+  return [
+    { title: 'Surf Spots - Settings' },
+    { name: 'description', content: 'Settings controls' },
+  ]
+}
 
 export default function Settings() {
   const loading = false

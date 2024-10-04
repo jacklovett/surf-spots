@@ -1,25 +1,25 @@
-import { useNavigate, useParams } from '@remix-run/react'
+import { json, useLoaderData, useNavigate } from '@remix-run/react'
 import { Button, TextButton } from '~/components'
-import { SurfSpotType } from '~/types/surfSpots'
+import { deleteData, get, post } from '~/services/networkService'
+import { SurfSpot } from '~/types/surfSpots'
 
-export default function SurfSpot() {
-  const { continent, country, region, surfSpotId } = useParams()
-  const id = surfSpotId
+interface LoaderData {
+  surfSpot?: SurfSpot
+}
+
+export const loader = async (params: { slug: string }) => {
+  const { slug } = params
+  const surfSpot = await get<SurfSpot>(`surf-spots/${slug}`)
+  return json<LoaderData>({ surfSpot })
+}
+
+export default function SurfSpotDetails() {
+  const { surfSpot } = useLoaderData<LoaderData>()
 
   const isSurfedSpot = true // where do we get this from?
+  const isWishlisted = true
   const loading = false
   const error = null
-
-  const surfSpot = {
-    id,
-    name: 'Luz',
-    description: 'Nice sandy beach, popular with beginners. Avoid at low tide.',
-    continent,
-    country,
-    region,
-    rating: 4,
-    type: SurfSpotType.BeachBreak,
-  }
 
   const navigate = useNavigate()
 
@@ -32,8 +32,35 @@ export default function SurfSpot() {
       )
     }
 
-    const { continent, country, description, name, rating, region, type } =
+    const { id, continent, country, description, name, rating, region, type } =
       surfSpot
+
+    const userSpotRequest = {
+      userId: 1, // TODO: get from state!!
+      surfSpotId: id,
+    }
+
+    const addToSurfedSpots = async () => {
+      await post('user-spots', userSpotRequest)
+      navigate('/surfed-spots')
+    }
+
+    const addToWishlist = async () => {
+      await post('wishlist', userSpotRequest)
+      navigate('/wishlist')
+    }
+
+    const removeFromSurfedSpot = async () => {
+      const { userId, surfSpotId } = userSpotRequest
+      await deleteData(`user-spots/${userId}/remove/${surfSpotId}`)
+      navigate('/surfed-spots')
+    }
+
+    const removeFromWishlist = async () => {
+      const { userId, surfSpotId } = userSpotRequest
+      await deleteData(`wishlist/${userId}/remove/${surfSpotId}`)
+      navigate('/wishlist')
+    }
 
     return (
       <div>
@@ -42,12 +69,12 @@ export default function SurfSpot() {
             <>
               <TextButton
                 text="Add to Wishlist"
-                onClick={() => navigate('/surf-spots')}
+                onClick={addToWishlist}
                 iconKey="heart"
               />
               <TextButton
                 text="Add to surfed spots"
-                onClick={() => navigate('/surf-spots')}
+                onClick={addToSurfedSpots}
                 iconKey="plus"
               />
             </>
@@ -55,8 +82,15 @@ export default function SurfSpot() {
           {isSurfedSpot && (
             <TextButton
               text="Remove from surfed spots"
-              onClick={() => navigate('/surf-spots')}
+              onClick={removeFromSurfedSpot}
               iconKey="bin"
+            />
+          )}
+          {isWishlisted && (
+            <TextButton
+              text="Remove from wishlist"
+              onClick={removeFromWishlist}
+              iconKey="bin" // TODO: heart break icon ??
             />
           )}
         </div>

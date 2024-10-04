@@ -1,10 +1,36 @@
-import { useNavigate } from '@remix-run/react'
+import {
+  json,
+  MetaFunction,
+  useLoaderData,
+  useNavigate,
+} from '@remix-run/react'
 import { ContentStatus, Button, Page } from '~/components'
+import { get } from '~/services/networkService'
+import { UserProfile } from '~/types/user'
+
+export const meta: MetaFunction = () => {
+  return [
+    { title: 'Surf Spots - Profile' },
+    { name: 'description', content: 'User profile page' },
+  ]
+}
+
+interface LoaderData {
+  user?: UserProfile
+}
+
+export const loader = async (params: { userId: string }) => {
+  // const { userId } = params // TODO: Can we get this from state instead ??
+  const userId = 1
+  const user = await get<UserProfile>(`users/${userId}/profile`)
+  return json<LoaderData>({ user })
+}
 
 const Profile = () => {
   const navigate = useNavigate()
 
-  const user = undefined
+  const { user } = useLoaderData<LoaderData>()
+
   const loading = false
   const error = null
 
@@ -27,7 +53,7 @@ const Profile = () => {
         <p>{`Username: ${username}`}</p>
         <p>{`Location: ${region} / ${country}`}</p>
         <div className="center">
-          <Button label="Back" onClick={() => navigate('/surf-spots')} />
+          <Button label="Back" onClick={() => navigate(-1)} />
         </div>
       </div>
     )

@@ -1,15 +1,41 @@
-import { Link } from '@remix-run/react'
+import { json, Link, useLoaderData } from '@remix-run/react'
+import { get } from '~/services/networkService'
+import { Continent } from '~/types/surfSpots'
+
+interface LoaderData {
+  continents: Continent[]
+}
+
+export const loader = async () => {
+  try {
+    const continents = await get<Continent[]>(`continents`)
+    return json<LoaderData>({ continents: continents ?? [] })
+  } catch (error) {
+    console.error('Error fetching continents:', error)
+    return json<LoaderData>({ continents: [] })
+  }
+}
 
 export default function Continents() {
+  const { continents } = useLoaderData<LoaderData>()
   return (
     <div className="column">
-      <h3>List of continents</h3>
-      <Link to="/surf-spots/africa">Africa</Link>
-      <Link to="/surf-spots/asia">Asia</Link>
-      <Link to="/surf-spots/Australia">Australia</Link>
-      <Link to="/surf-spots/europe">Europe</Link>
-      <Link to="/surf-spots/north-america">North America</Link>
-      <Link to="/surf-spots/south-america">South America</Link>
+      <div className="column">
+        {continents.length > 0 ? (
+          continents.map((continent) => {
+            const { id, name, slug } = continent
+            return (
+              <div>
+                <Link key={id} to={`/surf-spots/${slug}`}>
+                  <p>{name}</p>
+                </Link>
+              </div>
+            )
+          })
+        ) : (
+          <p>No continents available.</p>
+        )}
+      </div>
     </div>
   )
 }

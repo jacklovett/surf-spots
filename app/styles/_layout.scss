@@ -31,13 +31,13 @@
 /* Flexbox Utilities */
 .row {
   @extend %flex-base;
+  width: 100%;
   flex-direction: row;
   flex-wrap: wrap;
 }
 
 .column {
   @extend %flex-base;
-  flex: 1;
   flex-direction: column;
 }
 

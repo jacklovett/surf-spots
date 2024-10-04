@@ -5,4 +5,6 @@ export interface BreadcrumbItem {
   link: string
 }
 
+export const formatSlug = (slug: string) => slug.replace('-', ' ')
+
 export default Breadcrumb

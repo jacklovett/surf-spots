@@ -1,5 +1,5 @@
 import { ReactNode } from 'react'
-import { useNavigate } from '@remix-run/react'
+import { Link, useNavigate } from '@remix-run/react'
 
 import { ContentStatus, ErrorBoundary, Loading, Menu } from '../index'
 
@@ -51,7 +51,12 @@ export const Page = (props: IProps) => {
             <img src="/favicon.ico" alt="Logo" height="40" />
             <h2>Surf Spots</h2>
           </div>
-          <div>{isLoggedIn && <Menu />}</div>
+          {isLoggedIn && <Menu />}
+          {!isLoggedIn && (
+            <div className="login-nav">
+              <Link to="/auth">Login</Link>
+            </div>
+          )}
         </header>
       )}
       <section className="column content-container">

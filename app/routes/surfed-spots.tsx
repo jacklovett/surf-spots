@@ -29,6 +29,7 @@ export default function SurfedSpots() {
 
     return (
       <div className="column center">
+        <h3>Surfed spots</h3>
         <div className="row summary">
           <ErrorBoundary>
             <Widget title="Total Spots" value={totalSurfedSpots} />

@@ -16,35 +16,35 @@ export default function SurfSpots() {
 
   const generateBreadcrumbItems = (): BreadcrumbItem[] => {
     const breadcrumbItems: BreadcrumbItem[] = [
-      { label: 'World', link: '/surf-spots' },
+      { label: 'World', link: '/surf-spots/continents' },
     ]
     const { continent, country, region, surfSpot } = useParams()
 
     if (continent) {
       breadcrumbItems.push({
         label: continent,
-        link: `/surf-spots/continents/${continent}`,
+        link: `/surf-spots/${continent}`,
       })
     }
 
     if (country) {
       breadcrumbItems.push({
         label: country,
-        link: `/surf-spots/continents/${continent}/${country}`,
+        link: `/surf-spots/${continent}/${country}`,
       })
     }
 
     if (region) {
       breadcrumbItems.push({
         label: region,
-        link: `/surf-spots/continents/${continent}/${country}/${region}`,
+        link: `/surf-spots/${continent}/${country}/${region}`,
       })
     }
 
     if (surfSpot) {
       breadcrumbItems.push({
         label: surfSpot,
-        link: `/surf-spots/continents/${continent}/${country}/${region}/${surfSpot}`,
+        link: `/surf-spots/${continent}/${country}/${region}/${surfSpot}`,
       })
     }
 

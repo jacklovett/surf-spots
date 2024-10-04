@@ -11,6 +11,29 @@ export type Continents =
   | 'North America'
   | 'South America'
 
+export interface Continent {
+  id: string
+  name: string
+  slug: string
+  description: string
+}
+
+export interface Country {
+  id: string
+  name: string
+  slug: string
+  description: string
+  regions: []
+}
+
+export interface Region {
+  id: string
+  name: string
+  slug: string
+  description: string
+  surfSpots: []
+}
+
 export enum SurfSpotType {
   BeachBreak = 'Beach Break',
   ReefBreak = 'Reef Break',
@@ -19,6 +42,7 @@ export enum SurfSpotType {
 
 export interface SurfSpot extends NewSurfSpot {
   id: string
+  slug: string
 }
 
 export interface NewSurfSpot {
