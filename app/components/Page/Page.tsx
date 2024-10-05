@@ -55,6 +55,7 @@ export const Page = (props: IProps) => {
           {!isLoggedIn && (
             <div className="login-nav">
               <Link to="/auth">Login</Link>
+              <Link to="/auth">Sign up</Link>
             </div>
           )}
         </header>
