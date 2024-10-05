@@ -4,27 +4,42 @@ import type { SurfSpot, Region } from '~/types/surfSpots'
 
 interface LoaderData {
   surfSpots: SurfSpot[]
+  error?: string
   regionDetails?: Region
 }
 
 export const loader = async (params: { region: string }) => {
   const { region } = params
   try {
-    const regionDetails = await get<Region>(`region/${region}`)
+    const regionDetails = await get<Region>(`regions/${region}`)
     const surfSpots = await get<SurfSpot[]>(`surf-spots/region/${region}`)
     return json<LoaderData>({ surfSpots: surfSpots ?? [], regionDetails })
   } catch (error) {
     console.error('Error fetching surf spots:', error)
-    return json<LoaderData>({ surfSpots: [] })
+    return json<LoaderData>(
+      {
+        surfSpots: [],
+        error: `We couldn't find the surf spots right now. Please try again later.`,
+      },
+      { status: 500 },
+    )
   }
 }
 
 export default function Region() {
-  const { surfSpots, regionDetails } = useLoaderData<LoaderData>()
   const { continent, country, region } = useParams()
+  const { surfSpots, regionDetails, error } = useLoaderData<LoaderData>()
+
+  if (error) {
+    throw new Error(error)
+  }
 
   if (!regionDetails) {
-    return // throw error??
+    throw new Error("Couldn't find details for this region")
+  }
+
+  if (surfSpots.length === 0) {
+    throw new Error('No surf spots found!')
   }
 
   const { name, description } = regionDetails
@@ -34,21 +49,17 @@ export default function Region() {
       <h3 className="title">{name}</h3>
       <p>{description}</p>
       <div className="list-map">
-        {surfSpots.length > 0 ? (
-          surfSpots.map((surfSpot) => {
-            const { id, name, slug } = surfSpot
-            return (
-              <Link
-                key={id}
-                to={`/surf-spots/${continent}/${country}/${region}/${slug}`}
-              >
-                {name}
-              </Link>
-            )
-          })
-        ) : (
-          <p>No surf spots found.</p>
-        )}
+        {surfSpots.map((surfSpot) => {
+          const { id, name, slug } = surfSpot
+          return (
+            <Link
+              key={id}
+              to={`/surf-spots/${continent}/${country}/${region}/${slug}`}
+            >
+              {name}
+            </Link>
+          )
+        })}
       </div>
     </div>
   )

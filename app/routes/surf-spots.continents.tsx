@@ -4,6 +4,7 @@ import { Continent } from '~/types/surfSpots'
 
 interface LoaderData {
   continents: Continent[]
+  error?: string
 }
 
 export const loader = async () => {
@@ -11,30 +12,39 @@ export const loader = async () => {
     const continents = await get<Continent[]>(`continents`)
     return json<LoaderData>({ continents: continents ?? [] })
   } catch (error) {
-    console.error('Error fetching continents:', error)
-    return json<LoaderData>({ continents: [] })
+    console.error('Error occurred fetching continents:', error)
+    return json<LoaderData>(
+      {
+        continents: [],
+        error: `We couldn't find the continents right now. Please try again later.`,
+      },
+      { status: 500 },
+    )
   }
 }
 
 export default function Continents() {
-  const { continents } = useLoaderData<LoaderData>()
+  const { continents, error } = useLoaderData<LoaderData>()
+
+  if (error) {
+    throw new Error(error)
+  }
+
+  if (continents.length === 0) {
+    throw new Error('No continents found!')
+  }
+
   return (
     <div className="column">
       <div className="column">
-        {continents.length > 0 ? (
-          continents.map((continent) => {
-            const { id, name, slug } = continent
-            return (
-              <div>
-                <Link key={id} to={`/surf-spots/${slug}`}>
-                  <p>{name}</p>
-                </Link>
-              </div>
-            )
-          })
-        ) : (
-          <p>No continents available.</p>
-        )}
+        {continents.map((continent) => {
+          const { id, name, slug } = continent
+          return (
+            <Link key={id} to={`/surf-spots/${slug}`}>
+              <p>{name}</p>
+            </Link>
+          )
+        })}
       </div>
     </div>
   )

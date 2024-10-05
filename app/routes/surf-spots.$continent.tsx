@@ -4,6 +4,7 @@ import type { Continent, Country } from '~/types/surfSpots'
 
 interface LoaderData {
   countries: Country[]
+  error?: string
   continentDetails?: Continent
 }
 
@@ -17,23 +18,36 @@ export const loader = async ({ params }: { params: LoaderParams }) => {
   try {
     const continentDetails = await get<Continent>(`continents/${continent}`)
     const countries = await get<Country[]>(`countries/continent/${continent}`)
-
     return json<LoaderData>({
       countries: countries ?? [],
       continentDetails,
     })
   } catch (error) {
     console.error('Error fetching countries:', error)
-    return json<LoaderData>({ countries: [] })
+    return json<LoaderData>(
+      {
+        countries: [],
+        error: `We're having trouble finding countries right now. Please try again later.`,
+      },
+      { status: 500 },
+    )
   }
 }
 
 export default function Continent() {
   const { continent } = useParams()
-  const { countries, continentDetails } = useLoaderData<LoaderData>()
+  const { countries, continentDetails, error } = useLoaderData<LoaderData>()
+
+  if (error) {
+    throw new Error(error)
+  }
 
   if (!continentDetails) {
-    return // throw error?
+    throw new Error("Couldn't find details for this continent")
+  }
+
+  if (countries.length === 0) {
+    throw new Error('No countries found!')
   }
 
   const { name, description } = continentDetails
@@ -43,18 +57,14 @@ export default function Continent() {
       <h3 className="title">{name}</h3>
       <p>{description}</p>
       <div className="list-map">
-        {countries.length > 0 ? (
-          countries.map((country) => {
-            const { id, name, slug } = country
-            return (
-              <Link key={id} to={`/surf-spots/${continent}/${slug}`}>
-                {name}
-              </Link>
-            )
-          })
-        ) : (
-          <p>No countries available.</p>
-        )}
+        {countries.map((country) => {
+          const { id, name, slug } = country
+          return (
+            <Link key={id} to={`/surf-spots/${continent}/${slug}`}>
+              {name}
+            </Link>
+          )
+        })}
       </div>
     </div>
   )

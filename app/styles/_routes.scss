@@ -3,22 +3,20 @@ section {
   width: 100%;
 }
 
-.alternate-content {
-  @extend %flex-center;
-  height: 100%;
-  flex-direction: column;
-}
-
 .title {
   text-transform: capitalize;
 }
 
 .login-nav {
+  @extend %flex-base;
   margin: 0 $spacing-unit;
+  gap: $spacing-unit;
 }
 
 .login-options {
-  padding: $spacing-unit 0;
+  @extend %flex-base;
+  flex-direction: column;
+  padding-top: $spacing-large;
   gap: $spacing-small;
 }
 

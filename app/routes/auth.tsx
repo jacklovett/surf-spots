@@ -14,9 +14,9 @@ export default function Index() {
   const navigate = useNavigate()
   return (
     <Page isAlternate>
-      <div className="alternate-content">
+      <div className="center column">
         <img src="/images/png/logo.png" width="220" alt="Surf spots logo" />
-        <div className="login-options column">
+        <div className="login-options">
           <Button
             label="Continue with Google"
             onClick={() => navigate('/surf-spots')}

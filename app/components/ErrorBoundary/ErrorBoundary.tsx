@@ -1,41 +1,44 @@
-import { Component, ErrorInfo, ReactNode } from 'react'
+import { Component, ReactNode } from 'react'
 
-interface IProps {
-  children: ReactNode
+interface ErrorBoundaryProps {
   message?: string
+  children: ReactNode
 }
 
 interface ErrorBoundaryState {
   hasError: boolean
+  error?: Error
 }
 
-export class ErrorBoundary extends Component<IProps, ErrorBoundaryState> {
-  constructor(props: IProps) {
+export class ErrorBoundary extends Component<
+  ErrorBoundaryProps,
+  ErrorBoundaryState
+> {
+  constructor(props: ErrorBoundaryProps) {
     super(props)
     this.state = { hasError: false }
   }
 
-  // Lifecycle method to update state on error
-  static getDerivedStateFromError(): ErrorBoundaryState {
-    return { hasError: true }
+  static getDerivedStateFromError(error: Error) {
+    return { hasError: true, error }
   }
 
-  // Lifecycle method to log error
-  componentDidCatch(error: Error, errorInfo: ErrorInfo): void {
-    console.error('ErrorBoundary caught an error:', error, errorInfo)
+  componentDidCatch(error: Error, errorInfo: any) {
+    // You can log the error to an external service if needed
+    console.error('Error caught in ErrorBoundary:', error, errorInfo)
   }
 
   render() {
-    const { children, message } = this.props
     if (this.state.hasError) {
       return (
         <div className="center column">
-          <h4>Error</h4>
-          <p>{message ?? 'Oops! Something went wrong.'}</p>
+          <h4>{this.props.message ?? 'Oops! Something went wrong.'}</h4>
+          <p>{this.state.error?.message}</p>
         </div>
       )
     }
 
-    return children
+    // If no error, render children
+    return this.props.children
   }
 }

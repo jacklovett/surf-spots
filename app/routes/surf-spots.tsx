@@ -1,11 +1,28 @@
 import { useEffect, useState } from 'react'
-import { Outlet, useLocation, useNavigate, useParams } from '@remix-run/react'
-import { Breadcrumb, Button, Page } from '~/components'
+import {
+  Outlet,
+  useLocation,
+  useNavigate,
+  useNavigation,
+  useParams,
+} from '@remix-run/react'
+import {
+  Breadcrumb,
+  Button,
+  ContentStatus,
+  ErrorBoundary,
+  Loading,
+  Page,
+} from '~/components'
 import { BreadcrumbItem } from '~/components/Breadcrumb'
 
 export default function SurfSpots() {
   const navigate = useNavigate()
   const { pathname } = useLocation()
+  const { state } = useNavigation()
+
+  const loading = state === 'loading'
+
   const [isListView, setIsListView] = useState<boolean>(false)
 
   useEffect(() => {
@@ -85,7 +102,15 @@ export default function SurfSpots() {
         {isListView && (
           <div className="column">
             <Breadcrumb items={breadcrumbs} />
-            <Outlet />
+            {loading ? (
+              <ContentStatus>
+                <Loading />
+              </ContentStatus>
+            ) : (
+              <ErrorBoundary message="Uh-oh! Something went wrong!">
+                <Outlet />
+              </ErrorBoundary>
+            )}
           </div>
         )}
       </section>

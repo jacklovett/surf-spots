@@ -18,9 +18,6 @@ export default function SurfSpotDetails() {
 
   const isSurfedSpot = true // where do we get this from?
   const isWishlisted = true
-  const loading = false
-  const error = null
-
   const navigate = useNavigate()
 
   const renderContent = () => {

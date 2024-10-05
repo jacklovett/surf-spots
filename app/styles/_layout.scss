@@ -39,6 +39,7 @@
 .column {
   @extend %flex-base;
   flex-direction: column;
+  height: 100%;
 }
 
 .center {
