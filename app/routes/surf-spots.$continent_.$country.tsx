@@ -42,25 +42,25 @@ export default function Country() {
     throw new Error("Couldn't find details for this country")
   }
 
-  if (regions.length === 0) {
-    throw new Error('No regions found!')
-  }
-
   const { name, description } = countryDetails
 
   return (
     <div>
-      <h3 className="title">{name}</h3>
+      <h3>{name}</h3>
       <p>{description}</p>
       <div className="list-map">
-        {regions.map((region) => {
-          const { id, name, slug } = region
-          return (
-            <Link key={id} to={`/surf-spots/${continent}/${country}/${slug}`}>
-              {name}
-            </Link>
-          )
-        })}
+        {regions.length > 0 ? (
+          regions.map((region) => {
+            const { id, name, slug } = region
+            return (
+              <Link key={id} to={`/surf-spots/${continent}/${country}/${slug}`}>
+                {name}
+              </Link>
+            )
+          })
+        ) : (
+          <p>No regions found</p>
+        )}
       </div>
     </div>
   )

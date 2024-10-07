@@ -46,25 +46,25 @@ export default function Continent() {
     throw new Error("Couldn't find details for this continent")
   }
 
-  if (countries.length === 0) {
-    throw new Error('No countries found!')
-  }
-
   const { name, description } = continentDetails
 
   return (
     <div>
-      <h3 className="title">{name}</h3>
+      <h3>{name}</h3>
       <p>{description}</p>
       <div className="list-map">
-        {countries.map((country) => {
-          const { id, name, slug } = country
-          return (
-            <Link key={id} to={`/surf-spots/${continent}/${slug}`}>
-              {name}
-            </Link>
-          )
-        })}
+        {countries.length > 0 ? (
+          countries.map((country) => {
+            const { id, name, slug } = country
+            return (
+              <Link key={id} to={`/surf-spots/${continent}/${slug}`}>
+                {name}
+              </Link>
+            )
+          })
+        ) : (
+          <p>No countries found</p>
+        )}
       </div>
     </div>
   )

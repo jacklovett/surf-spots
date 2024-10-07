@@ -1,10 +1,13 @@
+import { ButtonIcon } from './index'
+
 interface IProps {
   label: string
   onClick?: () => void
   type?: 'button' | 'submit'
   disabled?: boolean
   variant?: 'primary' | 'secondary' | 'alternate'
-  ariaLabel?: string // Optional: Only use if additional context is needed
+  ariaLabel?: string
+  icon?: ButtonIcon
 }
 
 // TODO: Make NavButton component ?? Link prefetch="intent"
@@ -17,6 +20,7 @@ export const Button = (props: IProps) => {
     disabled = false,
     variant = 'primary',
     ariaLabel,
+    icon,
   } = props
 
   return (
@@ -28,6 +32,7 @@ export const Button = (props: IProps) => {
       aria-label={ariaLabel || label} // Fallback to label if ariaLabel is not provided
       aria-disabled={disabled}
     >
+      {icon && <img src={icon.filePath} alt={icon.name} width="24" />}
       {label}
     </button>
   )

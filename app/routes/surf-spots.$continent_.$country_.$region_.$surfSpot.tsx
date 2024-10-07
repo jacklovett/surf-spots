@@ -1,27 +1,31 @@
 import { json, useLoaderData, useNavigate } from '@remix-run/react'
-import { Button, TextButton } from '~/components'
+import { TextButton } from '~/components'
 import { deleteData, get, post } from '~/services/networkService'
 import { SurfSpot } from '~/types/surfSpots'
 
 interface LoaderData {
-  surfSpot?: SurfSpot
+  surfSpotDetails?: SurfSpot
 }
 
-export const loader = async (params: { slug: string }) => {
-  const { slug } = params
-  const surfSpot = await get<SurfSpot>(`surf-spots/${slug}`)
-  return json<LoaderData>({ surfSpot })
+interface LoaderParams {
+  surfSpot: string
+}
+
+export const loader = async ({ params }: { params: LoaderParams }) => {
+  const { surfSpot } = params
+  const surfSpotDetails = await get<SurfSpot>(`surf-spots/${surfSpot}`)
+  return json<LoaderData>({ surfSpotDetails })
 }
 
 export default function SurfSpotDetails() {
-  const { surfSpot } = useLoaderData<LoaderData>()
-
-  const isSurfedSpot = true // where do we get this from?
-  const isWishlisted = true
+  const { surfSpotDetails } = useLoaderData<LoaderData>()
+  console.log(surfSpotDetails)
+  const isSurfedSpot = false // where do we get this from?
+  const isWishlisted = false
   const navigate = useNavigate()
 
   const renderContent = () => {
-    if (!surfSpot) {
+    if (!surfSpotDetails) {
       return (
         <div className="column center">
           <p>Surf spot details not found.</p>
@@ -29,8 +33,8 @@ export default function SurfSpotDetails() {
       )
     }
 
-    const { id, continent, country, description, name, rating, region, type } =
-      surfSpot
+    const { id, beachBottomType, description, name, rating, skillLevel, type } =
+      surfSpotDetails
 
     const userSpotRequest = {
       userId: 1, // TODO: get from state!!
@@ -60,7 +64,7 @@ export default function SurfSpotDetails() {
     }
 
     return (
-      <div>
+      <section>
         <div className="actions">
           {!isSurfedSpot && (
             <>
@@ -91,37 +95,29 @@ export default function SurfSpotDetails() {
             />
           )}
         </div>
-        <div className="content-container">
+        <div className="column content-container">
           <div>
             <h3>{name}</h3>
-            <p>Description:</p>
             <p>{description}</p>
           </div>
           <div className="details">
-            <p>Region:</p>
-            <p>{region}</p>
-          </div>
-          <div className="details">
-            <p>Country:</p>
-            <p>{country}</p>
-          </div>
-          <div className="details">
-            <p>Continent:</p>
-            <p>{continent}</p>
-          </div>
-          <div className="details">
-            <p>Type:</p>
+            <p>Break Type:</p>
             <p>{type}</p>
+          </div>
+          <div className="details">
+            <p>Beach Bottom:</p>
+            <p>{beachBottomType}</p>
+          </div>
+          <div className="details">
+            <p>Skill Level:</p>
+            <p>{skillLevel}</p>
           </div>
           <div className="details">
             <p>Rating:</p>
             <p>{rating}</p>
           </div>
-          <div className="center">
-            <Button label="Back" onClick={() => navigate(-1)} />
-          </div>
         </div>
-      </div>
+      </section>
     )
   }
 

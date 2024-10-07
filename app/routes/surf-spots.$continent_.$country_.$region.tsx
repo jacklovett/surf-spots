@@ -8,10 +8,15 @@ interface LoaderData {
   regionDetails?: Region
 }
 
-export const loader = async (params: { region: string }) => {
+interface LoaderParams {
+  region: string
+}
+
+export const loader = async ({ params }: { params: LoaderParams }) => {
   const { region } = params
   try {
     const regionDetails = await get<Region>(`regions/${region}`)
+    console.log(regionDetails)
     const surfSpots = await get<SurfSpot[]>(`surf-spots/region/${region}`)
     return json<LoaderData>({ surfSpots: surfSpots ?? [], regionDetails })
   } catch (error) {
@@ -38,28 +43,28 @@ export default function Region() {
     throw new Error("Couldn't find details for this region")
   }
 
-  if (surfSpots.length === 0) {
-    throw new Error('No surf spots found!')
-  }
-
   const { name, description } = regionDetails
 
   return (
     <div>
-      <h3 className="title">{name}</h3>
+      <h3>{name}</h3>
       <p>{description}</p>
       <div className="list-map">
-        {surfSpots.map((surfSpot) => {
-          const { id, name, slug } = surfSpot
-          return (
-            <Link
-              key={id}
-              to={`/surf-spots/${continent}/${country}/${region}/${slug}`}
-            >
-              {name}
-            </Link>
-          )
-        })}
+        {surfSpots.length > 0 ? (
+          surfSpots.map((surfSpot) => {
+            const { id, name, slug } = surfSpot
+            return (
+              <Link
+                key={id}
+                to={`/surf-spots/${continent}/${country}/${region}/${slug}`}
+              >
+                {name}
+              </Link>
+            )
+          })
+        ) : (
+          <p>No surf spots found</p>
+        )}
       </div>
     </div>
   )

@@ -3,10 +3,6 @@ section {
   width: 100%;
 }
 
-.title {
-  text-transform: capitalize;
-}
-
 .login-nav {
   @extend %flex-base;
   margin: 0 $spacing-unit;

@@ -1,6 +1,8 @@
-/* Define button base styles */
 .button {
-  background-color: $primary-color;
+  @extend %flex-base;
+  align-items: center;
+  gap: $spacing-small;
+  background: $primary-color;
   color: $white;
   padding: $spacing-small $spacing-unit;
   border: none;
@@ -11,7 +13,6 @@
   cursor: pointer;
   transition: background-color 0.3s, transform 0.2s;
   text-align: center;
-  display: inline-block;
 
   &.secondary {
     background: adjust-color($white, $lightness: -10%);

@@ -15,20 +15,23 @@ export default function Index() {
   return (
     <Page isAlternate>
       <div className="center column">
-        <img src="/images/png/logo.png" width="220" alt="Surf spots logo" />
+        <img src="/images/png/logo.png" width="240" alt="Surf spots logo" />
         <div className="login-options">
           <Button
             label="Continue with Google"
-            onClick={() => navigate('/surf-spots')}
-            variant="alternate"
-          />
-          <Button
-            label="Continue with Apple"
+            icon={{
+              name: 'Google',
+              filePath: '/public/images/png/Google.png',
+            }}
             onClick={() => navigate('/surf-spots')}
             variant="alternate"
           />
           <Button
             label="Continue with Facebook"
+            icon={{
+              name: 'Facebook',
+              filePath: '/public/images/png/facebook.png',
+            }}
             onClick={() => navigate('/surf-spots')}
             variant="alternate"
           />

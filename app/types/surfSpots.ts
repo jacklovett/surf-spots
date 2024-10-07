@@ -40,18 +40,34 @@ export enum SurfSpotType {
   PointBreak = 'Point Break',
 }
 
+export enum BeachBottomType {
+  Sand = 'Sand',
+  Rock = 'Rock',
+  Reef = 'Reef',
+}
+
+export enum SkillLevel {
+  Beginner = 'Beginner',
+  BeginnerIntermediate = 'Beginner - Intermediate',
+  Intermediate = 'Intermediate',
+  IntermediateAdvanced = 'Intermediate - Advanced',
+  Advanced = 'Advanced',
+}
+
 export interface SurfSpot extends NewSurfSpot {
   id: string
   slug: string
 }
 
 export interface NewSurfSpot {
+  beachBottomType: BeachBottomType
   country: string
   region: string
   continent: Continents
   name: string
   description: string
   rating: number
+  skillLevel: SkillLevel
   type: SurfSpotType
   coordinates?: Coordinates
 }
