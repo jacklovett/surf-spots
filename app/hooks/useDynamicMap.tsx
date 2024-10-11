@@ -26,6 +26,7 @@ export const useDynamicMap = (
 
   useEffect(() => {
     mapboxgl.accessToken = MAP_ACCESS_TOKEN
+
     // Initialize the map
     mapRef.current = new mapboxgl.Map({
       container: mapContainer?.current as HTMLElement,
