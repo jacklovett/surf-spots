@@ -49,7 +49,7 @@ export default function Continent() {
   const { name, description } = continentDetails
 
   return (
-    <div>
+    <div className="content">
       <h3>{name}</h3>
       <p>{description}</p>
       <div className="list-map">

@@ -2,6 +2,7 @@
   @extend %flex-end;
   flex-wrap: wrap;
   gap: $spacing-small;
+  padding: $spacing-small 0;
 }
 
 .surf-spot-container::-webkit-scrollbar {

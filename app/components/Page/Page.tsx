@@ -51,8 +51,9 @@ export const Page = (props: IProps) => {
             <img src="/favicon.ico" alt="Logo" height="40" />
             <h2>Surf Spots</h2>
           </div>
-          {isLoggedIn && <Menu />}
-          {!isLoggedIn && (
+          {isLoggedIn ? (
+            <Menu />
+          ) : (
             <div className="login-nav">
               <Link to="/auth">Login</Link>
               <Link to="/auth">Sign up</Link>
@@ -60,14 +61,12 @@ export const Page = (props: IProps) => {
           )}
         </header>
       )}
-      <section className="column content-container">
+      <section className="content-container">
         <ErrorBoundary message="Unable to display page content">
           {renderContent()}
         </ErrorBoundary>
       </section>
-      <footer className="footer">
-        <p>© 2024 Surf Spots</p>
-      </footer>
+      <footer className="footer">© 2024 Surf Spots</footer>
     </main>
   )
 }

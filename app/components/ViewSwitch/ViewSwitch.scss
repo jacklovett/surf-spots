@@ -1,0 +1,18 @@
+.view-switch {
+  cursor: pointer;
+
+  .view-switch-label {
+    color: $disabled-color;
+    transition: color 0.3s;
+
+    &.active {
+      color: $primary-color;
+      font-weight: bold;
+    }
+  }
+
+  .separator {
+    margin: 0 $spacing-small;
+    color: $outline-color;
+  }
+}

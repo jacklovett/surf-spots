@@ -1,5 +1,5 @@
 import { json, useLoaderData, useNavigate } from '@remix-run/react'
-import { TextButton } from '~/components'
+import { Details, ErrorBoundary, SurfMap, TextButton } from '~/components'
 import { deleteData, get, post } from '~/services/networkService'
 import { SurfSpot } from '~/types/surfSpots'
 
@@ -19,8 +19,7 @@ export const loader = async ({ params }: { params: LoaderParams }) => {
 
 export default function SurfSpotDetails() {
   const { surfSpotDetails } = useLoaderData<LoaderData>()
-  console.log(surfSpotDetails)
-  const isSurfedSpot = false // where do we get this from?
+  const isSurfedSpot = false // TODO: get from state!!
   const isWishlisted = false
   const navigate = useNavigate()
 
@@ -64,60 +63,55 @@ export default function SurfSpotDetails() {
     }
 
     return (
-      <section>
-        <div className="actions">
-          {!isSurfedSpot && (
-            <>
+      <div className="column">
+        <div className="content">
+          <div className="actions">
+            {!isSurfedSpot && (
+              <>
+                <TextButton
+                  text="Add to Wishlist"
+                  onClick={addToWishlist}
+                  iconKey="heart"
+                />
+                <TextButton
+                  text="Add to surfed spots"
+                  onClick={addToSurfedSpots}
+                  iconKey="plus"
+                />
+              </>
+            )}
+            {isSurfedSpot && (
               <TextButton
-                text="Add to Wishlist"
-                onClick={addToWishlist}
-                iconKey="heart"
+                text="Remove from surfed spots"
+                onClick={removeFromSurfedSpot}
+                iconKey="bin"
               />
+            )}
+            {isWishlisted && (
               <TextButton
-                text="Add to surfed spots"
-                onClick={addToSurfedSpots}
-                iconKey="plus"
+                text="Remove from wishlist"
+                onClick={removeFromWishlist}
+                iconKey="bin"
               />
-            </>
-          )}
-          {isSurfedSpot && (
-            <TextButton
-              text="Remove from surfed spots"
-              onClick={removeFromSurfedSpot}
-              iconKey="bin"
-            />
-          )}
-          {isWishlisted && (
-            <TextButton
-              text="Remove from wishlist"
-              onClick={removeFromWishlist}
-              iconKey="bin" // TODO: heart break icon ??
-            />
-          )}
-        </div>
-        <div className="column content-container">
-          <div>
-            <h3>{name}</h3>
-            <p>{description}</p>
+            )}
           </div>
-          <div className="details">
-            <p>Break Type:</p>
-            <p>{type}</p>
-          </div>
-          <div className="details">
-            <p>Beach Bottom:</p>
-            <p>{beachBottomType}</p>
-          </div>
-          <div className="details">
-            <p>Skill Level:</p>
-            <p>{skillLevel}</p>
-          </div>
-          <div className="details">
-            <p>Rating:</p>
-            <p>{rating}</p>
+          <div className="column">
+            <div>
+              <h3>{name}</h3>
+              <p>{description}</p>
+            </div>
+            <div className="row spot-details">
+              <Details label="Break Type" value={type} />
+              <Details label="Beach Bottom" value={beachBottomType} />
+              <Details label="Skill Level" value={skillLevel} />
+              <Details label="Rating" value={rating ? `${rating}/ 5` : 'N/A'} />
+            </div>
           </div>
         </div>
-      </section>
+        <ErrorBoundary message="Uh-oh! Something went wrong displaying the map!">
+          <SurfMap surfSpots={[surfSpotDetails]} disableInteractions />
+        </ErrorBoundary>
+      </div>
     )
   }
 

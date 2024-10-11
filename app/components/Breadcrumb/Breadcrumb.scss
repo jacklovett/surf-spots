@@ -1,13 +1,21 @@
 .breadcrumb {
   .breadcrumb-list {
-    display: flex;
-    flex-wrap: wrap;
+    @extend %flex-base;
     list-style: none;
     padding: 0;
     margin: 0;
-    padding-bottom: $spacing-small;
-    margin-bottom: $spacing-small;
+    padding-bottom: $spacing-unit;
+    margin-top: -$spacing-small;
+    margin-bottom: $spacing-unit;
     border-bottom: solid 1px $outline-color;
+  }
+
+  @media (max-width: 670px) {
+    .breadcrumb-list {
+      padding: 0 $spacing-unit;
+      padding-bottom: $spacing-unit;
+      font-size: $font-size-small;
+    }
   }
 
   .breadcrumb-item:not(:last-child)::after {

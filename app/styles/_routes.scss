@@ -1,6 +1,9 @@
-section {
-  height: 100%;
-  width: 100%;
+.toolbar {
+  padding: $spacing-unit 0;
+
+  @media (max-width: 670px) {
+    padding: $spacing-unit;
+  }
 }
 
 .login-nav {
@@ -10,8 +13,7 @@ section {
 }
 
 .login-options {
-  @extend %flex-base;
-  flex-direction: column;
+  @extend %flex-column;
   padding-top: $spacing-large;
   gap: $spacing-small;
 }
@@ -31,6 +33,12 @@ section {
   align-items: center;
 
   & a {
-    padding: $spacing-small;
+    padding-bottom: $spacing-unit;
+    padding-right: $spacing-unit;
   }
+}
+
+.spot-details {
+  @extend %flex-row;
+  gap: $spacing-unit;
 }

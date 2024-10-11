@@ -35,17 +35,15 @@ export default function Continents() {
   }
 
   return (
-    <div className="column">
-      <div className="column">
-        {continents.map((continent) => {
-          const { id, name, slug } = continent
-          return (
-            <Link key={id} to={`/surf-spots/${slug}`}>
-              <p>{name}</p>
-            </Link>
-          )
-        })}
-      </div>
+    <div className="content column">
+      {continents.map((continent) => {
+        const { id, name, slug } = continent
+        return (
+          <Link key={id} to={`/surf-spots/${slug}`}>
+            <p>{name}</p>
+          </Link>
+        )
+      })}
     </div>
   )
 }

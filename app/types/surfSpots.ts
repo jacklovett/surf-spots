@@ -1,6 +1,6 @@
 export interface Coordinates {
-  longitude?: number
-  latitude?: number
+  longitude: number
+  latitude: number
 }
 
 export type Continents =
@@ -59,7 +59,7 @@ export interface SurfSpot extends NewSurfSpot {
   slug: string
 }
 
-export interface NewSurfSpot {
+export interface NewSurfSpot extends Coordinates {
   beachBottomType: BeachBottomType
   country: string
   region: string
@@ -69,5 +69,4 @@ export interface NewSurfSpot {
   rating: number
   skillLevel: SkillLevel
   type: SurfSpotType
-  coordinates?: Coordinates
 }

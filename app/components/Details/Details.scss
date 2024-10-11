@@ -1,0 +1,9 @@
+.details {
+  @extend %flex-base;
+  gap: $spacing-unit;
+
+  .label {
+    color: $primary-color;
+    font-weight: bold;
+  }
+}

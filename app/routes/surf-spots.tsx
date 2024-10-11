@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react'
 import {
+  json,
   Outlet,
+  useLoaderData,
   useLocation,
   useNavigate,
   useNavigation,
@@ -8,28 +10,47 @@ import {
 } from '@remix-run/react'
 import {
   Breadcrumb,
-  Button,
   ContentStatus,
   ErrorBoundary,
   Loading,
+  SurfMap,
   Page,
+  ViewSwitch,
 } from '~/components'
 import { BreadcrumbItem } from '~/components/Breadcrumb'
+import { LoaderFunction } from '@remix-run/node'
+
+interface LoaderData {
+  isMapView: boolean
+}
+
+export const loader: LoaderFunction = ({ request }) => {
+  const { pathname } = new URL(request.url)
+  // Determine if we're on the map view
+  const isMapView = pathname === '/surf-spots' || pathname === '/surf-spots/'
+  return json({ isMapView })
+}
 
 export default function SurfSpots() {
   const navigate = useNavigate()
-  const { pathname } = useLocation()
   const { state } = useNavigation()
-
   const loading = state === 'loading'
 
-  const [isListView, setIsListView] = useState<boolean>(false)
+  // Get the initial view from the loader data
+  const { isMapView: initialMapView } = useLoaderData<LoaderData>()
 
-  useEffect(() => {
-    if (pathname === '/surf-spots') {
-      setIsListView(false)
+  // Manage isMapView in local state
+  const [isMapView, setIsMapView] = useState(initialMapView)
+
+  // Handle the toggle view logic
+  const handleToggleView = () => {
+    if (isMapView) {
+      navigate('/surf-spots/continents/')
+    } else {
+      navigate('/surf-spots')
     }
-  }, [pathname])
+    setIsMapView(!isMapView)
+  }
 
   const generateBreadcrumbItems = (): BreadcrumbItem[] => {
     const breadcrumbItems: BreadcrumbItem[] = [
@@ -37,33 +58,26 @@ export default function SurfSpots() {
     ]
     const { continent, country, region, surfSpot } = useParams()
 
-    if (continent) {
+    continent &&
       breadcrumbItems.push({
         label: continent,
         link: `/surf-spots/${continent}`,
       })
-    }
-
-    if (country) {
+    country &&
       breadcrumbItems.push({
         label: country,
         link: `/surf-spots/${continent}/${country}`,
       })
-    }
-
-    if (region) {
+    region &&
       breadcrumbItems.push({
         label: region,
         link: `/surf-spots/${continent}/${country}/${region}`,
       })
-    }
-
-    if (surfSpot) {
+    surfSpot &&
       breadcrumbItems.push({
         label: surfSpot,
         link: `/surf-spots/${continent}/${country}/${region}/${surfSpot}`,
       })
-    }
 
     return breadcrumbItems
   }
@@ -72,48 +86,35 @@ export default function SurfSpots() {
 
   return (
     <Page showHeader>
-      <div className="row space-between center-vertical">
+      <div className="row space-between toolbar">
         <h3>Surf Spots</h3>
-        {isListView && (
-          <Button
-            label="See Map"
-            onClick={() => {
-              setIsListView(false)
-              navigate('/surf-spots')
-            }}
-          />
-        )}
-        {!isListView && (
-          <Button
-            label="Find surf spots"
-            onClick={() => {
-              setIsListView(true)
-              navigate('/surf-spots/continents/')
-            }}
-          />
-        )}
+        <ViewSwitch
+          isPrimaryView={isMapView}
+          onToggleView={handleToggleView}
+          primaryLabel="Map"
+          secondaryLabel="List"
+        />
       </div>
-      <section>
-        {!isListView && (
-          <div className="center column">
-            <p>Map view</p>
-          </div>
-        )}
-        {isListView && (
-          <div className="column">
-            <Breadcrumb items={breadcrumbs} />
-            {loading ? (
-              <ContentStatus>
-                <Loading />
-              </ContentStatus>
-            ) : (
-              <ErrorBoundary message="Uh-oh! Something went wrong!">
-                <Outlet />
-              </ErrorBoundary>
-            )}
-          </div>
-        )}
-      </section>
+      {isMapView ? (
+        <div className="center column">
+          <ErrorBoundary message="Uh-oh! Something went wrong displaying the map!">
+            <SurfMap surfSpots={[]} />
+          </ErrorBoundary>
+        </div>
+      ) : (
+        <div className="column">
+          <Breadcrumb items={breadcrumbs} />
+          {loading ? (
+            <ContentStatus>
+              <Loading />
+            </ContentStatus>
+          ) : (
+            <ErrorBoundary message="Uh-oh! Something went wrong!">
+              <Outlet />
+            </ErrorBoundary>
+          )}
+        </div>
+      )}
     </Page>
   )
 }

@@ -4,6 +4,12 @@ form {
   &.actions {
     margin-top: $spacing-unit;
   }
+
+  label {
+    margin-bottom: $spacing-small;
+    font-weight: bold;
+    color: $primary-color;
+  }
 }
 
 .form-item {
@@ -11,12 +17,6 @@ form {
   flex-direction: column;
   padding-bottom: $spacing-unit;
   width: 100%;
-}
-
-label {
-  margin-bottom: $spacing-small;
-  font-weight: bold;
-  color: $primary-color;
 }
 
 input,

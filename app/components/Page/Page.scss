@@ -1,25 +1,6 @@
-header {
-  text-align: center;
-  border-bottom: solid 1px $outline-color;
-  align-items: center;
-
-  .logo {
-    cursor: pointer;
-    margin-left: $spacing-small;
-  }
-}
-
-footer {
-  text-align: center;
-  p {
-    font-size: $font-size-x-small;
-  }
-}
-
 .page {
   @extend %flex-base;
   flex-direction: column;
-  min-height: 100vh;
   height: 100%;
 
   &.alternate {
@@ -34,6 +15,21 @@ footer {
   }
 }
 
-.content {
+header {
+  text-align: center;
+  border-bottom: solid 1px $outline-color;
+  align-items: center;
+
+  .logo {
+    cursor: pointer;
+    margin-left: $spacing-small;
+  }
+}
+
+footer {
+  text-align: center;
+  font-size: $font-size-x-small;
+  margin: $spacing-small 0;
   padding-top: $spacing-unit;
+  width: 100%;
 }
