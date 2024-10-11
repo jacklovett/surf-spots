@@ -19,46 +19,48 @@ export const Breadcrumb = ({ items }: IProps) => {
     const maxWidth = breadcrumbElement.parentElement?.clientWidth || 0
     const breadcrumbWidth = breadcrumbElement.scrollWidth
 
-    if (breadcrumbWidth > maxWidth && collapsedItems.length > 1) {
-      setCollapsedItems((prevItems) => {
-        const newItems = [...prevItems]
-        // Change the second item to '...' if it's not already
-        if (newItems[1].label !== '...') {
-          newItems[1] = { ...newItems[1], link: '', label: '...' }
-        } else {
-          // Remove the next item after '...'
-          newItems.splice(2, 1)
-        }
-        return newItems
-      })
+    const collapsed = [...collapsedItems]
+
+    // Collapse one item at a time if needed
+    if (breadcrumbWidth > maxWidth && collapsed.length > 1) {
+      // Check if it's the first collapse; if so, change it to '...'
+      if (collapsed[1].label !== '...') {
+        collapsed[1] = { ...collapsed[1], label: '...' }
+      } else {
+        collapsed.splice(2, 1) // Remove the next item after '...'
+      }
+
+      setCollapsedItems(collapsed)
     }
   }
 
-  // Check for overflow and collapse if necessary
-  const checkAndCollapse = () => {
+  // Recalculate width after state updates and collapse if necessary
+  useEffect(() => {
     const breadcrumbElement = breadcrumbRef.current
     if (!breadcrumbElement) return
 
     const maxWidth = breadcrumbElement.parentElement?.clientWidth || 0
     const breadcrumbWidth = breadcrumbElement.scrollWidth
 
+    // Trigger another collapse if it still overflows
     if (breadcrumbWidth > maxWidth) {
       collapseBreadcrumbs()
     }
-  }
+  }, [collapsedItems])
 
-  // Set items and collapse on initial render or items change
   useEffect(() => {
     setCollapsedItems(items)
-    checkAndCollapse()
-  }, [items])
+    collapseBreadcrumbs()
 
-  // Debounce resize event
-  useEffect(() => {
-    const debouncedResize = debounce(() => checkAndCollapse(), 300)
+    const debouncedResize = debounce(() => {
+      setCollapsedItems(items)
+      collapseBreadcrumbs()
+    }, 300)
+
+    // Listen for window resize and collapse breadcrumbs accordingly
     window.addEventListener('resize', debouncedResize)
     return () => window.removeEventListener('resize', debouncedResize)
-  }, [])
+  }, [items])
 
   return (
     <nav aria-label="breadcrumb" className="breadcrumb">
