@@ -3,10 +3,17 @@ export interface Coordinates {
   latitude: number
 }
 
+export interface BoundingBox {
+  minLongitude: number
+  minLatitude: number
+  maxLongitude: number
+  maxLatitude: number
+}
+
 export type Continents =
   | 'Africa'
   | 'Asia'
-  | 'Australia'
+  | 'Oceania'
   | 'Europe'
   | 'North America'
   | 'South America'
@@ -56,7 +63,7 @@ export enum SkillLevel {
 
 export interface SurfSpot extends NewSurfSpot {
   id: string
-  slug: string
+  path: string
 }
 
 export interface NewSurfSpot extends Coordinates {

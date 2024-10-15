@@ -15,6 +15,8 @@ import SurfMap from './SurfMap'
 import { SkeletonLoader } from './SkeletonLoader/SkeletonLoader'
 import Details from './Details'
 import ViewSwitch from './ViewSwitch'
+import SurfSpotActions from './SurfSpotActions'
+import SurfSpotPopUp from './SurfSpotPopUp'
 
 export {
   Breadcrumb,
@@ -27,6 +29,8 @@ export {
   Icon,
   Loading,
   SurfMap,
+  SurfSpotActions,
+  SurfSpotPopUp,
   Menu,
   Page,
   SkeletonLoader,

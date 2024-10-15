@@ -16,7 +16,6 @@ export const loader = async ({ params }: { params: LoaderParams }) => {
   const { region } = params
   try {
     const regionDetails = await get<Region>(`regions/${region}`)
-    console.log(regionDetails)
     const surfSpots = await get<SurfSpot[]>(`surf-spots/region/${region}`)
     return json<LoaderData>({ surfSpots: surfSpots ?? [], regionDetails })
   } catch (error) {
@@ -32,7 +31,6 @@ export const loader = async ({ params }: { params: LoaderParams }) => {
 }
 
 export default function Region() {
-  const { continent, country, region } = useParams()
   const { surfSpots, regionDetails, error } = useLoaderData<LoaderData>()
 
   if (error) {
@@ -52,12 +50,9 @@ export default function Region() {
       <div className="list-map">
         {surfSpots.length > 0 ? (
           surfSpots.map((surfSpot) => {
-            const { id, name, slug } = surfSpot
+            const { id, name, path } = surfSpot
             return (
-              <Link
-                key={id}
-                to={`/surf-spots/${continent}/${country}/${region}/${slug}`}
-              >
+              <Link key={id} to={path}>
                 {name}
               </Link>
             )

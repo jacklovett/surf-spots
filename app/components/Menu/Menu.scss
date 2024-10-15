@@ -89,10 +89,9 @@
     transition: transform 0.3s ease;
 
     .sidebar-header {
+      @extend %flex-end;
       padding: $spacing-unit;
       height: $header-height;
-      display: flex;
-      justify-content: flex-end;
       align-items: center;
       border-bottom: solid 1px $outline-color;
 

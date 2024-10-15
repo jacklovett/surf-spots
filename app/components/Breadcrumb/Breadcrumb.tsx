@@ -55,7 +55,7 @@ export const Breadcrumb = ({ items }: IProps) => {
     const debouncedResize = debounce(() => {
       setCollapsedItems(items)
       collapseBreadcrumbs()
-    }, 300)
+    }, 500)
 
     // Listen for window resize and collapse breadcrumbs accordingly
     window.addEventListener('resize', debouncedResize)

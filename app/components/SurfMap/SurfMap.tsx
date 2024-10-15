@@ -1,15 +1,12 @@
-import { useEffect, useRef, useState } from 'react'
-import mapboxgl from 'mapbox-gl'
+import { useRef, useState } from 'react'
 import 'mapbox-gl/dist/mapbox-gl.css'
 
-import { addMarkersForSurfSpots, MAP_ACCESS_TOKEN } from '~/services/mapService'
 import { SkeletonLoader } from '../index'
 import { SurfSpot } from '~/types/surfSpots'
-import { useStaticMap } from '~/hooks/useStaticMap'
-import { useDynamicMap } from '~/hooks'
+import { useDynamicMap, useStaticMap } from '~/hooks'
 
 interface IProps {
-  surfSpots: SurfSpot[]
+  surfSpots?: SurfSpot[]
   disableInteractions?: boolean
 }
 
@@ -19,11 +16,11 @@ export const SurfMap = (props: IProps) => {
 
   const mapContainerRef = useRef<HTMLDivElement | null>(null)
 
-  if (disableInteractions) {
+  if (disableInteractions && surfSpots && surfSpots.length > 0) {
     const { longitude, latitude } = surfSpots[0]
     useStaticMap({ longitude, latitude }, mapContainerRef, setLoading)
   } else {
-    useDynamicMap(surfSpots, mapContainerRef, setLoading)
+    useDynamicMap(mapContainerRef, setLoading)
   }
 
   return (

@@ -1,0 +1,42 @@
+.mapboxgl-popup-close-button {
+  padding: 0 $spacing-unit;
+  font-size: $font-size-x-large;
+}
+
+.pop-up-container {
+  padding: $spacing-small;
+
+  & p {
+    margin-bottom: $spacing-small;
+    font-size: $font-size-small;
+  }
+
+  .pop-up-link {
+    @extend %flex-end;
+    text-decoration: none;
+    cursor: pointer;
+    color: $primary-color;
+    font-size: $font-size-small;
+
+    &:hover,
+    &:focus {
+      text-decoration: underline;
+      color: adjust-color($primary-color, $lightness: 10%);
+      outline: none;
+    }
+  }
+
+  .pop-up-details {
+    padding-top: $spacing-small;
+
+    & .details {
+      margin-right: $spacing-small;
+      gap: $spacing-small;
+    }
+  }
+
+  .actions {
+    padding: 0;
+    font-size: $font-size-small;
+  }
+}

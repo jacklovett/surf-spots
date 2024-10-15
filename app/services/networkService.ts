@@ -16,7 +16,10 @@ export const get = async <T>(endpoint: string): Promise<T | undefined> => {
   }
 }
 
-export const post = async <T>(endpoint: string, body: T): Promise<T | null> => {
+export const post = async <T, R>(
+  endpoint: string,
+  body: T,
+): Promise<R | null> => {
   try {
     const response = await fetch(`${apiUrl}/${endpoint}`, {
       method: 'POST',
@@ -25,14 +28,15 @@ export const post = async <T>(endpoint: string, body: T): Promise<T | null> => {
         'Content-Type': 'application/json',
       },
     })
+
     if (response.ok) {
-      const data = await response.json()
+      const data: R = await response.json()
       return data
     } else {
       throw new Error('Error fetching data')
     }
   } catch (error) {
-    console.log(error)
+    console.log('Network error:', error)
   }
 
   return null

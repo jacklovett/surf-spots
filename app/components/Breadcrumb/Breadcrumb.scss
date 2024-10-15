@@ -31,5 +31,7 @@
 
   .breadcrumb-current {
     text-transform: capitalize;
+    text-wrap: nowrap;
+    padding-right: $spacing-small;
   }
 }

@@ -24,33 +24,31 @@ interface LoaderData {
   isMapView: boolean
 }
 
+const checkIsMapView = (pathname: string) =>
+  pathname === '/surf-spots' || pathname === '/surf-spots/'
+
 export const loader: LoaderFunction = ({ request }) => {
   const { pathname } = new URL(request.url)
-  // Determine if we're on the map view
-  const isMapView = pathname === '/surf-spots' || pathname === '/surf-spots/'
-  return json({ isMapView })
+  return json({ isMapView: checkIsMapView(pathname) })
 }
 
 export default function SurfSpots() {
   const navigate = useNavigate()
+  const { pathname } = useLocation()
   const { state } = useNavigation()
   const loading = state === 'loading'
 
   // Get the initial view from the loader data
   const { isMapView: initialMapView } = useLoaderData<LoaderData>()
-
-  // Manage isMapView in local state
   const [isMapView, setIsMapView] = useState(initialMapView)
-
   // Handle the toggle view logic
   const handleToggleView = () => {
-    if (isMapView) {
-      navigate('/surf-spots/continents/')
-    } else {
-      navigate('/surf-spots')
-    }
+    navigate(isMapView ? '/surf-spots/continents/' : '/surf-spots')
     setIsMapView(!isMapView)
   }
+
+  // Used to check if navigation map from map view i.e. from PopUps
+  useEffect(() => setIsMapView(checkIsMapView(pathname)), [pathname])
 
   const generateBreadcrumbItems = (): BreadcrumbItem[] => {
     const breadcrumbItems: BreadcrumbItem[] = [
@@ -98,7 +96,7 @@ export default function SurfSpots() {
       {isMapView ? (
         <div className="center column">
           <ErrorBoundary message="Uh-oh! Something went wrong displaying the map!">
-            <SurfMap surfSpots={[]} />
+            <SurfMap />
           </ErrorBoundary>
         </div>
       ) : (
