@@ -1,25 +1,26 @@
 .menu {
   @extend %flex-base;
   position: relative;
-  margin: 0 $spacing-unit;
 
   .desktop-menu {
     @extend %flex-base;
-    gap: $spacing-unit;
     cursor: pointer;
 
     ul {
       @extend %flex-base;
-      gap: $spacing-unit;
     }
 
     .nav-item {
       @extend %flex-base;
       align-items: center;
       gap: $spacing-small;
+      padding: $spacing-unit;
 
       &:hover {
-        opacity: 0.6;
+        background-color: $text-hover-background;
+        color: adjust-color($text-color, $lightness: -10%);
+        transform: scale(1.05);
+        transition: transform 0.2s ease-in-out;
       }
     }
   }
@@ -42,10 +43,11 @@
     position: absolute;
     top: 48px;
     right: 0;
-    width: 240px;
+    width: 280px;
     text-align: left;
     background-color: $white;
     box-shadow: $box-shadow;
+    border: 1px solid $outline-color;
     border-radius: $content-border-radius;
     z-index: 10;
 
@@ -57,7 +59,7 @@
         cursor: pointer;
 
         &:hover {
-          background-color: #f2f2f2;
+          background-color: $text-hover-background;
         }
       }
     }
@@ -67,6 +69,7 @@
     display: none;
     flex-direction: column;
     cursor: pointer;
+    padding: $spacing-unit;
 
     span {
       width: 24px;
@@ -82,11 +85,15 @@
     left: 0;
     width: calc(100% - $spacing-large);
     height: 100%;
-    background-color: $white;
-    box-shadow: $box-shadow;
+    background: $white;
     z-index: 20;
-    transform: translateX(0);
-    transition: transform 0.3s ease;
+    transform: translateX(-100%); /* Initially off-screen */
+    transition: transform 0.3s ease; /* Smooth animation */
+
+    &.active {
+      transform: translateX(0); /* Slide into view */
+      box-shadow: $box-shadow;
+    }
 
     .sidebar-header {
       @extend %flex-end;
@@ -116,14 +123,14 @@
           cursor: pointer;
 
           &:hover {
-            background-color: #f2f2f2;
+            background: $text-hover-background;
           }
         }
       }
     }
   }
 
-  @media (max-width: 704px) {
+  @media (max-width: 752px) {
     .desktop-menu {
       display: none;
     }

@@ -15,17 +15,6 @@
   }
 }
 
-header {
-  text-align: center;
-  border-bottom: solid 1px $outline-color;
-  align-items: center;
-
-  .logo {
-    cursor: pointer;
-    margin-left: $spacing-small;
-  }
-}
-
 footer {
   text-align: center;
   font-size: $font-size-x-small;

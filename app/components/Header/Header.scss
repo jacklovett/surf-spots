@@ -1,0 +1,10 @@
+header {
+  text-align: center;
+  border-bottom: solid 1px $outline-color;
+  padding-left: $spacing-unit;
+
+  .logo {
+    cursor: pointer;
+    margin-left: $spacing-small;
+  }
+}

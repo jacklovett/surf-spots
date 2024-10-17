@@ -46,7 +46,7 @@ export default function Region() {
   return (
     <div className="content">
       <h3>{name}</h3>
-      <p>{description}</p>
+      <p className="description">{description}</p>
       <div className="list-map">
         {surfSpots.length > 0 ? (
           surfSpots.map((surfSpot) => {

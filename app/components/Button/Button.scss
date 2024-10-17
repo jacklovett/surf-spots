@@ -28,16 +28,17 @@
 
   /* Add hover state */
   &:hover {
-    background: adjust-color($primary-color, $lightness: -5%);
-    transform: scale(1.025);
+    background: $accent-color;
+    transform: scale(1.02);
+    transition: transform 0.2s ease-in-out;
 
     &.secondary {
       background: adjust-color($disabled-color, $lightness: -5%);
     }
 
     &.alternate {
-      background: adjust-color($secondary-color, $lightness: -15%);
-      border: solid 4px adjust-color($secondary-color, $lightness: -15%);
+      background: $accent-color;
+      border: solid 4px $accent-color;
       color: $white;
     }
   }

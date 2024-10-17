@@ -17,10 +17,13 @@ body {
 }
 
 .description {
-  max-width: 480px;
-  font-size: $font-size-large;
-  text-align: center;
-  margin: $spacing-unit 0;
+  margin: $spacing-large 0;
+
+  &.alternate {
+    max-width: 480px;
+    font-size: $font-size-large;
+    text-align: center;
+  }
 }
 
 /* Global Utilities */

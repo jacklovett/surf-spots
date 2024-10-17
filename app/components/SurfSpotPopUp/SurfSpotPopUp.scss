@@ -4,10 +4,16 @@
 }
 
 .pop-up-container {
-  padding: $spacing-small;
+  padding: 0 $spacing-small;
+
+  .pop-up-title {
+    color: $text-color;
+    font-size: $font-size-large;
+    padding-bottom: $spacing-small;
+    border-bottom: 1px solid $outline-color;
+  }
 
   & p {
-    margin-bottom: $spacing-small;
     font-size: $font-size-small;
   }
 
@@ -27,16 +33,12 @@
   }
 
   .pop-up-details {
+    margin-top: $spacing-small;
     padding-top: $spacing-small;
-
-    & .details {
-      margin-right: $spacing-small;
-      gap: $spacing-small;
-    }
   }
 
   .actions {
-    padding: 0;
     font-size: $font-size-small;
+    justify-content: space-between;
   }
 }

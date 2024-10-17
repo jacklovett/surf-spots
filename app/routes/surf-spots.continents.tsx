@@ -35,7 +35,7 @@ export default function Continents() {
   }
 
   return (
-    <div className="content column">
+    <div className="content column mt">
       {continents.map((continent) => {
         const { id, name, slug } = continent
         return (

@@ -2,34 +2,39 @@ button.text-button {
   @extend %flex-center;
   background: none;
   border: none;
-  color: $primary-color;
   cursor: pointer;
+  padding: $spacing-small $spacing-unit;
+  border-radius: $button-border-radius;
 
   .text-button-icon {
     @extend %flex-center;
-    padding: 4.5px;
-    background: $primary-color;
-    color: $white;
+    width: 24px;
+    height: 24px;
     border-radius: 50%;
-    margin-right: 0.25rem;
+    margin-right: $spacing-small;
 
     svg {
-      width: $font-size-x-small;
-      height: $font-size-x-small;
-      stroke: $white;
-      margin: -2px;
+      width: $spacing-unit;
+      height: $spacing-unit;
+      stroke: none;
+    }
+
+    &.filled {
+      background: $primary-color;
+      color: $white;
+      box-shadow: $box-shadow;
+
+      & svg {
+        stroke: $white;
+      }
     }
   }
 
-  &:hover,
-  &:focus {
-    text-decoration: underline;
-    color: adjust-color($primary-color, $lightness: 10%);
-    outline: none;
-
-    & .text-button-icon {
-      background: adjust-color($primary-color, $lightness: 10%);
-    }
+  &:hover {
+    background-color: $text-hover-background;
+    color: adjust-color($text-color, $lightness: -10%);
+    transform: scale(1.02);
+    transition: transform 0.2s ease-in-out;
   }
 
   p {

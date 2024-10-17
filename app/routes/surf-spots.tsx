@@ -16,31 +16,58 @@ import {
   SurfMap,
   Page,
   ViewSwitch,
+  TextButton,
 } from '~/components'
 import { BreadcrumbItem } from '~/components/Breadcrumb'
 import { LoaderFunction } from '@remix-run/node'
+import classNames from 'classnames'
 
 interface LoaderData {
   isMapView: boolean
+  filters: { label: string }[]
 }
 
 const checkIsMapView = (pathname: string) =>
   pathname === '/surf-spots' || pathname === '/surf-spots/'
 
+/**
+ * Determine if and what filters to display - TODO
+ * @param pathname
+ * @returns filters - array of filters that can be applied
+ */
+const getFilters = (pathname: string) => {
+  const isMapView = checkIsMapView(pathname)
+  const filters: { label: string }[] = []
+
+  if (isMapView) {
+    filters.push({ label: 'Break Type' })
+  }
+
+  return filters
+}
+
 export const loader: LoaderFunction = ({ request }) => {
   const { pathname } = new URL(request.url)
-  return json({ isMapView: checkIsMapView(pathname) })
+  return json({
+    isMapView: checkIsMapView(pathname),
+    filters: getFilters(pathname),
+  })
 }
 
 export default function SurfSpots() {
   const navigate = useNavigate()
   const { pathname } = useLocation()
   const { state } = useNavigation()
+
   const loading = state === 'loading'
 
+  const [isFiltersViewOpen, setFiltersViewOpen] = useState(false)
+
   // Get the initial view from the loader data
-  const { isMapView: initialMapView } = useLoaderData<LoaderData>()
+  const { isMapView: initialMapView, filters: initialFilters } =
+    useLoaderData<LoaderData>()
   const [isMapView, setIsMapView] = useState(initialMapView)
+  const [filters, setFilters] = useState(initialFilters)
   // Handle the toggle view logic
   const handleToggleView = () => {
     navigate(isMapView ? '/surf-spots/continents/' : '/surf-spots')
@@ -48,7 +75,10 @@ export default function SurfSpots() {
   }
 
   // Used to check if navigation map from map view i.e. from PopUps
-  useEffect(() => setIsMapView(checkIsMapView(pathname)), [pathname])
+  useEffect(() => {
+    setIsMapView(checkIsMapView(pathname))
+    setFilters(getFilters(pathname))
+  }, [pathname])
 
   const generateBreadcrumbItems = (): BreadcrumbItem[] => {
     const breadcrumbItems: BreadcrumbItem[] = [
@@ -82,10 +112,24 @@ export default function SurfSpots() {
 
   const breadcrumbs = generateBreadcrumbItems()
 
+  const showFilters = filters && filters.length > 0
+
   return (
     <Page showHeader>
-      <div className="row space-between toolbar">
-        <h3>Surf Spots</h3>
+      <div
+        className={classNames({
+          'row toolbar': true,
+          'space-between': showFilters,
+          'flex-end': !showFilters,
+        })}
+      >
+        {showFilters && (
+          <TextButton
+            text="Filters"
+            onClick={() => setFiltersViewOpen(!isFiltersViewOpen)}
+            iconKey="filters"
+          />
+        )}
         <ViewSwitch
           isPrimaryView={isMapView}
           onToggleView={handleToggleView}
@@ -94,7 +138,7 @@ export default function SurfSpots() {
         />
       </div>
       {isMapView ? (
-        <div className="center column">
+        <div className="center column mv">
           <ErrorBoundary message="Uh-oh! Something went wrong displaying the map!">
             <SurfMap />
           </ErrorBoundary>

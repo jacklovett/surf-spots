@@ -2,9 +2,20 @@
 
 @font-face {
   font-family: 'Agbalumo';
-  src: url('./../../fonts/Agbalumo.ttf') format('truetype');
+  src: url('/fonts/Agbalumo.ttf') format('truetype');
   font-weight: normal;
   font-style: normal;
+}
+
+@font-face {
+  font-family: 'Roboto';
+  src: url('/fonts/Roboto-Regular.ttf') format('truetype');
+}
+
+@font-face {
+  font-family: 'Roboto';
+  src: url('/fonts/Roboto-Bold.ttf') format('truetype');
+  font-weight: 600;
 }
 
 body {
@@ -15,37 +26,52 @@ body {
 }
 
 h1,
+h2,
+h3,
+h4 {
+  color: $heading-color;
+  line-height: 1.4;
+}
+
+h1,
 h2 {
   font-family: $font-family-heading;
-  color: $heading-color;
   margin-bottom: $spacing-small;
+  font-weight: 700;
 }
 
 h1 {
-  font-size: 2rem;
+  font-size: 2.25rem;
 }
 
 h2 {
-  font-size: 1.75rem;
+  font-size: 2rem;
+}
+
+h3,
+h4 {
+  font-weight: 600;
 }
 
 h3 {
-  font-size: 1.5rem;
-  color: $primary-color;
+  font-size: 1.75rem;
 }
 
 h4 {
-  font-size: 1.25rem;
+  font-size: 1.5rem;
 }
 
 p {
-  margin-bottom: $spacing-unit;
+  margin-bottom: $spacing-small;
   font-size: $font-size-base;
 }
 
 a {
   color: $primary-color;
+  text-decoration: none;
+
   &:hover {
     color: $accent-color;
+    text-decoration: underline;
   }
 }

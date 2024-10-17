@@ -1,21 +1,21 @@
 import { post, deleteData } from '~/services/networkService'
-import TextButton from '../TextButton'
+import { TextButton } from '../index'
+import { SurfSpot } from '~/types/surfSpots'
 
 interface IProps {
-  surfSpotId: string
-  isSurfedSpot: boolean
-  isWishlisted: boolean
+  surfSpot: SurfSpot
 }
 
 export const SurfSpotActions = (props: IProps) => {
-  const { surfSpotId, isSurfedSpot, isWishlisted } = props
+  const { surfSpot } = props
+  const { id, isSurfedSpot, isWishlisted } = surfSpot
 
   // TODO: Replace with actual userId from state/context
   const userId = 1
 
   const userSpotRequest = {
     userId,
-    surfSpotId,
+    surfSpotId: id,
   }
 
   const handleAction = async (
@@ -23,7 +23,7 @@ export const SurfSpotActions = (props: IProps) => {
     target: 'user-spots' | 'wishlist',
   ) => {
     const endpoint =
-      actionType === 'add' ? target : `${target}/${userId}/remove/${surfSpotId}`
+      actionType === 'add' ? target : `${target}/${userId}/remove/${id}`
     const requestMethod = actionType === 'add' ? post : deleteData
 
     try {
@@ -43,6 +43,7 @@ export const SurfSpotActions = (props: IProps) => {
           text="Add to wishlist"
           onClick={() => handleAction('add', 'wishlist')}
           iconKey="heart"
+          filled
         />
       )}
       {!isSurfedSpot && (
@@ -50,6 +51,7 @@ export const SurfSpotActions = (props: IProps) => {
           text="Add to surfed spots"
           onClick={() => handleAction('add', 'user-spots')}
           iconKey="plus"
+          filled
         />
       )}
       {isSurfedSpot && (
@@ -57,13 +59,15 @@ export const SurfSpotActions = (props: IProps) => {
           text="Remove from surfed spots"
           onClick={() => handleAction('remove', 'user-spots')}
           iconKey="bin"
+          filled
         />
       )}
       {isWishlisted && (
         <TextButton
           text="Remove from wishlist"
           onClick={() => handleAction('remove', 'wishlist')}
-          iconKey="bin" // TODO: broke heart icon?
+          iconKey="bin"
+          filled
         />
       )}
     </div>

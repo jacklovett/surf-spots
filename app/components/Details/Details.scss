@@ -1,6 +1,7 @@
 .details {
   @extend %flex-base;
   gap: $spacing-unit;
+  padding-right: $spacing-unit;
 
   .label {
     color: $primary-color;

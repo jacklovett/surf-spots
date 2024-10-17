@@ -51,7 +51,7 @@ export default function Continent() {
   return (
     <div className="content">
       <h3>{name}</h3>
-      <p>{description}</p>
+      <p className="description">{description}</p>
       <div className="list-map">
         {countries.length > 0 ? (
           countries.map((country) => {

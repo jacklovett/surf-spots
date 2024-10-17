@@ -47,7 +47,7 @@ export default function Country() {
   return (
     <div className="content">
       <h3>{name}</h3>
-      <p>{description}</p>
+      <p className="description">{description}</p>
       <div className="list-map">
         {regions.length > 0 ? (
           regions.map((region) => {

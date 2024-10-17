@@ -5,13 +5,14 @@
 $primary-color: #046380;
 $secondary-color: #20c6f8;
 $white: #ffffff;
-$background-color: #f4f9fc;
-$text-color: #333333;
-$outline-color: #e6e6e6;
+$background-color: $white;
+$text-color: #0d0d0d;
+$outline-color: #d9d9d9;
 $heading-color: $primary-color;
-$accent-color: #ff7043;
+$accent-color: #3bb4c1;
 $focus-color: #0077b6;
-$disabled-color: #999999;
+$disabled-color: #d7d7d7;
+$text-hover-background: #f0f4f8;
 
 $success: green;
 $warn: yellow;
@@ -20,8 +21,8 @@ $error: red;
 $scrollbar-color: #d9d9d9;
 
 /* Typography */
-$font-family-base: 'Quicksand', 'Roboto', Arial, sans-serif;
-$font-family-heading: 'Agbalumo', cursive;
+$font-family-base: 'Roboto', 'Open Sans', sans-serif;
+$font-family-heading: 'Agbalumo', 'Lobster', cursive;
 
 $font-size-base: 1rem; // 16px
 $font-size-x-small: 0.75rem; // 12px
@@ -38,7 +39,7 @@ $header-height: 48px;
 
 /* Borders & Shadows */
 $form-border-radius: 4px;
-$content-border-radius: $spacing-unit;
+$content-border-radius: 25px;
 $button-border-radius: 25px;
 $box-shadow: 1px 2px 8px rgba(0, 0, 0, 0.2);
 

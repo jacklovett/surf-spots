@@ -1,5 +1,6 @@
 import { useRef, useState } from 'react'
 import 'mapbox-gl/dist/mapbox-gl.css'
+import classNames from 'classnames'
 
 import { SkeletonLoader } from '../index'
 import { SurfSpot } from '~/types/surfSpots'
@@ -27,7 +28,11 @@ export const SurfMap = (props: IProps) => {
     <div className="map-container">
       <div
         ref={mapContainerRef}
-        className={`map ${loading ? '' : 'map-visible'}`}
+        className={classNames({
+          map: true,
+          'map-visible': !loading,
+          'static-map': disableInteractions,
+        })}
       />
       {/* Skeleton Loader shown on top of the map while loading */}
       {loading && <SkeletonLoader />}

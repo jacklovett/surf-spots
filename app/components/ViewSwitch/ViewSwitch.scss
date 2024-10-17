@@ -1,5 +1,14 @@
 .view-switch {
   cursor: pointer;
+  border-radius: $button-border-radius;
+  border: solid 1px $outline-color;
+  box-shadow: $box-shadow;
+  padding: $spacing-small $spacing-unit;
+
+  &:hover {
+    transform: scale(1.03);
+    transition: transform 0.2s ease-in-out;
+  }
 
   .view-switch-label {
     color: $disabled-color;
@@ -12,7 +21,7 @@
   }
 
   .separator {
-    margin: 0 $spacing-small;
-    color: $outline-color;
+    margin: 0 $spacing-unit;
+    border: solid 1px $outline-color;
   }
 }

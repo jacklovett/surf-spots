@@ -9,10 +9,17 @@ interface IProps {
 
 export const SurfSpotPopUp = (props: IProps) => {
   const { surfSpot, onNavigate } = props
-  const { beachBottomType, id, name, rating, skillLevel, path, type } = surfSpot
-
-  const isSurfedSpot = false
-  const isWishlisted = false
+  const {
+    beachBottomType,
+    id,
+    isSurfedSpot,
+    isWishlisted,
+    name,
+    rating,
+    skillLevel,
+    path,
+    type,
+  } = surfSpot
 
   return (
     <div className="pop-up-container">
@@ -26,7 +33,7 @@ export const SurfSpotPopUp = (props: IProps) => {
       <p className="pop-up-link" onClick={() => onNavigate(path)} tabIndex={0}>
         See more
       </p>
-      <SurfSpotActions {...{ surfSpotId: id, isSurfedSpot, isWishlisted }} />
+      <SurfSpotActions {...{ surfSpot }} />
     </div>
   )
 }

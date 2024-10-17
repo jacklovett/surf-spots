@@ -1,0 +1,13 @@
+.actions {
+  @extend %flex-base;
+  flex-wrap: wrap;
+
+  @media (max-width: 640px) {
+    gap: $spacing-unit;
+    padding-top: $spacing-unit;
+
+    button.text-button {
+      padding: 0;
+    }
+  }
+}

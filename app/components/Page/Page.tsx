@@ -1,7 +1,7 @@
 import { ReactNode } from 'react'
-import { Link, useNavigate } from '@remix-run/react'
+import { useNavigate } from '@remix-run/react'
 
-import { ContentStatus, ErrorBoundary, Loading, Menu } from '../index'
+import { ContentStatus, ErrorBoundary, Header, Loading, Menu } from '../index'
 
 interface IProps {
   children: ReactNode
@@ -44,23 +44,7 @@ export const Page = (props: IProps) => {
 
   return (
     <main className={isAlternate ? 'page alternate' : 'page'}>
-      {showHeader && (
-        <header className="header space-between">
-          <div className="center logo" onClick={() => navigate('/')}>
-            {/* TODO: Replace logo (it contains the text still) */}
-            <img src="/favicon.ico" alt="Logo" height="40" />
-            <h2>Surf Spots</h2>
-          </div>
-          {isLoggedIn ? (
-            <Menu />
-          ) : (
-            <div className="login-nav">
-              <Link to="/auth">Login</Link>
-              <Link to="/auth">Sign up</Link>
-            </div>
-          )}
-        </header>
-      )}
+      {showHeader && <Header {...{ isLoggedIn, navigate }} />}
       <section className="content-container">
         <ErrorBoundary message="Unable to display page content">
           {renderContent()}

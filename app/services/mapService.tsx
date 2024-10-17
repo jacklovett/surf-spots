@@ -79,7 +79,7 @@ const addMarkerForSurfSpot = (
   }
 
   const popup = new mapboxgl.Popup({
-    maxWidth: '370px',
+    maxWidth: '380px',
     focusAfterOpen: false,
   }).setDOMContent(popupContainer)
 

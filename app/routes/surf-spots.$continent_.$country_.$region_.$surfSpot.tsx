@@ -32,21 +32,21 @@ export default function SurfSpotDetails() {
       )
     }
 
-    const { id, beachBottomType, description, name, rating, skillLevel, type } =
+    const { beachBottomType, description, name, rating, skillLevel, type } =
       surfSpotDetails
 
     return (
       <div className="column">
         <div className="content">
-          <SurfSpotActions
-            {...{ surfSpotId: id, isSurfedSpot, isWishlisted }}
-          />
           <div className="column">
-            <div>
+            <div className="row space-between">
               <h3>{name}</h3>
-              <p>{description}</p>
+              <div className="spot-actions">
+                <SurfSpotActions {...{ surfSpot: surfSpotDetails }} />
+              </div>
             </div>
-            <div className="row spot-details">
+            <p className="description">{description}</p>
+            <div className="row spot-details mb">
               <Details label="Break Type" value={type} />
               <Details label="Beach Bottom" value={beachBottomType} />
               <Details label="Skill Level" value={skillLevel} />
@@ -55,7 +55,9 @@ export default function SurfSpotDetails() {
           </div>
         </div>
         <ErrorBoundary message="Uh-oh! Something went wrong displaying the map!">
-          <SurfMap surfSpots={[surfSpotDetails]} disableInteractions />
+          <div className="mv">
+            <SurfMap surfSpots={[surfSpotDetails]} disableInteractions />
+          </div>
         </ErrorBoundary>
       </div>
     )

@@ -17,6 +17,7 @@ import Details from './Details'
 import ViewSwitch from './ViewSwitch'
 import SurfSpotActions from './SurfSpotActions'
 import SurfSpotPopUp from './SurfSpotPopUp'
+import Header from './Header'
 
 export {
   Breadcrumb,
@@ -26,6 +27,7 @@ export {
   ErrorBoundary,
   FormComponent,
   FormItem,
+  Header,
   Icon,
   Loading,
   SurfMap,

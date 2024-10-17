@@ -64,6 +64,8 @@ export enum SkillLevel {
 export interface SurfSpot extends NewSurfSpot {
   id: string
   path: string
+  isSurfedSpot: boolean
+  isWishlisted: boolean
 }
 
 export interface NewSurfSpot extends Coordinates {

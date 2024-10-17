@@ -1,9 +1,9 @@
 import { useState } from 'react'
 import { useNavigate } from '@remix-run/react'
+import classNames from 'classnames'
 
-import Icon from '../Icon'
-import ErrorBoundary from '../ErrorBoundary'
 import { MenuItem, profileMenuItems, spotsMenuItems } from './index'
+import { ErrorBoundary, Icon } from '../index'
 
 const Menu = () => {
   const navigate = useNavigate()
@@ -29,6 +29,7 @@ const Menu = () => {
 
   return (
     <div className="menu">
+      {/* Desktop Menu */}
       <div className="desktop-menu">
         {createMenuList(spotsMenuItems, 'nav-item')}
         <div
@@ -39,7 +40,7 @@ const Menu = () => {
           <Icon iconKey="profile" />
         </div>
       </div>
-
+      {/* Dropdown Menu */}
       {isDropdownOpen && (
         <div className="dropdown-menu">
           <ErrorBoundary message="Unable to display profile menu">
@@ -47,23 +48,26 @@ const Menu = () => {
           </ErrorBoundary>
         </div>
       )}
-
-      {isSidebarOpen && (
-        <div className="sidebar-menu">
-          <div className="sidebar-header">
-            <button onClick={toggleSidebar}>✕</button>
-          </div>
-          <ErrorBoundary message="Unable to display menu">
-            <div className="sidebar-content">
-              {createMenuList(spotsMenuItems, 'menu-item')}
-              <div className="menu-section">
-                {createMenuList(profileMenuItems, 'menu-item')}
-              </div>
-            </div>
-          </ErrorBoundary>
+      {/* Sidebar Menu */}
+      <div
+        className={classNames({
+          'sidebar-menu': true,
+          active: isSidebarOpen,
+        })}
+      >
+        <div className="sidebar-header">
+          <button onClick={toggleSidebar}>✕</button>
         </div>
-      )}
-
+        <ErrorBoundary message="Unable to display menu">
+          <div className="sidebar-content">
+            {createMenuList(spotsMenuItems, 'menu-item')}
+            <div className="menu-section">
+              {createMenuList(profileMenuItems, 'menu-item')}
+            </div>
+          </div>
+        </ErrorBoundary>
+      </div>
+      {/* Hamburger Icon (Mobile) */}
       <div className="hamburger-icon" onClick={toggleSidebar}>
         <span></span>
         <span></span>

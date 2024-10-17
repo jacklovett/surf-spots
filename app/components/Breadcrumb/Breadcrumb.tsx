@@ -25,7 +25,7 @@ export const Breadcrumb = ({ items }: IProps) => {
     if (breadcrumbWidth > maxWidth && collapsed.length > 1) {
       // Check if it's the first collapse; if so, change it to '...'
       if (collapsed[1].label !== '...') {
-        collapsed[1] = { ...collapsed[1], label: '...' }
+        collapsed[1] = { ...collapsed[1], label: '...', link: '' }
       } else {
         collapsed.splice(2, 1) // Remove the next item after '...'
       }

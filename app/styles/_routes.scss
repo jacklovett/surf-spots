@@ -1,5 +1,6 @@
 .toolbar {
   padding: $spacing-unit 0;
+  border-bottom: solid 1px $outline-color;
 
   @media (max-width: 670px) {
     padding: $spacing-unit;
@@ -40,5 +41,20 @@
 
 .spot-details {
   @extend %flex-row;
-  gap: $spacing-unit;
+  justify-content: space-around;
+  align-items: center;
+  gap: 0 $spacing-unit;
+  border: solid 1px $outline-color;
+  border-radius: $content-border-radius;
+  padding: $spacing-unit;
+
+  & p {
+    margin-bottom: 0;
+  }
+}
+
+.spot-actions {
+  @media (max-width: 640px) {
+    width: 100%;
+  }
 }
