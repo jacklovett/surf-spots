@@ -11,3 +11,6 @@ export const debounce = (action: (...args: any[]) => void, delay: number) => {
     timeoutId = setTimeout(() => action(...args), delay)
   }
 }
+
+export const getCssVariable = (variable: string) =>
+  getComputedStyle(document.body).getPropertyValue(variable)

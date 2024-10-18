@@ -8,10 +8,12 @@ import {
 import { useNavigate } from '@remix-run/react'
 import mapboxgl from 'mapbox-gl'
 import {
-  addMarkersForSurfSpots,
+  addLayers,
+  addSourceData,
   defaultMapCenter,
   fetchSurfSpotsByBounds,
-  MAP_ACCESS_TOKEN,
+  getSourceData,
+  initializeMap,
 } from '~/services/mapService'
 import { Coordinates, SurfSpot } from '~/types/surfSpots'
 import { debounce } from '~/utils'
@@ -27,27 +29,27 @@ export const useDynamicMap = (
   const [surfSpots, setSurfSpots] = useState<SurfSpot[]>([])
   const loadedBoundsRef = useRef<mapboxgl.LngLatBounds[]>([])
 
-  const isBoundsAlreadyLoaded = (newBounds: mapboxgl.LngLatBounds) =>
-    loadedBoundsRef.current.some(
-      (loadedBounds) =>
-        loadedBounds.contains(newBounds.getNorthEast()) &&
-        loadedBounds.contains(newBounds.getSouthWest()),
-    )
+  /**
+   * Helper function to check if bounds are already loaded
+   */
+  const isBoundsAlreadyLoaded = useCallback(
+    (newBounds: mapboxgl.LngLatBounds) =>
+      loadedBoundsRef.current.some(
+        (loadedBounds) =>
+          loadedBounds.contains(newBounds.getNorthEast()) &&
+          loadedBounds.contains(newBounds.getSouthWest()),
+      ),
+    [],
+  )
 
-  // UseCallback for the debounced function to prevent re-creation on every render
+  /**
+   * Debounced function to fetch surf spots based on map bounds
+   */
   const debouncedFetchSurfSpots = useCallback(
     debounce(async (currentMap: mapboxgl.Map) => {
       const newBounds = currentMap.getBounds()
 
-      if (!newBounds) {
-        console.log('New map bounds not received.')
-        return
-      }
-
-      if (isBoundsAlreadyLoaded(newBounds)) {
-        console.log('Bounds already loaded, no need to fetch.')
-        return
-      }
+      if (!newBounds || isBoundsAlreadyLoaded(newBounds)) return
 
       try {
         const newSurfSpots: SurfSpot[] = await fetchSurfSpotsByBounds(
@@ -60,16 +62,15 @@ export const useDynamicMap = (
           )
           return [...prevSpots, ...uniqueSpots]
         })
+        loadedBoundsRef.current.push(newBounds)
       } catch (error) {
         console.error('Error fetching surf spots:', error)
       }
-
-      loadedBoundsRef.current.push(newBounds)
     }, 500),
     [],
   )
 
-  // Only fetch user location once for initial load
+  // Fetch user's geolocation once for initial map load
   useEffect(
     () =>
       navigator.geolocation.getCurrentPosition(
@@ -79,51 +80,44 @@ export const useDynamicMap = (
     [],
   )
 
+  // Initialize the map and set up event listeners for move and zoom actions
   useEffect(() => {
-    if (mapRef.current || !mapContainer.current) {
-      return
-    }
+    if (mapRef.current || !mapContainer.current) return
 
-    mapboxgl.accessToken = MAP_ACCESS_TOKEN
-
-    const currentMap = new mapboxgl.Map({
-      container: mapContainer.current,
-      style: 'mapbox://styles/mapbox/light-v11',
-      center: [userLocation.longitude, userLocation.latitude],
-      zoom: 10,
-      minZoom: 2,
-      maxZoom: 15,
-    })
-
+    const currentMap = initializeMap(mapContainer.current, true, userLocation)
     mapRef.current = currentMap
 
-    // Add zoom/move controls
     currentMap.addControl(new mapboxgl.NavigationControl(), 'top-right')
 
     currentMap.on('load', () => {
       setLoading(false)
-      debouncedFetchSurfSpots(currentMap) // Fetch surf spots once the map is loaded
+      addSourceData(currentMap, surfSpots)
+      addLayers(currentMap, navigate)
+      debouncedFetchSurfSpots(currentMap)
     })
 
-    currentMap.on('moveend', () => debouncedFetchSurfSpots(currentMap))
-    currentMap.on('zoomend', () => debouncedFetchSurfSpots(currentMap))
+    // Add event listeners for map movements
+    const handleMapUpdate = () => debouncedFetchSurfSpots(currentMap)
+    currentMap.on('moveend', handleMapUpdate)
+    currentMap.on('zoomend', handleMapUpdate)
 
     return () => {
-      if (mapRef.current) {
-        mapRef.current.off('moveend', () => debouncedFetchSurfSpots(currentMap))
-        mapRef.current.off('zoomend', () => debouncedFetchSurfSpots(currentMap))
-        mapRef.current.remove()
-        mapRef.current = null
-      }
+      currentMap.off('moveend', handleMapUpdate)
+      currentMap.off('zoomend', handleMapUpdate)
+      currentMap.remove()
+      mapRef.current = null
     }
   }, [debouncedFetchSurfSpots, mapContainer])
 
-  // Add markers only when surf spots change
+  // Update map source data when surfSpots changes
   useEffect(() => {
     if (mapRef.current && surfSpots.length > 0) {
-      addMarkersForSurfSpots(surfSpots, mapRef.current, (path) =>
-        navigate(path),
-      )
+      const source = mapRef.current.getSource(
+        'surfSpots',
+      ) as mapboxgl.GeoJSONSource
+      if (source) {
+        source.setData(getSourceData(surfSpots))
+      }
     }
   }, [surfSpots])
 

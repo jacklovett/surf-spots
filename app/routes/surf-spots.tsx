@@ -138,7 +138,7 @@ export default function SurfSpots() {
         />
       </div>
       {isMapView ? (
-        <div className="center column mv">
+        <div className="center column">
           <ErrorBoundary message="Uh-oh! Something went wrong displaying the map!">
             <SurfMap />
           </ErrorBoundary>

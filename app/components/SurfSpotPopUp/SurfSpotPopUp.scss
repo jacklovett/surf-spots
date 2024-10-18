@@ -4,13 +4,18 @@
 }
 
 .pop-up-container {
-  padding: 0 $spacing-small;
+  padding: $spacing-small;
 
   .pop-up-title {
     color: $text-color;
     font-size: $font-size-large;
-    padding-bottom: $spacing-small;
+    padding-bottom: $spacing-unit;
+    padding-left: $spacing-small;
     border-bottom: 1px solid $outline-color;
+  }
+
+  .pop-up-content {
+    padding: 0 $spacing-small;
   }
 
   & p {

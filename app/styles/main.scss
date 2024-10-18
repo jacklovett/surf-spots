@@ -17,7 +17,8 @@ body {
 }
 
 .description {
-  margin: $spacing-large 0;
+  margin: $spacing-unit 0;
+  margin-bottom: $spacing-large;
 
   &.alternate {
     max-width: 480px;

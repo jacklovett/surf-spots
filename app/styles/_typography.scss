@@ -30,13 +30,13 @@ h2,
 h3,
 h4 {
   color: $heading-color;
-  line-height: 1.4;
+  line-height: 1.2;
 }
 
 h1,
 h2 {
   font-family: $font-family-heading;
-  margin-bottom: $spacing-small;
+  margin-bottom: $spacing-unit;
   font-weight: 700;
 }
 
@@ -51,6 +51,7 @@ h2 {
 h3,
 h4 {
   font-weight: 600;
+  margin-bottom: $spacing-unit;
 }
 
 h3 {

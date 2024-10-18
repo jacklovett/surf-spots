@@ -8,6 +8,10 @@
   border-radius: $content-border-radius;
   z-index: 10;
   animation: pulse-opacity 2s infinite;
+
+  @media (max-width: 640px) {
+    border-radius: 0;
+  }
 }
 
 @keyframes pulse-opacity {

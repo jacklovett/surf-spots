@@ -1,6 +1,5 @@
-import mapboxgl from 'mapbox-gl'
 import { MutableRefObject, useEffect, useRef } from 'react'
-import { addMarkerForCoordinate, MAP_ACCESS_TOKEN } from '~/services/mapService'
+import { addMarkerForCoordinate, initializeMap } from '~/services/mapService'
 import { Coordinates } from '~/types/surfSpots'
 
 export const useStaticMap = (
@@ -8,26 +7,15 @@ export const useStaticMap = (
   mapContainer: MutableRefObject<HTMLDivElement | null>,
   setLoading: (value: boolean) => void,
 ) => {
-  const { longitude, latitude } = coordinates
-
   const mapRef = useRef<mapboxgl.Map | null>(null)
 
   useEffect(() => {
-    mapboxgl.accessToken = MAP_ACCESS_TOKEN
+    if (!mapContainer.current) {
+      return
+    }
 
     // Initialize the map
-    mapRef.current = new mapboxgl.Map({
-      container: mapContainer?.current as HTMLElement,
-      style: 'mapbox://styles/mapbox/light-v11',
-      center: [longitude, latitude],
-      zoom: 12,
-      interactive: false,
-      scrollZoom: false,
-      dragPan: false,
-      doubleClickZoom: false,
-      boxZoom: false,
-      touchZoomRotate: false,
-    })
+    mapRef.current = initializeMap(mapContainer.current, false, coordinates)
 
     addMarkerForCoordinate(coordinates, mapRef.current)
 
