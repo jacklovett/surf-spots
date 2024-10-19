@@ -55,7 +55,7 @@ export default function SurfSpotDetails() {
           </div>
         </div>
         <ErrorBoundary message="Uh-oh! Something went wrong displaying the map!">
-          <div className="mt">
+          <div className="mv">
             <SurfMap surfSpots={[surfSpotDetails]} disableInteractions />
           </div>
         </ErrorBoundary>

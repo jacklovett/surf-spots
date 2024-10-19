@@ -10,6 +10,7 @@ import { SurfSpotPopUp } from '~/components'
 import { getCssVariable } from '~/utils'
 
 export const MAP_ACCESS_TOKEN = import.meta.env.VITE_MAP_ACCESS_TOKEN
+export const ICON_IMAGE_PATH = `/images/png/pin.png`
 
 export const defaultMapCenter = {
   longitude: -9.2398383,
@@ -68,7 +69,7 @@ export const initializeMap = (
     container: mapContainer,
     style: 'mapbox://styles/mapbox/light-v11',
     center: [initLongitude, initLatitude],
-    zoom: 11,
+    zoom: 12,
     minZoom: 2,
     maxZoom: 15,
     interactive,
@@ -138,6 +139,7 @@ export const addLayers = (map: Map, onNavigate: (path: string) => void) => {
 }
 
 const addClusterLayers = (map: Map) => {
+  const primaryColor = getCssVariable('--primary-color')
   const accentColor = getCssVariable('--accent-color')
 
   map.addLayer({
@@ -146,16 +148,11 @@ const addClusterLayers = (map: Map) => {
     source: 'surfSpots',
     filter: ['has', 'point_count'],
     paint: {
-      'circle-radius': ['step', ['get', 'point_count'], 20, 100, 30, 750, 40],
-      'circle-color': [
-        'step',
-        ['get', 'point_count'],
-        accentColor,
-        100,
-        accentColor,
-        750,
-        accentColor,
-      ],
+      'circle-radius': ['step', ['get', 'point_count'], 16, 100, 25, 750, 35],
+      'circle-color': primaryColor,
+      'circle-opacity': 0.8,
+      'circle-stroke-width': 3,
+      'circle-stroke-color': accentColor,
     },
   })
 
@@ -168,22 +165,37 @@ const addClusterLayers = (map: Map) => {
       'text-field': '{point_count_abbreviated}',
       'text-font': ['DIN Offc Pro Medium', 'Arial Unicode MS Bold'],
       'text-size': 14,
+      'text-allow-overlap': true, // Ensure text doesn't overlap
+    },
+    paint: {
+      'text-color': '#ffffff', // White text for contrast
     },
   })
 }
 
 const addMarkerLayers = (map: Map) => {
-  const primaryColor = getCssVariable('--primary-color')
+  // Load the pin icon image
+  map.loadImage(`/images/png/pin.png`, (error, image) => {
+    if (error) throw error
 
-  map.addLayer({
-    id: 'marker',
-    type: 'circle',
-    source: 'surfSpots',
-    filter: ['!', ['has', 'point_count']],
-    paint: {
-      'circle-color': primaryColor,
-      'circle-radius': 4,
-    },
+    if (!image) {
+      throw new Error('No icon image found!')
+    }
+
+    // Add the custom image to the map
+    map.addImage('custom-pin', image)
+    // Add a layer using the custom icon
+    map.addLayer({
+      id: 'marker',
+      type: 'symbol',
+      source: 'surfSpots',
+      filter: ['!', ['has', 'point_count']],
+      layout: {
+        'icon-image': 'custom-pin', // Use the custom icon
+        'icon-size': 0.5, // Adjust size as needed
+        'icon-allow-overlap': true,
+      },
+    })
   })
 }
 
@@ -273,9 +285,8 @@ const setupLayerInteractions = (
     handleMarkerClick(map, onNavigate, event),
   )
 
-  const setCursorStyle = (cursor: string) => () => {
-    map.getCanvas().style.cursor = cursor
-  }
+  const setCursorStyle = (cursor: string) => () =>
+    (map.getCanvas().style.cursor = cursor)
 
   map.on('mouseenter', ['clusters', 'marker'], setCursorStyle('pointer'))
   map.on('mouseleave', ['clusters', 'marker'], setCursorStyle(''))
@@ -320,8 +331,50 @@ const createPopUp = (
  * @returns
  **/
 export const addMarkerForCoordinate = (coordinates: Coordinates, map: Map) => {
-  const primaryColor = getCssVariable('--primary-color')
-  new mapboxgl.Marker({ color: primaryColor, scale: 0.75 })
-    .setLngLat([coordinates.longitude, coordinates.latitude])
-    .addTo(map)
+  // Load the pin icon image
+  map.loadImage(ICON_IMAGE_PATH, (error, image) => {
+    if (error) {
+      console.error('Error loading pin image:', error)
+      return
+    }
+
+    if (!image) {
+      console.error('No icon image found for marker!')
+      return
+    }
+
+    // Add the custom image to the map
+    map.addImage('custom-pin', image)
+    // Create the marker using the custom pin image
+    new mapboxgl.Marker({
+      element: createMarkerElement(),
+    })
+      .setLngLat([coordinates.longitude, coordinates.latitude])
+      .addTo(map)
+  })
+}
+
+// Helper function to create a marker element
+const createMarkerElement = () => {
+  const markerDiv = document.createElement('div')
+  markerDiv.style.backgroundImage = `url(${ICON_IMAGE_PATH})`
+  markerDiv.style.width = '42px'
+  markerDiv.style.height = '42px'
+  markerDiv.style.backgroundSize = 'contain'
+  markerDiv.style.backgroundRepeat = 'no-repeat'
+  return markerDiv
+}
+
+export const removeSource = (map: Map) => {
+  const source = map.getSource('surfSpots')
+  if (!source) {
+    return console.error(
+      'Source not found. Unable to remove surf spots source.',
+    )
+  }
+
+  map.removeLayer('clusters')
+  map.removeLayer('cluster-count')
+  map.removeLayer('marker')
+  map.removeSource('surfSpots')
 }

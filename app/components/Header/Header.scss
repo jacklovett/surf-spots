@@ -3,8 +3,16 @@ header {
   border-bottom: solid 1px $outline-color;
   padding-left: $spacing-unit;
 
+  @media (max-width: 752px) {
+    padding-left: $spacing-small;
+  }
+
   .logo {
     cursor: pointer;
-    margin-left: $spacing-small;
+    gap: $spacing-small;
+
+    & h2 {
+      margin-bottom: $spacing-small;
+    }
   }
 }

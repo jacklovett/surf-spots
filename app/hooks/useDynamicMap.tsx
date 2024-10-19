@@ -14,6 +14,7 @@ import {
   fetchSurfSpotsByBounds,
   getSourceData,
   initializeMap,
+  removeSource,
 } from '~/services/mapService'
 import { Coordinates, SurfSpot } from '~/types/surfSpots'
 import { debounce } from '~/utils'
@@ -102,6 +103,7 @@ export const useDynamicMap = (
     currentMap.on('zoomend', handleMapUpdate)
 
     return () => {
+      removeSource(currentMap)
       currentMap.off('moveend', handleMapUpdate)
       currentMap.off('zoomend', handleMapUpdate)
       currentMap.remove()
