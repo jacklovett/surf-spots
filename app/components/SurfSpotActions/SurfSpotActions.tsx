@@ -8,7 +8,7 @@ interface IProps {
 
 export const SurfSpotActions = (props: IProps) => {
   const { surfSpot } = props
-  const { id, isSurfedSpot, isFollowing } = surfSpot
+  const { id, isSurfedSpot, isWatching } = surfSpot
 
   // TODO: Replace with actual userId from state/context
   const userId = 1
@@ -20,7 +20,7 @@ export const SurfSpotActions = (props: IProps) => {
 
   const handleAction = async (
     actionType: 'add' | 'remove',
-    target: 'user-spots' | 'follow',
+    target: 'user-spots' | 'watch',
   ) => {
     const endpoint =
       actionType === 'add' ? target : `${target}/${userId}/remove/${id}`
@@ -38,10 +38,10 @@ export const SurfSpotActions = (props: IProps) => {
 
   return (
     <div className="actions">
-      {!isFollowing && !isSurfedSpot && (
+      {!isWatching && !isSurfedSpot && (
         <TextButton
-          text="Follow Spot"
-          onClick={() => handleAction('add', 'follow')}
+          text="Add to watch list"
+          onClick={() => handleAction('add', 'watch')}
           iconKey="heart"
           filled
         />
@@ -62,10 +62,10 @@ export const SurfSpotActions = (props: IProps) => {
           filled
         />
       )}
-      {isFollowing && (
+      {isWatching && (
         <TextButton
-          text="Unfollow spot"
-          onClick={() => handleAction('remove', 'follow')}
+          text="Remove from watch list"
+          onClick={() => handleAction('remove', 'watch')}
           iconKey="bin"
           filled
         />

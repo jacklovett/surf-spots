@@ -4,18 +4,18 @@
 }
 
 .pop-up-container {
-  padding: $spacing-small;
+  padding-top: $spacing-unit;
 
   .pop-up-title {
     color: $text-color;
     font-size: $font-size-large;
     padding-bottom: $spacing-unit;
-    padding-left: $spacing-unit;
+    padding-left: $spacing-small;
     border-bottom: 1px solid $outline-color;
   }
 
   .pop-up-content {
-    padding: 0 $spacing-unit;
+    padding: 0 $spacing-small;
   }
 
   & p {
@@ -28,6 +28,7 @@
     cursor: pointer;
     color: $primary-color;
     font-size: $font-size-small;
+    padding-right: $spacing-unit;
 
     &:hover,
     &:focus {

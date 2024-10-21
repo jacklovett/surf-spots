@@ -22,10 +22,10 @@ export const spotsMenuItems: MenuItem[] = [
     path: '/surfed-spots',
   },
   {
-    key: 'followed-spots',
+    key: 'watch-list',
     icon: 'heart',
-    label: 'Followed Spots',
-    path: '/followed-spots',
+    label: 'Watch List',
+    path: '/watch-list',
   },
 ]
 
