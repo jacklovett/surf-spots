@@ -18,6 +18,7 @@ import ViewSwitch from './ViewSwitch'
 import SurfSpotActions from './SurfSpotActions'
 import SurfSpotPopUp from './SurfSpotPopUp'
 import Header from './Header'
+import { InfoMessage } from './InfoMessage/InfoMessage'
 
 export {
   Breadcrumb,
@@ -29,6 +30,7 @@ export {
   FormItem,
   Header,
   Icon,
+  InfoMessage,
   Loading,
   SurfMap,
   SurfSpotActions,

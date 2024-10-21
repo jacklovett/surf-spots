@@ -28,8 +28,8 @@ export const SurfSpotPopUp = (props: IProps) => {
         >
           Learn more
         </p>
+        <SurfSpotActions {...{ surfSpot }} />
       </div>
-      <SurfSpotActions {...{ surfSpot }} />
     </div>
   )
 }

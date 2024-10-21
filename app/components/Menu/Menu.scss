@@ -5,6 +5,7 @@
   .desktop-menu {
     @extend %flex-base;
     cursor: pointer;
+    margin-right: 1px;
 
     ul {
       @extend %flex-base;
@@ -19,8 +20,8 @@
       &:hover {
         background-color: $text-hover-background;
         color: adjust-color($text-color, $lightness: -10%);
-        transform: scale(1.05);
-        transition: transform 0.2s ease-in-out;
+        transform: scale(1.03);
+        transition: transform 0.3s ease-in-out;
       }
     }
   }
@@ -105,7 +106,6 @@
       button {
         background: none;
         border: none;
-        font-size: 18px;
         cursor: pointer;
       }
     }

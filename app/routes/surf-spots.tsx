@@ -112,24 +112,16 @@ export default function SurfSpots() {
 
   const breadcrumbs = generateBreadcrumbItems()
 
-  const showFilters = filters && filters.length > 0
+  // const showFilters = filters && filters.length > 0
 
   return (
     <Page showHeader>
       <div
         className={classNames({
           'row toolbar': true,
-          'space-between': showFilters,
-          'flex-end': !showFilters,
+          'flex-end': true,
         })}
       >
-        {showFilters && (
-          <TextButton
-            text="Filters"
-            onClick={() => setFiltersViewOpen(!isFiltersViewOpen)}
-            iconKey="filters"
-          />
-        )}
         <ViewSwitch
           isPrimaryView={isMapView}
           onToggleView={handleToggleView}

@@ -14,7 +14,7 @@ export default function Wishlist() {
   return (
     <Page showHeader loading={loading} error={error}>
       <div className="column center">
-        <h3>Wishlist</h3>
+        <h3>Followed Surf Spots</h3>
         <ErrorBoundary message="Unable to load surf spot list">
           {!surfSpotsFound && (
             <ContentStatus>

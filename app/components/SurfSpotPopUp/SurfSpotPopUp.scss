@@ -10,12 +10,12 @@
     color: $text-color;
     font-size: $font-size-large;
     padding-bottom: $spacing-unit;
-    padding-left: $spacing-small;
+    padding-left: $spacing-unit;
     border-bottom: 1px solid $outline-color;
   }
 
   .pop-up-content {
-    padding: 0 $spacing-small;
+    padding: 0 $spacing-unit;
   }
 
   & p {

@@ -2,10 +2,10 @@
   cursor: pointer;
   border-radius: $button-border-radius;
   border: solid 1px $outline-color;
-  box-shadow: $box-shadow;
   padding: $spacing-small $spacing-unit;
 
   &:hover {
+    border-color: adjust-color($outline-color, $lightness: -20%);
     transform: scale(1.03);
     transition: transform 0.2s ease-in-out;
   }

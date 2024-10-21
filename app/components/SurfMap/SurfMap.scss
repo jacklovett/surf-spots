@@ -20,8 +20,6 @@
   min-height: 360px;
   overflow: hidden;
   border-radius: $content-border-radius;
-  margin-bottom: $spacing-unit;
-  margin-top: $spacing-large;
 
   @media (max-width: 640px) {
     border-radius: 0;

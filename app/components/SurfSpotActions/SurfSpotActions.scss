@@ -3,10 +3,15 @@
   flex-wrap: wrap;
 
   @media (max-width: 640px) {
-    gap: $spacing-unit;
+    gap: $spacing-large;
 
     button.text-button {
       padding: 0;
     }
+  }
+
+  @media (max-width: 430px) {
+    justify-content: space-between;
+    gap: 0;
   }
 }

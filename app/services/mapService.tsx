@@ -312,7 +312,7 @@ const createPopUp = (
     }
 
     return new mapboxgl.Popup({
-      maxWidth: '380px',
+      maxWidth: '394px',
       focusAfterOpen: false,
     })
       .setLngLat([surfSpot.longitude, surfSpot.latitude])

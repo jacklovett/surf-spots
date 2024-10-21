@@ -1,7 +1,7 @@
 import { json, useLoaderData } from '@remix-run/react'
 import { get } from '~/services/networkService'
 import { SurfSpot } from '~/types/surfSpots'
-import { Details, ErrorBoundary, SurfMap } from '~/components'
+import { Details, ErrorBoundary, InfoMessage, SurfMap } from '~/components'
 import SurfSpotActions from '~/components/SurfSpotActions'
 
 interface LoaderData {
@@ -59,6 +59,9 @@ export default function SurfSpotDetails() {
             <SurfMap surfSpots={[surfSpotDetails]} disableInteractions />
           </div>
         </ErrorBoundary>
+        <div className="content">
+          <InfoMessage message="See something incorrect? Let us know so we can get it fixed" />
+        </div>
       </div>
     )
   }

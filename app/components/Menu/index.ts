@@ -21,7 +21,12 @@ export const spotsMenuItems: MenuItem[] = [
     label: 'Surfed Spots',
     path: '/surfed-spots',
   },
-  { key: 'wishlist', icon: 'heart', label: 'Wishlist', path: '/wishlist' },
+  {
+    key: 'followed-spots',
+    icon: 'heart',
+    label: 'Followed Spots',
+    path: '/followed-spots',
+  },
 ]
 
 export const profileMenuItems: MenuItem[] = [

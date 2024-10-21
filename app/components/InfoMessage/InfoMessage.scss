@@ -1,0 +1,22 @@
+.info-message {
+  @extend %flex-center;
+  padding: $spacing-unit;
+  margin: $spacing-unit 0;
+  border: solid 1px $outline-color;
+  border-radius: $content-border-radius;
+  gap: $spacing-unit;
+}
+
+.info-icon {
+  @extend %flex-center;
+  background: $primary-color;
+  color: $white;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+}
+
+.info-content {
+  flex-grow: 1;
+  overflow-wrap: break-word;
+}

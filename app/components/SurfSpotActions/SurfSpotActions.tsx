@@ -8,7 +8,7 @@ interface IProps {
 
 export const SurfSpotActions = (props: IProps) => {
   const { surfSpot } = props
-  const { id, isSurfedSpot, isWishlisted } = surfSpot
+  const { id, isSurfedSpot, isFollowing } = surfSpot
 
   // TODO: Replace with actual userId from state/context
   const userId = 1
@@ -20,7 +20,7 @@ export const SurfSpotActions = (props: IProps) => {
 
   const handleAction = async (
     actionType: 'add' | 'remove',
-    target: 'user-spots' | 'wishlist',
+    target: 'user-spots' | 'follow',
   ) => {
     const endpoint =
       actionType === 'add' ? target : `${target}/${userId}/remove/${id}`
@@ -38,10 +38,10 @@ export const SurfSpotActions = (props: IProps) => {
 
   return (
     <div className="actions">
-      {!isWishlisted && !isSurfedSpot && (
+      {!isFollowing && !isSurfedSpot && (
         <TextButton
-          text="Add to wishlist"
-          onClick={() => handleAction('add', 'wishlist')}
+          text="Follow Spot"
+          onClick={() => handleAction('add', 'follow')}
           iconKey="heart"
           filled
         />
@@ -62,10 +62,10 @@ export const SurfSpotActions = (props: IProps) => {
           filled
         />
       )}
-      {isWishlisted && (
+      {isFollowing && (
         <TextButton
-          text="Remove from wishlist"
-          onClick={() => handleAction('remove', 'wishlist')}
+          text="Unfollow spot"
+          onClick={() => handleAction('remove', 'follow')}
           iconKey="bin"
           filled
         />
