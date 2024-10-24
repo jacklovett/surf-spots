@@ -1,22 +1,29 @@
 import { ReactNode } from 'react'
-import { useNavigate } from '@remix-run/react'
+import { useNavigate, useNavigation } from '@remix-run/react'
 
-import { ContentStatus, ErrorBoundary, Header, Loading, Menu } from '../index'
+import { ContentStatus, ErrorBoundary, Header, Loading } from '../index'
 
 interface IProps {
   children: ReactNode
   showHeader?: boolean
   isAlternate?: boolean
-  loading?: boolean
   error?: string | null
+  overrideLoading?: boolean
 }
 
 export const Page = (props: IProps) => {
-  const { children, error, isAlternate = false, loading, showHeader } = props
+  const {
+    children,
+    error,
+    isAlternate = false,
+    showHeader,
+    overrideLoading,
+  } = props
 
   const navigate = useNavigate()
+  const { state } = useNavigation()
 
-  const isLoggedIn = true // TODO: GET FROM user state
+  const loading = state === 'loading' && !overrideLoading
 
   const renderContent = () => {
     if (loading || error) {
@@ -44,7 +51,7 @@ export const Page = (props: IProps) => {
 
   return (
     <main className={isAlternate ? 'page alternate' : 'page'}>
-      {showHeader && <Header {...{ isLoggedIn, navigate }} />}
+      {showHeader && <Header {...{ navigate }} />}
       <section className="content-container">
         <ErrorBoundary message="Unable to display page content">
           {renderContent()}

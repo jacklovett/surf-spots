@@ -21,6 +21,10 @@
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-map-gl": "^7.1.7",
+    "remix-auth": "^3.7.0",
+    "remix-auth-form": "^1.5.0",
+    "remix-auth-google": "^2.0.0",
+    "remix-auth-oauth2": "^2.4.0",
     "sass": "^1.78.0"
   },
   "devDependencies": {

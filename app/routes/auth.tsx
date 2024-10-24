@@ -5,13 +5,14 @@ import { Page, Button } from '~/components'
 
 export const meta: MetaFunction = () => {
   return [
-    { title: 'Surf Spots - Login' },
+    { title: 'Surf Spots - Sign in' },
     { name: 'description', content: 'Welcome to Surf Spots!' },
   ]
 }
 
 export default function Index() {
   const navigate = useNavigate()
+
   return (
     <Page isAlternate>
       <div className="center column">
@@ -21,12 +22,12 @@ export default function Index() {
             label="Continue with Google"
             icon={{
               name: 'Google',
-              filePath: '/public/images/png/Google.png',
+              filePath: '/images/png/google.png',
             }}
-            onClick={() => navigate('/surf-spots')}
+            onClick={() => navigate('/auth/google')}
             variant="alternate"
           />
-          <Button
+          {/* <Button
             label="Continue with Facebook"
             icon={{
               name: 'Facebook',
@@ -34,7 +35,7 @@ export default function Index() {
             }}
             onClick={() => navigate('/surf-spots')}
             variant="alternate"
-          />
+          /> */}
           <div className="row sign-up-cta">
             <p>Don't have an account? </p>
             <Link className="sign-up" to="/sign-up">

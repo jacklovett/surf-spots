@@ -32,7 +32,7 @@ export const spotsMenuItems: MenuItem[] = [
 export const profileMenuItems: MenuItem[] = [
   { key: 'profile', icon: 'profile', label: 'Profile', path: '/profile' },
   { key: 'settings', icon: 'cog', label: 'Settings', path: '/settings' },
-  { key: 'logout', icon: 'logout', label: 'Logout', path: '/' },
+  { key: 'logout', icon: 'logout', label: 'Logout', path: '/auth/logout' },
 ]
 
 export default Menu

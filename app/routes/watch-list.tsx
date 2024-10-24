@@ -8,12 +8,11 @@ export default function Wishlist() {
   const surfSpots: SurfSpot[] = []
   const surfSpotsFound = surfSpots?.length > 0
 
-  const loading = false
   const error = null
 
   return (
-    <Page showHeader loading={loading} error={error}>
-      <div className="column center">
+    <Page showHeader error={error}>
+      <div className="column center mt">
         <h3>Watch List</h3>
         <ErrorBoundary message="Unable to load surf spot list">
           {!surfSpotsFound && (

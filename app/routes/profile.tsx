@@ -1,12 +1,6 @@
-import {
-  json,
-  MetaFunction,
-  useLoaderData,
-  useNavigate,
-} from '@remix-run/react'
+import { MetaFunction, useNavigate } from '@remix-run/react'
+import { useUser } from '~/contexts/UserContext'
 import { ContentStatus, Button, Page } from '~/components'
-import { get } from '~/services/networkService'
-import { UserProfile } from '~/types/user'
 
 export const meta: MetaFunction = () => {
   return [
@@ -15,23 +9,11 @@ export const meta: MetaFunction = () => {
   ]
 }
 
-interface LoaderData {
-  user?: UserProfile
-}
-
-export const loader = async (params: { userId: string }) => {
-  // const { userId } = params // TODO: Can we get this from state instead ??
-  const userId = 1
-  const user = await get<UserProfile>(`users/${userId}/profile`)
-  return json<LoaderData>({ user })
-}
-
 const Profile = () => {
   const navigate = useNavigate()
 
-  const { user } = useLoaderData<LoaderData>()
+  const { user } = useUser()
 
-  const loading = false
   const error = null
 
   const renderContent = () => {
@@ -43,16 +25,15 @@ const Profile = () => {
       )
     }
 
-    const { country, email, name, region, username } = user
+    const { country, email, name, region } = user
 
     return (
-      <div className="column center-vertical">
+      <div className="column center-vertical mt">
         <h3>Profile</h3>
         <p>{`Name: ${name}`}</p>
         <p>{`Email: ${email}`}</p>
-        <p>{`Username: ${username}`}</p>
-        <p>{`Location: ${region} / ${country}`}</p>
-        <div className="center">
+        {country && region && <p>{`Location: ${region} / ${country}`}</p>}
+        <div className="center mt">
           <Button label="Back" onClick={() => navigate(-1)} />
         </div>
       </div>
@@ -60,7 +41,7 @@ const Profile = () => {
   }
 
   return (
-    <Page showHeader loading={loading} error={error}>
+    <Page showHeader error={error}>
       {renderContent()}
     </Page>
   )

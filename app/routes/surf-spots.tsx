@@ -8,6 +8,9 @@ import {
   useNavigation,
   useParams,
 } from '@remix-run/react'
+import { LoaderFunction } from '@remix-run/node'
+import classNames from 'classnames'
+
 import {
   Breadcrumb,
   ContentStatus,
@@ -16,11 +19,8 @@ import {
   SurfMap,
   Page,
   ViewSwitch,
-  TextButton,
 } from '~/components'
 import { BreadcrumbItem } from '~/components/Breadcrumb'
-import { LoaderFunction } from '@remix-run/node'
-import classNames from 'classnames'
 
 interface LoaderData {
   isMapView: boolean
@@ -46,7 +46,7 @@ const getFilters = (pathname: string) => {
   return filters
 }
 
-export const loader: LoaderFunction = ({ request }) => {
+export const loader: LoaderFunction = async ({ request }) => {
   const { pathname } = new URL(request.url)
   return json({
     isMapView: checkIsMapView(pathname),
@@ -67,18 +67,19 @@ export default function SurfSpots() {
   const { isMapView: initialMapView, filters: initialFilters } =
     useLoaderData<LoaderData>()
   const [isMapView, setIsMapView] = useState(initialMapView)
-  const [filters, setFilters] = useState(initialFilters)
   // Handle the toggle view logic
   const handleToggleView = () => {
     navigate(isMapView ? '/surf-spots/continents/' : '/surf-spots')
     setIsMapView(!isMapView)
   }
 
-  // Used to check if navigation map from map view i.e. from PopUps
+  // const [filters, setFilters] = useState(initialFilters)
   useEffect(() => {
     setIsMapView(checkIsMapView(pathname))
-    setFilters(getFilters(pathname))
+    // setFilters(getFilters(pathname))
   }, [pathname])
+
+  // const showFilters = filters && filters.length > 0
 
   const generateBreadcrumbItems = (): BreadcrumbItem[] => {
     const breadcrumbItems: BreadcrumbItem[] = [
@@ -112,10 +113,8 @@ export default function SurfSpots() {
 
   const breadcrumbs = generateBreadcrumbItems()
 
-  // const showFilters = filters && filters.length > 0
-
   return (
-    <Page showHeader>
+    <Page showHeader overrideLoading>
       <div
         className={classNames({
           'row toolbar': true,

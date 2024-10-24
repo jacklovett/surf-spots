@@ -1,13 +1,29 @@
 import {
+  json,
   Links,
   Meta,
   Outlet,
   Scripts,
   ScrollRestoration,
+  useLoaderData,
 } from '@remix-run/react'
-import type { LinksFunction } from '@remix-run/node'
+import type { LinksFunction, LoaderFunction } from '@remix-run/node'
+
+import { UserProvider } from './contexts/UserContext'
+import { getSession } from './services/session.server'
+import { User } from './types/user'
 
 import './styles/main.scss'
+
+interface LoaderData {
+  user: User | null
+}
+
+export const loader: LoaderFunction = async ({ request }) => {
+  const session = await getSession(request.headers.get('Cookie'))
+  const user = session.get('user')
+  return json({ user: user ?? null })
+}
 
 export const links: LinksFunction = () => [
   { rel: 'preconnect', href: 'https://fonts.googleapis.com' },
@@ -41,5 +57,10 @@ export function Layout({ children }: { children: React.ReactNode }) {
 }
 
 export default function App() {
-  return <Outlet />
+  const { user } = useLoaderData<LoaderData>()
+  return (
+    <UserProvider {...{ user }}>
+      <Outlet />
+    </UserProvider>
+  )
 }
