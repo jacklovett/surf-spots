@@ -6,24 +6,64 @@
   }
 }
 
-.login-nav {
+.auth-container {
+  width: 100%;
+  max-width: 420px;
+
+  @media (max-width: 430px) {
+    padding: 0 $spacing-unit;
+  }
+}
+
+.sign-in-nav {
   @extend %flex-base;
   margin: 0 $spacing-unit;
   gap: $spacing-unit;
 }
 
-.login-options {
+.sign-in-options {
   @extend %flex-column;
-  padding-top: $spacing-large;
-  gap: $spacing-small;
+  padding-top: $spacing-unit;
+  gap: $spacing-unit;
 }
 
-.sign-up-cta {
+.sign-in-providers-container {
+  @extend %flex-center;
+  @extend %flex-column;
+  border-top: solid 1px $outline-color;
+  padding-top: $spacing-unit;
+}
+
+.sign-in-providers {
+  @extend %flex-row;
+  @extend %flex-center;
+  gap: $spacing-unit;
+
+  & button {
+    width: fit-content;
+    border-radius: $button-border-radius;
+    background: $background-color;
+    box-shadow: $box-shadow;
+
+    &:hover {
+      background: $accent-color;
+    }
+  }
+}
+
+.auth-cta {
   gap: $spacing-small;
 
-  .sign-up {
-    color: $accent-color;
-    text-decoration: underline;
+  & p {
+    margin: 0;
+  }
+}
+
+.auth-title {
+  width: 100%;
+  & h1 {
+    color: $text-color;
+    font-size: $font-size-large;
   }
 }
 

@@ -2,7 +2,7 @@ import Button from './Button'
 import ContentStatus from './ContentStatus'
 import ErrorBoundary from './ErrorBoundary'
 import FormComponent from './FormComponent'
-import FormItem from './FormItem'
+import FormInput from './FormInput'
 import Icon from './Icon'
 import Loading from './Loading'
 import Page from './Page'
@@ -27,7 +27,7 @@ export {
   Details,
   ErrorBoundary,
   FormComponent,
-  FormItem,
+  FormInput,
   Header,
   Icon,
   InfoMessage,

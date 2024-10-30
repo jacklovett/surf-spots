@@ -72,7 +72,7 @@ export default function AddSurfSpot() {
   }
 
   return (
-    <Page showHeader loading={loading} error={error}>
+    <Page showHeader error={error}>
       <div className="column center-vertical">
         <h3>Add Surf Spot</h3>
         <FormComponent

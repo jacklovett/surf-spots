@@ -1,45 +1,35 @@
-import { FormEvent, ReactNode } from 'react'
+import { ReactNode } from 'react'
 import { Form } from '@remix-run/react'
-import { Button } from '../index'
+import { Button, ErrorBoundary, Loading } from '../index'
 
 interface IProps {
   children: ReactNode
-  onSubmit: (e: FormEvent) => void
-  onReturn: () => void
   loading: boolean
-  error: string | null
+  isDisabled: boolean
+  submitLabel?: string
+  submitError?: string
 }
 
-// TODO: Use Remix Form component
-
 export const FormComponent = (props: IProps) => {
-  const { onSubmit, onReturn, loading, error, children } = props
-
-  const isFormValid = () => {
-    return false
-    // const formElement = document.querySelector('form') as HTMLFormElement
-    // return formElement?.checkValidity() ?? false
-  }
+  const { loading, children, isDisabled, submitLabel, submitError } = props
 
   return (
-    <Form onSubmit={onSubmit}>
-      {children}
-      {error && <p className="error">{error}</p>}
-      <div className="center-horizontal actions">
-        <Button
-          type="button"
-          label="Back"
-          disabled={loading}
-          onClick={onReturn}
-          variant="secondary"
-        />
-        <Button
-          label={loading ? 'Submitting...' : 'Submit'}
-          type="submit"
-          disabled={loading || !isFormValid()}
-        />
-      </div>
-    </Form>
+    <ErrorBoundary>
+      <Form method="post" noValidate>
+        {submitError && <span className="form-error">{submitError}</span>}
+        {children}
+        <div className="center-horizontal mt form-submit">
+          {loading && <Loading />}
+          {!loading && (
+            <Button
+              label={submitLabel || 'Submit'}
+              type="submit"
+              disabled={isDisabled}
+            />
+          )}
+        </div>
+      </Form>
+    </ErrorBoundary>
   )
 }
 

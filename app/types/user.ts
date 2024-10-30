@@ -3,8 +3,9 @@ export const usersEndpoint = 'api/users'
 export type AuthProvider = 'EMAIL' | 'FACEBOOK' | 'GOOGLE'
 
 export interface AuthRequest {
-  username: string
+  email: string
   password: string
+  provider: AuthProvider
 }
 
 export interface User extends AuthUser {
@@ -15,7 +16,7 @@ export interface User extends AuthUser {
 }
 
 export interface AuthUser {
-  providerId: string
+  providerId?: string
   provider: AuthProvider
   name: string
   email: string

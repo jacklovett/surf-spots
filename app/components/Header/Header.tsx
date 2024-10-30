@@ -21,7 +21,7 @@ export const Header = (props: IProps) => {
       {isLoggedIn ? (
         <Menu />
       ) : (
-        <div className="login-nav">
+        <div className="sign-in-nav">
           <Link to="/auth">Sign in</Link>
         </div>
       )}

@@ -1,10 +1,20 @@
 import { Authenticator } from 'remix-auth'
 import { GoogleStrategy } from 'remix-auth-google'
 import { FormStrategy } from 'remix-auth-form'
-import { AuthRequest, AuthUser, User } from '~/types/user'
 
+import { AuthRequest, AuthUser, User } from '~/types/user'
 import { sessionStorage } from '~/services/session.server'
 import { post } from './networkService'
+
+export interface AuthErrors {
+  email?: string
+  password?: string
+  submitError?: string
+}
+
+export interface AuthActionData {
+  errors?: AuthErrors
+}
 
 export const authenticator = new Authenticator<User>(sessionStorage)
 
@@ -14,64 +24,85 @@ authenticator.use(
     {
       clientID: process.env.GOOGLE_CLIENT_ID!,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
-      callbackURL: 'http://localhost:5173/auth/google/callback',
+      callbackURL: process.env.GOOGLE_CALLBACK_URL!,
       scope: ['openid', 'profile', 'email'],
     },
     async ({ profile }): Promise<User> => {
-      try {
-        const googleProfile: AuthUser = {
-          name: profile.displayName,
-          email: profile.emails[0].value,
-          provider: 'GOOGLE',
-          providerId: profile.id,
-        }
-        const user = await saveUserToBackend(googleProfile)
-        return user
-      } catch (e) {
-        console.error('Error with profile: ', e)
-        throw e
+      const { displayName, emails, id } = profile
+      const googleProfile: AuthUser = {
+        name: displayName,
+        email: emails[0].value,
+        provider: 'GOOGLE',
+        providerId: id,
       }
+      return await saveUserToBackend(googleProfile)
     },
   ),
 )
 
-// Form-based login strategy for email and password authentication
+// Form-based sign-in strategy with validation and authentication
 authenticator.use(
-  new FormStrategy(async ({ form }) => {
-    let email = form.get('email') as string // Get the email from the login form
-    let password = form.get('password') as string // Get the password from the login form
-    // Here we call our backend to verify the user's credentials (email and password).
-    // Although authentication is handled in Remix, we still need to validate
-    // the user against our database for security purposes.
+  new FormStrategy<User>(async ({ form }) => {
+    const email = form.get('email') as string
+    const password = form.get('password') as string
+
     const user = await verifyLogin(email, password)
-
-    if (!user) throw new Error('Invalid email or password') // Throw an error if the login fails
-
-    return user // Return the authenticated user for session management
+    if (!user) {
+      throw new Error('Invalid login credentials')
+    }
+    return user
   }),
+  'form',
 )
 
 const saveUserToBackend = async (profile: AuthUser): Promise<User> => {
-  try {
-    const user = await post<AuthUser, User>('user/profile', profile)
-    if (!user) {
-      throw new Error('No user found')
-    }
-    return user
-  } catch (e) {
-    console.error('Error while saving user to backend:', e)
-    throw e
+  const user = await post<AuthUser, User>('user/profile', profile)
+  if (!user) {
+    throw new Error('Account could not be approved')
   }
+  return user
 }
 
 const verifyLogin = async (email: string, password: string) => {
-  try {
-    const user = await post<AuthRequest, User>('/user/login', {
-      username: email,
-      password,
-    })
-    return user
-  } catch (e) {
-    console.error('Failed to verify login: ', e)
+  const user = await post<AuthRequest, User>('user/login', {
+    email: formatEmail(email),
+    password,
+    provider: 'EMAIL',
+  })
+  if (!user) {
+    throw new Error('Invalid login credentials')
   }
+  return user
 }
+
+export const registerUser = async (email: string, password: string) => {
+  const user = await post<AuthRequest, User>('user/register', {
+    email: formatEmail(email),
+    password,
+    provider: 'EMAIL',
+  })
+  if (!user) {
+    throw new Error('Failed to register user')
+  }
+  return user
+}
+
+export const validate = (email: string, password: string) => {
+  const errors: AuthErrors = {}
+
+  if (!email) {
+    errors.email = 'Email is required.'
+  } else if (!email.includes('@')) {
+    errors.email = 'Please enter a valid email address.'
+  }
+
+  if (!password) {
+    errors.password = 'Password is required.'
+  } else if (password.length < 8) {
+    errors.password = 'Password must be at least 8 characters long.'
+  }
+
+  return Object.keys(errors).length ? errors : null
+}
+
+const formatEmail = (email: string) => email.toLowerCase().trim()

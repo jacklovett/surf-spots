@@ -1,7 +1,26 @@
 import { HTMLInputTypeAttribute } from 'react'
-import { FormItem } from './FormItem'
+import { FormInput } from './FormInput'
 
-export type FormItemType = 'text' | 'number' | 'textarea' | 'select'
+export type inputElementType =
+  | HTMLInputElement
+  | HTMLTextAreaElement
+  | HTMLSelectElement
+
+export type FormInputType =
+  | 'text'
+  | 'number'
+  | 'textarea'
+  | 'select'
+  | 'email'
+  | 'password'
+
+export interface FormField {
+  label: string
+  name: string
+  type: FormInputType
+  validationRules?: ValidationRules
+  options?: { value: string | number; label: string }[]
+}
 
 export interface ValidationRules {
   required?: boolean
@@ -30,4 +49,4 @@ export interface FormData {
   [key: string]: string | number
 }
 
-export default FormItem
+export default FormInput

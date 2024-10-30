@@ -1,6 +1,6 @@
 import { json, useLoaderData, useNavigate, useParams } from '@remix-run/react'
 import { useState, ChangeEvent, FormEvent, FocusEvent, useEffect } from 'react'
-import { FormComponent, FormItem, Page } from '~/components'
+import { FormComponent, FormInput, Page } from '~/components'
 import { get } from '~/services/networkService'
 import { Coordinates, SurfSpot, SurfSpotType } from '~/types/surfSpots'
 
@@ -102,16 +102,15 @@ export default function EditSurfSpot() {
   }
 
   return (
-    <Page showHeader loading={loading} error={error}>
+    <Page showHeader error={error}>
       <div className="column center-vertical">
         <h3>Add Surf Spot</h3>
         <FormComponent
-          onSubmit={onSubmit}
           onReturn={() => navigate('/surf-spots')}
           loading={loading}
           error={error}
         >
-          <FormItem
+          <FormInput
             field={{
               label: 'Name',
               name: 'name',
@@ -128,7 +127,7 @@ export default function EditSurfSpot() {
             onBlur={onBlur}
             touchedFields={touchedFields}
           />
-          <FormItem
+          <FormInput
             field={{
               label: 'Country',
               name: 'country',
@@ -145,7 +144,7 @@ export default function EditSurfSpot() {
             onBlur={onBlur}
             touchedFields={touchedFields}
           />
-          <FormItem
+          <FormInput
             field={{
               label: 'Region',
               name: 'region',
@@ -160,7 +159,7 @@ export default function EditSurfSpot() {
             onBlur={onBlur}
             touchedFields={touchedFields}
           />
-          <FormItem
+          <FormInput
             field={{
               label: 'Rating',
               name: 'rating',
@@ -178,7 +177,7 @@ export default function EditSurfSpot() {
             touchedFields={touchedFields}
           />
           <div className="coordinates">
-            <FormItem
+            <FormInput
               field={{
                 label: 'Longitude',
                 name: 'longitude',
@@ -195,7 +194,7 @@ export default function EditSurfSpot() {
               onBlur={onBlur}
               touchedFields={touchedFields}
             />
-            <FormItem
+            <FormInput
               field={{
                 label: 'Latitude',
                 name: 'latitude',
@@ -213,7 +212,7 @@ export default function EditSurfSpot() {
               touchedFields={touchedFields}
             />
           </div>
-          <FormItem
+          <FormInput
             field={{
               label: 'Type',
               name: 'type',
@@ -237,7 +236,7 @@ export default function EditSurfSpot() {
             onBlur={onBlur}
             touchedFields={touchedFields}
           />
-          <FormItem
+          <FormInput
             field={{
               label: 'Description',
               name: 'description',

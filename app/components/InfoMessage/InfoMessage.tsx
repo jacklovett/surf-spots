@@ -9,7 +9,7 @@ export const InfoMessage = ({ message }: IProps) => {
         {/* TODO: Move to SVGIcon.tsx */}
         <svg
           xmlns="http://www.w3.org/2000/svg"
-          fill="white"
+          fill="#ffffff"
           viewBox="0 0 24 24"
           width="24"
           height="24"

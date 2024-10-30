@@ -16,15 +16,17 @@ export default function Index() {
     <Page isAlternate>
       <div className="center column content">
         <img src="/images/png/logo.png" width="240" alt="Surf spots logo" />
-        <p className="description alternate">
-          Track all your past surf destinations and explore new ones, all in one
-          place.
-        </p>
-        <Button
-          label="Get Started!"
-          onClick={() => navigate('/surf-spots')}
-          variant="alternate"
-        />
+        <div className="auth-container">
+          <p className="description alternate">
+            Track all your past surf destinations and explore new ones, all in
+            one place.
+          </p>
+          <Button
+            label="Take a look!"
+            onClick={() => navigate('/surf-spots')}
+            variant="alternate"
+          />
+        </div>
       </div>
     </Page>
   )

@@ -6,16 +6,16 @@ $primary-color: #046380;
 $secondary-color: #20c6f8;
 $white: #ffffff;
 $background-color: $white;
-$text-color: #0d0d0d;
+$text-color: #0d1619;
 $outline-color: #d9d9d9;
 $heading-color: $primary-color;
-$accent-color: #3bb4c1;
-$focus-color: #0077b6;
+$accent-color: #3fc1c9;
+$focus-color: #046380;
 $disabled-color: #d7d7d7;
 $text-hover-background: #f0f4f8;
 
 $success: green;
-$warn: yellow;
+$warn: #fdff00;
 $error: red;
 
 $scrollbar-color: #d9d9d9;
@@ -38,12 +38,12 @@ $spacing-large: 2rem;
 $header-height: 48px;
 
 /* Borders & Shadows */
-$form-border-radius: 4px;
-$content-border-radius: 25px;
+$form-border-radius: $spacing-unit;
+$content-border-radius: $spacing-unit;
 $button-border-radius: 25px;
 $box-shadow: 1px 2px 8px rgba(0, 0, 0, 0.2);
 
 :root {
   --primary-color: #046380;
-  --accent-color: #3bb4c1;
+  --accent-color: #3fc1c9;
 }

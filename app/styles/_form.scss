@@ -1,22 +1,21 @@
 form {
-  margin-top: $spacing-unit;
-
-  &.actions {
-    margin-top: $spacing-unit;
-  }
+  width: 100%;
 
   label {
     margin-bottom: $spacing-small;
-    font-weight: bold;
-    color: $primary-color;
   }
 }
 
 .form-item {
   @extend %flex-base;
   flex-direction: column;
-  padding-bottom: $spacing-unit;
+  padding-top: $spacing-unit;
   width: 100%;
+
+  & label {
+    font-size: $font-size-small;
+    margin-left: $spacing-small;
+  }
 }
 
 input,
@@ -25,6 +24,7 @@ select {
   width: 100%;
   border: 1px solid $outline-color;
   border-radius: $form-border-radius;
+  padding: $spacing-small;
 }
 
 textarea {
@@ -43,9 +43,14 @@ select:focus {
 .form-error {
   color: $error;
   font-size: $font-size-small;
+
+  & p {
+    margin: 0;
+  }
 }
 
-.coordinates {
+.location-form {
   @extend %flex-base;
-  gap: $spacing-unit;
+  gap: $spacing-small;
+  flex-wrap: nowrap;
 }

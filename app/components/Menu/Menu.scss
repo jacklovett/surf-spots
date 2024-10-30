@@ -18,10 +18,11 @@
       padding: $spacing-unit;
 
       &:hover {
-        background-color: $text-hover-background;
+        background: $text-hover-background;
         color: adjust-color($text-color, $lightness: -10%);
-        transform: scale(1.03);
+        transform: scale(1.02);
         transition: transform 0.3s ease-in-out;
+        border-bottom: solid 1px $outline-color;
       }
     }
   }
@@ -46,7 +47,7 @@
     right: 0;
     width: 280px;
     text-align: left;
-    background-color: $white;
+    background: $white;
     box-shadow: $box-shadow;
     border: 1px solid $outline-color;
     border-radius: $content-border-radius;
@@ -60,7 +61,17 @@
         cursor: pointer;
 
         &:hover {
-          background-color: $text-hover-background;
+          background: $text-hover-background;
+
+          &:first-child {
+            border-top-left-radius: $content-border-radius;
+            border-top-right-radius: $content-border-radius;
+          }
+
+          &:last-child {
+            border-bottom-left-radius: $content-border-radius;
+            border-bottom-right-radius: $content-border-radius;
+          }
         }
       }
     }
@@ -75,7 +86,7 @@
     span {
       width: 24px;
       height: 2px;
-      background-color: $primary-color;
+      background: $primary-color;
       margin: 2px 0;
     }
   }
