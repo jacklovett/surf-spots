@@ -17,15 +17,28 @@ export const loader = async ({ params }: { params: LoaderParams }) => {
   try {
     const countryDetails = await get<Country>(`countries/${country}`)
     const regions = await get<Region[]>(`regions/${country}/regions`)
-    return json<LoaderData>({ regions: regions ?? [], countryDetails })
+
+    return json<LoaderData>(
+      { regions: regions ?? [], countryDetails },
+      {
+        headers: {
+          'Cache-Control': 'public, max-age=3600, stale-while-revalidate=86400',
+        },
+      },
+    )
   } catch (error) {
-    console.error('Error fetching regions:', error)
+    console.error('Error fetching regions: ', error)
     return json<LoaderData>(
       {
         regions: [],
         error: `We can't seem to locate the regions. Please try again later.`,
       },
-      { status: 500 },
+      {
+        status: 500,
+        headers: {
+          'Cache-Control': 'public, max-age=300, stale-while-revalidate=600',
+        },
+      },
     )
   }
 }

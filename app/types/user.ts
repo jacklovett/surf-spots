@@ -10,9 +10,8 @@ export interface AuthRequest {
 
 export interface User extends AuthUser {
   id: string
-  username: string
-  country: string
-  region: string
+  country?: string
+  city?: string
 }
 
 export interface AuthUser {
@@ -20,4 +19,11 @@ export interface AuthUser {
   provider: AuthProvider
   name: string
   email: string
+}
+
+export interface ProfileState {
+  country: string
+  email: string
+  name: string
+  city: string
 }

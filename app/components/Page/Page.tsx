@@ -57,7 +57,7 @@ export const Page = (props: IProps) => {
           {renderContent()}
         </ErrorBoundary>
       </section>
-      <footer className="footer">© 2024 Surf Spots</footer>
+      <footer className="footer mt">© 2024 Surf Spots</footer>
     </main>
   )
 }

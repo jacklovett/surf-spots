@@ -7,6 +7,7 @@ import {
   useNavigation,
 } from '@remix-run/react'
 import { useState, ChangeEvent, FocusEvent, useEffect } from 'react'
+import { AuthorizationError } from 'remix-auth'
 
 import {
   AuthActionData,
@@ -16,8 +17,7 @@ import {
 } from '~/services/auth.server'
 
 import { Page, Button, FormComponent, FormInput } from '~/components'
-import { inputElementType } from '~/components/FormInput'
-import { AuthorizationError } from 'remix-auth'
+import { InputElementType } from '~/components/FormInput'
 
 export const meta: MetaFunction = () => {
   return [
@@ -32,7 +32,7 @@ export const action: ActionFunction = async ({ request }) => {
   const email = formData.get('email') as string
   const password = formData.get('password') as string
 
-  const errors = await validate(email, password)
+  const errors = validate(email, password)
   if (errors) {
     return json({ errors })
   }
@@ -68,6 +68,7 @@ export default function Auth() {
   const loading = state === 'loading'
 
   const actionData = useActionData<AuthActionData>()
+
   const errors: AuthErrors = actionData?.errors || {}
   const { email: emailError, password: passwordError, submitError } = errors
 
@@ -97,26 +98,35 @@ export default function Auth() {
     }
   }, [formState, touchedFields, errors])
 
-  const handleChange = (e: ChangeEvent<inputElementType>) => {
+  const handleChange = (e: ChangeEvent<InputElementType>) => {
     const { name, value } = e.target
     setFormState({ ...formState, [name]: value })
   }
 
-  const handleBlur = (e: FocusEvent<inputElementType>) => {
+  const handleBlur = (e: FocusEvent<InputElementType>) => {
     const { name } = e.target
     setTouchedFields({ ...touchedFields, [name]: true })
   }
 
   return (
     <Page>
-      <div className="center column">
-        <img src="/images/png/logo.png" width="160" alt="Surf spots logo" />
+      <div className="center column mt">
+        <img
+          src="/images/png/logo-no-text.png"
+          width="120"
+          alt="Surf spots logo"
+        />
+        <div className="auth-title">
+          <h1>Sign in</h1>
+        </div>
         <div className="auth-container">
           <FormComponent
             loading={loading}
             isDisabled={!isFormValid}
             submitLabel="Sign in"
-            submitError={submitError}
+            submitStatus={
+              submitError ? { message: submitError, isError: true } : null
+            }
           >
             <FormInput
               field={{
@@ -128,8 +138,8 @@ export default function Auth() {
               value={formState.email}
               onChange={handleChange}
               onBlur={handleBlur}
-              touched={touchedFields.email}
               errorMessage={emailError}
+              showLabel={!!formState.email}
             />
             <FormInput
               field={{
@@ -141,8 +151,8 @@ export default function Auth() {
               value={formState.password}
               onChange={handleChange}
               onBlur={handleBlur}
-              touched={touchedFields.password}
               errorMessage={passwordError}
+              showLabel={!!formState.password}
             />
           </FormComponent>
           <div className="sign-in-options">
@@ -150,7 +160,6 @@ export default function Auth() {
               <Link to="/forgot-password">Forgot password?</Link>
             </div>
             <div className="sign-in-providers-container">
-              <p>Or</p>
               <div className="sign-in-providers">
                 <Button
                   label=""

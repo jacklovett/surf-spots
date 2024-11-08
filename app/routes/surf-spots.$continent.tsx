@@ -18,10 +18,18 @@ export const loader = async ({ params }: { params: LoaderParams }) => {
   try {
     const continentDetails = await get<Continent>(`continents/${continent}`)
     const countries = await get<Country[]>(`countries/continent/${continent}`)
-    return json<LoaderData>({
-      countries: countries ?? [],
-      continentDetails,
-    })
+
+    return json<LoaderData>(
+      {
+        countries: countries ?? [],
+        continentDetails,
+      },
+      {
+        headers: {
+          'Cache-Control': 'public, max-age=3600, stale-while-revalidate=86400',
+        },
+      },
+    )
   } catch (error) {
     console.error('Error fetching countries:', error)
     return json<LoaderData>(
@@ -29,7 +37,12 @@ export const loader = async ({ params }: { params: LoaderParams }) => {
         countries: [],
         error: `We're having trouble finding countries right now. Please try again later.`,
       },
-      { status: 500 },
+      {
+        status: 500,
+        headers: {
+          'Cache-Control': 'public, max-age=300, stale-while-revalidate=600',
+        },
+      },
     )
   }
 }

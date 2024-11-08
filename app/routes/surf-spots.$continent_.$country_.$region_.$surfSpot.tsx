@@ -6,6 +6,7 @@ import SurfSpotActions from '~/components/SurfSpotActions'
 
 interface LoaderData {
   surfSpotDetails?: SurfSpot
+  error?: string
 }
 
 interface LoaderParams {
@@ -14,8 +15,30 @@ interface LoaderParams {
 
 export const loader = async ({ params }: { params: LoaderParams }) => {
   const { surfSpot } = params
-  const surfSpotDetails = await get<SurfSpot>(`surf-spots/${surfSpot}`)
-  return json<LoaderData>({ surfSpotDetails })
+  try {
+    const surfSpotDetails = await get<SurfSpot>(`surf-spots/${surfSpot}`)
+    return json<LoaderData>(
+      { surfSpotDetails },
+      {
+        headers: {
+          'Cache-Control': 'public, max-age=3600, stale-while-revalidate=86400',
+        },
+      },
+    )
+  } catch (error) {
+    console.error('Error fetching surf spot details: ', error)
+    return json<LoaderData>(
+      {
+        error: `We can't seem to locate this surf spot. Please try again later.`,
+      },
+      {
+        status: 500,
+        headers: {
+          'Cache-Control': 'public, max-age=300, stale-while-revalidate=600',
+        },
+      },
+    )
+  }
 }
 
 export default function SurfSpotDetails() {

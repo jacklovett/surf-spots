@@ -19,6 +19,7 @@ import SurfSpotActions from './SurfSpotActions'
 import SurfSpotPopUp from './SurfSpotPopUp'
 import Header from './Header'
 import { InfoMessage } from './InfoMessage/InfoMessage'
+import LocationSelector from './LocationSelector'
 
 export {
   Breadcrumb,
@@ -32,6 +33,7 @@ export {
   Icon,
   InfoMessage,
   Loading,
+  LocationSelector,
   SurfMap,
   SurfSpotActions,
   SurfSpotPopUp,

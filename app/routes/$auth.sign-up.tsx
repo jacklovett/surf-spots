@@ -10,7 +10,7 @@ import {
 } from '~/services/auth.server'
 
 import { FormComponent, FormInput, Page } from '~/components'
-import { inputElementType } from '~/components/FormInput'
+import { InputElementType } from '~/components/FormInput'
 
 export const action = async ({ request }: ActionFunctionArgs) => {
   const formData = await request.formData()
@@ -66,11 +66,11 @@ const SignUp = () => {
     )
   }, [formState, touchedFields])
 
-  const handleChange = (e: ChangeEvent<inputElementType>) => {
+  const handleChange = (e: ChangeEvent<InputElementType>) => {
     setFormState({ ...formState, [e.target.name]: e.target.value })
   }
 
-  const handleBlur = (e: FocusEvent<inputElementType>) => {
+  const handleBlur = (e: FocusEvent<InputElementType>) => {
     setTouchedFields({ ...touchedFields, [e.target.name]: true })
   }
 
@@ -78,7 +78,11 @@ const SignUp = () => {
     <Page>
       <div className="center-vertical column">
         <div className="center column auth-container">
-          <img src="/images/png/logo.png" width="160" alt="Surf spots logo" />
+          <img
+            src="/images/png/logo-no-text.png"
+            width="160"
+            alt="Surf spots logo"
+          />
           <div className="auth-title">
             <h1>Create an account</h1>
           </div>
@@ -86,7 +90,9 @@ const SignUp = () => {
             loading={false}
             isDisabled={!isFormValid}
             submitLabel="Sign up"
-            submitError={submitError}
+            submitStatus={
+              submitError ? { message: submitError, isError: true } : null
+            }
           >
             <FormInput
               field={{
@@ -98,7 +104,6 @@ const SignUp = () => {
               value={formState.email}
               onChange={handleChange}
               onBlur={handleBlur}
-              touched={touchedFields.email}
               errorMessage={emailError}
             />
             <FormInput
@@ -111,7 +116,6 @@ const SignUp = () => {
               value={formState.password}
               onChange={handleChange}
               onBlur={handleBlur}
-              touched={touchedFields.password}
               errorMessage={passwordError}
             />
           </FormComponent>

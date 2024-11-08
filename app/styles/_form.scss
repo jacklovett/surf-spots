@@ -1,20 +1,28 @@
 form {
   width: 100%;
+}
 
-  label {
-    margin-bottom: $spacing-small;
-  }
+.form-submit {
+  margin-top: $spacing-unit;
 }
 
 .form-item {
   @extend %flex-base;
   flex-direction: column;
-  padding-top: $spacing-unit;
+  padding-top: $spacing-small;
   width: 100%;
 
   & label {
     font-size: $font-size-small;
     margin-left: $spacing-small;
+    opacity: 0;
+    transform: translateY(-$spacing-small); // Starts slightly above
+    transition: opacity 0.3s ease-in-out, transform 0.3s ease-in-out;
+
+    &.visible {
+      opacity: 1;
+      transform: translateY(0); // Moves to its final position
+    }
   }
 }
 
@@ -25,6 +33,11 @@ select {
   border: 1px solid $outline-color;
   border-radius: $form-border-radius;
   padding: $spacing-small;
+
+  &:disabled {
+    background: $disabled-color;
+    opacity: 0.4;
+  }
 }
 
 textarea {
@@ -40,6 +53,18 @@ select:focus {
   outline: none;
 }
 
+.form-status-container {
+  min-height: 24px;
+  margin-bottom: -$spacing-small;
+  padding: 0 $spacing-small;
+}
+
+.form-success {
+  color: $success;
+  opacity: 1;
+  transition: opacity 1s ease;
+}
+
 .form-error {
   color: $error;
   font-size: $font-size-small;
@@ -49,8 +74,12 @@ select:focus {
   }
 }
 
-.location-form {
+.form-inline {
   @extend %flex-base;
-  gap: $spacing-small;
-  flex-wrap: nowrap;
+  gap: $spacing-unit;
+}
+
+.disclaimer {
+  font-size: $font-size-small;
+  margin-top: $spacing-small;
 }

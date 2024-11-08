@@ -1,24 +1,43 @@
 import { ReactNode } from 'react'
 import { Form } from '@remix-run/react'
 import { Button, ErrorBoundary, Loading } from '../index'
+import { SubmitStatus } from './index'
+
+type FormMethod = 'post' | 'patch' | 'put'
 
 interface IProps {
   children: ReactNode
   loading: boolean
   isDisabled: boolean
+  method?: FormMethod
   submitLabel?: string
-  submitError?: string
+  submitStatus: SubmitStatus | null
 }
 
 export const FormComponent = (props: IProps) => {
-  const { loading, children, isDisabled, submitLabel, submitError } = props
+  const {
+    loading,
+    children,
+    isDisabled,
+    method = 'post' as FormMethod,
+    submitLabel,
+    submitStatus,
+  } = props
 
   return (
     <ErrorBoundary>
-      <Form method="post" noValidate>
-        {submitError && <span className="form-error">{submitError}</span>}
+      <Form method={method} noValidate>
+        <div className="form-status-container">
+          {!submitStatus?.isError && (
+            <span className="form-success">{submitStatus?.message}</span>
+          )}
+          {submitStatus?.isError && (
+            <span className="form-error">{submitStatus.message}</span>
+          )}
+        </div>
+
         {children}
-        <div className="center-horizontal mt form-submit">
+        <div className="center-horizontal form-submit">
           {loading && <Loading />}
           {!loading && (
             <Button

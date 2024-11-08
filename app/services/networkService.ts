@@ -1,5 +1,6 @@
 const API_URL = import.meta.env.VITE_API_URL!
 
+// Handles the response, throwing an error if the response is not ok
 const handleResponse = async <T>(response: Response): Promise<T> => {
   const data = await response.json().catch(() => null)
   if (!response.ok) {
@@ -10,40 +11,46 @@ const handleResponse = async <T>(response: Response): Promise<T> => {
   return data as T
 }
 
+// Main request function, allows any options to be passed in
 const request = async <T, B = undefined>(
   endpoint: string,
   options: RequestInit = {},
   body?: B,
-): Promise<T | void> => {
-  try {
-    const response = await fetch(`${API_URL}/${endpoint}`, {
-      ...options,
-      body: body ? JSON.stringify(body) : undefined,
-      headers: {
-        'Content-Type': 'application/json',
-        ...options.headers,
-      },
-    })
-    return handleResponse<T>(response)
-  } catch (error) {
-    console.error(
-      `Error with ${options.method || 'GET'} request to ${endpoint}:`,
-      error,
-    )
-  }
+): Promise<T> => {
+  const response = await fetch(`${API_URL}/${endpoint}`, {
+    // Spread provided options to ensure flexibility for any use case
+    ...options,
+    credentials: 'include',
+    body: body ? JSON.stringify(body) : undefined,
+    headers: {
+      'Content-Type': 'application/json',
+      ...options.headers,
+    },
+  })
+
+  return handleResponse<T>(response)
 }
 
-// Specific method functions
-export const get = async <T>(endpoint: string): Promise<T | void> =>
-  request<T>(endpoint)
+// Specific HTTP method functions
+export const get = async <T>(
+  endpoint: string,
+  options: RequestInit = {},
+): Promise<T> => request<T>(endpoint, options)
 
 export const post = async <T, R>(
   endpoint: string,
   body: T,
-): Promise<R | void> => request<R, T>(endpoint, { method: 'POST' }, body)
+  options: RequestInit = {},
+): Promise<R> => request<R, T>(endpoint, { ...options, method: 'POST' }, body)
 
-export const edit = async <T>(endpoint: string, body: T): Promise<void> =>
-  request<void, T>(endpoint, { method: 'PUT' }, body)
+export const edit = async <T>(
+  endpoint: string,
+  body: T,
+  options: RequestInit = {},
+): Promise<void> =>
+  request<void, T>(endpoint, { ...options, method: 'PUT' }, body)
 
-export const deleteData = async (endpoint: string): Promise<void> =>
-  request<void>(endpoint, { method: 'DELETE' })
+export const deleteData = async (
+  endpoint: string,
+  options: RequestInit = {},
+): Promise<void> => request<void>(endpoint, { ...options, method: 'DELETE' })

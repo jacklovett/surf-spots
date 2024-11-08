@@ -61,26 +61,11 @@ export default function AddSurfSpot() {
     e: FocusEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>,
   ) => setTouchedFields((prev) => new Set(prev).add(e.target.name))
 
-  const onSubmit = async (e: FormEvent) => {
-    e.preventDefault()
-    try {
-      // TODO: Handle submit
-      navigate('/surf-spots')
-    } catch (err) {
-      console.error(err)
-    }
-  }
-
   return (
     <Page showHeader error={error}>
       <div className="column center-vertical">
         <h3>Add Surf Spot</h3>
-        <FormComponent
-          onSubmit={onSubmit}
-          onReturn={() => navigate('/surf-spots')}
-          loading={loading}
-          error={error}
-        >
+        <FormComponent loading={loading} isDisabled={false}>
           <FormItem
             field={{
               label: 'Name',

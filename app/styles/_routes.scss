@@ -38,6 +38,7 @@
   @extend %flex-row;
   @extend %flex-center;
   gap: $spacing-unit;
+  padding: $spacing-unit 0;
 
   & button {
     width: fit-content;
@@ -60,10 +61,10 @@
 }
 
 .auth-title {
-  width: 100%;
   & h1 {
     color: $text-color;
-    font-size: $font-size-large;
+    font-size: $font-size-x-large;
+    margin: 0;
   }
 }
 

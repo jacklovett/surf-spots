@@ -1,4 +1,4 @@
-import { json, Link, useLoaderData, useParams } from '@remix-run/react'
+import { json, Link, useLoaderData } from '@remix-run/react'
 import { get } from '~/services/networkService'
 import type { SurfSpot, Region } from '~/types/surfSpots'
 
@@ -14,10 +14,19 @@ interface LoaderParams {
 
 export const loader = async ({ params }: { params: LoaderParams }) => {
   const { region } = params
+
   try {
     const regionDetails = await get<Region>(`regions/${region}`)
     const surfSpots = await get<SurfSpot[]>(`surf-spots/region/${region}`)
-    return json<LoaderData>({ surfSpots: surfSpots ?? [], regionDetails })
+
+    return json<LoaderData>(
+      { surfSpots: surfSpots ?? [], regionDetails },
+      {
+        headers: {
+          'Cache-Control': 'public, max-age=3600, stale-while-revalidate=86400',
+        },
+      },
+    )
   } catch (error) {
     console.error('Error fetching surf spots:', error)
     return json<LoaderData>(
@@ -25,7 +34,12 @@ export const loader = async ({ params }: { params: LoaderParams }) => {
         surfSpots: [],
         error: `We couldn't find the surf spots right now. Please try again later.`,
       },
-      { status: 500 },
+      {
+        status: 500,
+        headers: {
+          'Cache-Control': 'public, max-age=300, stale-while-revalidate=600',
+        },
+      },
     )
   }
 }

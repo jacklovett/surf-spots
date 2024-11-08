@@ -1,7 +1,7 @@
 import { HTMLInputTypeAttribute } from 'react'
 import { FormInput } from './FormInput'
 
-export type inputElementType =
+export type InputElementType =
   | HTMLInputElement
   | HTMLTextAreaElement
   | HTMLSelectElement
@@ -14,12 +14,18 @@ export type FormInputType =
   | 'email'
   | 'password'
 
+export interface SelectOption {
+  key: string
+  value: string | number
+  label: string
+}
+
 export interface FormField {
   label: string
   name: string
   type: FormInputType
   validationRules?: ValidationRules
-  options?: { value: string | number; label: string }[]
+  options?: SelectOption[]
 }
 
 export interface ValidationRules {

@@ -2,8 +2,8 @@
   @extend %flex-center;
   gap: $spacing-small;
   background-color: $accent-color;
-  color: #ffffff;
-  padding: $spacing-small $spacing-unit;
+  color: adjust-color($primary-color, $lightness: -10%);
+  padding: $spacing-unit;
   border: none;
   border-radius: $button-border-radius;
   font-family: $font-family-base;
@@ -14,24 +14,25 @@
   width: 100%;
 
   &.secondary {
-    background: adjust-color($white, $lightness: -10%);
-    color: $primary-color;
+    background: $primary-color;
+    color: $accent-color;
   }
 
   &.alternate {
     width: fit-content;
     margin: 0 auto;
+    padding: $spacing-small $spacing-large;
   }
 
   /* Add hover state */
   &:hover {
-    background: adjust-color($color: $accent-color, $lightness: -10%);
-    color: $white;
+    background: adjust-color($accent-color, $lightness: -5%);
     transform: scale(1.03);
     transition: background-color 0.3s, transform 0.3s ease-in-out;
 
     &.secondary {
-      background: adjust-color($disabled-color, $lightness: -5%);
+      background: adjust-color($primary-color, $lightness: -10%);
+      color: $accent-color;
     }
   }
 
@@ -44,7 +45,8 @@
   /* Add disabled state */
   &:disabled {
     background: $disabled-color;
-    color: $white;
+    color: $disabled-text-color;
+    font-weight: 500;
     cursor: not-allowed;
     opacity: 0.6;
     transform: none;

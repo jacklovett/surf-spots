@@ -1,22 +1,24 @@
 import { ChangeEvent, FocusEvent } from 'react'
-import { FormField, inputElementType } from './index'
+import { FormField, InputElementType } from './index'
 
 interface IProps {
   field: FormField
   value?: string | number
-  onChange: (e: ChangeEvent<inputElementType>) => void
-  onBlur?: (e: FocusEvent<inputElementType>) => void
-  touched?: boolean
+  onChange: (e: ChangeEvent<InputElementType>) => void
+  onBlur?: (e: FocusEvent<InputElementType>) => void
   errorMessage?: string
+  disabled?: boolean
+  showLabel?: boolean
 }
 
 export const FormInput = (props: IProps) => {
-  const { field, value, onChange, onBlur, touched, errorMessage } = props
+  const { field, value, onChange, onBlur, errorMessage, disabled, showLabel } =
+    props
   const { label, name, type, options } = field
 
   return (
     <div className="form-item">
-      {type === 'select' && <label htmlFor={name}>{label}</label>}
+      <label className={showLabel ? 'visible' : ''}>{label}</label>
       {type === 'textarea' ? (
         <textarea
           id={name}
@@ -25,6 +27,8 @@ export const FormInput = (props: IProps) => {
           onChange={onChange}
           onBlur={onBlur}
           placeholder={label}
+          disabled={disabled}
+          aria-disabled={disabled}
         />
       ) : type === 'select' ? (
         <select
@@ -33,9 +37,11 @@ export const FormInput = (props: IProps) => {
           value={value as string}
           onChange={onChange}
           onBlur={onBlur}
+          disabled={disabled}
+          aria-disabled={disabled}
         >
           {options?.map((option) => (
-            <option key={option.value} value={option.value}>
+            <option key={option.key} value={option.value}>
               {option.label}
             </option>
           ))}
@@ -49,6 +55,8 @@ export const FormInput = (props: IProps) => {
           onChange={onChange}
           onBlur={onBlur}
           placeholder={label}
+          disabled={disabled}
+          aria-disabled={disabled}
         />
       )}
       {errorMessage && <span className="form-error">{errorMessage}</span>}
