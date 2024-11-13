@@ -1,6 +1,7 @@
 import { Link } from '@remix-run/react'
-import Menu from '../Menu'
 import { useUser } from '~/contexts/UserContext'
+
+import Menu from '../Menu'
 
 interface IProps {
   navigate: (path: string) => void
@@ -14,8 +15,7 @@ export const Header = (props: IProps) => {
   return (
     <header className="header space-between">
       <div className="center logo" onClick={() => navigate('/')}>
-        {/* TODO: Replace logo (Don't use Favicon!) */}
-        <img src="/favicon.ico" alt="Logo" height="40" />
+        <img src="/images/png/logo-no-text.png" alt="Logo" height="40" />
         <h2>Surf Spots</h2>
       </div>
       {isLoggedIn ? (

@@ -1,3 +1,4 @@
+import { LoaderFunction } from '@remix-run/node'
 import { useNavigate } from '@remix-run/react'
 import {
   ContentStatus,
@@ -6,14 +7,18 @@ import {
   SurfSpotList,
   Widget,
 } from '~/components'
+import { requireSessionCookie } from '~/services/session.server'
 import { SurfSpot } from '~/types/surfSpots'
+
+export const loader: LoaderFunction = async ({ request }) => {
+  await requireSessionCookie(request)
+  return []
+}
 
 export default function SurfedSpots() {
   const navigate = useNavigate()
 
   const surfSpots: SurfSpot[] = []
-  const loading = false
-  const error = null
 
   const renderContent = () => {
     const surfSpotsFound = surfSpots?.length > 0
@@ -58,9 +63,5 @@ export default function SurfedSpots() {
     )
   }
 
-  return (
-    <Page showHeader loading={loading} error={error}>
-      {renderContent()}
-    </Page>
-  )
+  return <Page showHeader>{renderContent()}</Page>
 }

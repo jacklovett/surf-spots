@@ -29,7 +29,7 @@ h1,
 h2,
 h3,
 h4 {
-  color: $heading-color;
+  color: adjust-color($heading-color, $lightness: -5%);
   line-height: 1.2;
   letter-spacing: 0.05rem;
 }

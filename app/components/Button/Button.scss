@@ -54,6 +54,22 @@
   }
 }
 
+.icon {
+  width: $spacing-large;
+  height: $spacing-large;
+  color: $text-color;
+  background: transparent;
+  font-size: $font-size-x-large;
+  border-radius: $circle-border-radius;
+
+  &:hover {
+    color: adjust-color($text-color, $lightness: -10%);
+    background: $text-hover-background;
+    transform: scale(1.03);
+    transition: transform 0.3s ease-in-out;
+  }
+}
+
 /* Define button variants */
 
 .button--danger {

@@ -1,14 +1,22 @@
 import { json, useLoaderData, useNavigate, useParams } from '@remix-run/react'
 import { useState, ChangeEvent, FormEvent, FocusEvent, useEffect } from 'react'
-import { FormComponent, FormInput, Page } from '~/components'
+
 import { get } from '~/services/networkService'
-import { Coordinates, SurfSpot, SurfSpotType } from '~/types/surfSpots'
+import { requireSessionCookie } from '~/services/session.server'
+import { SurfSpot, SurfSpotType } from '~/types/surfSpots'
+
+import { FormComponent, FormInput, Page } from '~/components'
 
 interface LoaderData {
   surfSpot: SurfSpot
 }
 
-export const loader = async (params: { surfSpotId: string }) => {
+export const loader = async (
+  request: Request,
+  params: { surfSpotId: string },
+) => {
+  await requireSessionCookie(request)
+
   const { surfSpotId } = params
   const surfSpot = await get<SurfSpot>(`/api/surf-spots/${surfSpotId}`)
 
@@ -40,7 +48,8 @@ export default function EditSurfSpot() {
     name: '',
     type: SurfSpotType.BeachBreak,
     description: '',
-    coordinates: { longitude: 0, latitude: 0 } as Coordinates,
+    longitude: 0,
+    latitude: 0,
     rating: 0,
   })
 
@@ -56,9 +65,9 @@ export default function EditSurfSpot() {
   const handleInputChange = (name: string, value: string | number) => {
     setForm((prevForm) => {
       // Ensure the coordinates object is always present
-      const updatedCoordinates = prevForm.coordinates || {
-        longitude: 0,
-        latitude: 0,
+      const updatedCoordinates = {
+        longitude: prevForm.longitude ?? 0,
+        latitude: prevForm.latitude ?? 0,
       }
 
       if (name === 'longitude' || name === 'latitude') {
@@ -104,12 +113,8 @@ export default function EditSurfSpot() {
   return (
     <Page showHeader error={error}>
       <div className="column center-vertical">
-        <h3>Add Surf Spot</h3>
-        <FormComponent
-          onReturn={() => navigate('/surf-spots')}
-          loading={loading}
-          error={error}
-        >
+        <h3>Edit Surf Spot</h3>
+        <FormComponent loading={loading} submitStatus={null} isDisabled={false}>
           <FormInput
             field={{
               label: 'Name',
@@ -125,7 +130,6 @@ export default function EditSurfSpot() {
             value={form.name || ''}
             onChange={onChange}
             onBlur={onBlur}
-            touchedFields={touchedFields}
           />
           <FormInput
             field={{
@@ -142,7 +146,6 @@ export default function EditSurfSpot() {
             value={form.country || ''}
             onChange={onChange}
             onBlur={onBlur}
-            touchedFields={touchedFields}
           />
           <FormInput
             field={{
@@ -157,7 +160,6 @@ export default function EditSurfSpot() {
             value={form.region || ''}
             onChange={onChange}
             onBlur={onBlur}
-            touchedFields={touchedFields}
           />
           <FormInput
             field={{
@@ -174,9 +176,8 @@ export default function EditSurfSpot() {
             value={form.rating || 0}
             onChange={onChange}
             onBlur={onBlur}
-            touchedFields={touchedFields}
           />
-          <div className="coordinates">
+          <div className="form-inline">
             <FormInput
               field={{
                 label: 'Longitude',
@@ -189,10 +190,9 @@ export default function EditSurfSpot() {
                   validationMessage: 'Longitude must be between -180 and 180.',
                 },
               }}
-              value={form.coordinates?.longitude || ''}
+              value={form.longitude || ''}
               onChange={onChange}
               onBlur={onBlur}
-              touchedFields={touchedFields}
             />
             <FormInput
               field={{
@@ -206,10 +206,9 @@ export default function EditSurfSpot() {
                   validationMessage: 'Latitude must be between -90 and 90.',
                 },
               }}
-              value={form.coordinates?.latitude || ''}
+              value={form.latitude || ''}
               onChange={onChange}
               onBlur={onBlur}
-              touchedFields={touchedFields}
             />
           </div>
           <FormInput
@@ -219,14 +218,17 @@ export default function EditSurfSpot() {
               type: 'select',
               options: [
                 {
+                  key: SurfSpotType.BeachBreak,
                   value: SurfSpotType.BeachBreak,
                   label: SurfSpotType.BeachBreak,
                 },
                 {
+                  key: SurfSpotType.PointBreak,
                   value: SurfSpotType.PointBreak,
                   label: 'Point Break',
                 },
                 {
+                  key: SurfSpotType.ReefBreak,
                   value: SurfSpotType.ReefBreak,
                   label: 'Reef Break',
                 },
@@ -234,7 +236,6 @@ export default function EditSurfSpot() {
             }}
             onChange={onChange}
             onBlur={onBlur}
-            touchedFields={touchedFields}
           />
           <FormInput
             field={{
@@ -251,7 +252,6 @@ export default function EditSurfSpot() {
             value={form.description || ''}
             onChange={onChange}
             onBlur={onBlur}
-            touchedFields={touchedFields}
           />
         </FormComponent>
       </div>

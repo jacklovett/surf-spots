@@ -8,6 +8,7 @@ import { BoundingBox, Coordinates, SurfSpot } from '~/types/surfSpots'
 import { post } from './networkService'
 import { SurfSpotPopUp } from '~/components'
 import { getCssVariable } from '~/utils'
+import { User } from '~/types/user'
 
 export const MAP_ACCESS_TOKEN = import.meta.env.VITE_MAP_ACCESS_TOKEN
 export const ICON_IMAGE_PATH = `/images/png/pin.png`
@@ -126,16 +127,21 @@ export const getSourceData = (surfSpots: SurfSpot[]): GeoJSON.GeoJSON => ({
 /**
  * Adds layers for clustered and unclustered points on the map.
  * @param map - the initialized map
+ * @param user - the logged in user
  * @param onNavigate - function to handle navigation on feature click
  */
-export const addLayers = (map: Map, onNavigate: (path: string) => void) => {
+export const addLayers = (
+  map: Map,
+  user: User | null,
+  navigate: (path: string) => void,
+) => {
   if (!map) {
     throw new Error('Map is not initialized. Unable to add layers.')
   }
 
   addClusterLayers(map)
   addMarkerLayers(map)
-  setupLayerInteractions(map, onNavigate)
+  setupLayerInteractions(map, user, navigate)
 }
 
 const addClusterLayers = (map: Map) => {
@@ -251,7 +257,8 @@ const handleClusterClick = (map: Map, event: MapMouseEvent) => {
  */
 const handleMarkerClick = (
   map: Map,
-  onNavigate: (path: string) => void,
+  navigate: (path: string) => void,
+  user: User | null,
   event: MapMouseEvent,
 ) => {
   try {
@@ -265,7 +272,7 @@ const handleMarkerClick = (
       throw new Error('No surf spot data found in feature.')
     }
 
-    createPopUp(surfSpot, onNavigate).addTo(map)
+    createPopUp(surfSpot, user, navigate).addTo(map)
   } catch (error) {
     console.error('Error handling marker click:', error)
   }
@@ -278,11 +285,12 @@ const handleMarkerClick = (
  */
 const setupLayerInteractions = (
   map: Map,
-  onNavigate: (path: string) => void,
+  user: User | null,
+  navigate: (path: string) => void,
 ) => {
   map.on('click', 'clusters', (event) => handleClusterClick(map, event))
   map.on('click', 'marker', (event) =>
-    handleMarkerClick(map, onNavigate, event),
+    handleMarkerClick(map, navigate, user, event),
   )
 
   const setCursorStyle = (cursor: string) => () =>
@@ -295,27 +303,31 @@ const setupLayerInteractions = (
 /**
  * Creates and returns a Mapbox popup for a surf spot.
  * @param surfSpot - the surf spot data
+ * @param user - if logged in then our active user
  * @param onNavigate - function to handle navigation
  */
 const createPopUp = (
   surfSpot: SurfSpot,
-  onNavigate: (path: string) => void,
+  user: User | null,
+  navigate: (path: string) => void,
 ): mapboxgl.Popup => {
   try {
     const popupContainer = document.createElement('div')
     createRoot(popupContainer).render(
-      <SurfSpotPopUp surfSpot={surfSpot} onNavigate={onNavigate} />,
+      <SurfSpotPopUp {...{ surfSpot, user, navigate }} />,
     )
 
-    if (!surfSpot.longitude || !surfSpot.latitude) {
-      throw new Error(`Missing coordinates for surf spot "${surfSpot.name}".`)
+    const { longitude, latitude, name } = surfSpot
+
+    if (!longitude || !latitude) {
+      throw new Error(`Missing coordinates for surf spot "${name}".`)
     }
 
     return new mapboxgl.Popup({
       maxWidth: '392px',
       focusAfterOpen: false,
     })
-      .setLngLat([surfSpot.longitude, surfSpot.latitude])
+      .setLngLat([longitude, latitude])
       .setDOMContent(popupContainer)
   } catch (error) {
     console.error('Error creating popup:', error)

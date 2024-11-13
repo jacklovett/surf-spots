@@ -1,6 +1,15 @@
+import { LoaderFunction } from '@remix-run/node'
 import { useNavigate } from '@remix-run/react'
-import { ContentStatus, ErrorBoundary, Page, SurfSpotList } from '~/components'
+
+import { requireSessionCookie } from '~/services/session.server'
 import { SurfSpot } from '~/types/surfSpots'
+
+import { ContentStatus, ErrorBoundary, Page, SurfSpotList } from '~/components'
+
+export const loader: LoaderFunction = async ({ request }) => {
+  await requireSessionCookie(request)
+  return []
+}
 
 export default function Wishlist() {
   const navigate = useNavigate()

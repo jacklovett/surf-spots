@@ -18,12 +18,14 @@ import {
 } from '~/services/mapService'
 import { Coordinates, SurfSpot } from '~/types/surfSpots'
 import { debounce } from '~/utils'
+import { useUser } from '~/contexts/UserContext'
 
 export const useDynamicMap = (
   mapContainer: MutableRefObject<HTMLDivElement | null>,
   setLoading: (value: boolean) => void,
 ) => {
   const navigate = useNavigate()
+  const { user } = useUser()
   const mapRef = useRef<mapboxgl.Map | null>(null)
   const [userLocation, setUserLocation] =
     useState<Coordinates>(defaultMapCenter)
@@ -93,7 +95,7 @@ export const useDynamicMap = (
     currentMap.on('load', () => {
       setLoading(false)
       addSourceData(currentMap, surfSpots)
-      addLayers(currentMap, navigate)
+      addLayers(currentMap, user, navigate)
       debouncedFetchSurfSpots(currentMap)
     })
 

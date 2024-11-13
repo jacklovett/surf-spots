@@ -13,7 +13,11 @@ import fs from 'fs/promises'
 import path from 'path'
 
 import { edit } from '~/services/networkService'
-import { commitSession, getSession } from '~/services/session.server'
+import {
+  commitSession,
+  getSession,
+  requireSessionCookie,
+} from '~/services/session.server'
 import { useUser } from '~/contexts/UserContext'
 
 import {
@@ -44,7 +48,8 @@ export const meta: MetaFunction = () => [
   { name: 'description', content: 'User profile page' },
 ]
 
-export const loader: LoaderFunction = async () => {
+export const loader: LoaderFunction = async ({ request }) => {
+  await requireSessionCookie(request)
   try {
     const filePath = path.resolve('public/data/cities_countries.json')
     const fileData = await fs.readFile(filePath, 'utf-8')

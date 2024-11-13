@@ -5,7 +5,7 @@ interface IProps {
   onClick?: () => void
   type?: 'button' | 'submit'
   disabled?: boolean
-  variant?: 'primary' | 'secondary' | 'alternate'
+  variant?: 'primary' | 'secondary' | 'alternate' | 'icon'
   ariaLabel?: string
   icon?: ButtonIcon
 }

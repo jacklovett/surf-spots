@@ -1,4 +1,4 @@
-import { createCookieSessionStorage } from '@remix-run/node'
+import { createCookieSessionStorage, json, redirect } from '@remix-run/node'
 
 // Ensure SESSION_SECRET is defined
 const sessionSecret = process.env.SESSION_SECRET
@@ -17,5 +17,15 @@ export const sessionStorage = createCookieSessionStorage({
     secrets: [sessionSecret],
   },
 })
+
+export const requireSessionCookie = async (request: Request) => {
+  const session = await sessionStorage.getSession(request.headers.get('Cookie'))
+  const user = session.get('user')
+  if (!user) {
+    throw redirect('/auth')
+  }
+
+  return user
+}
 
 export const { getSession, commitSession, destroySession } = sessionStorage

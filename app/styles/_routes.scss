@@ -42,9 +42,10 @@
 
   & button {
     width: fit-content;
-    border-radius: $button-border-radius;
+    border-radius: $circle-border-radius;
     background: $background-color;
     box-shadow: $box-shadow;
+    padding: calc(0.75 * $spacing-unit);
 
     &:hover {
       background: $accent-color;
@@ -62,9 +63,9 @@
 
 .auth-title {
   & h1 {
-    color: $text-color;
     font-size: $font-size-x-large;
     margin: 0;
+    text-align: center;
   }
 }
 

@@ -1,8 +1,16 @@
-import { json, useLoaderData } from '@remix-run/react'
+import { json, useLoaderData, useNavigate } from '@remix-run/react'
+
 import { get } from '~/services/networkService'
 import { SurfSpot } from '~/types/surfSpots'
-import { Details, ErrorBoundary, InfoMessage, SurfMap } from '~/components'
-import SurfSpotActions from '~/components/SurfSpotActions'
+
+import {
+  Details,
+  ErrorBoundary,
+  InfoMessage,
+  SurfMap,
+  SurfSpotActions,
+} from '~/components'
+import { useUser } from '~/contexts/UserContext'
 
 interface LoaderData {
   surfSpotDetails?: SurfSpot
@@ -43,9 +51,8 @@ export const loader = async ({ params }: { params: LoaderParams }) => {
 
 export default function SurfSpotDetails() {
   const { surfSpotDetails } = useLoaderData<LoaderData>()
-  const isSurfedSpot = false // TODO: get from state!!
-  const isWishlisted = false
-
+  const { user } = useUser()
+  const navigate = useNavigate()
   const renderContent = () => {
     if (!surfSpotDetails) {
       return (
@@ -65,7 +72,9 @@ export default function SurfSpotDetails() {
             <div className="row space-between">
               <h3>{name}</h3>
               <div className="spot-actions">
-                <SurfSpotActions {...{ surfSpot: surfSpotDetails }} />
+                <SurfSpotActions
+                  {...{ surfSpot: surfSpotDetails, navigate, user }}
+                />
               </div>
             </div>
             <p className="description">{description}</p>
@@ -83,7 +92,7 @@ export default function SurfSpotDetails() {
           </div>
         </ErrorBoundary>
         <div className="content">
-          <InfoMessage message="See something incorrect? Let us know so we can get it fixed" />
+          <InfoMessage message="See something not right? Let us know so we can get it fixed" />
         </div>
       </div>
     )

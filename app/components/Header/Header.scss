@@ -12,6 +12,7 @@ header {
     gap: $spacing-small;
 
     & h2 {
+      color: $heading-color;
       margin-bottom: $spacing-small;
       font-family: $font-family-heading;
     }

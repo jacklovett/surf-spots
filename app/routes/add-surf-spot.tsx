@@ -1,7 +1,15 @@
+import { LoaderFunction } from '@remix-run/node'
 import { useNavigate } from '@remix-run/react'
-import { useState, ChangeEvent, FormEvent, FocusEvent } from 'react'
-import { FormComponent, FormItem, Page } from '~/components'
-import { Coordinates, SurfSpot, SurfSpotType } from '~/types/surfSpots'
+import { useState, ChangeEvent, FocusEvent } from 'react'
+
+import { requireSessionCookie } from '~/services/session.server'
+import { SurfSpot, SurfSpotType } from '~/types/surfSpots'
+
+import { FormComponent, FormInput, Page } from '~/components'
+
+export const loader: LoaderFunction = async ({ request }) => {
+  await requireSessionCookie(request)
+}
 
 export default function AddSurfSpot() {
   const navigate = useNavigate()
@@ -16,7 +24,8 @@ export default function AddSurfSpot() {
     name: '',
     type: SurfSpotType.BeachBreak,
     description: '',
-    coordinates: { longitude: 0, latitude: 0 } as Coordinates,
+    longitude: 0,
+    latitude: 0,
     rating: 0,
   })
 
@@ -26,9 +35,9 @@ export default function AddSurfSpot() {
   const handleInputChange = (name: string, value: string | number) => {
     setForm((prevForm) => {
       // Ensure the coordinates object is always present
-      const updatedCoordinates = prevForm.coordinates || {
-        longitude: 0,
-        latitude: 0,
+      const updatedCoordinates = {
+        longitude: prevForm.longitude ?? 0,
+        latitude: prevForm.latitude ?? 0,
       }
 
       if (name === 'longitude' || name === 'latitude') {
@@ -65,8 +74,8 @@ export default function AddSurfSpot() {
     <Page showHeader error={error}>
       <div className="column center-vertical">
         <h3>Add Surf Spot</h3>
-        <FormComponent loading={loading} isDisabled={false}>
-          <FormItem
+        <FormComponent loading={loading} isDisabled={false} submitStatus={null}>
+          <FormInput
             field={{
               label: 'Name',
               name: 'name',
@@ -81,9 +90,8 @@ export default function AddSurfSpot() {
             value={form.name || ''}
             onChange={onChange}
             onBlur={onBlur}
-            touchedFields={touchedFields}
           />
-          <FormItem
+          <FormInput
             field={{
               label: 'Country',
               name: 'country',
@@ -98,9 +106,8 @@ export default function AddSurfSpot() {
             value={form.country || ''}
             onChange={onChange}
             onBlur={onBlur}
-            touchedFields={touchedFields}
           />
-          <FormItem
+          <FormInput
             field={{
               label: 'Region',
               name: 'region',
@@ -113,9 +120,8 @@ export default function AddSurfSpot() {
             value={form.region || ''}
             onChange={onChange}
             onBlur={onBlur}
-            touchedFields={touchedFields}
           />
-          <FormItem
+          <FormInput
             field={{
               label: 'Rating',
               name: 'rating',
@@ -130,10 +136,9 @@ export default function AddSurfSpot() {
             value={form.rating || 0}
             onChange={onChange}
             onBlur={onBlur}
-            touchedFields={touchedFields}
           />
-          <div className="coordinates">
-            <FormItem
+          <div className="form-inline">
+            <FormInput
               field={{
                 label: 'Longitude',
                 name: 'longitude',
@@ -145,12 +150,11 @@ export default function AddSurfSpot() {
                   validationMessage: 'Longitude must be between -180 and 180.',
                 },
               }}
-              value={form.coordinates?.longitude || ''}
+              value={form.longitude || ''}
               onChange={onChange}
               onBlur={onBlur}
-              touchedFields={touchedFields}
             />
-            <FormItem
+            <FormInput
               field={{
                 label: 'Latitude',
                 name: 'latitude',
@@ -162,27 +166,29 @@ export default function AddSurfSpot() {
                   validationMessage: 'Latitude must be between -90 and 90.',
                 },
               }}
-              value={form.coordinates?.latitude || ''}
+              value={form?.latitude || ''}
               onChange={onChange}
               onBlur={onBlur}
-              touchedFields={touchedFields}
             />
           </div>
-          <FormItem
+          <FormInput
             field={{
               label: 'Type',
               name: 'type',
               type: 'select',
               options: [
                 {
+                  key: SurfSpotType.BeachBreak,
                   value: SurfSpotType.BeachBreak,
                   label: SurfSpotType.BeachBreak,
                 },
                 {
+                  key: SurfSpotType.PointBreak,
                   value: SurfSpotType.PointBreak,
                   label: 'Point Break',
                 },
                 {
+                  key: SurfSpotType.ReefBreak,
                   value: SurfSpotType.ReefBreak,
                   label: 'Reef Break',
                 },
@@ -190,9 +196,8 @@ export default function AddSurfSpot() {
             }}
             onChange={onChange}
             onBlur={onBlur}
-            touchedFields={touchedFields}
           />
-          <FormItem
+          <FormInput
             field={{
               label: 'Description',
               name: 'description',
@@ -207,7 +212,6 @@ export default function AddSurfSpot() {
             value={form.description || ''}
             onChange={onChange}
             onBlur={onBlur}
-            touchedFields={touchedFields}
           />
         </FormComponent>
       </div>

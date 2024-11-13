@@ -1,0 +1,23 @@
+.modal-overlay {
+  @extend %flex-center;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(4px);
+  z-index: 1000;
+}
+
+.modal-container {
+  background-color: $white;
+  color: $text-color;
+  max-width: 90%;
+  width: 480px;
+}
+
+.modal-content {
+  gap: $spacing-unit;
+  padding: $spacing-unit;
+}

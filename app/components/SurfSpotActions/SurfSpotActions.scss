@@ -15,3 +15,15 @@
     gap: $spacing-small;
   }
 }
+
+.benefits-list {
+  padding: 0;
+  margin-top: -$spacing-unit;
+  list-style-type: disc;
+}
+
+.benefits-list li {
+  align-items: center;
+  color: $primary-color;
+  margin: $spacing-unit;
+}
