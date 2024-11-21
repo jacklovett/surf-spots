@@ -31,13 +31,16 @@ export const loader: LoaderFunction = async ({ request, params }) => {
   const { surfSpot } = params
   try {
     const session = await getSession(request.headers.get('Cookie'))
+    const user = session.get('user')
     const userId = user?.id
 
     // Build API URL with optional useId
     const url = userId
       ? `surf-spots/${surfSpot}?userId=${userId}`
       : `surf-spots/${surfSpot}`
+
     const surfSpotDetails = await get<SurfSpot>(url)
+    return json<LoaderData>({ surfSpotDetails })
   } catch (error) {
     console.error('Error fetching surf spot details: ', error)
     return json<LoaderData>(

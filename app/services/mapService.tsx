@@ -41,6 +41,7 @@ export const fetchSurfSpotsByBounds = async (
       ? `surf-spots/within-bounds/${userId}`
       : `surf-spots/within-bounds`
 
+    const surfSpots = await post<BoundingBox, SurfSpot[]>(url, boundingBox)
     return surfSpots ?? []
   } catch (error) {
     console.error('Error fetching surf spots:', error)
