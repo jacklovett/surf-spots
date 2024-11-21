@@ -1,7 +1,8 @@
-import type { ActionFunction, MetaFunction } from '@remix-run/node'
+import { type ActionFunction, type MetaFunction } from '@remix-run/node'
 import {
   json,
   Link,
+  redirect,
   useActionData,
   useNavigate,
   useNavigation,
@@ -18,6 +19,7 @@ import {
 
 import { Page, Button, FormComponent, FormInput } from '~/components'
 import { InputElementType } from '~/components/FormInput'
+import { commitSession, getSession } from '~/services/session.server'
 
 export const meta: MetaFunction = () => {
   return [
@@ -38,9 +40,20 @@ export const action: ActionFunction = async ({ request }) => {
   }
 
   try {
-    await authenticator.authenticate('form', request, {
-      successRedirect: '/surf-spots',
-      throwOnError: true,
+    const user = await authenticator.authenticate('form', request)
+
+    if (!user) {
+      return json({ error: 'Authentication failed' }, { status: 401 })
+    }
+
+    const session = await getSession(request.headers.get('Cookie'))
+    // Store user information in the session
+    session.set('user', user)
+
+    return redirect('/surf-spots', {
+      headers: {
+        'Set-Cookie': await commitSession(session),
+      },
     })
   } catch (error) {
     console.log(error)

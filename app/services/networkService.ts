@@ -11,7 +11,6 @@ const handleResponse = async <T>(response: Response): Promise<T> => {
   return data as T
 }
 
-// Main request function, allows any options to be passed in
 const request = async <T, B = undefined>(
   endpoint: string,
   options: RequestInit = {},

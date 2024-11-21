@@ -3,7 +3,11 @@ import { GoogleStrategy } from 'remix-auth-google'
 import { FormStrategy } from 'remix-auth-form'
 
 import { AuthRequest, AuthUser, User } from '~/types/user'
-import { sessionStorage } from '~/services/session.server'
+import {
+  sessionStorage,
+  getSession,
+  commitSession,
+} from '~/services/session.server'
 import { post } from './networkService'
 
 export interface AuthErrors {
@@ -42,7 +46,7 @@ authenticator.use(
 
 // Form-based sign-in strategy with validation and authentication
 authenticator.use(
-  new FormStrategy<User>(async ({ form }) => {
+  new FormStrategy<User>(async ({ form, request }) => {
     const email = form.get('email') as string
     const password = form.get('password') as string
 
@@ -50,7 +54,16 @@ authenticator.use(
     if (!user) {
       throw new Error('Invalid login credentials')
     }
-    return user
+
+    // Update session after successful login
+    const session = await getSession(request.headers.get('Cookie'))
+    session.set('user', user)
+
+    // Attach session to the response
+    return {
+      ...user,
+      session: await commitSession(session),
+    }
   }),
   'form',
 )

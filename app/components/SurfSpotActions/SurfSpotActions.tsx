@@ -1,18 +1,20 @@
-import { ReactNode, useState } from 'react'
-import { post, deleteData } from '~/services/networkService'
+import { useState } from 'react'
+
 import { SurfSpot } from '~/types/surfSpots'
 import { User } from '~/types/user'
 import { Button, Modal, TextButton } from '../index'
+import { IModalState } from '../Modal'
+
+import { FetcherSubmitParams } from './index'
 
 interface IProps {
   surfSpot: SurfSpot
   navigate: (path: string) => void
   user: User | null
-}
-
-interface IModalState {
-  content: ReactNode
-  isVisible: boolean
+  onFetcherSubmit: (
+    params: FetcherSubmitParams,
+    updatedSurfSpot: SurfSpot,
+  ) => void
 }
 
 const initialModalState: IModalState = {
@@ -20,34 +22,44 @@ const initialModalState: IModalState = {
   isVisible: false,
 }
 
-export const SurfSpotActions = ({ surfSpot, navigate, user }: IProps) => {
-  const { id: surfSpotId, isSurfedSpot, isWatching } = surfSpot
+export const SurfSpotActions = (props: IProps) => {
+  const { surfSpot, navigate, user, onFetcherSubmit } = props
   const [modalState, setModalState] = useState<IModalState>(initialModalState)
+  const [surfSpotState, setSurfSpotState] = useState<SurfSpot>(surfSpot)
 
-  const userSpotRequest = user && {
-    userId: user.id,
-    surfSpotId,
-  }
+  const { id: surfSpotId, isSurfedSpot, isWatched } = surfSpotState
 
   const handleAction = async (
     actionType: 'add' | 'remove',
     target: 'user-spots' | 'watch',
   ) => {
-    if (userSpotRequest) {
-      const endpoint =
-        actionType === 'add'
-          ? target
-          : `${target}/${userSpotRequest.userId}/remove/${userSpotRequest.surfSpotId}`
-      const requestMethod = actionType === 'add' ? post : deleteData
-
-      try {
-        await requestMethod(
-          endpoint,
-          actionType === 'add' ? userSpotRequest : undefined,
-        )
-      } catch (error) {
-        console.error('Unable to perform action:', error)
+    if (user) {
+      let updatedSurfSpot = surfSpotState
+      if (target === 'user-spots') {
+        updatedSurfSpot = {
+          ...surfSpotState,
+          isSurfedSpot: !surfSpot.isSurfedSpot,
+        }
       }
+
+      if (target === 'watch') {
+        updatedSurfSpot = {
+          ...surfSpotState,
+          isWatched: !surfSpot.isWatched,
+        }
+      }
+
+      onFetcherSubmit(
+        {
+          actionType,
+          target,
+          surfSpotId,
+          userId: user.id,
+        },
+        updatedSurfSpot,
+      )
+
+      setSurfSpotState(updatedSurfSpot)
     } else {
       showSignUpPromptModal(target === 'watch')
     }
@@ -100,11 +112,19 @@ export const SurfSpotActions = ({ surfSpot, navigate, user }: IProps) => {
 
   return (
     <div className="actions">
-      {!isWatching && !isSurfedSpot && (
+      {!isWatched && (
         <TextButton
           text="Add to watch list"
           onClick={() => handleAction('add', 'watch')}
           iconKey="heart"
+          filled
+        />
+      )}
+      {isWatched && (
+        <TextButton
+          text="Remove from watch list"
+          onClick={() => handleAction('remove', 'watch')}
+          iconKey="bin"
           filled
         />
       )}
@@ -120,14 +140,6 @@ export const SurfSpotActions = ({ surfSpot, navigate, user }: IProps) => {
         <TextButton
           text="Remove from surfed spots"
           onClick={() => handleAction('remove', 'user-spots')}
-          iconKey="bin"
-          filled
-        />
-      )}
-      {isWatching && (
-        <TextButton
-          text="Remove from watch list"
-          onClick={() => handleAction('remove', 'watch')}
           iconKey="bin"
           filled
         />

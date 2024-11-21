@@ -1,6 +1,7 @@
 import { useRef, useState } from 'react'
-import 'mapbox-gl/dist/mapbox-gl.css'
 import classNames from 'classnames'
+
+import 'mapbox-gl/dist/mapbox-gl.css'
 
 import { SkeletonLoader } from '../index'
 import { SurfSpot } from '~/types/surfSpots'

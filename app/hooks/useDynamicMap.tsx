@@ -5,7 +5,7 @@ import {
   useRef,
   useState,
 } from 'react'
-import { useNavigate } from '@remix-run/react'
+import { useFetcher, useNavigate } from '@remix-run/react'
 import mapboxgl from 'mapbox-gl'
 import {
   addLayers,
@@ -19,18 +19,32 @@ import {
 import { Coordinates, SurfSpot } from '~/types/surfSpots'
 import { debounce } from '~/utils'
 import { useUser } from '~/contexts/UserContext'
+import {
+  FetcherSubmitParams,
+  submitFetcher,
+  SurfSpotActionFetcherResponse,
+} from '~/components/SurfSpotActions'
 
 export const useDynamicMap = (
   mapContainer: MutableRefObject<HTMLDivElement | null>,
   setLoading: (value: boolean) => void,
 ) => {
   const navigate = useNavigate()
+
   const { user } = useUser()
+  const userId = user?.id
+
+  const fetcher = useFetcher<SurfSpotActionFetcherResponse>()
+
   const mapRef = useRef<mapboxgl.Map | null>(null)
+  const loadedBoundsRef = useRef<mapboxgl.LngLatBounds[]>([])
+
   const [userLocation, setUserLocation] =
     useState<Coordinates>(defaultMapCenter)
+
   const [surfSpots, setSurfSpots] = useState<SurfSpot[]>([])
-  const loadedBoundsRef = useRef<mapboxgl.LngLatBounds[]>([])
+  const [surfSpotPendingUpdate, setSurfSpotPendingUpdate] =
+    useState<SurfSpot | null>(null)
 
   /**
    * Helper function to check if bounds are already loaded
@@ -57,21 +71,48 @@ export const useDynamicMap = (
       try {
         const newSurfSpots: SurfSpot[] = await fetchSurfSpotsByBounds(
           currentMap,
+          userId,
         )
         setSurfSpots((prevSpots) => {
-          const surfSpotIds = prevSpots.map((spot) => spot.id)
-          const uniqueSpots = newSurfSpots.filter(
-            (spot) => !surfSpotIds.includes(spot.id),
-          )
-          return [...prevSpots, ...uniqueSpots]
+          const surfSpotMap = new Map(prevSpots.map((spot) => [spot.id, spot]))
+          newSurfSpots.forEach((spot) => surfSpotMap.set(spot.id, spot))
+          return Array.from(surfSpotMap.values())
         })
         loadedBoundsRef.current.push(newBounds)
       } catch (error) {
         console.error('Error fetching surf spots:', error)
       }
     }, 500),
-    [],
+    [userId],
   )
+
+  const onFetcherSubmit = (
+    params: FetcherSubmitParams,
+    updatedSurfSpot: SurfSpot,
+  ) => {
+    setSurfSpotPendingUpdate(updatedSurfSpot) // Save the updated surf spot to state for later use
+    submitFetcher(params, fetcher)
+  }
+
+  // Handle fetcher completion and update surfSpots
+  useEffect(() => {
+    const { data, state } = fetcher
+
+    if (state !== 'idle') {
+      return
+    }
+
+    if (data?.success && surfSpotPendingUpdate) {
+      setSurfSpots((prevSpots) =>
+        prevSpots.map((spot) =>
+          spot.id === surfSpotPendingUpdate.id ? surfSpotPendingUpdate : spot,
+        ),
+      )
+      setSurfSpotPendingUpdate(null)
+    } else if (data?.error) {
+      console.error('SurfSpot action Fetcher error:', data.error)
+    }
+  }, [fetcher, surfSpotPendingUpdate])
 
   // Fetch user's geolocation once for initial map load
   useEffect(
@@ -85,7 +126,9 @@ export const useDynamicMap = (
 
   // Initialize the map and set up event listeners for move and zoom actions
   useEffect(() => {
-    if (mapRef.current || !mapContainer.current) return
+    if (mapRef.current || !mapContainer.current) {
+      return
+    }
 
     const currentMap = initializeMap(mapContainer.current, true, userLocation)
     mapRef.current = currentMap
@@ -95,7 +138,7 @@ export const useDynamicMap = (
     currentMap.on('load', () => {
       setLoading(false)
       addSourceData(currentMap, surfSpots)
-      addLayers(currentMap, user, navigate)
+      addLayers(currentMap, user, navigate, onFetcherSubmit)
       debouncedFetchSurfSpots(currentMap)
     })
 
@@ -111,7 +154,7 @@ export const useDynamicMap = (
       currentMap.remove()
       mapRef.current = null
     }
-  }, [debouncedFetchSurfSpots, mapContainer])
+  }, [debouncedFetchSurfSpots, mapContainer, userLocation])
 
   // Update map source data when surfSpots changes
   useEffect(() => {

@@ -65,7 +65,7 @@ export interface SurfSpot extends NewSurfSpot {
   id: string
   path: string
   isSurfedSpot: boolean
-  isWatching: boolean
+  isWatched: boolean
 }
 
 export interface NewSurfSpot extends Coordinates {

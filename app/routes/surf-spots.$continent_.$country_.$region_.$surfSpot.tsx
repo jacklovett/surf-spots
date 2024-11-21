@@ -1,4 +1,4 @@
-import { json, useLoaderData, useNavigate } from '@remix-run/react'
+import { json, useFetcher, useLoaderData, useNavigate } from '@remix-run/react'
 
 import { get } from '~/services/networkService'
 import { SurfSpot } from '~/types/surfSpots'
@@ -11,28 +11,33 @@ import {
   SurfSpotActions,
 } from '~/components'
 import { useUser } from '~/contexts/UserContext'
+import { ActionFunction, LoaderFunction } from '@remix-run/node'
+import { surfSpotAction } from '~/services/surfSpot.server'
+import { getSession } from '~/services/session.server'
+import {
+  FetcherSubmitParams,
+  submitFetcher,
+  SurfSpotActionFetcherResponse,
+} from '~/components/SurfSpotActions'
 
 interface LoaderData {
   surfSpotDetails?: SurfSpot
   error?: string
 }
 
-interface LoaderParams {
-  surfSpot: string
-}
+export const action: ActionFunction = surfSpotAction
 
-export const loader = async ({ params }: { params: LoaderParams }) => {
+export const loader: LoaderFunction = async ({ request, params }) => {
   const { surfSpot } = params
   try {
-    const surfSpotDetails = await get<SurfSpot>(`surf-spots/${surfSpot}`)
-    return json<LoaderData>(
-      { surfSpotDetails },
-      {
-        headers: {
-          'Cache-Control': 'public, max-age=3600, stale-while-revalidate=86400',
-        },
-      },
-    )
+    const session = await getSession(request.headers.get('Cookie'))
+    const userId = user?.id
+
+    // Build API URL with optional useId
+    const url = userId
+      ? `surf-spots/${surfSpot}?userId=${userId}`
+      : `surf-spots/${surfSpot}`
+    const surfSpotDetails = await get<SurfSpot>(url)
   } catch (error) {
     console.error('Error fetching surf spot details: ', error)
     return json<LoaderData>(
@@ -41,9 +46,6 @@ export const loader = async ({ params }: { params: LoaderParams }) => {
       },
       {
         status: 500,
-        headers: {
-          'Cache-Control': 'public, max-age=300, stale-while-revalidate=600',
-        },
       },
     )
   }
@@ -53,6 +55,13 @@ export default function SurfSpotDetails() {
   const { surfSpotDetails } = useLoaderData<LoaderData>()
   const { user } = useUser()
   const navigate = useNavigate()
+
+  const fetcher = useFetcher<SurfSpotActionFetcherResponse>()
+
+  const onFetcherSubmit = (params: FetcherSubmitParams) => {
+    submitFetcher(params, fetcher)
+  }
+
   const renderContent = () => {
     if (!surfSpotDetails) {
       return (
@@ -73,7 +82,12 @@ export default function SurfSpotDetails() {
               <h3>{name}</h3>
               <div className="spot-actions">
                 <SurfSpotActions
-                  {...{ surfSpot: surfSpotDetails, navigate, user }}
+                  {...{
+                    surfSpot: surfSpotDetails,
+                    navigate,
+                    user,
+                    onFetcherSubmit,
+                  }}
                 />
               </div>
             </div>

@@ -8,8 +8,7 @@ import {
   useNavigation,
   useParams,
 } from '@remix-run/react'
-import { LoaderFunction } from '@remix-run/node'
-import classNames from 'classnames'
+import { ActionFunction, LoaderFunction } from '@remix-run/node'
 
 import {
   Breadcrumb,
@@ -21,6 +20,7 @@ import {
   ViewSwitch,
 } from '~/components'
 import { BreadcrumbItem } from '~/components/Breadcrumb'
+import { surfSpotAction } from '~/services/surfSpot.server'
 
 interface LoaderData {
   isMapView: boolean
@@ -54,6 +54,8 @@ export const loader: LoaderFunction = async ({ request }) => {
   })
 }
 
+export const action: ActionFunction = surfSpotAction
+
 export default function SurfSpots() {
   const navigate = useNavigate()
   const { pathname } = useLocation()
@@ -61,11 +63,10 @@ export default function SurfSpots() {
 
   const loading = state === 'loading'
 
-  const [isFiltersViewOpen, setFiltersViewOpen] = useState(false)
-
   // Get the initial view from the loader data
   const { isMapView: initialMapView, filters: initialFilters } =
     useLoaderData<LoaderData>()
+
   const [isMapView, setIsMapView] = useState(initialMapView)
   // Handle the toggle view logic
   const handleToggleView = () => {
@@ -73,13 +74,15 @@ export default function SurfSpots() {
     setIsMapView(!isMapView)
   }
 
-  // const [filters, setFilters] = useState(initialFilters)
+  const [filters, setFilters] = useState(initialFilters)
+  const [isFiltersViewOpen, setFiltersViewOpen] = useState(false)
+
+  const showFilters = filters && filters.length > 0
+
   useEffect(() => {
     setIsMapView(checkIsMapView(pathname))
-    // setFilters(getFilters(pathname))
+    setFilters(getFilters(pathname))
   }, [pathname])
-
-  // const showFilters = filters && filters.length > 0
 
   const generateBreadcrumbItems = (): BreadcrumbItem[] => {
     const breadcrumbItems: BreadcrumbItem[] = [
@@ -115,12 +118,8 @@ export default function SurfSpots() {
 
   return (
     <Page showHeader overrideLoading>
-      <div
-        className={classNames({
-          'row toolbar': true,
-          'flex-end': true,
-        })}
-      >
+      <div className="row toolbar flex-end">
+        {/* TODO: Add Filters tab */}
         <ViewSwitch
           isPrimaryView={isMapView}
           onToggleView={handleToggleView}

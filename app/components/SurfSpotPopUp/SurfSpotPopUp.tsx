@@ -2,15 +2,20 @@ import { User } from '~/types/user'
 import { SurfSpot } from '~/types/surfSpots'
 
 import { Details, SurfSpotActions } from '../index'
+import { FetcherSubmitParams } from '../SurfSpotActions'
 
 interface IProps {
   surfSpot: SurfSpot
   user: User | null
   navigate: (path: string) => void
+  onFetcherSubmit: (
+    params: FetcherSubmitParams,
+    updatedSurfSpot: SurfSpot,
+  ) => void
 }
 
 export const SurfSpotPopUp = (props: IProps) => {
-  const { surfSpot, user, navigate } = props
+  const { surfSpot, user, navigate, onFetcherSubmit } = props
   const { beachBottomType, name, rating, skillLevel, path, type } = surfSpot
 
   return (
@@ -26,7 +31,7 @@ export const SurfSpotPopUp = (props: IProps) => {
         <p className="pop-up-link" onClick={() => navigate(path)} tabIndex={0}>
           Learn more
         </p>
-        <SurfSpotActions {...{ surfSpot, navigate, user }} />
+        <SurfSpotActions {...{ surfSpot, navigate, user, onFetcherSubmit }} />
       </div>
     </div>
   )
