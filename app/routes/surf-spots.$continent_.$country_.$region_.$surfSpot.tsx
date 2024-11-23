@@ -34,7 +34,7 @@ export const loader: LoaderFunction = async ({ request, params }) => {
     const user = session.get('user')
     const userId = user?.id
 
-    // Build API URL with optional useId
+    // Build API URL with optional userId
     const url = userId
       ? `surf-spots/${surfSpot}?userId=${userId}`
       : `surf-spots/${surfSpot}`
@@ -61,9 +61,8 @@ export default function SurfSpotDetails() {
 
   const fetcher = useFetcher<SurfSpotActionFetcherResponse>()
 
-  const onFetcherSubmit = (params: FetcherSubmitParams) => {
+  const onFetcherSubmit = (params: FetcherSubmitParams) =>
     submitFetcher(params, fetcher)
-  }
 
   const renderContent = () => {
     if (!surfSpotDetails) {

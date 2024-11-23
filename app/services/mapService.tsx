@@ -36,9 +36,9 @@ export const fetchSurfSpotsByBounds = async (
       maxLatitude: bounds.getNorthEast().lat,
     }
 
-    // Build API URL with optional useId
+    // Build API URL with optional userId
     const url = userId
-      ? `surf-spots/within-bounds/${userId}`
+      ? `surf-spots/within-bounds?userId=${userId}`
       : `surf-spots/within-bounds`
 
     const surfSpots = await post<BoundingBox, SurfSpot[]>(url, boundingBox)
