@@ -70,9 +70,9 @@ export interface SurfSpot extends NewSurfSpot {
 
 export interface NewSurfSpot extends Coordinates {
   beachBottomType: BeachBottomType
-  country: string
-  region: string
-  continent: Continents
+  country?: Country
+  region?: Region
+  continent?: Continent
   name: string
   description: string
   rating: number

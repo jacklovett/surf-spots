@@ -39,6 +39,7 @@
     @extend %flex-base;
     height: 56px;
     gap: $spacing-unit;
+    align-items: center;
   }
 
   .dropdown-menu {

@@ -1,7 +1,6 @@
 import { json, Link, useLoaderData } from '@remix-run/react'
 import { get } from '~/services/networkService'
 import { Continent } from '~/types/surfSpots'
-import { getCachedData, setCacheData } from '~/utils'
 
 interface LoaderData {
   continents: Continent[]

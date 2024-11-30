@@ -1,5 +1,22 @@
 /* _layout.scss */
 
+.w-full {
+  width: 100%;
+}
+
+.h-full {
+  height: 100%;
+}
+
+.gap {
+  gap: $spacing-unit;
+}
+
+.border {
+  border: solid 1px $outline-color;
+  border-radius: $content-border-radius;
+}
+
 /* Base Flexbox Utilities */
 %flex-base {
   display: flex;
@@ -109,6 +126,10 @@
 
 .pv {
   padding: $spacing-unit 0;
+}
+
+.pv-l {
+  padding: $spacing-large 0;
 }
 
 .ph {

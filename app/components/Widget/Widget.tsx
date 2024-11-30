@@ -6,9 +6,9 @@ interface IProps {
 export const Widget = (props: IProps) => {
   const { title, value } = props
   return (
-    <div className="card widget">
+    <div className="widget">
       <div className="center column">
-        <h3 className="title">{title}</h3>
+        <p className="title">{title}</p>
         <p className="value">{value}</p>
       </div>
     </div>

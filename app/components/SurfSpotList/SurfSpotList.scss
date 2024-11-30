@@ -14,9 +14,11 @@
 }
 
 .surf-spot-table {
+  max-width: 100%;
   width: 100%;
   border-collapse: collapse;
   margin-bottom: $spacing-small;
+  overflow-x: scroll;
 }
 
 .surf-spot-table th,
@@ -27,12 +29,14 @@
 }
 
 .surf-spot-table thead tr {
-  border-bottom: solid 2px $primary-color;
+  border-bottom: solid 2px $outline-color;
 }
 
 .surf-spot-table tr {
-  border-bottom: solid 1px $primary-color;
+  border-bottom: solid 1px $outline-color;
+}
 
+.surf-spot-table tbody tr {
   &:hover {
     color: adjust-color($primary-color, $lightness: 15%);
     cursor: pointer;
