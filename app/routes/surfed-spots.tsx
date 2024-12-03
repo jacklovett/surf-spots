@@ -13,7 +13,6 @@ import {
   Page,
   SurfMap,
   SurfSpotList,
-  Widget,
 } from '~/components'
 import { get } from '~/services/networkService'
 import { getSession, requireSessionCookie } from '~/services/session.server'
@@ -37,7 +36,6 @@ export const loader: LoaderFunction = async ({ request }) => {
         Cookie: `${request.headers.get('Cookie')}`,
       },
     })
-    console.log(surfedSpotsSummary)
     return json<LoaderData>(
       { surfedSpotsSummary: surfedSpotsSummary as SurfedSpotsSummary },
       {
@@ -78,8 +76,6 @@ export default function SurfedSpots() {
     )
   }
 
-  console.log(surfedSpotsSummary)
-
   // Destructure with default values
   const {
     surfedSpots = [],
@@ -87,6 +83,8 @@ export default function SurfedSpots() {
     countryCount = 0,
     continentCount = 0,
     mostSurfedSpotType = null,
+    mostSurfedBeachBottomType = null,
+    skillLevel = null,
   } = surfedSpotsSummary || {}
 
   const surfedSpotsFound = surfedSpots.length > 0
@@ -99,21 +97,21 @@ export default function SurfedSpots() {
           <h2>Overview</h2>
         </div>
         <div className="column content mb">
-          <div className="row center gap">
-            <Widget title="Total" value={totalCount} />
-            <Widget title="Countries" value={countryCount} />
-            <Widget title="Continents" value={continentCount} />
+          <div className="row surfed-spots-overview mb">
+            <Details label="🌊 Total spots" value={totalCount} />
+            <Details label="🌍 Continents" value={continentCount} />
+            <Details label="🗺️ Countries" value={countryCount} />
           </div>
-          <div className="row center gap mv border surfed-spots-extras">
+          <div className="row mb">
             <Details
-              label="Most Surfed Break Type"
+              label="🏄‍♂️ Most Surfed Break Type"
               value={`${mostSurfedSpotType ?? '-'}`}
             />
-            <Details label="Most Surfed Beach Bottom" value={`Sand`} />
             <Details
-              label="Estimated Skill Level"
-              value={`Beginner - Intermediate`}
+              label="🏖️ Most Surfed Beach Type"
+              value={`${mostSurfedBeachBottomType ?? '-'}`}
             />
+            <Details label="🎯 Skill Level" value={`${skillLevel ?? '-'}`} />
           </div>
         </div>
         <ErrorBoundary message="Uh-oh! Something went wrong displaying the map!">

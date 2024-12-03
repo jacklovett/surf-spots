@@ -9,7 +9,6 @@ import Page from './Page'
 import Menu from './Menu'
 import SurfSpotList from './SurfSpotList'
 import TextButton from './TextButton'
-import Widget from './Widget'
 import Breadcrumb from './Breadcrumb'
 import SurfMap from './SurfMap'
 import { SkeletonLoader } from './SkeletonLoader/SkeletonLoader'
@@ -45,5 +44,4 @@ export {
   SurfSpotList,
   TextButton,
   ViewSwitch,
-  Widget,
 }

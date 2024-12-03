@@ -88,10 +88,9 @@
   @extend %flex-row;
   justify-content: space-around;
   align-items: center;
-  gap: 0 $spacing-unit;
   border: solid 1px $outline-color;
   border-radius: $content-border-radius;
-  padding: $spacing-unit;
+  padding: $spacing-large $spacing-unit;
 
   & p {
     margin-bottom: 0;
@@ -105,6 +104,13 @@
   }
 }
 
-.surfed-spots-extras {
-  padding: $spacing-large $spacing-unit;
+.surfed-spots-overview {
+  & p {
+    font-size: $font-size-large;
+
+    &.value {
+      font-size: $font-size-x-large;
+      font-weight: 600;
+    }
+  }
 }

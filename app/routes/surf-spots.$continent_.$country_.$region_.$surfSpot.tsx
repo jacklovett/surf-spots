@@ -95,10 +95,14 @@ export default function SurfSpotDetails() {
             </div>
             <p className="description">{description}</p>
             <div className="row spot-details mb">
-              <Details label="Break Type" value={type} />
-              <Details label="Beach Bottom" value={beachBottomType} />
-              <Details label="Skill Level" value={skillLevel} />
-              <Details label="Rating" value={rating ? `${rating}/ 5` : 'N/A'} />
+            <div className="row spot-details gap mb pv">
+              <Details label="🏄‍♂️ Break Type" value={type} />
+              <Details label="🏖️ Beach Bottom" value={beachBottomType} />
+              <Details label="🎯 Skill Level" value={skillLevel} />
+              <Details
+                label="⭐ Rating"
+                value={rating ? `${rating}/ 5` : 'N/A'}
+              />
             </div>
           </div>
         </div>

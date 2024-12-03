@@ -2,9 +2,17 @@
   @extend %flex-base;
   gap: $spacing-unit;
   padding-right: $spacing-unit;
+  align-items: center;
+
+  & p {
+    margin: 0;
+  }
 
   .label {
     font-weight: bold;
-    opacity: 0.8;
+  }
+
+  .value {
+    font-weight: 500;
   }
 }

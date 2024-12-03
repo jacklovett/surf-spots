@@ -12,10 +12,9 @@ header {
     gap: $spacing-small;
 
     & h2 {
-      color: $heading-color;
+      color: $primary-color;
       margin-bottom: $spacing-small;
-      font-family: $font-family-heading;
-      letter-spacing: 0.06em;
+      font-family: $font-family-logo;
     }
   }
 }

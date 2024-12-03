@@ -25,19 +25,39 @@ body {
   background-color: $background-color;
 }
 
+/* Headings */
+h1, h2, h3 {
+  letter-spacing: -0.02em; /* Slightly tight for impact */
+}
+
+/* Body Text */
+button, p {
+  letter-spacing: 0.02em; /* Neutral or slightly loose */
+}
+
+/* Small Text */
+.breadcrumb-link, .breadcrumb-current {
+  letter-spacing: 0.03em; /* Looser for readability */
+}
+
+/* All Caps */
+.button {
+  letter-spacing: 0.05em; /* Spacious for clarity */
+  text-transform:uppercase;
+}
+
 h1,
 h2,
 h3,
 h4 {
-  color: adjust-color($heading-color, $lightness: -5%);
+  color: $text-color;
   line-height: 1.4;
-  letter-spacing: 0.05rem;
+  font-weight: 600;
 }
 
 h1,
 h2 {
   margin-bottom: $spacing-unit;
-  font-weight: 700;
 }
 
 h1 {
@@ -50,8 +70,7 @@ h2 {
 
 h3,
 h4 {
-  font-weight: 600;
-  margin-bottom: $spacing-unit;
+  margin-bottom: $spacing-small;
 }
 
 h3 {

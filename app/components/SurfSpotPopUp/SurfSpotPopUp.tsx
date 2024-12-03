@@ -23,10 +23,10 @@ export const SurfSpotPopUp = (props: IProps) => {
       <h4 className="pop-up-title">{name}</h4>
       <div className="pop-up-content">
         <div className="row pop-up-details">
-          <Details label="Break Type" value={type} />
-          <Details label="Beach Bottom" value={beachBottomType} />
-          <Details label="Skill Level" value={skillLevel} />
-          <Details label="Rating" value={rating ? `${rating}/ 5` : 'N/A'} />
+          <Details label="🏄‍♂️ Break Type" value={type} />
+          <Details label="🏖️ Beach Bottom" value={beachBottomType} />
+          <Details label="🎯 Skill Level" value={skillLevel} />
+          <Details label="⭐ Rating" value={rating ? `${rating}/ 5` : 'N/A'} />
         </div>
         <p className="pop-up-link" onClick={() => navigate(path)} tabIndex={0}>
           Learn more
