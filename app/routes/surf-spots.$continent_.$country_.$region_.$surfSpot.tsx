@@ -94,7 +94,6 @@ export default function SurfSpotDetails() {
               </div>
             </div>
             <p className="description">{description}</p>
-            <div className="row spot-details mb">
             <div className="row spot-details gap mb pv">
               <Details label="🏄‍♂️ Break Type" value={type} />
               <Details label="🏖️ Beach Bottom" value={beachBottomType} />
