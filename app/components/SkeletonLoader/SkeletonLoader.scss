@@ -6,7 +6,6 @@
   height: 100%;
   background: $scrollbar-color;
   border-radius: $content-border-radius;
-  z-index: 10;
   animation: pulse-opacity 2s infinite;
 
   @media (max-width: 640px) {
