@@ -1,11 +1,13 @@
-import { json, useLoaderData, useNavigate, useParams } from '@remix-run/react'
-import { useState, ChangeEvent, FormEvent, FocusEvent, useEffect } from 'react'
+import { useEffect } from 'react'
+import { json, useLoaderData, useNavigation, useParams } from '@remix-run/react'
 
 import { get } from '~/services/networkService'
 import { requireSessionCookie } from '~/services/session.server'
 import { SurfSpot, SurfSpotType } from '~/types/surfSpots'
 
 import { FormComponent, FormInput, Page } from '~/components'
+import { useFormValidation, useSubmitStatus } from '~/hooks'
+import { validateRequired } from '~/hooks/useFormValidation'
 
 interface LoaderData {
   surfSpot: SurfSpot
@@ -28,9 +30,10 @@ export const loader = async (
 }
 
 export default function EditSurfSpot() {
-  const { id } = useParams()
+  const { state } = useNavigation()
+  const loading = state === 'loading'
 
-  const navigate = useNavigate()
+  const { id } = useParams()
 
   if (!id) {
     throw new Error('No surf spot to edit')
@@ -38,83 +41,60 @@ export default function EditSurfSpot() {
 
   const { surfSpot } = useLoaderData<LoaderData>()
 
-  const loading = false
-  const error = null
-
-  const [form, setForm] = useState<Partial<SurfSpot>>({
-    country: '',
-    continent: 'Asia',
-    region: '',
-    name: '',
-    type: SurfSpotType.BeachBreak,
-    description: '',
-    longitude: 0,
-    latitude: 0,
-    rating: 0,
+  const {
+    formState,
+    errors,
+    isFormValid,
+    handleChange,
+    handleBlur,
+    setFormState,
+  } = useFormValidation({
+    initialFormState: {
+      country: '',
+      continent: 'Asia',
+      region: '',
+      name: '',
+      type: SurfSpotType.BeachBreak,
+      description: '',
+      longitude: `${0}`,
+      latitude: `${0}`,
+      rating: `${0}`,
+    },
+    validationFunctions: {
+      country: validateRequired,
+      continent: validateRequired,
+      region: validateRequired,
+      name: validateRequired,
+      type: validateRequired,
+      longitude: validateRequired,
+      latitude: validateRequired,
+      rating: validateRequired,
+    },
   })
 
   useEffect(() => {
     if (surfSpot) {
-      setForm(surfSpot)
+      const { description, name, longitude, latitude } = surfSpot
+      setFormState({
+        description,
+        name,
+        longitude: `${longitude}`,
+        latitude: `${latitude}`,
+      })
     }
   }, [])
 
-  const [touchedFields, setTouchedFields] = useState<Set<string>>(new Set())
-
-  // New helper function that handles form input changes
-  const handleInputChange = (name: string, value: string | number) => {
-    setForm((prevForm) => {
-      // Ensure the coordinates object is always present
-      const updatedCoordinates = {
-        longitude: prevForm.longitude ?? 0,
-        latitude: prevForm.latitude ?? 0,
-      }
-
-      if (name === 'longitude' || name === 'latitude') {
-        return {
-          ...prevForm,
-          coordinates: {
-            ...updatedCoordinates, // Safely update nested coordinates
-            [name]: parseFloat(value as string),
-          },
-        }
-      }
-
-      // Handle all other fields
-      return {
-        ...prevForm,
-        [name]: value,
-      }
-    })
-  }
-
-  // Updated onChange event handler that uses handleInputChange
-  const onChange = (
-    e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>,
-  ) => {
-    const { name, value } = e.target
-    handleInputChange(name, value) // Simply call the helper function here
-  }
-
-  const onBlur = (
-    e: FocusEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>,
-  ) => setTouchedFields((prev) => new Set(prev).add(e.target.name))
-
-  const onSubmit = async (e: FormEvent) => {
-    e.preventDefault()
-    try {
-      // TODO: Handle submit
-      navigate('/surf-spots')
-    } catch (err) {
-      console.error(err)
-    }
-  }
+  const submitStatus = useSubmitStatus()
 
   return (
-    <Page showHeader error={error}>
+    <Page showHeader>
       <div className="column center-vertical">
         <h3>Edit Surf Spot</h3>
-        <FormComponent loading={loading} submitStatus={null} isDisabled={false}>
+        <FormComponent
+          loading={loading}
+          submitStatus={submitStatus}
+          isDisabled={!isFormValid}
+        >
           <FormInput
             field={{
               label: 'Name',
@@ -127,9 +107,11 @@ export default function EditSurfSpot() {
                 validationMessage: 'Name is required (2-50 characters).',
               },
             }}
-            value={form.name || ''}
-            onChange={onChange}
-            onBlur={onBlur}
+            value={formState.name}
+            onChange={(e) => handleChange('name', e.target.value)}
+            onBlur={() => handleBlur('name')}
+            errorMessage={errors.name || ''}
+            showLabel={!!formState.name}
           />
           <FormInput
             field={{
@@ -143,9 +125,11 @@ export default function EditSurfSpot() {
                 validationMessage: 'Country is required (2-50 characters).',
               },
             }}
-            value={form.country || ''}
-            onChange={onChange}
-            onBlur={onBlur}
+            value={formState.country}
+            onChange={(e) => handleChange('country', e.target.value)}
+            onBlur={() => handleBlur('country')}
+            errorMessage={errors.country || ''}
+            showLabel={!!formState.country}
           />
           <FormInput
             field={{
@@ -157,9 +141,11 @@ export default function EditSurfSpot() {
                 validationMessage: 'Region is required.',
               },
             }}
-            value={form.region || ''}
-            onChange={onChange}
-            onBlur={onBlur}
+            value={formState.region}
+            onChange={(e) => handleChange('region', e.target.value)}
+            onBlur={() => handleBlur('region')}
+            errorMessage={errors.region || ''}
+            showLabel={!!formState.region}
           />
           <FormInput
             field={{
@@ -173,9 +159,11 @@ export default function EditSurfSpot() {
                 validationMessage: 'Rating must be between 0 and 5.',
               },
             }}
-            value={form.rating || 0}
-            onChange={onChange}
-            onBlur={onBlur}
+            value={formState.rating}
+            onChange={(e) => handleChange('rating', e.target.value)}
+            onBlur={() => handleBlur('rating')}
+            errorMessage={errors.rating || ''}
+            showLabel={!!formState.rating}
           />
           <div className="form-inline">
             <FormInput
@@ -190,9 +178,11 @@ export default function EditSurfSpot() {
                   validationMessage: 'Longitude must be between -180 and 180.',
                 },
               }}
-              value={form.longitude || ''}
-              onChange={onChange}
-              onBlur={onBlur}
+              value={formState.longitude}
+              onChange={(e) => handleChange('longitude', e.target.value)}
+              onBlur={() => handleBlur('longitude')}
+              errorMessage={errors.longitude || ''}
+              showLabel={!!formState.longitude}
             />
             <FormInput
               field={{
@@ -206,9 +196,11 @@ export default function EditSurfSpot() {
                   validationMessage: 'Latitude must be between -90 and 90.',
                 },
               }}
-              value={form.latitude || ''}
-              onChange={onChange}
-              onBlur={onBlur}
+              value={formState.latitude}
+              onChange={(e) => handleChange('latitude', e.target.value)}
+              onBlur={() => handleBlur('latitude')}
+              errorMessage={errors.latitude || ''}
+              showLabel={!!formState.latitude}
             />
           </div>
           <FormInput
@@ -234,8 +226,11 @@ export default function EditSurfSpot() {
                 },
               ],
             }}
-            onChange={onChange}
-            onBlur={onBlur}
+            onChange={(e) => handleChange('type', e.target.value)}
+            onBlur={() => handleBlur('type')}
+            value={formState.type}
+            errorMessage={errors.type || ''}
+            showLabel={!!formState.type}
           />
           <FormInput
             field={{
@@ -249,9 +244,11 @@ export default function EditSurfSpot() {
                   'Description must be between 10 and 300 characters.',
               },
             }}
-            value={form.description || ''}
-            onChange={onChange}
-            onBlur={onBlur}
+            onChange={(e) => handleChange('description', e.target.value)}
+            onBlur={() => handleBlur('description')}
+            value={formState.description}
+            errorMessage={errors.description || ''}
+            showLabel={!!formState.description}
           />
         </FormComponent>
       </div>

@@ -1,16 +1,24 @@
-import { useState, useEffect, ChangeEvent, FocusEvent } from 'react'
-import { json, Link, redirect, useActionData } from '@remix-run/react'
-import { ActionFunctionArgs } from '@remix-run/node'
-
 import {
-  AuthActionData,
-  AuthErrors,
-  registerUser,
-  validate,
-} from '~/services/auth.server'
+  json,
+  Link,
+  redirect,
+  useNavigate,
+  useNavigation,
+} from '@remix-run/react'
+import { ActionFunctionArgs, MetaFunction } from '@remix-run/node'
 
-import { FormComponent, FormInput, Page } from '~/components'
-import { InputElementType } from '~/components/FormInput'
+import { registerUser, validate } from '~/services/auth.server'
+
+import { Button, FormComponent, FormInput, Page } from '~/components'
+import { useFormValidation, useSubmitStatus } from '~/hooks'
+import { validateEmail, validatePassword } from '~/hooks/useFormValidation'
+
+export const meta: MetaFunction = () => {
+  return [
+    { title: 'Surf Spots - Sign Up' },
+    { name: 'description', content: 'Welcome to Surf Spots!' },
+  ]
+}
 
 export const action = async ({ request }: ActionFunctionArgs) => {
   const formData = await request.formData()
@@ -21,7 +29,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
   const fieldErrors = validate(email, password)
   // Early return if fieldErrors are present
   if (fieldErrors) {
-    return json({ errors: fieldErrors })
+    return json({ submitStatus: fieldErrors, hasErrors: true })
   }
 
   // Attempt user registration
@@ -41,58 +49,43 @@ export const action = async ({ request }: ActionFunctionArgs) => {
   }
 
   return json({
-    errors: { submitError }, // Only return submissionError if no field errors
+    errors: { submitStatus: submitError, hasErrors: true },
   })
 }
 
 const SignUp = () => {
-  const actionData = useActionData<AuthActionData>()
-  const errors: AuthErrors = actionData?.errors || {}
-  const { email: emailError, password: passwordError, submitError } = errors
+  const navigate = useNavigate()
+  const { state } = useNavigation()
+  const loading = state === 'loading'
 
-  const [formState, setFormState] = useState({ email: '', password: '' })
-  const [touchedFields, setTouchedFields] = useState({
-    email: false,
-    password: false,
-  })
-  const [isFormValid, setIsFormValid] = useState(false)
+  const submitStatus = useSubmitStatus()
 
-  useEffect(() => {
-    setIsFormValid(
-      touchedFields.email &&
-        touchedFields.password &&
-        !!formState.email &&
-        !!formState.password,
-    )
-  }, [formState, touchedFields])
-
-  const handleChange = (e: ChangeEvent<InputElementType>) => {
-    setFormState({ ...formState, [e.target.name]: e.target.value })
-  }
-
-  const handleBlur = (e: FocusEvent<InputElementType>) => {
-    setTouchedFields({ ...touchedFields, [e.target.name]: true })
-  }
+  const { formState, errors, isFormValid, handleChange, handleBlur } =
+    useFormValidation({
+      initialFormState: { email: '', password: '' },
+      validationFunctions: {
+        email: validateEmail,
+        password: validatePassword,
+      },
+    })
 
   return (
     <Page>
-      <div className="center-vertical column">
-        <div className="center column auth-container">
-          <img
-            src="/images/png/logo-no-text.png"
-            width="160"
-            alt="Surf spots logo"
-          />
-          <div className="auth-title">
-            <h1>Create an account</h1>
-          </div>
+      <div className="center column mt">
+        <img
+          src="/images/png/logo-no-text.png"
+          width="160"
+          alt="Surf spots logo"
+        />
+        <div className="auth-title">
+          <h1>Create an account</h1>
+        </div>
+        <div className="auth-container">
           <FormComponent
-            loading={false}
+            loading={loading}
             isDisabled={!isFormValid}
             submitLabel="Sign up"
-            submitStatus={
-              submitError ? { message: submitError, isError: true } : null
-            }
+            submitStatus={submitStatus}
           >
             <FormInput
               field={{
@@ -102,9 +95,10 @@ const SignUp = () => {
                 validationRules: { required: true },
               }}
               value={formState.email}
-              onChange={handleChange}
-              onBlur={handleBlur}
-              errorMessage={emailError}
+              onChange={(e) => handleChange('email', e.target.value)}
+              onBlur={() => handleBlur('email')}
+              errorMessage={errors.email}
+              showLabel={!!formState.email}
             />
             <FormInput
               field={{
@@ -114,11 +108,35 @@ const SignUp = () => {
                 validationRules: { required: true, minLength: 8 },
               }}
               value={formState.password}
-              onChange={handleChange}
-              onBlur={handleBlur}
-              errorMessage={passwordError}
+              onChange={(e) => handleChange('password', e.target.value)}
+              onBlur={() => handleBlur('password')}
+              errorMessage={errors.password || ''}
+              showLabel={!!formState.password}
             />
           </FormComponent>
+
+          <div className="sign-in-options mv">
+            <div className="sign-in-providers-container">
+              <div className="sign-in-providers">
+                <Button
+                  label=""
+                  icon={{
+                    name: 'Google',
+                    filePath: '/images/png/google.png',
+                  }}
+                  onClick={() => navigate('/auth/google')}
+                />
+                <Button
+                  label=""
+                  icon={{
+                    name: 'Facebook',
+                    filePath: '/images/png/facebook.png',
+                  }}
+                  onClick={() => navigate('/auth/facebook')}
+                />
+              </div>
+            </div>
+          </div>
         </div>
         <div className="row center auth-cta">
           <p>Already have an account? </p>

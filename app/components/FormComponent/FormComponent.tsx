@@ -27,17 +27,18 @@ export const FormComponent = (props: IProps) => {
   return (
     <ErrorBoundary>
       <Form method={method} noValidate>
-        <div className="form-status-container">
-          {!submitStatus?.isError && (
-            <span className="form-success">{submitStatus?.message}</span>
-          )}
-          {submitStatus?.isError && (
-            <span className="form-error">{submitStatus.message}</span>
-          )}
-        </div>
-
+        {!!submitStatus && (
+          <div className="form-status-container">
+            {!submitStatus?.isError && (
+              <span className="form-success">{submitStatus?.message}</span>
+            )}
+            {submitStatus?.isError && (
+              <span className="form-error">{submitStatus.message}</span>
+            )}
+          </div>
+        )}
         {children}
-        <div className="center-horizontal form-submit">
+        <div className="center-horizontal form-submit mt">
           {loading && <Loading />}
           {!loading && (
             <Button

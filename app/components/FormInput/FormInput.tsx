@@ -1,4 +1,5 @@
 import { ChangeEvent, FocusEvent } from 'react'
+import classNames from 'classnames'
 import { FormField, InputElementType } from './index'
 
 interface IProps {
@@ -17,7 +18,12 @@ export const FormInput = (props: IProps) => {
   const { label, name, type, options } = field
 
   return (
-    <div className="form-item">
+    <div
+      className={classNames({
+        'form-item': true,
+        error: !!errorMessage,
+      })}
+    >
       <label className={showLabel ? 'visible' : ''}>{label}</label>
       {type === 'textarea' ? (
         <textarea

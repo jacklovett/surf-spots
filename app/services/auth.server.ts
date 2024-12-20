@@ -9,6 +9,7 @@ import {
   commitSession,
 } from '~/services/session.server'
 import { post } from './networkService'
+import { validateEmail, validatePassword } from '~/hooks/useFormValidation'
 
 export interface AuthErrors {
   email?: string
@@ -19,6 +20,8 @@ export interface AuthErrors {
 export interface AuthActionData {
   errors?: AuthErrors
 }
+
+export const formatEmail = (email: string) => email.toLowerCase().trim()
 
 export const authenticator = new Authenticator<User>(sessionStorage)
 
@@ -101,21 +104,14 @@ export const registerUser = async (email: string, password: string) => {
 }
 
 export const validate = (email: string, password: string) => {
+  const emailErrors = validateEmail(email)
+  const passwordErrors = validatePassword(password)
+
+  // Only include errors in the result if they exist
   const errors: AuthErrors = {}
 
-  if (!email) {
-    errors.email = 'Email is required.'
-  } else if (!email.includes('@')) {
-    errors.email = 'Please enter a valid email address.'
-  }
-
-  if (!password) {
-    errors.password = 'Password is required.'
-  } else if (password.length < 8) {
-    errors.password = 'Password must be at least 8 characters long.'
-  }
+  if (emailErrors) errors.email = emailErrors
+  if (passwordErrors) errors.password = passwordErrors
 
   return Object.keys(errors).length ? errors : null
 }
-
-const formatEmail = (email: string) => email.toLowerCase().trim()

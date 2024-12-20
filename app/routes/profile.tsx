@@ -2,13 +2,12 @@ import {
   json,
   Link,
   MetaFunction,
-  useActionData,
   useLoaderData,
   useNavigate,
   useNavigation,
 } from '@remix-run/react'
 import { ActionFunction, LoaderFunction } from '@remix-run/node'
-import { ChangeEvent, useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import fs from 'fs/promises'
 import path from 'path'
 
@@ -28,15 +27,9 @@ import {
   Button,
   LocationSelector,
 } from '~/components'
-import { InputElementType } from '~/components/FormInput'
-import { SubmitStatus } from '~/components/FormComponent'
 import { Location } from '~/components/LocationSelector'
-import { ProfileState } from '~/types/user'
-
-interface ActionData {
-  submitStatus: string
-  hasError: boolean
-}
+import { useFormValidation, useSubmitStatus } from '~/hooks'
+import { validateEmail } from '~/hooks/useFormValidation'
 
 interface LoaderData {
   data?: Location[]
@@ -125,32 +118,30 @@ const Profile = () => {
   const { state } = useNavigation()
   const loading = state === 'loading'
 
-  const actionData = useActionData<ActionData>()
   const { data, error } = useLoaderData<LoaderData>()
 
-  const [submitStatus, setSubmitStatus] = useState<SubmitStatus | null>(null)
-  const [formState, setFormState] = useState<ProfileState>({
-    country: user?.country || '',
-    email: user?.email || '',
-    name: user?.name || '',
-    city: user?.city || '',
+  const submitStatus = useSubmitStatus()
+
+  const {
+    formState,
+    errors,
+    isFormValid,
+    handleChange,
+    handleBlur,
+    setFormState,
+  } = useFormValidation({
+    initialFormState: {
+      country: user?.country || '',
+      email: user?.email || '',
+      name: user?.name || '',
+      city: user?.city || '',
+    },
+    validationFunctions: {
+      email: validateEmail,
+    },
   })
 
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false)
-
-  useEffect(() => {
-    if (actionData) {
-      setSubmitStatus({
-        message: actionData.submitStatus,
-        isError: actionData.hasError,
-      })
-
-      if (!actionData.hasError) {
-        const timeout = setTimeout(() => setSubmitStatus(null), 10000)
-        return () => clearTimeout(timeout)
-      }
-    }
-  }, [actionData])
 
   useEffect(
     () =>
@@ -161,11 +152,6 @@ const Profile = () => {
       ),
     [formState, user],
   )
-
-  const handleChange = (e: ChangeEvent<InputElementType>) => {
-    const { name, value } = e.target
-    setFormState((prev) => ({ ...prev, [name]: value }))
-  }
 
   if (error || !user) {
     return (
@@ -180,25 +166,33 @@ const Profile = () => {
   return (
     <Page showHeader>
       <div className="column center-vertical mv">
-        <h3 className="mv">Profile</h3>
         <div className="auth-container">
+          <h1 className="mt">Profile</h1>
           <FormComponent
             loading={loading}
-            isDisabled={!hasUnsavedChanges}
+            isDisabled={!hasUnsavedChanges || !isFormValid}
             submitLabel="Save Changes"
             submitStatus={submitStatus}
             method="put"
           >
             <FormInput
-              field={{ label: 'Email', name: 'email', type: 'email' }}
+              field={{
+                label: 'Email',
+                name: 'email',
+                type: 'email',
+                validationRules: { required: true },
+              }}
               value={formState.email}
-              onChange={handleChange}
-              showLabel
+              onChange={(e) => handleChange('email', e.target.value)}
+              onBlur={() => handleBlur('email')}
+              errorMessage={errors.email || ''}
+              showLabel={!!formState.email}
             />
             <FormInput
               field={{ label: 'Name', name: 'name', type: 'text' }}
               value={formState.name}
-              onChange={handleChange}
+              onChange={(e) => handleChange('name', e.target.value)}
+              onBlur={() => handleBlur('name')}
               showLabel={!!formState.name}
             />
             <LocationSelector
@@ -216,10 +210,10 @@ const Profile = () => {
               <Link to="/data-policy">Why do we want this information?</Link>
             </div>
           </FormComponent>
-          <div className="form-submit">
+          <div className="mv">
             <Button
               label="Change Password"
-              onClick={() => navigate('/change-password')}
+              onClick={() => navigate('/auth/change-password')}
               variant="secondary"
             />
           </div>

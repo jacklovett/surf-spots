@@ -22,6 +22,7 @@ export const requireSessionCookie = async (request: Request) => {
   const session = await sessionStorage.getSession(request.headers.get('Cookie'))
   const user = session.get('user')
   if (!user) {
+    console.log('redirecting...')
     throw redirect('/auth')
   }
 

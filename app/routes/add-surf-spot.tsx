@@ -1,80 +1,56 @@
 import { LoaderFunction } from '@remix-run/node'
-import { useNavigate } from '@remix-run/react'
-import { useState, ChangeEvent, FocusEvent } from 'react'
+import { useNavigation } from '@remix-run/react'
 
 import { requireSessionCookie } from '~/services/session.server'
-import { SurfSpot, SurfSpotType } from '~/types/surfSpots'
+import { SurfSpotType } from '~/types/surfSpots'
 
 import { FormComponent, FormInput, Page } from '~/components'
+import { useFormValidation, useSubmitStatus } from '~/hooks'
+import { validateRequired } from '~/hooks/useFormValidation'
 
 export const loader: LoaderFunction = async ({ request }) => {
   await requireSessionCookie(request)
 }
 
 export default function AddSurfSpot() {
-  const navigate = useNavigate()
+  const { state } = useNavigation()
+  const loading = state === 'loading'
+  const submitStatus = useSubmitStatus()
 
-  const loading = false
-  const error = null
-
-  const [form, setForm] = useState<Partial<SurfSpot>>({
-    country: '',
-    continent: 'Asia',
-    region: '',
-    name: '',
-    type: SurfSpotType.BeachBreak,
-    description: '',
-    longitude: 0,
-    latitude: 0,
-    rating: 0,
-  })
-
-  const [touchedFields, setTouchedFields] = useState<Set<string>>(new Set())
-
-  // New helper function that handles form input changes
-  const handleInputChange = (name: string, value: string | number) => {
-    setForm((prevForm) => {
-      // Ensure the coordinates object is always present
-      const updatedCoordinates = {
-        longitude: prevForm.longitude ?? 0,
-        latitude: prevForm.latitude ?? 0,
-      }
-
-      if (name === 'longitude' || name === 'latitude') {
-        return {
-          ...prevForm,
-          coordinates: {
-            ...updatedCoordinates, // Safely update nested coordinates
-            [name]: parseFloat(value as string),
-          },
-        }
-      }
-
-      // Handle all other fields
-      return {
-        ...prevForm,
-        [name]: value,
-      }
+  const { formState, errors, isFormValid, handleChange, handleBlur } =
+    useFormValidation({
+      initialFormState: {
+        country: '',
+        continent: 'Asia',
+        region: '',
+        name: '',
+        type: SurfSpotType.BeachBreak,
+        description: '',
+        longitude: `${0}`,
+        latitude: `${0}`,
+        rating: `${0}`,
+      },
+      validationFunctions: {
+        country: validateRequired,
+        continent: validateRequired,
+        region: validateRequired,
+        name: validateRequired,
+        type: validateRequired,
+        longitude: validateRequired,
+        latitude: validateRequired,
+        rating: validateRequired,
+      },
     })
-  }
-
-  // Updated onChange event handler that uses handleInputChange
-  const onChange = (
-    e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>,
-  ) => {
-    const { name, value } = e.target
-    handleInputChange(name, value) // Simply call the helper function here
-  }
-
-  const onBlur = (
-    e: FocusEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>,
-  ) => setTouchedFields((prev) => new Set(prev).add(e.target.name))
 
   return (
-    <Page showHeader error={error}>
+    <Page showHeader>
       <div className="column center-vertical">
-        <h3>Add Surf Spot</h3>
-        <FormComponent loading={loading} isDisabled={false} submitStatus={null}>
+        <h1>Add Surf Spot</h1>
+        <FormComponent
+          loading={loading}
+          isDisabled={!isFormValid}
+          submitStatus={submitStatus}
+        >
           <FormInput
             field={{
               label: 'Name',
@@ -87,9 +63,11 @@ export default function AddSurfSpot() {
                 validationMessage: 'Name is required (2-50 characters).',
               },
             }}
-            value={form.name || ''}
-            onChange={onChange}
-            onBlur={onBlur}
+            value={formState.name}
+            onChange={(e) => handleChange('name', e.target.value)}
+            onBlur={() => handleBlur('name')}
+            errorMessage={errors.name || ''}
+            showLabel={!!formState.name}
           />
           <FormInput
             field={{
@@ -103,9 +81,11 @@ export default function AddSurfSpot() {
                 validationMessage: 'Country is required (2-50 characters).',
               },
             }}
-            value={form.country || ''}
-            onChange={onChange}
-            onBlur={onBlur}
+            value={formState.country}
+            onChange={(e) => handleChange('country', e.target.value)}
+            onBlur={() => handleBlur('country')}
+            errorMessage={errors.country || ''}
+            showLabel={!!formState.country}
           />
           <FormInput
             field={{
@@ -117,9 +97,11 @@ export default function AddSurfSpot() {
                 validationMessage: 'Region is required.',
               },
             }}
-            value={form.region || ''}
-            onChange={onChange}
-            onBlur={onBlur}
+            value={formState.region}
+            onChange={(e) => handleChange('region', e.target.value)}
+            onBlur={() => handleBlur('region')}
+            errorMessage={errors.region || ''}
+            showLabel={!!formState.region}
           />
           <FormInput
             field={{
@@ -133,9 +115,11 @@ export default function AddSurfSpot() {
                 validationMessage: 'Rating must be between 0 and 5.',
               },
             }}
-            value={form.rating || 0}
-            onChange={onChange}
-            onBlur={onBlur}
+            value={formState.rating}
+            onChange={(e) => handleChange('rating', e.target.value)}
+            onBlur={() => handleBlur('rating')}
+            errorMessage={errors.rating || ''}
+            showLabel={!!formState.rating}
           />
           <div className="form-inline">
             <FormInput
@@ -150,9 +134,11 @@ export default function AddSurfSpot() {
                   validationMessage: 'Longitude must be between -180 and 180.',
                 },
               }}
-              value={form.longitude || ''}
-              onChange={onChange}
-              onBlur={onBlur}
+              value={formState.longitude}
+              onChange={(e) => handleChange('longitude', e.target.value)}
+              onBlur={() => handleBlur('longitude')}
+              errorMessage={errors.longitude || ''}
+              showLabel={!!formState.longitude}
             />
             <FormInput
               field={{
@@ -166,9 +152,11 @@ export default function AddSurfSpot() {
                   validationMessage: 'Latitude must be between -90 and 90.',
                 },
               }}
-              value={form?.latitude || ''}
-              onChange={onChange}
-              onBlur={onBlur}
+              value={formState.latitude}
+              onChange={(e) => handleChange('latitude', e.target.value)}
+              onBlur={() => handleBlur('latitude')}
+              errorMessage={errors.latitude || ''}
+              showLabel={!!formState.latitude}
             />
           </div>
           <FormInput
@@ -194,8 +182,11 @@ export default function AddSurfSpot() {
                 },
               ],
             }}
-            onChange={onChange}
-            onBlur={onBlur}
+            onChange={(e) => handleChange('type', e.target.value)}
+            onBlur={() => handleBlur('type')}
+            errorMessage={errors.type || ''}
+            value={formState.type}
+            showLabel={!!formState.type}
           />
           <FormInput
             field={{
@@ -209,9 +200,11 @@ export default function AddSurfSpot() {
                   'Description must be between 10 and 300 characters.',
               },
             }}
-            value={form.description || ''}
-            onChange={onChange}
-            onBlur={onBlur}
+            onChange={(e) => handleChange('description', e.target.value)}
+            onBlur={() => handleBlur('description')}
+            value={formState.description}
+            errorMessage={errors.description || ''}
+            showLabel={!!formState.description}
           />
         </FormComponent>
       </div>
