@@ -1,3 +1,4 @@
+import AuthPage from './AuthPage'
 import Button from './Button'
 import ContentStatus from './ContentStatus'
 import ErrorBoundary from './ErrorBoundary'
@@ -7,21 +8,23 @@ import Icon from './Icon'
 import Loading from './Loading'
 import Page from './Page'
 import Menu from './Menu'
+import Modal from './Modal'
+import NavButton from './NavButton'
 import SurfSpotList from './SurfSpotList'
 import TextButton from './TextButton'
 import Breadcrumb from './Breadcrumb'
 import SurfMap from './SurfMap'
-import { SkeletonLoader } from './SkeletonLoader/SkeletonLoader'
+import SkeletonLoader from './SkeletonLoader'
 import Details from './Details'
 import ViewSwitch from './ViewSwitch'
 import SurfSpotActions from './SurfSpotActions'
 import SurfSpotPopUp from './SurfSpotPopUp'
 import Header from './Header'
-import { InfoMessage } from './InfoMessage/InfoMessage'
+import InfoMessage from './InfoMessage'
 import LocationSelector from './LocationSelector'
-import Modal from './Modal'
 
 export {
+  AuthPage,
   Breadcrumb,
   Button,
   ContentStatus,
@@ -34,11 +37,12 @@ export {
   InfoMessage,
   Loading,
   LocationSelector,
-  Modal,
   SurfMap,
   SurfSpotActions,
   SurfSpotPopUp,
   Menu,
+  Modal,
+  NavButton,
   Page,
   SkeletonLoader,
   SurfSpotList,

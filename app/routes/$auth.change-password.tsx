@@ -144,7 +144,9 @@ const ChangePassword = () => {
             </FormComponent>
           </div>
           <div className="mv center-horizontal">
-            <Link to="/profile">Back to profile</Link>
+            <Link to="/profile" prefetch="intent">
+              Back to profile
+            </Link>
           </div>
         </div>
       </div>

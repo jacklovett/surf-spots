@@ -38,7 +38,7 @@ export const FormComponent = (props: IProps) => {
           </div>
         )}
         {children}
-        <div className="center-horizontal form-submit mt">
+        <div className="center-horizontal form-submit">
           {loading && <Loading />}
           {!loading && (
             <Button

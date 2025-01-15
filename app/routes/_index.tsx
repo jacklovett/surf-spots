@@ -1,7 +1,6 @@
 import type { MetaFunction } from '@remix-run/node'
-import { useNavigate } from '@remix-run/react'
 
-import { Page, Button } from '~/components'
+import { Page, NavButton } from '~/components'
 
 export const meta: MetaFunction = () => {
   return [
@@ -11,7 +10,6 @@ export const meta: MetaFunction = () => {
 }
 
 export default function Index() {
-  const navigate = useNavigate()
   return (
     <Page isAlternate>
       <div className="center column content">
@@ -21,9 +19,9 @@ export default function Index() {
             Track all your past surf destinations and explore new ones, all in
             one place.
           </p>
-          <Button
+          <NavButton
             label="Take a look!"
-            onClick={() => navigate('/surf-spots')}
+            to="/surf-spots"
             variant="alternate"
           />
         </div>

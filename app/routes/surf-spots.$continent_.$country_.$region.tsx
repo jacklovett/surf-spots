@@ -66,7 +66,7 @@ export default function Region() {
           surfSpots.map((surfSpot) => {
             const { id, name, path } = surfSpot
             return (
-              <Link key={id} to={path}>
+              <Link key={id} to={path} prefetch="intent">
                 {name}
               </Link>
             )

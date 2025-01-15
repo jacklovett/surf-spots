@@ -6,69 +6,6 @@
   }
 }
 
-.auth-container {
-  width: 100%;
-  max-width: 420px;
-
-  @media (max-width: 430px) {
-    padding: 0 $spacing-unit;
-  }
-}
-
-.sign-in-nav {
-  @extend %flex-base;
-  margin: 0 $spacing-unit;
-  gap: $spacing-unit;
-}
-
-.sign-in-options {
-  @extend %flex-column;
-  padding-top: $spacing-unit;
-  gap: $spacing-unit;
-}
-
-.sign-in-providers-container {
-  @extend %flex-center;
-  @extend %flex-column;
-  border-top: solid 1px $outline-color;
-  padding-top: $spacing-unit;
-}
-
-.sign-in-providers {
-  @extend %flex-row;
-  @extend %flex-center;
-  gap: $spacing-unit;
-  padding: $spacing-unit 0;
-
-  & button {
-    width: fit-content;
-    border-radius: $circle-border-radius;
-    background: $background-color;
-    box-shadow: $box-shadow;
-    padding: calc(0.75 * $spacing-unit);
-
-    &:hover {
-      background: $accent-color;
-    }
-  }
-}
-
-.auth-cta {
-  gap: $spacing-small;
-
-  & p {
-    margin: 0;
-  }
-}
-
-.auth-title {
-  & h1 {
-    font-size: $font-size-xx-large;
-    margin: 0;
-    text-align: center;
-  }
-}
-
 .list-item {
   padding-bottom: $spacing-small;
 }

@@ -1,16 +1,14 @@
-import { ButtonIcon } from './index'
+import { ButtonIcon, ButtonType } from './index'
 
 interface IProps {
   label: string
   onClick?: () => void
   type?: 'button' | 'submit'
   disabled?: boolean
-  variant?: 'primary' | 'secondary' | 'alternate' | 'icon'
+  variant?: ButtonType
   ariaLabel?: string
   icon?: ButtonIcon
 }
-
-// TODO: Make NavButton component ?? Link prefetch="intent"
 
 export const Button = (props: IProps) => {
   const {

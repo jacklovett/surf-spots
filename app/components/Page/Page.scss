@@ -1,25 +1,25 @@
 .page {
-  @extend %flex-base;
-  flex-direction: column;
-  height: 100%;
-
-  &.alternate {
-    color: $white;
-    background: $primary-color;
-
-    & h1,
-    h2,
-    h3 {
-      color: $white;
-    }
-  }
+  @extend %flex-column;
+  flex: 1;
+  border: none;
 }
 
 footer {
   text-align: center;
   font-size: $font-size-x-small;
-  margin: $spacing-small 0;
-  margin-top: $spacing-unit;
-  padding-top: $spacing-unit;
+  padding-top: $spacing-large;
+  padding-bottom: $spacing-small;
   width: 100%;
+}
+
+footer.alternate,
+.page.alternate {
+  color: $white;
+  background: $primary-color;
+
+  & h1,
+  h2,
+  h3 {
+    color: $white;
+  }
 }

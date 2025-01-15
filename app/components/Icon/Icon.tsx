@@ -53,6 +53,18 @@ export const Icon = (props: IProps) => {
             <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
           </svg>
         )
+      case 'info':
+        return (
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            {...commonIconStyles}
+            stroke="#ffffff"
+            strokeWidth={1}
+            fill="#ffffff"
+          >
+            <path d="M12 0C5.373 0 0 5.373 0 12c0 6.627 5.373 12 12 12s12-5.373 12-12C24 5.373 18.627 0 12 0zm0 22C6.478 22 2 17.522 2 12S6.478 2 12 2s10 4.478 10 10-4.478 10-10 10zm-1-16h2v2h-2zm0 4h2v8h-2z" />
+          </svg>
+        )
       case 'logout':
         return (
           <svg {...commonIconStyles} viewBox="0 0 24 24">

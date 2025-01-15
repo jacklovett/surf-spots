@@ -70,7 +70,11 @@ export default function Continent() {
           countries.map((country) => {
             const { id, name, slug } = country
             return (
-              <Link key={id} to={`/surf-spots/${continent}/${slug}`}>
+              <Link
+                key={id}
+                to={`/surf-spots/${continent}/${slug}`}
+                prefetch="intent"
+              >
                 {name}
               </Link>
             )

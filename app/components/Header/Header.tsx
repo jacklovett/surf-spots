@@ -1,14 +1,10 @@
-import { Link } from '@remix-run/react'
+import { Link, useNavigate } from '@remix-run/react'
 import { useUser } from '~/contexts/UserContext'
 
 import Menu from '../Menu'
 
-interface IProps {
-  navigate: (path: string) => void
-}
-
-export const Header = (props: IProps) => {
-  const { navigate } = props
+export const Header = () => {
+  const navigate = useNavigate()
   const { user } = useUser()
   const isLoggedIn = !!user
 
@@ -22,7 +18,9 @@ export const Header = (props: IProps) => {
         <Menu />
       ) : (
         <div className="sign-in-nav">
-          <Link to="/auth">Sign in</Link>
+          <Link to="/auth" prefetch="intent">
+            Sign in
+          </Link>
         </div>
       )}
     </header>

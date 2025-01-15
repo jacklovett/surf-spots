@@ -71,7 +71,7 @@ export const Breadcrumb = ({ items }: IProps) => {
           return (
             <li key={index} className="breadcrumb-item center-vertical">
               {index < collapsedItems.length - 1 && link ? (
-                <Link to={link} className="breadcrumb-link">
+                <Link to={link} prefetch="intent" className="breadcrumb-link">
                   {displayLabel}
                 </Link>
               ) : (

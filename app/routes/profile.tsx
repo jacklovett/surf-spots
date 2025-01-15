@@ -24,8 +24,8 @@ import {
   Page,
   FormInput,
   FormComponent,
-  Button,
   LocationSelector,
+  NavButton,
 } from '~/components'
 import { Location } from '~/components/LocationSelector'
 import { useFormValidation, useSubmitStatus } from '~/hooks'
@@ -114,7 +114,6 @@ export const action: ActionFunction = async ({ request }) => {
 
 const Profile = () => {
   const { user } = useUser()
-  const navigate = useNavigate()
   const { state } = useNavigation()
   const loading = state === 'loading'
 
@@ -207,13 +206,15 @@ const Profile = () => {
               }
             />
             <div className="row flex-end disclaimer">
-              <Link to="/data-policy">Why do we want this information?</Link>
+              <Link to="/data-policy" prefetch="intent">
+                Why do we want this information?
+              </Link>
             </div>
           </FormComponent>
           <div className="mv">
-            <Button
+            <NavButton
               label="Change Password"
-              onClick={() => navigate('/auth/change-password')}
+              to="/auth/change-password"
               variant="secondary"
             />
           </div>

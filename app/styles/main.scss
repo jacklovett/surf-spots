@@ -13,7 +13,13 @@
 /* Base Styles */
 
 body {
+  @extend %flex-column;
   background: $background-color;
+}
+
+section {
+  height: 100%;
+  width: 100%;
 }
 
 .description {

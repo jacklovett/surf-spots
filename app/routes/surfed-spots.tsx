@@ -1,10 +1,5 @@
 import { LoaderFunction } from '@remix-run/node'
-import {
-  json,
-  useLoaderData,
-  useNavigate,
-  useNavigation,
-} from '@remix-run/react'
+import { json, useLoaderData, useNavigation } from '@remix-run/react'
 import {
   ContentStatus,
   Details,
@@ -63,7 +58,6 @@ export const loader: LoaderFunction = async ({ request }) => {
 }
 
 export default function SurfedSpots() {
-  const navigate = useNavigate()
   const { state } = useNavigation()
   const loading = state === 'loading'
 
@@ -130,7 +124,6 @@ export default function SurfedSpots() {
               <SurfSpotList
                 {...{
                   surfSpots: surfedSpots,
-                  navigate,
                 }}
               />
             )}

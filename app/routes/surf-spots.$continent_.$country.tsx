@@ -66,7 +66,11 @@ export default function Country() {
           regions.map((region) => {
             const { id, name, slug } = region
             return (
-              <Link key={id} to={`/surf-spots/${continent}/${country}/${slug}`}>
+              <Link
+                key={id}
+                to={`/surf-spots/${continent}/${country}/${slug}`}
+                prefetch="intent"
+              >
                 {name}
               </Link>
             )

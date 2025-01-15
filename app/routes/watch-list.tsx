@@ -1,5 +1,4 @@
 import { LoaderFunction } from '@remix-run/node'
-import { useNavigate } from '@remix-run/react'
 
 import { requireSessionCookie } from '~/services/session.server'
 import { SurfSpot } from '~/types/surfSpots'
@@ -12,8 +11,6 @@ export const loader: LoaderFunction = async ({ request }) => {
 }
 
 export default function Wishlist() {
-  const navigate = useNavigate()
-
   const surfSpots: SurfSpot[] = []
   const surfSpotsFound = surfSpots?.length > 0
 
@@ -21,8 +18,14 @@ export default function Wishlist() {
 
   return (
     <Page showHeader error={error}>
-      <div className="column center mt">
-        <h3>Watch List</h3>
+      <div className="column content mt">
+        <h1>Watch list</h1>
+        <p>
+          This is the list of surf spots you're following. From this list we'll
+          keep you up to date with all kinds of things happening around these
+          areas. From swell updates, water quality and conditions, news to Great
+          deals that help you get to experiencing these waves!
+        </p>
         <ErrorBoundary message="Unable to load surf spot list">
           {!surfSpotsFound && (
             <ContentStatus>
@@ -33,7 +36,6 @@ export default function Wishlist() {
             <SurfSpotList
               {...{
                 surfSpots,
-                navigate,
               }}
             />
           )}

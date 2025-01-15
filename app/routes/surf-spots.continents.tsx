@@ -52,7 +52,7 @@ export default function Continents() {
       {continents.map((continent) => {
         const { id, name, slug } = continent
         return (
-          <Link key={id} to={`/surf-spots/${slug}`}>
+          <Link key={id} to={`/surf-spots/${slug}`} prefetch="intent">
             <p className="list-item">{name}</p>
           </Link>
         )

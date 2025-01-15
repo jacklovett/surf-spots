@@ -16,7 +16,7 @@ export default function PageNotFound() {
     <Page isAlternate>
       <div className="center column">
         <h1>404: Page not found</h1>
-        <p>Looks like you've explored too much!</p>
+        <p className="mb">Looks like you've explored too much!</p>
         <Button
           label="Go Back"
           onClick={() => navigate(-1)}

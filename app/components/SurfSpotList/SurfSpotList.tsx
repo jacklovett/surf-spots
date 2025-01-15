@@ -1,12 +1,13 @@
+import { useNavigate } from '@remix-run/react'
 import { SurfSpot } from '~/types/surfSpots'
 
 interface IProps {
   surfSpots: SurfSpot[]
-  navigate: (path: string) => void
 }
 
 const SurfSpotList = (props: IProps): JSX.Element => {
-  const { surfSpots, navigate } = props
+  const { surfSpots } = props
+  const navigate = useNavigate()
   // Group surf spots by continent, then by country
   const groupedSurfSpots = surfSpots.reduce((groupedSpots, spot) => {
     const { continent, country } = spot

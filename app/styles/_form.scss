@@ -9,7 +9,6 @@ form {
 .form-item {
   @extend %flex-base;
   flex-direction: column;
-  padding-top: $spacing-small;
   width: 100%;
 
   & label {

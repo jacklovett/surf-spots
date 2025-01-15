@@ -11,6 +11,7 @@
   cursor: pointer;
   transition: background-color 0.3s, transform 0.2s;
   text-align: center;
+  text-decoration: none;
   width: 100%;
 
   &.secondary {
@@ -22,13 +23,19 @@
     width: fit-content;
     margin: 0 auto;
     padding: $spacing-small $spacing-large;
+    background: adjust-color($accent-color, $lightness: -10%);
+    color: $white;
   }
 
-  /* Add hover state */
   &:hover {
     background: adjust-color($accent-color, $lightness: -5%);
     transform: scale(1.03);
     transition: background-color 0.3s, transform 0.3s ease-in-out;
+    text-decoration: none;
+
+    &.alternate {
+      color: adjust-color($primary-color, $lightness: -10%);
+    }
 
     &.secondary {
       background: adjust-color($primary-color, $lightness: -10%);
@@ -36,13 +43,11 @@
     }
   }
 
-  /* Add active state */
   &:active {
     background: adjust-color($primary-color, $lightness: -5%);
     transform: scale(0.95);
   }
 
-  /* Add disabled state */
   &:disabled {
     background: $disabled-color;
     color: $disabled-text-color;

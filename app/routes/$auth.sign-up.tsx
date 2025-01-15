@@ -9,7 +9,7 @@ import { ActionFunctionArgs, MetaFunction } from '@remix-run/node'
 
 import { registerUser, validate } from '~/services/auth.server'
 
-import { Button, FormComponent, FormInput, Page } from '~/components'
+import { AuthPage, Button, FormComponent, FormInput } from '~/components'
 import { useFormValidation, useSubmitStatus } from '~/hooks'
 import { validateEmail, validatePassword } from '~/hooks/useFormValidation'
 
@@ -70,13 +70,8 @@ const SignUp = () => {
     })
 
   return (
-    <Page>
-      <div className="center column mt">
-        <img
-          src="/images/png/logo-no-text.png"
-          width="160"
-          alt="Surf spots logo"
-        />
+    <AuthPage reversed>
+      <>
         <div className="auth-title">
           <h1>Create an account</h1>
         </div>
@@ -114,8 +109,7 @@ const SignUp = () => {
               showLabel={!!formState.password}
             />
           </FormComponent>
-
-          <div className="sign-in-options mv">
+          <div className="sign-in-options">
             <div className="sign-in-providers-container">
               <div className="sign-in-providers">
                 <Button
@@ -137,15 +131,15 @@ const SignUp = () => {
               </div>
             </div>
           </div>
+          <div className="row center auth-cta">
+            <p>Already have an account? </p>
+            <Link to="/auth" prefetch="intent">
+              Sign in
+            </Link>
+          </div>
         </div>
-        <div className="row center auth-cta">
-          <p>Already have an account? </p>
-          <Link className="link" to="/auth">
-            Sign in
-          </Link>
-        </div>
-      </div>
-    </Page>
+      </>
+    </AuthPage>
   )
 }
 

@@ -61,6 +61,12 @@ export enum SkillLevel {
   Advanced = 'Advanced',
 }
 
+export interface Forecasts {
+  siteName: string
+  link: string
+  icon: string
+}
+
 export interface SurfSpot extends NewSurfSpot {
   id: string
   path: string
@@ -78,4 +84,5 @@ export interface NewSurfSpot extends Coordinates {
   rating: number
   skillLevel: SkillLevel
   type: SurfSpotType
+  forecasts: Forecasts[]
 }

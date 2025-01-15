@@ -1,0 +1,95 @@
+.auth-container {
+  width: 100%;
+  max-width: 420px;
+
+  @media (max-width: 430px) {
+    padding: 0 $spacing-unit;
+  }
+}
+
+.auth-cta {
+  gap: $spacing-small;
+
+  & p, a {
+    margin: 0;
+    font-size: $font-size-small;
+  }
+}
+
+.auth-title {
+  & h1 {
+    font-size: $font-size-xx-large;
+    margin: 0;
+    text-align: center;
+  }
+}
+
+.auth-layout {
+  @extend %flex-row;
+  width: 100%;
+  height: 100%;
+
+  &.reversed {
+    flex-direction: row-reverse;
+  }
+}
+
+.auth-content {
+  @extend %flex-column;
+  position: relative;
+  width: 100%;
+   
+  & footer {
+    position: absolute;
+    bottom: 0;
+  }
+}
+
+.auth-hero {
+  @extend %flex-center;
+  flex-direction: column;
+  background: $primary-color;
+}
+
+@media (max-width: 900px) {
+  .auth-hero {
+    display: none;
+  }
+}
+
+.sign-in-nav {
+  @extend %flex-base;
+  margin: 0 $spacing-unit;
+  gap: $spacing-unit;
+}
+
+.sign-in-options {
+  @extend %flex-column;
+  padding-top: $spacing-small;
+  gap: $spacing-unit;
+}
+
+.sign-in-providers-container {
+  @extend %flex-center;
+  @extend %flex-column;
+  padding-top: $spacing-small;
+}
+
+.sign-in-providers {
+  @extend %flex-row;
+  @extend %flex-center;
+  gap: $spacing-unit;
+  padding: $spacing-unit 0;
+
+  & button {
+    width: fit-content;
+    border-radius: $circle-border-radius;
+    background: $background-color;
+    box-shadow: $box-shadow;
+    padding: calc(0.8 * $spacing-unit);
+
+    &:hover {
+      background: $accent-color;
+    }
+  }
+}

@@ -1,7 +1,9 @@
 import { ReactNode } from 'react'
-import { useNavigate, useNavigation } from '@remix-run/react'
+import { useNavigation } from '@remix-run/react'
 
-import { ContentStatus, ErrorBoundary, Header, Loading } from '../index'
+import { ErrorBoundary, Header } from '../index'
+import { renderContent } from './index'
+import classNames from 'classnames'
 
 interface IProps {
   children: ReactNode
@@ -20,44 +22,32 @@ export const Page = (props: IProps) => {
     overrideLoading,
   } = props
 
-  const navigate = useNavigate()
   const { state } = useNavigation()
 
   const loading = state === 'loading' && !overrideLoading
 
-  const renderContent = () => {
-    if (loading || error) {
-      return (
-        <>
-          {loading && (
-            <ContentStatus>
-              <Loading />
-            </ContentStatus>
-          )}
-          {error && (
-            <ContentStatus isError>
-              <>
-                <h4>Error</h4>
-                <p>{error}</p>
-              </>
-            </ContentStatus>
-          )}
-        </>
-      )
-    }
-
-    return children
-  }
-
   return (
-    <main className={isAlternate ? 'page alternate' : 'page'}>
-      {showHeader && <Header {...{ navigate }} />}
-      <section className="content-container">
-        <ErrorBoundary message="Unable to display page content">
-          {renderContent()}
-        </ErrorBoundary>
-      </section>
-      <footer className="footer mt">© 2024 Surf Spots</footer>
-    </main>
+    <>
+      {showHeader && <Header />}
+      <main
+        className={classNames({
+          page: true,
+          alternate: isAlternate,
+        })}
+      >
+        <section className="content-container">
+          <ErrorBoundary message="Unable to display page content">
+            {renderContent(children, loading, error)}
+          </ErrorBoundary>
+        </section>
+      </main>
+      <footer
+        className={classNames({
+          alternate: isAlternate,
+        })}
+      >
+        © 2025 Surf Spots
+      </footer>
+    </>
   )
 }

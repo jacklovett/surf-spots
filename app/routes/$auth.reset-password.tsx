@@ -92,7 +92,9 @@ const ResetPassword = () => {
             />
           </FormComponent>
           <div className="mv center-horizontal">
-            <Link to="/auth">Back to login</Link>
+            <Link to="/auth" prefetch="intent">
+              Back to login
+            </Link>
           </div>
         </div>
       </div>

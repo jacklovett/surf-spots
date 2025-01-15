@@ -10,7 +10,7 @@ import {
 import { AuthorizationError } from 'remix-auth'
 
 import { AuthActionData, authenticator, validate } from '~/services/auth.server'
-import { Page, Button, FormComponent, FormInput } from '~/components'
+import { AuthPage, Button, FormComponent, FormInput } from '~/components'
 import { commitSession, getSession } from '~/services/session.server'
 import { useFormValidation } from '~/hooks'
 import { validateEmail, validatePassword } from '~/hooks/useFormValidation'
@@ -96,13 +96,8 @@ export default function Auth() {
     })
 
   return (
-    <Page>
-      <div className="center column mt">
-        <img
-          src="/images/png/logo-no-text.png"
-          width="160"
-          alt="Surf spots logo"
-        />
+    <AuthPage>
+      <>
         <div className="auth-title">
           <h1>Sign in</h1>
         </div>
@@ -144,13 +139,18 @@ export default function Auth() {
           </FormComponent>
           <div className="sign-in-options">
             <div className="row flex-end">
-              <Link to="/auth/reset-password">Forgot password?</Link>
+              <Link to="/auth/reset-password" prefetch="intent">
+                Forgot password?
+              </Link>
             </div>
-            <div className="sign-in-providers-container">
+            <div className="sign-in-providers-container border-top">
               <div className="sign-in-providers">
                 <Button
                   label=""
-                  icon={{ name: 'Google', filePath: '/images/png/google.png' }}
+                  icon={{
+                    name: 'Google',
+                    filePath: '/images/png/google.png',
+                  }}
                   onClick={() => navigate('/auth/google')}
                 />
                 <Button
@@ -164,12 +164,14 @@ export default function Auth() {
               </div>
             </div>
           </div>
-          <div className="row center mt auth-cta">
+          <div className="row center auth-cta">
             <p>Don't have an account?</p>
-            <Link to="/auth/sign-up">Sign up</Link>
+            <Link to="/auth/sign-up" prefetch="intent">
+              Sign up
+            </Link>
           </div>
         </div>
-      </div>
-    </Page>
+      </>
+    </AuthPage>
   )
 }

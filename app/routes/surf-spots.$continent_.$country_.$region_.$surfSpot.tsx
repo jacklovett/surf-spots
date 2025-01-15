@@ -7,6 +7,7 @@ import {
   Details,
   ErrorBoundary,
   InfoMessage,
+  NavButton,
   SurfMap,
   SurfSpotActions,
 } from '~/components'
@@ -73,15 +74,22 @@ export default function SurfSpotDetails() {
       )
     }
 
-    const { beachBottomType, description, name, rating, skillLevel, type } =
-      surfSpotDetails
+    const {
+      beachBottomType,
+      description,
+      name,
+      rating,
+      skillLevel,
+      type,
+      forecasts,
+    } = surfSpotDetails
 
     return (
       <div className="column">
         <div className="content">
           <div className="column">
             <div className="row space-between">
-              <h3>{name}</h3>
+              <h1>{name}</h1>
               <div className="spot-actions">
                 <SurfSpotActions
                   {...{
@@ -110,6 +118,36 @@ export default function SurfSpotDetails() {
             <SurfMap surfSpots={[surfSpotDetails]} disableInteractions />
           </div>
         </ErrorBoundary>
+        <div className="content">
+          <h3>Surf Forecasts</h3>
+          {forecasts && (
+            <>
+              <p>
+                Looking for real time conditions? Below is a list of forecasts
+                to check out
+              </p>
+              <div className="row gap">
+                {forecasts.map((forecast) => {
+                  const { icon, link, siteName } = forecast
+                  return (
+                    <NavButton
+                      label={siteName}
+                      icon={{
+                        name: siteName,
+                        filePath: `/images/png/${icon}.png`,
+                      }}
+                      to={link}
+                    />
+                  )
+                })}
+              </div>
+            </>
+          )}
+          <p>
+            Know a reliable forecast for this spot? Let us know and share the
+            love!
+          </p>
+        </div>
         <div className="content">
           <InfoMessage message="See something not right? Let us know so we can get it fixed" />
         </div>

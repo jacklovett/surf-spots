@@ -5,6 +5,7 @@ export type IconKey =
   | 'cog'
   | 'filters'
   | 'heart'
+  | 'info'
   | 'logout'
   | 'map'
   | 'pin'
