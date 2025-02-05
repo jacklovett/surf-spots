@@ -61,6 +61,25 @@ export enum SkillLevel {
   Advanced = 'Advanced',
 }
 
+export enum Tide {
+  Low = 'Low',
+  LowMid = 'Low - Mid',
+  Mid = 'Mid',
+  MidHigh = 'Mid - High',
+  High = 'High',
+}
+
+export enum Direction {
+  N = 'N',
+  NE = 'NE',
+  E = 'E',
+  SE = 'SE',
+  S = 'S',
+  SW = 'SW',
+  W = 'W',
+  NW = 'NW',
+}
+
 export interface Forecasts {
   siteName: string
   link: string
@@ -85,4 +104,7 @@ export interface NewSurfSpot extends Coordinates {
   skillLevel: SkillLevel
   type: SurfSpotType
   forecasts: Forecasts[]
+  tide: Tide
+  swellDirection: Direction
+  windDirection: Direction
 }

@@ -5,11 +5,13 @@ import { SurfSpot } from '~/types/surfSpots'
 
 import {
   Details,
+  DirectionIcon,
   ErrorBoundary,
   InfoMessage,
   NavButton,
   SurfMap,
   SurfSpotActions,
+  TideIcon,
 } from '~/components'
 import { useUser } from '~/contexts/UserContext'
 import { ActionFunction, LoaderFunction } from '@remix-run/node'
@@ -82,6 +84,9 @@ export default function SurfSpotDetails() {
       skillLevel,
       type,
       forecasts,
+      tide,
+      swellDirection,
+      windDirection,
     } = surfSpotDetails
 
     return (
@@ -119,6 +124,25 @@ export default function SurfSpotDetails() {
           </div>
         </ErrorBoundary>
         <div className="content">
+          <h3>Best Conditions</h3>
+          <div className="row spot-details gap mb pv">
+            <div className="gap center-vertical">
+              <DirectionIcon type="swell" directionRange={swellDirection} />
+              <Details label="Swell Direction" value={swellDirection} />
+            </div>
+            <div className="gap center-vertical">
+              <DirectionIcon type="wind" directionRange={windDirection} />
+              <Details label="Wind Direction" value={windDirection} />
+            </div>
+            <div className="gap center-vertical">
+              <TideIcon tide={tide} />
+              <Details label="Tides" value={tide} />
+            </div>
+            <Details label="Surf Height" value="Waist - Double overhead" />
+            <Details label="Season" value="Sept - May" />
+          </div>
+        </div>
+        <div className="content">
           <h3>Surf Forecasts</h3>
           {forecasts && (
             <>
@@ -147,6 +171,14 @@ export default function SurfSpotDetails() {
             Know a reliable forecast for this spot? Let us know and share the
             love!
           </p>
+        </div>
+        <div className="content ">
+          <h3>Amenities</h3>
+          <div className="row gap mb pv">
+            <Details label="🅿️ Parking" value="Paid Car Park" />
+            <Details label="🎓 Surf Schools" value="Yes" />
+            <Details label="☕ Restaurants/Cafes" value="Yes" />
+          </div>
         </div>
         <div className="content">
           <InfoMessage message="See something not right? Let us know so we can get it fixed" />
