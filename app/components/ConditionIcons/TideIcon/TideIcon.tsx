@@ -13,6 +13,7 @@ interface TideIconProps {
 }
 
 const TideIcon = ({ tide, color = '#046380' }: TideIconProps) => {
+  console.log(tide)
   if (!tide) return null
 
   const tideValue = TIDES[tide]
