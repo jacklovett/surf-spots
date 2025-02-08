@@ -1,6 +1,8 @@
 import { SVGProps } from 'react'
 import TideIcon from './TideIcon'
 import DirectionIcon from './DirectionIcon'
+import CalendarIcon from './CalendarIcon'
+import SurfHeightIcon from './SurfHeightIcon'
 
 export const CONDITION_ICON_SIZE = 42
 export const CONDITION_ICON_STROKE_WIDTH = 2
@@ -18,4 +20,4 @@ export const getCommonStyles = (color: string): SVGProps<SVGSVGElement> => ({
   viewBox: `0 0 ${CONDITION_ICON_SIZE} ${CONDITION_ICON_SIZE}`,
 })
 
-export { DirectionIcon, TideIcon }
+export { CalendarIcon, DirectionIcon, SurfHeightIcon, TideIcon }

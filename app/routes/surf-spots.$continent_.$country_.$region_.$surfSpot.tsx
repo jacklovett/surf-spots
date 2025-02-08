@@ -4,11 +4,13 @@ import { get } from '~/services/networkService'
 import { SurfSpot } from '~/types/surfSpots'
 
 import {
+  CalendarIcon,
   Details,
   DirectionIcon,
   ErrorBoundary,
   InfoMessage,
   NavButton,
+  SurfHeightIcon,
   SurfMap,
   SurfSpotActions,
   TideIcon,
@@ -108,13 +110,10 @@ export default function SurfSpotDetails() {
             </div>
             <p className="description">{description}</p>
             <div className="row spot-details gap mb pv">
-              <Details label="🏄‍♂️ Break Type" value={type} />
-              <Details label="🏖️ Beach Bottom" value={beachBottomType} />
-              <Details label="🎯 Skill Level" value={skillLevel} />
-              <Details
-                label="⭐ Rating"
-                value={rating ? `${rating}/ 5` : 'N/A'}
-              />
+              <Details label="Break Type" value={type} />
+              <Details label="Beach Bottom" value={beachBottomType} />
+              <Details label="Skill Level" value={skillLevel} />
+              <Details label="Rating" value={rating ? `${rating}/ 5` : 'N/A'} />
             </div>
           </div>
         </div>
@@ -138,8 +137,15 @@ export default function SurfSpotDetails() {
               <TideIcon tide={tide} />
               <Details label="Tides" value={tide} />
             </div>
-            <Details label="Surf Height" value="Waist - Double overhead" />
-            <Details label="Season" value="Sept - May" />
+
+            <div className="gap center-vertical">
+              <SurfHeightIcon />
+              <Details label="Surf Height" value="Waist - Double overhead" />
+            </div>
+            <div className="gap center-vertical">
+              <CalendarIcon />
+              <Details label="Season" value="Sept - May" />
+            </div>
           </div>
         </div>
         <div className="content">
@@ -175,9 +181,9 @@ export default function SurfSpotDetails() {
         <div className="content ">
           <h3>Amenities</h3>
           <div className="row gap mb pv">
-            <Details label="🅿️ Parking" value="Paid Car Park" />
-            <Details label="🎓 Surf Schools" value="Yes" />
-            <Details label="☕ Restaurants/Cafes" value="Yes" />
+            <Details label="Parking" value="Paid Car Park" />
+            <Details label="Surf Schools" value="Yes" />
+            <Details label="Restaurants/Cafes" value="Yes" />
           </div>
         </div>
         <div className="content">

@@ -1,7 +1,12 @@
 import AuthPage from './AuthPage'
 import Button from './Button'
 import ContentStatus from './ContentStatus'
-import { DirectionIcon, TideIcon } from './ConditionIcons'
+import {
+  CalendarIcon,
+  DirectionIcon,
+  SurfHeightIcon,
+  TideIcon,
+} from './ConditionIcons'
 import ErrorBoundary from './ErrorBoundary'
 import FormComponent from './FormComponent'
 import FormInput from './FormInput'
@@ -28,6 +33,7 @@ export {
   AuthPage,
   Breadcrumb,
   Button,
+  CalendarIcon,
   ContentStatus,
   Details,
   DirectionIcon,
@@ -39,15 +45,16 @@ export {
   InfoMessage,
   Loading,
   LocationSelector,
-  SurfMap,
-  SurfSpotActions,
-  SurfSpotPopUp,
   Menu,
   Modal,
   NavButton,
   Page,
   SkeletonLoader,
+  SurfHeightIcon,
+  SurfMap,
+  SurfSpotActions,
   SurfSpotList,
+  SurfSpotPopUp,
   TextButton,
   TideIcon,
   ViewSwitch,
