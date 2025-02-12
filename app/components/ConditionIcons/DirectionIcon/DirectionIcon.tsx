@@ -10,11 +10,10 @@ import {
   CONDITION_ICON_RADIUS,
   getCommonStyles,
 } from '../index'
-import { Direction } from '~/types/surfSpots'
 
 interface DirectionIconProps {
   type: DirectionIconKey
-  directionRange: Direction
+  directionRange: string
   color?: string
 }
 

@@ -62,6 +62,7 @@ export enum SkillLevel {
 }
 
 export enum Tide {
+  Any = 'Any',
   Low = 'Low',
   LowMid = 'Low - Mid',
   Mid = 'Mid',

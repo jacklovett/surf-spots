@@ -1,7 +1,7 @@
 import { json, useFetcher, useLoaderData, useNavigate } from '@remix-run/react'
 
 import { get } from '~/services/networkService'
-import { SurfSpot } from '~/types/surfSpots'
+import { SurfSpot, Tide } from '~/types/surfSpots'
 
 import {
   CalendarIcon,

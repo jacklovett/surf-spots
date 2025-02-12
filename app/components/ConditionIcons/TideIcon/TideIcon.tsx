@@ -5,38 +5,33 @@ import {
   CONDITION_ICON_SIZE,
   getCommonStyles,
 } from '../index'
-import { TIDES } from './index'
+import { TIDE_WAVE_MAP, TIDES, TOTAL_TIDE_COUNT } from './index'
 
 interface TideIconProps {
   tide: Tide
   color?: string
 }
 
+const generateWaves = (tideValue: number, color: string) => {
+  const WAVE_SPACING = Math.floor(CONDITION_ICON_SIZE / (TOTAL_TIDE_COUNT + 1))
+
+  return (TIDE_WAVE_MAP[tideValue] || []).map((i) => (
+    <path
+      key={i}
+      d={`M0 ${
+        CONDITION_ICON_SIZE - WAVE_SPACING - i * WAVE_SPACING
+      }c2-2 5-2 7 0s5 2 7 0 5-2 7 0 5 2 7 0 5-2 7 0 5 2 7 0`}
+      stroke={color}
+      strokeWidth="2"
+    />
+  ))
+}
+
 const TideIcon = ({ tide, color = '#046380' }: TideIconProps) => {
-  console.log(tide)
   if (!tide) return null
 
   const tideValue = TIDES[tide]
   const commonIconStyles = getCommonStyles(color)
-
-  const WAVE_SPACING = Math.floor(
-    CONDITION_ICON_SIZE / (Object.keys(TIDES).length + 1),
-  )
-
-  const generateWaves = (tideValue: number) => {
-    const waves = []
-    for (let i = 0; i < tideValue; i++) {
-      waves.push(
-        <path
-          key={i}
-          d={`M0 ${
-            CONDITION_ICON_SIZE - WAVE_SPACING - i * WAVE_SPACING
-          }c2-2 5-2 7 0s5 2 7 0 5-2 7 0 5 2 7 0 5-2 7 0 5 2 7 0`}
-        />,
-      )
-    }
-    return waves
-  }
 
   return (
     <svg {...commonIconStyles}>
@@ -53,8 +48,11 @@ const TideIcon = ({ tide, color = '#046380' }: TideIconProps) => {
         cx={CONDITION_CIRC_COORD}
         cy={CONDITION_CIRC_COORD}
         r={CONDITION_ICON_RADIUS}
+        stroke={color}
+        strokeWidth={commonIconStyles.strokeWidth}
+        fill="none"
       />
-      <g clipPath="url(#clip-circle)">{generateWaves(tideValue)}</g>
+      <g clipPath="url(#clip-circle)">{generateWaves(tideValue, color)}</g>
     </svg>
   )
 }
