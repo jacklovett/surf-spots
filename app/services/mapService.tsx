@@ -344,7 +344,7 @@ const createPopUp = (
     }
 
     return new mapboxgl.Popup({
-      maxWidth: '280px',
+      maxWidth: '272px',
       focusAfterOpen: false,
     })
       .setLngLat([longitude, latitude])

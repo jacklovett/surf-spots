@@ -124,7 +124,7 @@ const SignUp = () => {
                   label=""
                   icon={{
                     name: 'Facebook',
-                    filePath: '/images/png/facebook.png',
+                    filePath: '/images/png/instagram.png',
                   }}
                   onClick={() => navigate('/auth/facebook')}
                 />

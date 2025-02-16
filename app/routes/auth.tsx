@@ -156,10 +156,10 @@ export default function Auth() {
                 <Button
                   label=""
                   icon={{
-                    name: 'Facebook',
-                    filePath: '/images/png/facebook.png',
+                    name: 'Instagram',
+                    filePath: '/images/png/instagram.png',
                   }}
-                  onClick={() => navigate('/auth/facebook')}
+                  onClick={() => navigate('/auth/instagram')}
                 />
               </div>
             </div>

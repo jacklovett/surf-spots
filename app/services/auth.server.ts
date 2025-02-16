@@ -110,8 +110,13 @@ export const validate = (email: string, password: string) => {
   // Only include errors in the result if they exist
   const errors: AuthErrors = {}
 
-  if (emailErrors) errors.email = emailErrors
-  if (passwordErrors) errors.password = passwordErrors
+  if (emailErrors) {
+    errors.email = emailErrors
+  }
+
+  if (passwordErrors) {
+    errors.password = passwordErrors
+  }
 
   return Object.keys(errors).length ? errors : null
 }
