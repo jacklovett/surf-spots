@@ -1,5 +1,9 @@
 const API_URL = import.meta.env.VITE_API_URL!
 
+export const cacheControlHeader = {
+  'Cache-Control': 'public, max-age=3600, stale-while-revalidate=86400',
+}
+
 // Handles the response, throwing an error if the response is not ok
 const handleResponse = async <T>(response: Response): Promise<T> => {
   const data = await response.json().catch(() => null)

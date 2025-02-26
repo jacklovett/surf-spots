@@ -1,4 +1,4 @@
-import { json, Link, redirect, useNavigation } from '@remix-run/react'
+import { data, Link, redirect, useNavigation } from '@remix-run/react'
 import { ActionFunctionArgs, MetaFunction } from '@remix-run/node'
 
 import { FormComponent, FormInput, Page } from '~/components'
@@ -37,7 +37,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
 
   // Validate input fields
   if (newPassword !== repeatedNewPassword) {
-    return json({ submitStatus: 'New passwords do not match!', hasError: true })
+    return { submitStatus: 'New passwords do not match!', hasError: true }
   }
 
   const changePasswordRequest = { userId, currentPassword, newPassword }
@@ -49,7 +49,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
       },
     })
 
-    return json(
+    return data(
       { submitStatus: 'Password updated successfully' },
       { status: 200 },
     )
@@ -59,10 +59,10 @@ export const action = async ({ request }: ActionFunctionArgs) => {
         ? e.message
         : 'An unexpected error occurred. Please try again.'
 
-    return json({
+    return {
       submitStatus: submitError,
       hasError: true,
-    })
+    }
   }
 }
 
@@ -70,26 +70,25 @@ const ChangePassword = () => {
   const { state } = useNavigation()
   const loading = state === 'loading'
 
-  const { formState, errors, isFormValid, handleChange, handleBlur } =
-    useFormValidation({
-      initialFormState: {
-        currentPassword: '',
-        newPassword: '',
-        repeatedNewPassword: '',
-      },
-      validationFunctions: {
-        currentPassword: validatePassword,
-        newPassword: validatePassword,
-        repeatedNewPassword: validatePassword,
-      },
-    })
+  const { formState, errors, isFormValid, handleChange } = useFormValidation({
+    initialFormState: {
+      currentPassword: '',
+      newPassword: '',
+      repeatedNewPassword: '',
+    },
+    validationFunctions: {
+      currentPassword: validatePassword,
+      newPassword: validatePassword,
+      repeatedNewPassword: validatePassword,
+    },
+  })
 
   const submitStatus = useSubmitStatus()
 
   return (
     <Page showHeader>
       <div className="column center-vertical mv">
-        <div className="auth-container">
+        <div className="page-content">
           <h1 className="mt">Change Password</h1>
           <div className="change-password-form">
             <FormComponent
@@ -109,7 +108,6 @@ const ChangePassword = () => {
                 onChange={(e) =>
                   handleChange('currentPassword', e.target.value)
                 }
-                onBlur={() => handleBlur('currentPassword')}
                 errorMessage={errors.currentPassword || ''}
                 showLabel={!!formState.currentPassword}
               />
@@ -122,7 +120,6 @@ const ChangePassword = () => {
                 }}
                 value={formState.newPassword}
                 onChange={(e) => handleChange('newPassword', e.target.value)}
-                onBlur={() => handleBlur('newPassword')}
                 errorMessage={errors.newPassword || ''}
                 showLabel={!!formState.newPassword}
               />
@@ -137,7 +134,6 @@ const ChangePassword = () => {
                 onChange={(e) =>
                   handleChange('repeatedNewPassword', e.target.value)
                 }
-                onBlur={() => handleBlur('repeatedNewPassword')}
                 errorMessage={errors.repeatedNewPassword || ''}
                 showLabel={!!formState.repeatedNewPassword}
               />

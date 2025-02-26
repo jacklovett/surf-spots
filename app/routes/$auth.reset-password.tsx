@@ -1,4 +1,4 @@
-import { json, Link, useNavigation } from '@remix-run/react'
+import { data, Link, useNavigation } from '@remix-run/react'
 import { ActionFunctionArgs, MetaFunction } from '@remix-run/node'
 
 import { FormComponent, FormInput, Page } from '~/components'
@@ -21,12 +21,12 @@ export const action = async ({ request }: ActionFunctionArgs) => {
   const emailError = validateEmail(email)
   // Early return if form validation error are present
   if (emailError) {
-    return json({ submitStatus: emailError, hasError: true })
+    return { submitStatus: emailError, hasError: true }
   }
 
   try {
     await post(`/email-reset`, email)
-    return json(
+    return data(
       {
         submitStatus: 'Check your emails. Password reset instructions sent.',
       },
@@ -38,10 +38,10 @@ export const action = async ({ request }: ActionFunctionArgs) => {
         ? e.message
         : 'An unexpected error occurred. Please try again.'
 
-    return json({
+    return {
       submitStatus: submitError,
       hasError: true,
-    })
+    }
   }
 }
 
@@ -51,13 +51,12 @@ const ResetPassword = () => {
 
   const submitStatus = useSubmitStatus()
 
-  const { formState, errors, isFormValid, handleChange, handleBlur } =
-    useFormValidation({
-      initialFormState: { email: '' },
-      validationFunctions: {
-        email: validateEmail,
-      },
-    })
+  const { formState, errors, isFormValid, handleChange } = useFormValidation({
+    initialFormState: { email: '' },
+    validationFunctions: {
+      email: validateEmail,
+    },
+  })
 
   return (
     <Page>
@@ -70,7 +69,7 @@ const ResetPassword = () => {
         <div className="auth-title">
           <h1>Reset Password</h1>
         </div>
-        <div className="auth-container">
+        <div className="page-content">
           <FormComponent
             loading={loading}
             isDisabled={!isFormValid}
@@ -86,7 +85,6 @@ const ResetPassword = () => {
               }}
               value={formState.email}
               onChange={(e) => handleChange('email', e.target.value)}
-              onBlur={() => handleBlur('email')}
               errorMessage={errors.email || ''}
               showLabel={!!formState.email}
             />

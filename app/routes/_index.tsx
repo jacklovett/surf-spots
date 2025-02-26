@@ -14,7 +14,7 @@ export default function Index() {
     <Page isAlternate>
       <div className="center column content">
         <img src="/images/png/logo.png" width="240" alt="Surf spots logo" />
-        <div className="auth-container">
+        <div className="page-content">
           <p className="description alternate">
             Track all your past surf destinations and explore new ones, all in
             one place.

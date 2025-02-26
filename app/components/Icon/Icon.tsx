@@ -1,5 +1,5 @@
 import { SVGProps } from 'react'
-import { IconKey } from './index'
+import { ICON_SIZE, IconKey } from './index'
 
 interface IProps {
   iconKey: IconKey
@@ -11,17 +11,15 @@ export const Icon = (props: IProps) => {
 
   const color = useAccentColor ? '#3fc1c9' : '#046380'
 
-  const size = 24
-
   const commonIconStyles: SVGProps<SVGSVGElement> = {
-    width: size,
-    height: size,
+    width: ICON_SIZE,
+    height: ICON_SIZE,
     fill: 'none',
     stroke: color,
     strokeWidth: 2,
     strokeLinecap: 'round',
     strokeLinejoin: 'round',
-    viewBox: `0 0 ${size} ${size}`,
+    viewBox: `0 0 ${ICON_SIZE} ${ICON_SIZE}`,
   }
 
   const renderIcon = () => {

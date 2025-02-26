@@ -6,4 +6,9 @@ export interface IModalState {
   isVisible: boolean
 }
 
+export const initialModalState: IModalState = {
+  content: null,
+  isVisible: false,
+}
+
 export default Modal

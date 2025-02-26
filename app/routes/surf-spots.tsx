@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react'
 import {
-  json,
   Outlet,
   useLoaderData,
   useLocation,
@@ -18,9 +17,11 @@ import {
   SurfMap,
   Page,
   ViewSwitch,
+  TextButton,
 } from '~/components'
 import { BreadcrumbItem } from '~/components/Breadcrumb'
 import { surfSpotAction } from '~/services/surfSpot.server'
+import { useUser } from '~/contexts'
 
 interface LoaderData {
   isMapView: boolean
@@ -48,15 +49,16 @@ const getFilters = (pathname: string) => {
 
 export const loader: LoaderFunction = async ({ request }) => {
   const { pathname } = new URL(request.url)
-  return json({
+  return {
     isMapView: checkIsMapView(pathname),
     filters: getFilters(pathname),
-  })
+  }
 }
 
 export const action: ActionFunction = surfSpotAction
 
 export default function SurfSpots() {
+  const { user } = useUser()
   const navigate = useNavigate()
   const { pathname } = useLocation()
   const { state } = useNavigation()
@@ -77,7 +79,7 @@ export default function SurfSpots() {
   const [filters, setFilters] = useState(initialFilters)
   const [isFiltersViewOpen, setFiltersViewOpen] = useState(false)
 
-  const showFilters = filters && filters.length > 0
+  const showFilters = filters && filters?.length > 0
 
   useEffect(() => {
     setIsMapView(checkIsMapView(pathname))
@@ -118,8 +120,17 @@ export default function SurfSpots() {
 
   return (
     <Page showHeader overrideLoading>
-      <div className="row toolbar flex-end">
-        {/* TODO: Add Filters tab */}
+      <div className="row toolbar flex-end space-between">
+        <div className="row flex-1">
+          {user && (
+            <TextButton
+              text="Add new spot"
+              onClick={() => navigate('/add-surf-spot')}
+              iconKey="plus"
+              filled
+            />
+          )}
+        </div>
         <ViewSwitch
           isPrimaryView={isMapView}
           onToggleView={handleToggleView}

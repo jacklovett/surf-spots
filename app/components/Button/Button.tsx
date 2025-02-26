@@ -27,7 +27,7 @@ export const Button = (props: IProps) => {
       onClick={onClick}
       type={type}
       disabled={disabled}
-      aria-label={ariaLabel || label} // Fallback to label if ariaLabel is not provided
+      aria-label={ariaLabel || label}
       aria-disabled={disabled}
     >
       {icon && <img src={icon.filePath} alt={icon.name} width="24" />}

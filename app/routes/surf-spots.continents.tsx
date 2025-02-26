@@ -1,5 +1,6 @@
-import { json, Link, useLoaderData } from '@remix-run/react'
-import { get } from '~/services/networkService'
+import { data, Link, useLoaderData } from '@remix-run/react'
+import { ContentStatus } from '~/components'
+import { cacheControlHeader, get } from '~/services/networkService'
 import { Continent } from '~/types/surfSpots'
 
 interface LoaderData {
@@ -11,40 +12,36 @@ export const loader = async () => {
   try {
     const continents = await get<Continent[]>(`continents`)
     // Cache the response for 1 hour and serve stale data for up to 1 day
-    return json<LoaderData>(
+    return data<LoaderData>(
       { continents: continents ?? [] },
       {
-        headers: {
-          'Cache-Control': 'public, max-age=3600, stale-while-revalidate=86400',
-        },
+        headers: cacheControlHeader,
       },
     )
   } catch (error) {
     console.error('Error occurred fetching continents:', error)
-    return json<LoaderData>(
+    return data<LoaderData>(
       {
         continents: [],
         error: `We couldn't find the continents right now. Please try again later.`,
       },
       {
         status: 500,
-        headers: {
-          'Cache-Control': 'public, max-age=300, stale-while-revalidate=600',
-        },
       },
     )
   }
 }
 
 export default function Continents() {
-  const { continents, error } = useLoaderData<LoaderData>()
+  const { data } = useLoaderData<{ data: LoaderData }>()
+  const { continents = [], error } = data
 
-  if (error) {
-    throw new Error(error)
-  }
-
-  if (continents.length === 0) {
-    throw new Error('No continents found!')
+  if (error || continents.length === 0) {
+    return (
+      <ContentStatus>
+        <p>{error ?? 'Continent list not found.'}</p>
+      </ContentStatus>
+    )
   }
 
   return (

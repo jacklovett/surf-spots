@@ -1,10 +1,12 @@
-import { json, useFetcher, useLoaderData, useNavigate } from '@remix-run/react'
+import { data, useFetcher, useLoaderData, useNavigate } from '@remix-run/react'
+import { ActionFunction, LoaderFunction } from '@remix-run/node'
 
 import { get } from '~/services/networkService'
-import { SurfSpot, Tide } from '~/types/surfSpots'
+import { SurfSpot } from '~/types/surfSpots'
 
 import {
   CalendarIcon,
+  ContentStatus,
   Details,
   DirectionIcon,
   ErrorBoundary,
@@ -15,15 +17,17 @@ import {
   SurfSpotActions,
   TideIcon,
 } from '~/components'
-import { useUser } from '~/contexts/UserContext'
-import { ActionFunction, LoaderFunction } from '@remix-run/node'
-import { surfSpotAction } from '~/services/surfSpot.server'
-import { getSession } from '~/services/session.server'
 import {
   FetcherSubmitParams,
   submitFetcher,
   SurfSpotActionFetcherResponse,
 } from '~/components/SurfSpotActions'
+import { useUser, useSettings } from '~/contexts'
+import { units } from '~/contexts/SettingsContext'
+import { surfSpotAction } from '~/services/surfSpot.server'
+import { getSession } from '~/services/session.server'
+
+import { metersToFeet } from '~/utils'
 
 interface LoaderData {
   surfSpotDetails?: SurfSpot
@@ -45,10 +49,10 @@ export const loader: LoaderFunction = async ({ request, params }) => {
       : `surf-spots/${surfSpot}`
 
     const surfSpotDetails = await get<SurfSpot>(url)
-    return json<LoaderData>({ surfSpotDetails })
+    return { surfSpotDetails }
   } catch (error) {
     console.error('Error fetching surf spot details: ', error)
-    return json<LoaderData>(
+    return data<LoaderData>(
       {
         error: `We can't seem to locate this surf spot. Please try again later.`,
       },
@@ -59,9 +63,31 @@ export const loader: LoaderFunction = async ({ request, params }) => {
   }
 }
 
+const formatSurfHeightRange = (
+  preferredUnits: units,
+  minSurfHeight?: number,
+  maxSurfHeight?: number,
+) => {
+  if (!minSurfHeight && !maxSurfHeight) {
+    return '-'
+  }
+
+  const convertHeight = (height: number = 0) =>
+    preferredUnits === 'imperial' ? metersToFeet(height) : height
+
+  const min = convertHeight(minSurfHeight)
+  const max = maxSurfHeight ? convertHeight(maxSurfHeight) : null
+
+  const unit = preferredUnits === 'imperial' ? 'ft' : 'm'
+  const heightRange = max ? `${min}-${max}` : `+${min}`
+  return `${heightRange}${unit}`
+}
+
 export default function SurfSpotDetails() {
   const { surfSpotDetails } = useLoaderData<LoaderData>()
   const { user } = useUser()
+  const { settings } = useSettings()
+  const { preferredUnits } = settings
   const navigate = useNavigate()
 
   const fetcher = useFetcher<SurfSpotActionFetcherResponse>()
@@ -72,9 +98,9 @@ export default function SurfSpotDetails() {
   const renderContent = () => {
     if (!surfSpotDetails) {
       return (
-        <div className="column center">
+        <ContentStatus isError>
           <p>Surf spot details not found.</p>
-        </div>
+        </ContentStatus>
       )
     }
 
@@ -89,6 +115,8 @@ export default function SurfSpotDetails() {
       tide,
       swellDirection,
       windDirection,
+      minSurfHeight,
+      maxSurfHeight,
     } = surfSpotDetails
 
     return (
@@ -122,7 +150,7 @@ export default function SurfSpotDetails() {
             <SurfMap surfSpots={[surfSpotDetails]} disableInteractions />
           </div>
         </ErrorBoundary>
-        <div className="content">
+        <section className="content">
           <h3>Best Conditions</h3>
           <div className="row spot-details gap mb pv">
             <div className="gap center-vertical">
@@ -140,15 +168,22 @@ export default function SurfSpotDetails() {
 
             <div className="gap center-vertical">
               <SurfHeightIcon />
-              <Details label="Surf Height" value="Waist - Double overhead" />
+              <Details
+                label="Surf Height"
+                value={formatSurfHeightRange(
+                  preferredUnits,
+                  minSurfHeight,
+                  maxSurfHeight,
+                )}
+              />
             </div>
             <div className="gap center-vertical">
               <CalendarIcon />
               <Details label="Season" value="Sept - May" />
             </div>
           </div>
-        </div>
-        <div className="content">
+        </section>
+        <section className="content">
           <h3>Surf Forecasts</h3>
           {forecasts && (
             <>
@@ -177,15 +212,15 @@ export default function SurfSpotDetails() {
             Know a reliable forecast for this spot? Let us know and share the
             love!
           </p>
-        </div>
-        <div className="content ">
+        </section>
+        <section className="content">
           <h3>Amenities</h3>
           <div className="row gap mb pv">
             <Details label="Parking" value="Paid Car Park" />
             <Details label="Surf Schools" value="Yes" />
             <Details label="Restaurants/Cafes" value="Yes" />
           </div>
-        </div>
+        </section>
         <div className="content">
           <InfoMessage message="See something not right? Let us know so we can get it fixed" />
         </div>

@@ -1,5 +1,6 @@
-import { json, Link, useLoaderData } from '@remix-run/react'
-import { get } from '~/services/networkService'
+import { data, Link, useLoaderData } from '@remix-run/react'
+import { ContentStatus } from '~/components'
+import { cacheControlHeader, get } from '~/services/networkService'
 import type { SurfSpot, Region } from '~/types/surfSpots'
 
 interface LoaderData {
@@ -19,47 +20,42 @@ export const loader = async ({ params }: { params: LoaderParams }) => {
     const regionDetails = await get<Region>(`regions/${region}`)
     const surfSpots = await get<SurfSpot[]>(`surf-spots/region/${region}`)
 
-    return json<LoaderData>(
+    return data<LoaderData>(
       { surfSpots: surfSpots ?? [], regionDetails },
       {
-        headers: {
-          'Cache-Control': 'public, max-age=3600, stale-while-revalidate=86400',
-        },
+        headers: cacheControlHeader,
       },
     )
   } catch (error) {
-    console.error('Error fetching surf spots:', error)
-    return json<LoaderData>(
+    return data<LoaderData>(
       {
         surfSpots: [],
         error: `We couldn't find the surf spots right now. Please try again later.`,
       },
       {
         status: 500,
-        headers: {
-          'Cache-Control': 'public, max-age=300, stale-while-revalidate=600',
-        },
       },
     )
   }
 }
 
 export default function Region() {
-  const { surfSpots, regionDetails, error } = useLoaderData<LoaderData>()
+  const { data } = useLoaderData<{ data: LoaderData }>()
+  const { surfSpots, regionDetails, error } = data
 
-  if (error) {
-    throw new Error(error)
-  }
-
-  if (!regionDetails) {
-    throw new Error("Couldn't find details for this region")
+  if (error || !regionDetails) {
+    return (
+      <ContentStatus isError>
+        <p>{error ?? "Couldn't find details for this region"}</p>
+      </ContentStatus>
+    )
   }
 
   const { name, description } = regionDetails
 
   return (
     <div className="content">
-      <h3>{name}</h3>
+      <h1>{name}</h1>
       <p className="description">{description}</p>
       <div className="list-map">
         {surfSpots.length > 0 ? (

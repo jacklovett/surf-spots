@@ -19,7 +19,6 @@ export const renderContent = (
         {error && (
           <ContentStatus isError>
             <>
-              {/* TODO: Add some icon/image */}
               <h1>Error</h1>
               <p>{error}</p>
             </>

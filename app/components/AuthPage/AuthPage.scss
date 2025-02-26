@@ -1,12 +1,3 @@
-.auth-container {
-  width: 100%;
-  max-width: 420px;
-
-  @media (max-width: 430px) {
-    padding: 0 $spacing-unit;
-  }
-}
-
 .auth-cta {
   gap: $spacing-small;
 
@@ -34,10 +25,17 @@
   }
 }
 
+.auth-options {
+  @extend %flex-column;
+  padding-top: $spacing-small;
+}
+
 .auth-content {
   @extend %flex-column;
   position: relative;
   width: 100%;
+  padding-top: $spacing-unit;
+  padding-bottom: $spacing-large;
    
   & footer {
     position: absolute;
@@ -59,37 +57,7 @@
 
 .sign-in-nav {
   @extend %flex-base;
+  align-items: center;
   margin: 0 $spacing-unit;
-  gap: $spacing-unit;
-}
-
-.sign-in-options {
-  @extend %flex-column;
-  padding-top: $spacing-small;
-  gap: $spacing-unit;
-}
-
-.sign-in-providers-container {
-  @extend %flex-center;
-  @extend %flex-column;
-  padding-top: $spacing-small;
-}
-
-.sign-in-providers {
-  @extend %flex-row;
-  @extend %flex-center;
-  gap: $spacing-unit;
-  padding: $spacing-unit 0;
-
-  & button {
-    width: fit-content;
-    border-radius: $circle-border-radius;
-    background: $background-color;
-    box-shadow: $box-shadow;
-    padding: calc(0.8 * $spacing-unit);
-
-    &:hover {
-      background: $accent-color;
-    }
-  }
+  gap: $spacing-small;
 }

@@ -28,6 +28,7 @@ import SurfSpotPopUp from './SurfSpotPopUp'
 import Header from './Header'
 import InfoMessage from './InfoMessage'
 import LocationSelector from './LocationSelector'
+import SignInOptions from './SignInOptions'
 
 export {
   AuthPage,
@@ -49,6 +50,7 @@ export {
   Modal,
   NavButton,
   Page,
+  SignInOptions,
   SkeletonLoader,
   SurfHeightIcon,
   SurfMap,

@@ -31,7 +31,7 @@ export class ErrorBoundary extends Component<
   render() {
     if (this.state.hasError) {
       return (
-        <div className="center center-text column">
+        <div className="center center-text column ph">
           <h4>{this.props.message ?? 'Oops! Something went wrong.'}</h4>
           <p>{this.state.error?.message}</p>
         </div>

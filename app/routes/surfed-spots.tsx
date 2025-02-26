@@ -1,5 +1,5 @@
 import { LoaderFunction } from '@remix-run/node'
-import { json, useLoaderData, useNavigation } from '@remix-run/react'
+import { data, useLoaderData, useNavigation } from '@remix-run/react'
 import {
   ContentStatus,
   Details,
@@ -9,7 +9,7 @@ import {
   SurfMap,
   SurfSpotList,
 } from '~/components'
-import { get } from '~/services/networkService'
+import { cacheControlHeader, get } from '~/services/networkService'
 import { getSession, requireSessionCookie } from '~/services/session.server'
 import { SurfedSpotsSummary } from '~/types/surfedSpotsSummary'
 
@@ -33,25 +33,20 @@ export const loader: LoaderFunction = async ({ request }) => {
         Cookie: `${cookie}`,
       },
     })
-    return json<LoaderData>(
+    return data<LoaderData>(
       { surfedSpotsSummary: surfedSpotsSummary as SurfedSpotsSummary },
       {
-        headers: {
-          'Cache-Control': 'public, max-age=3600, stale-while-revalidate=86400',
-        },
+        headers: cacheControlHeader,
       },
     )
   } catch (error) {
     console.error('Error fetching surf spots:', error)
-    return json<LoaderData>(
+    return data<LoaderData>(
       {
         error: `We couldn't find the surf spots right now. Please try again later.`,
       },
       {
         status: 500,
-        headers: {
-          'Cache-Control': 'public, max-age=300, stale-while-revalidate=600',
-        },
       },
     )
   }
@@ -61,13 +56,21 @@ export default function SurfedSpots() {
   const { state } = useNavigation()
   const loading = state === 'loading'
 
-  const { surfedSpotsSummary, error } = useLoaderData<LoaderData>()
+  const { data } = useLoaderData<{ data: LoaderData }>()
+  const { surfedSpotsSummary, error } = data
 
-  if (error || loading) {
+  if (error) {
     return (
       <ContentStatus>
-        {loading && <Loading />}
-        {!loading && <p>{error}</p>}
+        <p>{error}</p>
+      </ContentStatus>
+    )
+  }
+
+  if (loading) {
+    return (
+      <ContentStatus>
+        <Loading />
       </ContentStatus>
     )
   }
@@ -93,7 +96,7 @@ export default function SurfedSpots() {
           <h2>Overview</h2>
         </div>
         <div className="column content mb">
-          <div className="row surfed-spots-overview mb">
+          <div className="row spot-details surfed-spots-overview mb">
             <Details label="🌊 Total spots" value={totalCount} />
             <Details label="🌍 Continents" value={continentCount} />
             <Details label="🗺️ Countries" value={countryCount} />

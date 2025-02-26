@@ -108,4 +108,6 @@ export interface NewSurfSpot extends Coordinates {
   tide: Tide
   swellDirection: Direction
   windDirection: Direction
+  minSurfHeight: number
+  maxSurfHeight: number
 }

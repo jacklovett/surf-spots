@@ -1,5 +1,4 @@
 import {
-  json,
   Links,
   Meta,
   Outlet,
@@ -9,7 +8,8 @@ import {
 } from '@remix-run/react'
 import type { LinksFunction, LoaderFunction } from '@remix-run/node'
 
-import { UserProvider } from './contexts/UserContext'
+import { SettingsProvider, UserProvider } from './contexts'
+
 import { getSession } from './services/session.server'
 import { User } from './types/user'
 
@@ -22,7 +22,7 @@ interface LoaderData {
 export const loader: LoaderFunction = async ({ request }) => {
   const session = await getSession(request.headers.get('Cookie'))
   const user = session.get('user')
-  return json({ user: user ?? null })
+  return { user: user ?? null }
 }
 
 export const links: LinksFunction = () => [
@@ -34,7 +34,7 @@ export const links: LinksFunction = () => [
   },
   {
     rel: 'stylesheet',
-    href: 'https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap',
+    href: 'https://fonts.googleapis.com/css2?family=Outfit:wght@100;300;400;500;700;900&display=swap',
   },
 ]
 
@@ -60,7 +60,9 @@ export default function App() {
   const { user } = useLoaderData<LoaderData>()
   return (
     <UserProvider {...{ user }}>
-      <Outlet />
+      <SettingsProvider>
+        <Outlet />
+      </SettingsProvider>
     </UserProvider>
   )
 }

@@ -13,4 +13,6 @@ export type IconKey =
   | 'profile'
   | 'surfboard'
 
+export const ICON_SIZE = 24
+
 export default Icon

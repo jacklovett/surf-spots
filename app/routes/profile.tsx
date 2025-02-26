@@ -1,9 +1,8 @@
 import {
-  json,
+  data,
   Link,
   MetaFunction,
   useLoaderData,
-  useNavigate,
   useNavigation,
 } from '@remix-run/react'
 import { ActionFunction, LoaderFunction } from '@remix-run/node'
@@ -11,7 +10,7 @@ import { useEffect, useState } from 'react'
 import fs from 'fs/promises'
 import path from 'path'
 
-import { edit } from '~/services/networkService'
+import { cacheControlHeader, edit } from '~/services/networkService'
 import {
   commitSession,
   getSession,
@@ -32,7 +31,7 @@ import { useFormValidation, useSubmitStatus } from '~/hooks'
 import { validateEmail } from '~/hooks/useFormValidation'
 
 interface LoaderData {
-  data?: Location[]
+  locationData?: Location[]
   error?: string
 }
 
@@ -46,21 +45,18 @@ export const loader: LoaderFunction = async ({ request }) => {
   try {
     const filePath = path.resolve('public/data/cities_countries.json')
     const fileData = await fs.readFile(filePath, 'utf-8')
-    const data = JSON.parse(fileData)
-    return json(
-      { data },
+    const locationData = JSON.parse(fileData)
+    return data(
+      { locationData },
       {
-        headers: {
-          'Cache-Control':
-            'public, max-age=86400, stale-while-revalidate=31536000',
-        },
+        headers: cacheControlHeader,
       },
     )
   } catch (error) {
     console.error(error)
-    return json({
+    return {
       error: 'Unable to populate location drop-down menus',
-    })
+    }
   }
 }
 
@@ -90,7 +86,7 @@ export const action: ActionFunction = async ({ request }) => {
 
     session.set('user', updateUser)
 
-    return json(
+    return data(
       { submitStatus: 'Profile updated successfully', hasError: false },
       {
         status: 200,
@@ -101,7 +97,7 @@ export const action: ActionFunction = async ({ request }) => {
     )
   } catch (error) {
     console.error('Unable to update profile details: ', error)
-    return json(
+    return data(
       {
         submitStatus:
           'Unable to update profile details. Please try again later',
@@ -117,28 +113,23 @@ const Profile = () => {
   const { state } = useNavigation()
   const loading = state === 'loading'
 
-  const { data, error } = useLoaderData<LoaderData>()
+  const { data } = useLoaderData<{ data: LoaderData }>()
+  const { locationData = [], error } = data
 
   const submitStatus = useSubmitStatus()
 
-  const {
-    formState,
-    errors,
-    isFormValid,
-    handleChange,
-    handleBlur,
-    setFormState,
-  } = useFormValidation({
-    initialFormState: {
-      country: user?.country || '',
-      email: user?.email || '',
-      name: user?.name || '',
-      city: user?.city || '',
-    },
-    validationFunctions: {
-      email: validateEmail,
-    },
-  })
+  const { formState, errors, isFormValid, handleChange, handleBlur } =
+    useFormValidation({
+      initialFormState: {
+        country: user?.country || '',
+        email: user?.email || '',
+        name: user?.name || '',
+        city: user?.city || '',
+      },
+      validationFunctions: {
+        email: validateEmail,
+      },
+    })
 
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false)
 
@@ -165,7 +156,7 @@ const Profile = () => {
   return (
     <Page showHeader>
       <div className="column center-vertical mv">
-        <div className="auth-container">
+        <div className="page-content">
           <h1 className="mt">Profile</h1>
           <FormComponent
             loading={loading}
@@ -195,15 +186,11 @@ const Profile = () => {
               showLabel={!!formState.name}
             />
             <LocationSelector
-              locationData={data || []}
+              locationData={locationData || []}
               selectedCountry={formState.country}
               selectedCity={formState.city}
-              onCountryChange={(country) =>
-                setFormState((prev) => ({ ...prev, country, region: '' }))
-              }
-              onCityChange={(city) =>
-                setFormState((prev) => ({ ...prev, city }))
-              }
+              onCountryChange={(country) => handleChange('country', country)}
+              onCityChange={(city) => handleChange('city', city)}
             />
             <div className="row flex-end disclaimer">
               <Link to="/data-policy" prefetch="intent">

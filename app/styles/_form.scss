@@ -39,6 +39,12 @@ select {
   }
 }
 
+input[type="checkbox"] {
+  width: auto;
+  margin-left: $spacing-unit;
+  cursor: pointer;
+}
+
 textarea {
   resize: vertical; /* Allow vertical resize */
   min-height: 100px; /* Give the textarea a reasonable default height */
@@ -64,7 +70,6 @@ select:focus {
 
 .form-status-container {
   min-height: 24px;
-  margin-bottom: -$spacing-small;
 }
 
 .form-success {

@@ -1,6 +1,5 @@
-import { createCookieSessionStorage, json, redirect } from '@remix-run/node'
+import { createCookieSessionStorage, redirect } from '@remix-run/node'
 
-// Ensure SESSION_SECRET is defined
 const sessionSecret = process.env.SESSION_SECRET
 if (!sessionSecret) {
   throw new Error('SESSION_SECRET environment variable must be set')

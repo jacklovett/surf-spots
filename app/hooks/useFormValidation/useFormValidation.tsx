@@ -6,7 +6,6 @@ interface UseFormValidationProps {
   validationFunctions: { [key: string]: ValidationFn }
 }
 
-// Helper: Initialize touched fields
 const initializeTouchedFields = (fields: { [key: string]: string }) =>
   Object.keys(fields).reduce((acc, key) => ({ ...acc, [key]: false }), {})
 
@@ -33,9 +32,11 @@ export const useFormValidation = ({
       // Only update errors for touched fields
       if (touchedFields[field]) {
         acc[field] = error
+
         if (error) {
           allFieldsValid = false
         }
+
         if (errors[field] !== error) {
           hasErrorsChanged = true
         }
@@ -48,18 +49,24 @@ export const useFormValidation = ({
       setErrors(newErrors)
     }
 
-    // Update form validity only if it has changed
-    const allFieldsTouched = Object.values(touchedFields).every(Boolean)
-    const isValid = allFieldsValid && allFieldsTouched
+    // Update form validity only when a field has been changed
+    const anyFieldsTouched = Object.values(touchedFields).some(Boolean)
+
+    const isValid = allFieldsValid && anyFieldsTouched
+
     if (isValid !== isFormValid) {
       setIsFormValid(isValid)
     }
-  }, [formState, touchedFields, validationFunctions, errors, isFormValid])
+  }, [formState, touchedFields, validationFunctions])
 
-  const handleChange = (name: string, value: string) =>
+  const handleChange = (name: string, value: string) => {
+    setTouchedFields((prev) =>
+      prev[name] !== true ? { ...prev, [name]: true } : prev,
+    )
     setFormState((prev) =>
       prev[name] !== value ? { ...prev, [name]: value } : prev,
     )
+  }
 
   const handleBlur = (name: string) =>
     setTouchedFields((prev) =>

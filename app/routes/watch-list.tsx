@@ -21,10 +21,9 @@ export default function Wishlist() {
       <div className="column content mt">
         <h1>Watch list</h1>
         <p>
-          This is the list of surf spots you're following. From this list we'll
-          keep you up to date with all kinds of things happening around these
-          areas. From swell updates, water quality and conditions, news to Great
-          deals that help you get to experiencing these waves!
+          Here, we'll keep you updated on swell seasons, local news, events, and
+          travel deals for all the surf spots you're interested in. Use these
+          updates to help plan your next surf trip
         </p>
         <ErrorBoundary message="Unable to load surf spot list">
           {!surfSpotsFound && (

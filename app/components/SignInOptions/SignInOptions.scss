@@ -1,0 +1,25 @@
+
+.sign-in-providers-container {
+  @extend %flex-center;
+  @extend %flex-column;
+  padding-top: $spacing-small;
+}
+
+.sign-in-providers {
+  @extend %flex-row;
+  @extend %flex-center;
+  gap: $spacing-unit;
+  padding: $spacing-unit 0;
+
+  & button {
+    width: fit-content;
+    border-radius: $circle-border-radius;
+    background: $background-color;
+    box-shadow: $box-shadow;
+    padding: calc(0.8 * $spacing-unit);
+
+    &:hover {
+      background: $accent-color;
+    }
+  }
+}

@@ -3,7 +3,7 @@ import { useState } from 'react'
 import { SurfSpot } from '~/types/surfSpots'
 import { User } from '~/types/user'
 import { Button, Modal, TextButton } from '../index'
-import { IModalState } from '../Modal'
+import { IModalState, initialModalState } from '../Modal'
 
 import { FetcherSubmitParams } from './index'
 
@@ -15,11 +15,6 @@ interface IProps {
     params: FetcherSubmitParams,
     updatedSurfSpot: SurfSpot,
   ) => void
-}
-
-const initialModalState: IModalState = {
-  content: null,
-  isVisible: false,
 }
 
 export const SurfSpotActions = (props: IProps) => {
@@ -69,6 +64,7 @@ export const SurfSpotActions = (props: IProps) => {
     const title = isWatchAction
       ? 'Sign Up to Build Your Custom Watchlist'
       : 'Sign up to Track Your Surfed Spots'
+
     const watchlistContent = (
       <>
         <p>With a watchlist, you could receive:</p>

@@ -1,5 +1,6 @@
-import { json, Link, useLoaderData, useParams } from '@remix-run/react'
-import { get } from '~/services/networkService'
+import { data, Link, useLoaderData, useParams } from '@remix-run/react'
+import { ContentStatus } from '~/components'
+import { cacheControlHeader, get } from '~/services/networkService'
 import type { Country, Region } from '~/types/surfSpots'
 
 interface LoaderData {
@@ -18,26 +19,21 @@ export const loader = async ({ params }: { params: LoaderParams }) => {
     const countryDetails = await get<Country>(`countries/${country}`)
     const regions = await get<Region[]>(`regions/${country}/regions`)
 
-    return json<LoaderData>(
+    return data<LoaderData>(
       { regions: regions ?? [], countryDetails },
       {
-        headers: {
-          'Cache-Control': 'public, max-age=3600, stale-while-revalidate=86400',
-        },
+        headers: cacheControlHeader,
       },
     )
   } catch (error) {
     console.error('Error fetching regions: ', error)
-    return json<LoaderData>(
+    return data<LoaderData>(
       {
         regions: [],
         error: `We can't seem to locate the regions. Please try again later.`,
       },
       {
         status: 500,
-        headers: {
-          'Cache-Control': 'public, max-age=300, stale-while-revalidate=600',
-        },
       },
     )
   }
@@ -45,21 +41,23 @@ export const loader = async ({ params }: { params: LoaderParams }) => {
 
 export default function Country() {
   const { continent, country } = useParams()
-  const { regions, countryDetails, error } = useLoaderData<LoaderData>()
 
-  if (error) {
-    throw new Error(error)
-  }
+  const { data } = useLoaderData<{ data: LoaderData }>()
+  const { regions = [], countryDetails, error } = data
 
-  if (!countryDetails) {
-    throw new Error("Couldn't find details for this country")
+  if (error || !countryDetails) {
+    return (
+      <ContentStatus isError>
+        <p>{error ?? "Couldn't find details for this country"}</p>
+      </ContentStatus>
+    )
   }
 
   const { name, description } = countryDetails
 
   return (
     <div className="content">
-      <h3>{name}</h3>
+      <h1>{name}</h1>
       <p className="description">{description}</p>
       <div className="list-map">
         {regions.length > 0 ? (

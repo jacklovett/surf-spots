@@ -7,17 +7,6 @@
   font-style: normal;
 }
 
-@font-face {
-  font-family: 'Roboto';
-  src: url('/fonts/Roboto-Regular.ttf') format('truetype');
-}
-
-@font-face {
-  font-family: 'Roboto';
-  src: url('/fonts/Roboto-Bold.ttf') format('truetype');
-  font-weight: 600;
-}
-
 body {
   font-family: $font-family-base;
   font-size: $font-size-base;
@@ -27,7 +16,7 @@ body {
 
 /* Headings */
 h1, h2, h3 {
-  letter-spacing: -0.02em; /* Slightly tight for impact */
+  letter-spacing: 0; /* Slightly tight for impact */
 }
 
 /* Body Text */
@@ -95,4 +84,16 @@ a {
     color: $accent-color;
     text-decoration: underline;
   }
+}
+
+.bold {
+  font-weight: 600;
+}
+
+.font-small {
+  font-size: $font-size-small; 
+}
+
+.font-x-small {
+  font-size: $font-size-x-small; 
 }
