@@ -1,4 +1,4 @@
-import { MetaFunction } from '@remix-run/react'
+import { MetaFunction } from 'react-router';
 import { Page, FormInput } from '~/components'
 import { SelectOption } from '~/components/FormInput'
 import { useSettings, useUser } from '~/contexts'

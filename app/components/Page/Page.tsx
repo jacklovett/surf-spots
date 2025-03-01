@@ -1,5 +1,5 @@
 import { ReactNode } from 'react'
-import { useNavigation } from '@remix-run/react'
+import { useNavigation } from 'react-router';
 
 import { ErrorBoundary, Header } from '../index'
 import { renderContent } from './index'

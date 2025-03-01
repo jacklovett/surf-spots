@@ -1,4 +1,4 @@
-import { data, Link, useLoaderData } from '@remix-run/react'
+import { data, Link, useLoaderData } from 'react-router'
 import { ContentStatus } from '~/components'
 import { cacheControlHeader, get } from '~/services/networkService'
 import type { SurfSpot, Region } from '~/types/surfSpots'
@@ -40,8 +40,7 @@ export const loader = async ({ params }: { params: LoaderParams }) => {
 }
 
 export default function Region() {
-  const { data } = useLoaderData<{ data: LoaderData }>()
-  const { surfSpots, regionDetails, error } = data
+  const { surfSpots, regionDetails, error } = useLoaderData<LoaderData>()
 
   if (error || !regionDetails) {
     return (

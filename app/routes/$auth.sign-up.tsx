@@ -1,6 +1,11 @@
 import { useEffect } from 'react'
-import { Link, redirect, useNavigation } from '@remix-run/react'
-import { ActionFunctionArgs, MetaFunction } from '@remix-run/node'
+import {
+  ActionFunctionArgs,
+  Link,
+  MetaFunction,
+  redirect,
+  useNavigation,
+} from 'react-router'
 
 import { registerUser, validate } from '~/services/auth.server'
 
@@ -24,15 +29,15 @@ export const action = async ({ request }: ActionFunctionArgs) => {
   const fieldErrors = validate(email, password)
   // Early return if fieldErrors are present
   if (fieldErrors) {
-    return { submitStatus: fieldErrors, hasErrors: true }
+    return { submitStatus: fieldErrors, hasError: true }
   }
 
   // Attempt user registration
   let submitError = ''
   try {
-    const user = await registerUser(email, password)
-    if (user) {
-      return redirect('/auth')
+    const response = await registerUser(email, password)
+    if (response) {
+      return redirect('/auth?accountCreated=true')
     }
 
     submitError = 'Failed to register user'
@@ -43,9 +48,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
         : 'An unexpected error occurred. Please try again.'
   }
 
-  return {
-    errors: { submitStatus: submitError, hasErrors: true },
-  }
+  return { submitStatus: submitError, hasError: true }
 }
 
 const SignUp = () => {
@@ -54,6 +57,7 @@ const SignUp = () => {
 
   const submitStatus = useSubmitStatus()
 
+  // Remove any present modals
   useEffect(() => {
     const modalOverlay = document.querySelector('.modal-overlay')
     if (modalOverlay) {

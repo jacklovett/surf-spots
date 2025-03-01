@@ -1,5 +1,11 @@
-import { data, useFetcher, useLoaderData, useNavigate } from '@remix-run/react'
-import { ActionFunction, LoaderFunction } from '@remix-run/node'
+import {
+  ActionFunction,
+  data,
+  LoaderFunction,
+  useFetcher,
+  useLoaderData,
+  useNavigate,
+} from 'react-router'
 
 import { get } from '~/services/networkService'
 import { SurfSpot } from '~/types/surfSpots'

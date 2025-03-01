@@ -1,4 +1,5 @@
-import { createCookieSessionStorage, redirect } from '@remix-run/node'
+import { createCookieSessionStorage, redirect } from 'react-router'
+import { User } from '~/types/user'
 
 const sessionSecret = process.env.SESSION_SECRET
 if (!sessionSecret) {
@@ -17,15 +18,17 @@ export const sessionStorage = createCookieSessionStorage({
   },
 })
 
-export const requireSessionCookie = async (request: Request) => {
-  const session = await sessionStorage.getSession(request.headers.get('Cookie'))
+export const requireSessionCookie = async (request: Request): Promise<User> => {
+  const cookie = request.headers.get('Cookie')
+  const session = await sessionStorage.getSession(cookie)
+
   const user = session.get('user')
+
   if (!user) {
-    console.log('redirecting...')
     throw redirect('/auth')
   }
 
-  return user
+  return { ...user }
 }
 
 export const { getSession, commitSession, destroySession } = sessionStorage

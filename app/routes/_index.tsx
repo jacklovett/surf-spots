@@ -1,4 +1,4 @@
-import type { MetaFunction } from '@remix-run/node'
+import type { MetaFunction } from 'react-router'
 
 import { Page, NavButton } from '~/components'
 
@@ -12,7 +12,7 @@ export const meta: MetaFunction = () => {
 export default function Index() {
   return (
     <Page isAlternate>
-      <div className="center column content">
+      <div className="center column content mt">
         <img src="/images/png/logo.png" width="240" alt="Surf spots logo" />
         <div className="page-content">
           <p className="description alternate">

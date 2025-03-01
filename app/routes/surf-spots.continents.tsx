@@ -1,4 +1,4 @@
-import { data, Link, useLoaderData } from '@remix-run/react'
+import { data, Link, useLoaderData } from 'react-router'
 import { ContentStatus } from '~/components'
 import { cacheControlHeader, get } from '~/services/networkService'
 import { Continent } from '~/types/surfSpots'
@@ -33,8 +33,7 @@ export const loader = async () => {
 }
 
 export default function Continents() {
-  const { data } = useLoaderData<{ data: LoaderData }>()
-  const { continents = [], error } = data
+  const { continents = [], error } = useLoaderData<LoaderData>()
 
   if (error || continents.length === 0) {
     return (

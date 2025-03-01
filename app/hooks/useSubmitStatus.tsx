@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { useActionData } from '@remix-run/react'
+import { useActionData, useLoaderData } from 'react-router'
 import { SubmitStatus } from '~/components/FormComponent'
 
 export interface ActionData {
@@ -8,24 +8,30 @@ export interface ActionData {
 }
 
 export const useSubmitStatus = () => {
-  const actionData = useActionData<{ data: ActionData }>()
-  const data = actionData?.data
+  const actionData = useActionData<ActionData>()
+  const loaderData = useLoaderData<ActionData>()
+
+  const data = actionData || loaderData
 
   const [submitStatus, setSubmitStatus] = useState<SubmitStatus | null>(null)
 
   useEffect(() => {
-    if (data) {
-      setSubmitStatus({
-        message: data.submitStatus,
-        isError: data.hasError,
-      })
+    const status = data
+      ? {
+          message: data?.submitStatus,
+          isError: data?.hasError,
+        }
+      : null
 
-      if (!data.hasError) {
+    if (status) {
+      setSubmitStatus(status)
+
+      if (!status.isError) {
         const timeout = setTimeout(() => setSubmitStatus(null), 10000)
         return () => clearTimeout(timeout)
       }
     }
-  }, [data])
+  }, [data, loaderData])
 
   return submitStatus
 }

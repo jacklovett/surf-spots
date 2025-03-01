@@ -1,5 +1,5 @@
-import { LoaderFunction } from '@remix-run/node'
-import { authenticator } from '~/services/auth.server'
+import { LoaderFunction } from 'react-router'
+import { authenticateWithGoogle } from '~/services/google.auth.server'
 
 export const loader: LoaderFunction = async ({ request }) =>
-  await authenticator.authenticate('google', request)
+  await authenticateWithGoogle(request)

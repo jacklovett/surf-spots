@@ -1,5 +1,5 @@
 import { ReactNode } from 'react'
-import { useNavigation } from '@remix-run/react'
+import { useNavigation } from 'react-router'
 import classNames from 'classnames'
 
 import { ErrorBoundary } from '../index'

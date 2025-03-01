@@ -1,5 +1,9 @@
-import { LoaderFunction } from '@remix-run/node'
-import { data, useLoaderData, useNavigation } from '@remix-run/react'
+import {
+  data,
+  LoaderFunction,
+  useLoaderData,
+  useNavigation,
+} from 'react-router'
 import {
   ContentStatus,
   Details,
@@ -10,7 +14,7 @@ import {
   SurfSpotList,
 } from '~/components'
 import { cacheControlHeader, get } from '~/services/networkService'
-import { getSession, requireSessionCookie } from '~/services/session.server'
+import { requireSessionCookie } from '~/services/session.server'
 import { SurfedSpotsSummary } from '~/types/surfedSpotsSummary'
 
 interface LoaderData {
@@ -19,18 +23,15 @@ interface LoaderData {
 }
 
 export const loader: LoaderFunction = async ({ request }) => {
-  await requireSessionCookie(request)
-
-  const cookie = request.headers.get('Cookie')
-
-  const session = await getSession(cookie)
-  const user = session.get('user')
+  const user = await requireSessionCookie(request)
   const userId = user?.id
+
+  const cookie = request.headers.get('Cookie') ?? ''
 
   try {
     const surfedSpotsSummary = await get(`user-spots/${userId}`, {
       headers: {
-        Cookie: `${cookie}`,
+        Cookie: cookie,
       },
     })
     return data<LoaderData>(
@@ -56,8 +57,7 @@ export default function SurfedSpots() {
   const { state } = useNavigation()
   const loading = state === 'loading'
 
-  const { data } = useLoaderData<{ data: LoaderData }>()
-  const { surfedSpotsSummary, error } = data
+  const { surfedSpotsSummary, error } = useLoaderData<LoaderData>()
 
   if (error) {
     return (

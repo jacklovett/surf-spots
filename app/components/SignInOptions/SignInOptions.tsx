@@ -1,4 +1,4 @@
-import { useNavigate } from '@remix-run/react'
+import { useNavigate } from 'react-router';
 import Button from '../Button'
 import { signInProviders } from './index'
 

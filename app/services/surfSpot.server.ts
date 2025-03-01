@@ -1,6 +1,4 @@
-import { ActionFunction } from '@remix-run/node'
-import { json } from '@remix-run/react'
-import { AuthorizationError } from 'remix-auth'
+import { ActionFunction, data } from 'react-router'
 import { post, deleteData } from './networkService'
 import { getSession, commitSession } from './session.server'
 
@@ -20,7 +18,7 @@ export const surfSpotAction: ActionFunction = async ({ request }) => {
       surfSpotId,
       userId,
     })
-    return json({ error: 'Missing required fields' }, { status: 400 })
+    return data({ error: 'Missing required fields' }, { status: 400 })
   }
 
   const endpoint =
@@ -43,22 +41,23 @@ export const surfSpotAction: ActionFunction = async ({ request }) => {
       await deleteData(endpoint, { headers: { Cookie: cookie } })
     }
 
-    console.log('Action completed successfully')
-    return json(
+    return data(
       { success: true },
       { headers: { 'Set-Cookie': await commitSession(session) } },
     )
   } catch (error) {
     console.error('Error occurred in surfSpotAction:', error)
     if (error instanceof Response) return error
-    if (error instanceof AuthorizationError) {
-      return json({ errors: { submitError: error.message } }, { status: 400 })
+    if (error instanceof Error && error.message === 'Invalid credentials') {
+      return data(
+        { submitStatus: error.message, hasError: true },
+        { status: 400 },
+      )
     }
-    return json(
+    return data(
       {
-        errors: {
-          submitError: 'An unexpected error occurred. Please try again.',
-        },
+        submitStatus: 'An unexpected error occurred. Please try again.',
+        hasError: true,
       },
       { status: 500 },
     )

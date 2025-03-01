@@ -1,4 +1,4 @@
-import { LoaderFunction } from '@remix-run/node'
+import { LoaderFunction } from 'react-router'
 
 import { requireSessionCookie } from '~/services/session.server'
 import { SurfSpot } from '~/types/surfSpots'
@@ -6,7 +6,9 @@ import { SurfSpot } from '~/types/surfSpots'
 import { ContentStatus, ErrorBoundary, Page, SurfSpotList } from '~/components'
 
 export const loader: LoaderFunction = async ({ request }) => {
-  await requireSessionCookie(request)
+  const user = await requireSessionCookie(request)
+  const userId = user?.id
+  // TODO: Get watched surf spots
   return []
 }
 

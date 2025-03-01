@@ -76,6 +76,7 @@ select:focus {
   color: $success;
   opacity: 1;
   transition: opacity 1s ease;
+  margin-left: $spacing-small;
 }
 
 .form-error {

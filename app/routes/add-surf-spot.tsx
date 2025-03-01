@@ -1,5 +1,4 @@
-import { LoaderFunction } from '@remix-run/node'
-import { useNavigation } from '@remix-run/react'
+import { LoaderFunction, useNavigation } from 'react-router'
 
 import { requireSessionCookie } from '~/services/session.server'
 import { SurfSpotType } from '~/types/surfSpots'

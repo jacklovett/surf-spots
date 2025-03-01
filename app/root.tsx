@@ -1,12 +1,13 @@
 import {
   Links,
+  LinksFunction,
+  LoaderFunction,
   Meta,
   Outlet,
   Scripts,
   ScrollRestoration,
   useLoaderData,
-} from '@remix-run/react'
-import type { LinksFunction, LoaderFunction } from '@remix-run/node'
+} from 'react-router'
 
 import { SettingsProvider, UserProvider } from './contexts'
 

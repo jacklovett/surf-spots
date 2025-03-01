@@ -1,12 +1,13 @@
+import { useEffect, useState } from 'react'
 import {
+  ActionFunction,
   data,
   Link,
+  LoaderFunction,
   MetaFunction,
   useLoaderData,
   useNavigation,
-} from '@remix-run/react'
-import { ActionFunction, LoaderFunction } from '@remix-run/node'
-import { useEffect, useState } from 'react'
+} from 'react-router'
 import fs from 'fs/promises'
 import path from 'path'
 
@@ -67,8 +68,7 @@ export const action: ActionFunction = async ({ request }) => {
   const country = formData.get('country')?.toString() || ''
   const city = formData.get('city')?.toString() || ''
 
-  const session = await getSession(request.headers.get('Cookie'))
-  const user = session.get('user')
+  const user = await requireSessionCookie(request)
 
   const updateUser = {
     ...user,
@@ -77,13 +77,16 @@ export const action: ActionFunction = async ({ request }) => {
     city,
   }
 
+  const cookie = request.headers.get('Cookie') ?? ''
+
   try {
     await edit('user/update/profile', updateUser, {
       headers: {
-        Cookie: `${request.headers.get('Cookie')}`,
+        Cookie: cookie,
       },
     })
 
+    const session = await getSession(cookie)
     session.set('user', updateUser)
 
     return data(
@@ -113,8 +116,7 @@ const Profile = () => {
   const { state } = useNavigation()
   const loading = state === 'loading'
 
-  const { data } = useLoaderData<{ data: LoaderData }>()
-  const { locationData = [], error } = data
+  const { locationData = [], error } = useLoaderData<LoaderData>()
 
   const submitStatus = useSubmitStatus()
 

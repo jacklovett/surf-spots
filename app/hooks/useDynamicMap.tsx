@@ -5,7 +5,7 @@ import {
   useRef,
   useState,
 } from 'react'
-import { useFetcher, useNavigate } from '@remix-run/react'
+import { useFetcher, useNavigate } from 'react-router';
 import mapboxgl from 'mapbox-gl'
 import {
   addLayers,

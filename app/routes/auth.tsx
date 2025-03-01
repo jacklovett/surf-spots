@@ -1,10 +1,14 @@
-import { type ActionFunction, type MetaFunction } from '@remix-run/node'
-import { data, Link, redirect, useNavigation } from '@remix-run/react'
-import { AuthorizationError } from 'remix-auth'
-
-import { authenticator, validate } from '~/services/auth.server'
+import {
+  ActionFunction,
+  data,
+  Link,
+  LoaderFunctionArgs,
+  MetaFunction,
+  redirect,
+  useNavigation,
+} from 'react-router'
+import { authenticateWithCredentials, validate } from '~/services/auth.server'
 import { AuthPage, FormComponent, FormInput, SignInOptions } from '~/components'
-import { commitSession, getSession } from '~/services/session.server'
 
 import { useFormValidation, useSubmitStatus } from '~/hooks'
 import { validateEmail, validatePassword } from '~/hooks/useFormValidation'
@@ -13,6 +17,18 @@ export const meta: MetaFunction = () => [
   { title: 'Surf Spots - Sign in' },
   { name: 'description', content: 'Welcome to Surf Spots!' },
 ]
+
+export const loader = async ({ request }: LoaderFunctionArgs) => {
+  const url = new URL(request.url)
+  const accountCreated = url.searchParams.get('accountCreated')
+  if (accountCreated) {
+    return {
+      submitStatus: 'Account created successfully! Try signing in',
+      hasError: false,
+    }
+  }
+  return null
+}
 
 export const action: ActionFunction = async ({ request }) => {
   const clonedRequest = request.clone()
@@ -27,23 +43,7 @@ export const action: ActionFunction = async ({ request }) => {
   }
 
   try {
-    const user = await authenticator.authenticate('form', request)
-    if (!user) {
-      return data(
-        {
-          submitStatus: 'Authentication failed',
-          hasError: true,
-        },
-        { status: 401 },
-      )
-    }
-
-    const session = await getSession(request.headers.get('Cookie'))
-    session.set('user', user)
-
-    return redirect('/surf-spots', {
-      headers: { 'Set-Cookie': await commitSession(session) },
-    })
+    return await authenticateWithCredentials(request)
   } catch (error) {
     console.log('Error: ', error)
     if (error instanceof Response) {
@@ -56,9 +56,12 @@ export const action: ActionFunction = async ({ request }) => {
         { status },
       )
     }
-    if (error instanceof AuthorizationError) {
+    if (error instanceof Error && error.message === 'Invalid credentials') {
       // Specific handling for authentication errors (e.g., invalid credentials)
-      return data({ errors: { submitError: error.message } }, { status: 400 })
+      return data(
+        { submitStatus: error.message, hasError: true },
+        { status: 400 },
+      )
     }
     // Handle other unexpected errors
     return data(
@@ -90,7 +93,7 @@ export default function Auth() {
       <div className="auth-title">
         <h1>Sign in</h1>
       </div>
-      <div className="page-content">
+      <div className="page-content mt">
         <FormComponent
           isDisabled={!isFormValid}
           submitLabel="Sign in"

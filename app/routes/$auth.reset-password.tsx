@@ -1,5 +1,10 @@
-import { data, Link, useNavigation } from '@remix-run/react'
-import { ActionFunctionArgs, MetaFunction } from '@remix-run/node'
+import {
+  ActionFunctionArgs,
+  data,
+  Link,
+  MetaFunction,
+  useNavigation,
+} from 'react-router'
 
 import { FormComponent, FormInput, Page } from '~/components'
 import { post } from '~/services/networkService'

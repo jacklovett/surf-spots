@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useNavigate } from '@remix-run/react'
+import { useNavigate } from 'react-router';
 import classNames from 'classnames'
 
 import { MenuItem, profileMenuItems, spotsMenuItems } from './index'

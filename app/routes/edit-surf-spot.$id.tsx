@@ -1,5 +1,5 @@
 import { useEffect } from 'react'
-import { useLoaderData, useNavigation, useParams } from '@remix-run/react'
+import { useLoaderData, useNavigation, useParams } from 'react-router';
 
 import { get } from '~/services/networkService'
 import { requireSessionCookie } from '~/services/session.server'

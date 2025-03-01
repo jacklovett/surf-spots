@@ -1,13 +1,14 @@
 import { useEffect, useState } from 'react'
 import {
+  ActionFunction,
   Outlet,
+  LoaderFunction,
   useLoaderData,
   useLocation,
   useNavigate,
   useNavigation,
   useParams,
-} from '@remix-run/react'
-import { ActionFunction, LoaderFunction } from '@remix-run/node'
+} from 'react-router'
 
 import {
   Breadcrumb,
