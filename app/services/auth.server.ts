@@ -84,7 +84,7 @@ export const saveUserToBackend = async (profile: AuthUser): Promise<User> => {
 }
 
 const verifyLogin = async (email: string, password: string) => {
-  const user = await post<AuthRequest, User>('user/login', {
+  const user = await post<AuthRequest, User>('auth/login', {
     email: formatEmail(email),
     password,
     provider: 'EMAIL',
@@ -96,7 +96,7 @@ const verifyLogin = async (email: string, password: string) => {
 }
 
 export const registerUser = async (email: string, password: string) => {
-  const response = await post<AuthRequest, ApiResponse>('user/register', {
+  const response = await post<AuthRequest, ApiResponse>('auth/register', {
     email: formatEmail(email),
     password,
     provider: 'EMAIL',

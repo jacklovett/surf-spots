@@ -73,6 +73,7 @@ select:focus {
 }
 
 .form-success {
+  display: inline-block;
   color: $success;
   opacity: 1;
   transition: opacity 1s ease;
@@ -80,6 +81,7 @@ select:focus {
 }
 
 .form-error {
+  display: inline-block;
   color: $error;
   font-size: $font-size-small;
   margin-left: $spacing-small;

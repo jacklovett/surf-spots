@@ -4,7 +4,6 @@ import {
   Link,
   LoaderFunctionArgs,
   MetaFunction,
-  redirect,
   useNavigation,
 } from 'react-router'
 import { authenticateWithCredentials, validate } from '~/services/auth.server'
@@ -127,7 +126,7 @@ export default function Auth() {
         </FormComponent>
         <div className="auth-options">
           <div className="row flex-end">
-            <Link to="/auth/reset-password" prefetch="intent">
+            <Link to="/auth/forgot-password" prefetch="intent">
               Forgot password?
             </Link>
           </div>

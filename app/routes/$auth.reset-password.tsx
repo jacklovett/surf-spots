@@ -1,42 +1,47 @@
 import {
   ActionFunctionArgs,
-  data,
   Link,
+  LoaderFunctionArgs,
   MetaFunction,
+  redirect,
+  useLoaderData,
   useNavigation,
 } from 'react-router'
 
-import { FormComponent, FormInput, Page } from '~/components'
+import { ContentStatus, FormComponent, FormInput, Page } from '~/components'
 import { post } from '~/services/networkService'
 import { useFormValidation, useSubmitStatus } from '~/hooks'
-import { validateEmail } from '~/hooks/useFormValidation'
+import { validatePassword } from '~/hooks/useFormValidation'
 
 export const meta: MetaFunction = () => {
   return [
-    { title: 'Surf Spots - Forgot Password' },
+    { title: 'Surf Spots - Reset Password' },
     { name: 'description', content: 'Welcome to Surf Spots!' },
   ]
 }
 
 export const action = async ({ request }: ActionFunctionArgs) => {
   const formData = await request.formData()
-  const email = formData.get('email')?.toString() || ''
+  const url = new URL(request.url)
+  const token = url.searchParams.get('token')
 
-  // Validate input fields
-  const emailError = validateEmail(email)
-  // Early return if form validation error are present
-  if (emailError) {
-    return { submitStatus: emailError, hasError: true }
+  if (!token) {
+    return { submitStatus: 'Invalid or missing token', hasError: true }
   }
 
+  const newPassword = formData.get('newPassword')?.toString() || ''
+  const repeatedNewPassword =
+    formData.get('repeatedNewPassword')?.toString() || ''
+  // Validate input fields
+  if (newPassword !== repeatedNewPassword) {
+    return { submitStatus: 'New passwords do not match!', hasError: true }
+  }
+
+  const ResetPasswordRequest = { token, newPassword }
+
   try {
-    await post(`/email-reset`, email)
-    return data(
-      {
-        submitStatus: 'Check your emails. Password reset instructions sent.',
-      },
-      { status: 200 },
-    )
+    await post(`auth/reset-password`, ResetPasswordRequest)
+    return redirect('/auth?passwordReset=true')
   } catch (e) {
     const submitError =
       e instanceof Error
@@ -50,18 +55,29 @@ export const action = async ({ request }: ActionFunctionArgs) => {
   }
 }
 
+export const loader = async ({ request }: LoaderFunctionArgs) => {
+  const url = new URL(request.url)
+  const token = url.searchParams.get('token')
+  return { token }
+}
+
 const ResetPassword = () => {
+  const { token } = useLoaderData<typeof loader>()
   const { state } = useNavigation()
   const loading = state === 'loading'
 
-  const submitStatus = useSubmitStatus()
-
   const { formState, errors, isFormValid, handleChange } = useFormValidation({
-    initialFormState: { email: '' },
+    initialFormState: {
+      newPassword: '',
+      repeatedNewPassword: '',
+    },
     validationFunctions: {
-      email: validateEmail,
+      newPassword: validatePassword,
+      repeatedNewPassword: validatePassword,
     },
   })
+
+  const submitStatus = useSubmitStatus()
 
   return (
     <Page>
@@ -71,35 +87,68 @@ const ResetPassword = () => {
           width="160"
           alt="Surf spots logo"
         />
-        <div className="auth-title">
-          <h1>Reset Password</h1>
-        </div>
-        <div className="page-content">
-          <FormComponent
-            loading={loading}
-            isDisabled={!isFormValid}
-            submitLabel="Send Reset Email"
-            submitStatus={submitStatus}
-          >
-            <FormInput
-              field={{
-                label: 'Email',
-                name: 'email',
-                type: 'email',
-                validationRules: { required: true },
-              }}
-              value={formState.email}
-              onChange={(e) => handleChange('email', e.target.value)}
-              errorMessage={errors.email || ''}
-              showLabel={!!formState.email}
-            />
-          </FormComponent>
-          <div className="mv center-horizontal">
-            <Link to="/auth" prefetch="intent">
-              Back to login
-            </Link>
+        {!token && (
+          <div className="center-text">
+            <ContentStatus isError>
+              <p className="bold">
+                This password reset attempt is no longer valid.
+              </p>
+              <p>For your security, please request a new password reset.</p>
+              <div className="mt">
+                <Link to="/auth/forgot-password" className="button">
+                  Request New Link
+                </Link>
+              </div>
+            </ContentStatus>
           </div>
-        </div>
+        )}
+        {token && (
+          <>
+            <div className="auth-title">
+              <h1>Reset Password</h1>
+            </div>
+            <div className="page-content">
+              <FormComponent
+                loading={loading}
+                isDisabled={!isFormValid}
+                submitStatus={submitStatus}
+                method="put"
+              >
+                <FormInput
+                  field={{
+                    label: 'New Password',
+                    name: 'newPassword',
+                    type: 'password',
+                    validationRules: { required: true, minLength: 8 },
+                  }}
+                  value={formState.newPassword}
+                  onChange={(e) => handleChange('newPassword', e.target.value)}
+                  errorMessage={errors.newPassword || ''}
+                  showLabel={!!formState.newPassword}
+                />
+                <FormInput
+                  field={{
+                    label: 'Repeat New Password',
+                    name: 'repeatedNewPassword',
+                    type: 'password',
+                    validationRules: { required: true, minLength: 8 },
+                  }}
+                  value={formState.repeatedNewPassword}
+                  onChange={(e) =>
+                    handleChange('repeatedNewPassword', e.target.value)
+                  }
+                  errorMessage={errors.repeatedNewPassword || ''}
+                  showLabel={!!formState.repeatedNewPassword}
+                />
+              </FormComponent>
+              <div className="mv center-horizontal">
+                <Link to="/auth" prefetch="intent">
+                  Back to login
+                </Link>
+              </div>
+            </div>
+          </>
+        )}
       </div>
     </Page>
   )

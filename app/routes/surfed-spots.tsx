@@ -101,7 +101,7 @@ export default function SurfedSpots() {
             <Details label="🌍 Continents" value={continentCount} />
             <Details label="🗺️ Countries" value={countryCount} />
           </div>
-          <div className="row mb">
+          <div className="row surfed-spots-overview-secondary mb">
             <Details
               label="🏄‍♂️ Most Surfed Break Type"
               value={`${mostSurfedSpotType ?? '-'}`}
