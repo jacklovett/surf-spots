@@ -1,4 +1,4 @@
-import { Link, useNavigate } from 'react-router';
+import { Link, useNavigate } from 'react-router'
 import { useUser } from '~/contexts/UserContext'
 
 import Menu from '../Menu'
@@ -11,8 +11,7 @@ export const Header = () => {
   return (
     <header className="header space-between">
       <div className="center logo" onClick={() => navigate('/')}>
-        <img src="/images/png/logo-no-text.png" alt="Logo" height="40" />
-        <h2>Surf Spots</h2>
+        <img src="/images/png/logo-with-text.png" alt="Logo" />
       </div>
       {isLoggedIn ? (
         <Menu />

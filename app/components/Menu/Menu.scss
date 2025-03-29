@@ -16,6 +16,7 @@
       align-items: center;
       gap: $spacing-small;
       padding: $spacing-unit;
+      max-height: $header-height;
 
       &:hover {
         background: $text-hover-background;
@@ -37,14 +38,14 @@
 
   .menu-item {
     @extend %flex-base;
-    height: 56px;
+    height: $header-height;
     gap: $spacing-unit;
     align-items: center;
   }
 
   .dropdown-menu {
     position: absolute;
-    top: 48px;
+    top: calc($header-height + $spacing-unit);
     right: 0;
     width: 280px;
     text-align: left;

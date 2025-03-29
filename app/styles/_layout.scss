@@ -99,7 +99,7 @@
 }
 
 .flex-1 {
-  flex: 1
+  flex: 1;
 }
 
 .content {
@@ -167,6 +167,10 @@
 
 .mt {
   margin-top: $spacing-unit;
+}
+
+.mt-s {
+  margin-top: $spacing-small;
 }
 
 .mb {

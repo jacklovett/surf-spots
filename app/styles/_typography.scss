@@ -1,12 +1,5 @@
 /* _typography.scss */
 
-@font-face {
-  font-family: 'Agbalumo';
-  src: url('/fonts/Agbalumo.ttf') format('truetype');
-  font-weight: normal;
-  font-style: normal;
-}
-
 body {
   font-family: $font-family-base;
   font-size: $font-size-base;

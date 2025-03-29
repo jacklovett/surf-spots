@@ -37,6 +37,31 @@ export const links: LinksFunction = () => [
     rel: 'stylesheet',
     href: 'https://fonts.googleapis.com/css2?family=Outfit:wght@100;300;400;500;700;900&display=swap',
   },
+  {
+    rel: 'preload',
+    href: '/images/png/logo.png',
+    as: 'image',
+  },
+  {
+    rel: 'preload',
+    href: '/images/png/logo-no-text.png',
+    as: 'image',
+  },
+  {
+    rel: 'preload',
+    href: '/images/png/logo-with-text.png',
+    as: 'image',
+  },
+  {
+    rel: 'preload',
+    href: '/images/png/google.png',
+    as: 'image',
+  },
+  {
+    rel: 'preload',
+    href: '/images/png/facebook.png',
+    as: 'image',
+  },
 ]
 
 export function Layout({ children }: { children: React.ReactNode }) {

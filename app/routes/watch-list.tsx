@@ -21,7 +21,7 @@ export default function Wishlist() {
   return (
     <Page showHeader error={error}>
       <div className="column content mt">
-        <h1>Watch list</h1>
+        <h1>Watch List</h1>
         <p>
           Here, we'll keep you updated on swell seasons, local news, events, and
           travel deals for all the surf spots you're interested in. Use these

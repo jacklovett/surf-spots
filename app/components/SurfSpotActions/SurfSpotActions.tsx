@@ -63,7 +63,7 @@ export const SurfSpotActions = (props: IProps) => {
   const showSignUpPromptModal = (isWatchAction: boolean) => {
     const title = isWatchAction
       ? 'Sign Up to Build Your Custom Watchlist'
-      : 'Sign up to Track Your Surfed Spots'
+      : 'Sign Up to Track Your Surfed Spots'
 
     const watchlistContent = (
       <>

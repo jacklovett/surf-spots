@@ -84,9 +84,12 @@ const ForgotPassword = () => {
           alt="Surf spots logo"
         />
         <div className="auth-title">
-          <h1>Forgotten Password?</h1>
+          <h1>Forgot Password?</h1>
         </div>
-        <div className="page-content">
+        <div className="page-content center-text">
+          <p>
+            Don't worry, enter your email address to receive reset instructions.
+          </p>
           <FormComponent
             loading={loading}
             isDisabled={!isFormValid}
@@ -106,7 +109,7 @@ const ForgotPassword = () => {
               showLabel={!!formState.email}
             />
           </FormComponent>
-          <div className="mv center-horizontal">
+          <div className="mt center-horizontal font-small">
             <Link to="/auth" prefetch="intent">
               Back to login
             </Link>

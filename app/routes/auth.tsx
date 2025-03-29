@@ -90,7 +90,7 @@ export default function Auth() {
   return (
     <AuthPage>
       <div className="auth-title">
-        <h1>Sign in</h1>
+        <h1>Sign In</h1>
       </div>
       <div className="page-content mt">
         <FormComponent
@@ -125,17 +125,22 @@ export default function Auth() {
           />
         </FormComponent>
         <div className="auth-options">
-          <div className="row flex-end">
+          <div className="row flex-end mt-s">
             <Link to="/auth/forgot-password" prefetch="intent">
               Forgot password?
             </Link>
           </div>
           <SignInOptions />
         </div>
-        <div className="row center auth-cta">
-          <p>Don't have an account?</p>
-          <Link to="/auth/sign-up" prefetch="intent">
-            Sign up
+        <div className="center auth-options">
+          <div className="row center auth-cta">
+            <p>Don't have an account?</p>
+            <Link className="font-small" to="/auth/sign-up" prefetch="intent">
+              Sign up
+            </Link>
+          </div>
+          <Link className="guest-link" to="/surf-spots" prefetch="intent">
+            Continue as Guest
           </Link>
         </div>
       </div>

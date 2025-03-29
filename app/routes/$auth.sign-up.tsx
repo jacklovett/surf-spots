@@ -76,7 +76,7 @@ const SignUp = () => {
   return (
     <AuthPage reversed>
       <div className="auth-title">
-        <h1>Create an account</h1>
+        <h1>Create an Account</h1>
       </div>
       <div className="page-content">
         <FormComponent
@@ -113,10 +113,15 @@ const SignUp = () => {
         <div className="auth-options">
           <SignInOptions />
         </div>
-        <div className="row center auth-cta">
-          <p>Already have an account? </p>
-          <Link to="/auth" prefetch="intent">
-            Sign in
+        <div className="center auth-options">
+          <div className="row center auth-cta">
+            <p>Already have an account?</p>
+            <Link className="font-small" to="/auth" prefetch="intent">
+              Sign in
+            </Link>
+          </div>
+          <Link className="font-small" to="/surf-spots" prefetch="intent">
+            Continue as Guest
           </Link>
         </div>
       </div>

@@ -92,7 +92,7 @@ export default function SurfedSpots() {
     <Page showHeader>
       <div className="column mt">
         <div className="column content mt">
-          <h1>Surfed spots</h1>
+          <h1>Surfed Spots</h1>
           <h2>Overview</h2>
         </div>
         <div className="column content mb">

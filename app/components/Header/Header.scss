@@ -2,6 +2,7 @@ header {
   text-align: center;
   border-bottom: solid 1px $outline-color;
   padding-left: $spacing-unit;
+  height: $header-height;
 
   @media (max-width: 752px) {
     padding-left: $spacing-small;
@@ -9,12 +10,10 @@ header {
 
   .logo {
     cursor: pointer;
-    gap: $spacing-small;
+    padding-bottom: 4px;
 
-    & h2 {
-      color: $primary-color;
-      margin-bottom: $spacing-small;
-      font-family: $font-family-logo;
-    }
+    & img {
+      height: $header-height;
+    } 
   }
 }

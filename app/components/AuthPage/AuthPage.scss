@@ -1,7 +1,8 @@
 .auth-cta {
   gap: $spacing-small;
 
-  & p, a {
+  & p,
+  a {
     margin: 0;
     font-size: $font-size-small;
   }
@@ -27,7 +28,6 @@
 
 .auth-options {
   @extend %flex-column;
-  padding-top: $spacing-small;
 }
 
 .auth-content {
@@ -36,10 +36,12 @@
   width: 100%;
   padding-top: $spacing-unit;
   padding-bottom: $spacing-large;
-   
+
   & footer {
     position: absolute;
     bottom: 0;
+    left: 0;
+    width: 100%;
   }
 }
 
@@ -49,7 +51,7 @@
   background: $primary-color;
 }
 
-@media (max-width: 900px) {
+@media (max-width: 1008px) {
   .auth-hero {
     display: none;
   }
@@ -60,4 +62,9 @@
   align-items: center;
   margin: 0 $spacing-unit;
   gap: $spacing-small;
+}
+
+.guest-link {
+  font-size: $font-size-small;
+  margin-bottom: $spacing-unit;
 }
