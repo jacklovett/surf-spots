@@ -26,7 +26,7 @@ export const SurfMap = (props: IProps) => {
   }
 
   return (
-    <div className="map-container">
+    <div className={classNames({ 'map-container': true, border: !loading })}>
       <div
         ref={mapContainerRef}
         className={classNames({

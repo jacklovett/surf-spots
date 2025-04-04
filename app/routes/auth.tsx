@@ -104,7 +104,6 @@ export default function Auth() {
               label: 'Email',
               name: 'email',
               type: 'email',
-              validationRules: { required: true },
             }}
             value={formState.email}
             onChange={(e) => handleChange('email', e.target.value)}
@@ -116,7 +115,6 @@ export default function Auth() {
               label: 'Password',
               name: 'password',
               type: 'password',
-              validationRules: { required: true, minLength: 8 },
             }}
             value={formState.password}
             onChange={(e) => handleChange('password', e.target.value)}

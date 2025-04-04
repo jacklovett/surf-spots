@@ -41,6 +41,12 @@ export interface Region {
   surfSpots: []
 }
 
+export enum SurfSpotStatus {
+  Approved = 'Approved',
+  Pending = 'Pending',
+  Private = 'Private',
+}
+
 export enum SurfSpotType {
   BeachBreak = 'Beach Break',
   ReefBreak = 'Reef Break',
@@ -110,4 +116,5 @@ export interface NewSurfSpot extends Coordinates {
   windDirection: Direction
   minSurfHeight: number
   maxSurfHeight: number
+  status: SurfSpotStatus
 }

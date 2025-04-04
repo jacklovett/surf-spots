@@ -4,7 +4,8 @@
   margin: $spacing-unit 0;
   border: solid 1px $outline-color;
   border-radius: $content-border-radius;
-  gap: $spacing-unit;
+  gap: $spacing-small;
+  align-items: flex-start;
 }
 
 .info-icon {
@@ -13,9 +14,12 @@
   width: 24px;
   height: 24px;
   border-radius: 50%;
+  margin-top: 1px;
 }
 
 .info-content {
   flex-grow: 1;
   overflow-wrap: break-word;
+  display: flex;
+  align-items: center;
 }

@@ -1,0 +1,44 @@
+.rating {
+  display: flex;
+  gap: $spacing-small;
+  margin-top: -$spacing-small;
+
+  &-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: $spacing-small;
+    margin-top: $spacing-small;
+    padding-bottom: $spacing-unit;
+
+    @media (min-width: 768px) {
+      flex-wrap: nowrap; /* Prevent wrapping on larger screens */
+    }
+  }
+
+  &-description {
+    font-size: $font-size-small;
+    margin: 0; /* Reset default margin */
+    line-height: 1.5;
+
+    @media (min-width: 768px) {
+      margin-top: 8px; /* Adjust spacing for larger screens */
+      margin-left: $spacing-unit; /* Add spacing between stars and text */
+    }
+  }
+}
+
+.star {
+  cursor: pointer;
+  font-size: $spacing-large; /* Size of the stars */
+  opacity: 0.6;
+  color: $disabled-color; /* Default color for unfilled stars */
+  transition: color 0.2s ease-in-out; /* Smooth hover effect */
+
+  &.filled {
+    color: $accent-color; /* Color for filled stars */
+  }
+
+  &.read-only {
+    cursor: default; /* Disable pointer for read-only stars */
+  }
+}

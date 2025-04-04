@@ -10,6 +10,7 @@ form {
   @extend %flex-base;
   flex-direction: column;
   width: 100%;
+  padding-top: 4px;
 
   & label {
     font-size: $font-size-small;
@@ -39,10 +40,14 @@ select {
   }
 }
 
-input[type="checkbox"] {
+input[type='checkbox'] {
   width: auto;
   margin-left: $spacing-unit;
   cursor: pointer;
+
+  &:checked {
+    accent-color: $primary-color;
+  }
 }
 
 textarea {
@@ -59,13 +64,13 @@ select:focus {
 }
 
 .form-item.error {
-    input,
-    textarea,
-    select {
-      border-color: $outline-color;
-      box-shadow: 0 0 4px $error;
-      outline: none;
-    }
+  input,
+  textarea,
+  select {
+    border-color: $outline-color;
+    box-shadow: 0 0 4px $error;
+    outline: none;
+  }
 }
 
 .form-status-container {
@@ -89,6 +94,7 @@ select:focus {
 
 .form-inline {
   @extend %flex-base;
+  align-items: flex-start;
   gap: $spacing-unit;
 }
 

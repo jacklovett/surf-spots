@@ -108,6 +108,62 @@ export const Icon = (props: IProps) => {
             />
           </svg>
         )
+      case 'crosshair':
+        return (
+          <svg
+            {...commonIconStyles}
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            {/* Outer Circle */}
+            <circle
+              cx="12"
+              cy="12"
+              r="8"
+              stroke="#ffffff"
+              strokeWidth="2"
+              fill="none"
+            />
+            {/* Inner Solid Circle */}
+            <circle cx="12" cy="12" r="2" fill="#ffffff" />
+            {/* North Line */}
+            <line
+              x1="12"
+              y1="0"
+              x2="12"
+              y2="6"
+              stroke="#ffffff"
+              strokeWidth="2"
+            />
+            {/* South Line */}
+            <line
+              x1="12"
+              y1="18"
+              x2="12"
+              y2="24"
+              stroke="#ffffff"
+              strokeWidth="2"
+            />
+            {/* West Line */}
+            <line
+              x1="0"
+              y1="12"
+              x2="6"
+              y2="12"
+              stroke="#ffffff"
+              strokeWidth="2"
+            />
+            {/* East Line */}
+            <line
+              x1="18"
+              y1="12"
+              x2="24"
+              y2="12"
+              stroke="#ffffff"
+              strokeWidth="2"
+            />
+          </svg>
+        )
       default:
         return null
     }

@@ -34,6 +34,7 @@
   @extend %flex-column;
   position: relative;
   width: 100%;
+  max-width: 420px;
   padding-top: $spacing-unit;
   padding-bottom: $spacing-large;
 

@@ -3,6 +3,7 @@ import { Icon } from './Icon'
 export type IconKey =
   | 'bin'
   | 'cog'
+  | 'crosshair'
   | 'filters'
   | 'heart'
   | 'info'

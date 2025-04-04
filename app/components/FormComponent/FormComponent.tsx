@@ -1,5 +1,5 @@
 import { ReactNode } from 'react'
-import { Form } from 'react-router';
+import { Form } from 'react-router'
 import { Button, ErrorBoundary, Loading } from '../index'
 import { SubmitStatus } from './index'
 

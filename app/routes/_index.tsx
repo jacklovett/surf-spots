@@ -12,20 +12,22 @@ export const meta: MetaFunction = () => {
 export default function Index() {
   return (
     <Page isAlternate>
-      <div className="center column content mt">
-        <img src="/images/png/logo.png" width="240" alt="Surf spots logo" />
+      <section className="center column content mt">
         <div className="page-content">
-          <p className="description alternate">
-            Track all your past surf destinations and explore new ones, all in
-            one place.
-          </p>
-          <NavButton
-            label="Take a look!"
-            to="/surf-spots"
-            variant="alternate"
-          />
+          <div className="column center">
+            <img src="/images/png/logo.png" width="240" alt="Surf spots logo" />
+            <p className="description alternate">
+              Track all your past surf destinations and explore new ones, all in
+              one place.
+            </p>
+            <NavButton
+              label="Take a look!"
+              to="/surf-spots"
+              variant="alternate"
+            />
+          </div>
         </div>
-      </div>
+      </section>
     </Page>
   )
 }

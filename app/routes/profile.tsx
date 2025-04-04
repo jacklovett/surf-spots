@@ -29,7 +29,7 @@ import {
 } from '~/components'
 import { Location } from '~/components/LocationSelector'
 import { useFormValidation, useSubmitStatus } from '~/hooks'
-import { validateEmail } from '~/hooks/useFormValidation'
+import { validateEmail, validateRequired } from '~/hooks/useFormValidation'
 
 interface LoaderData {
   locationData?: Location[]
@@ -130,6 +130,7 @@ const Profile = () => {
       },
       validationFunctions: {
         email: validateEmail,
+        name: (value) => validateRequired(value, 'Name'),
       },
     })
 
@@ -185,6 +186,7 @@ const Profile = () => {
               value={formState.name}
               onChange={(e) => handleChange('name', e.target.value)}
               onBlur={() => handleBlur('name')}
+              errorMessage={errors.name || ''}
               showLabel={!!formState.name}
             />
             <LocationSelector

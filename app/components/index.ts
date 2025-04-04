@@ -29,12 +29,15 @@ import Header from './Header'
 import InfoMessage from './InfoMessage'
 import LocationSelector from './LocationSelector'
 import SignInOptions from './SignInOptions'
+import CheckboxOption from './CheckboxOption'
+import Rating from './Rating'
 
 export {
   AuthPage,
   Breadcrumb,
   Button,
   CalendarIcon,
+  CheckboxOption,
   ContentStatus,
   Details,
   DirectionIcon,
@@ -50,6 +53,7 @@ export {
   Modal,
   NavButton,
   Page,
+  Rating,
   SignInOptions,
   SkeletonLoader,
   SurfHeightIcon,

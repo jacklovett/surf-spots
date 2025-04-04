@@ -91,26 +91,26 @@ export default function SurfedSpots() {
   return (
     <Page showHeader>
       <div className="column mt">
-        <div className="column content mt">
+        <div className="content mt">
           <h1>Surfed Spots</h1>
           <h2>Overview</h2>
         </div>
-        <div className="column content mb">
+        <div className="content mb pb">
           <div className="row spot-details surfed-spots-overview mb">
-            <Details label="🌊 Total spots" value={totalCount} />
-            <Details label="🌍 Continents" value={continentCount} />
-            <Details label="🗺️ Countries" value={countryCount} />
+            <Details label="Total spots" value={totalCount} />
+            <Details label="Continents" value={continentCount} />
+            <Details label="Countries" value={countryCount} />
           </div>
           <div className="row surfed-spots-overview-secondary mb">
             <Details
-              label="🏄‍♂️ Most Surfed Break Type"
+              label="Most Surfed Break Type"
               value={`${mostSurfedSpotType ?? '-'}`}
             />
             <Details
-              label="🏖️ Most Surfed Beach Type"
+              label="Most Surfed Beach Type"
               value={`${mostSurfedBeachBottomType ?? '-'}`}
             />
-            <Details label="🎯 Skill Level" value={`${skillLevel ?? '-'}`} />
+            <Details label="Skill Level" value={`${skillLevel ?? '-'}`} />
           </div>
         </div>
         <ErrorBoundary message="Uh-oh! Something went wrong displaying the map!">
