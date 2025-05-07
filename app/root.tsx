@@ -39,11 +39,6 @@ export const links: LinksFunction = () => [
   },
   {
     rel: 'preload',
-    href: '/images/png/logo.png',
-    as: 'image',
-  },
-  {
-    rel: 'preload',
     href: '/images/png/logo-with-text.png',
     as: 'image',
   },

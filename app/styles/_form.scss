@@ -10,7 +10,7 @@ form {
   @extend %flex-base;
   flex-direction: column;
   width: 100%;
-  padding-top: 4px;
+  padding-top: $spacing-small;
 
   & label {
     font-size: $font-size-small;
@@ -24,6 +24,10 @@ form {
       transform: translateY(0); // Moves to its final position
     }
   }
+
+  & .form-error {
+    margin-left: $spacing-small;
+  }
 }
 
 input,
@@ -33,11 +37,22 @@ select {
   border: 1px solid $outline-color;
   border-radius: $form-border-radius;
   padding: $spacing-small;
+  font-size: $font-size-base;
+  line-height: 1.5;
+  box-sizing: border-box;
+  height: $form-input-height;
 
   &:disabled {
     background: $disabled-color;
     opacity: 0.4;
   }
+}
+
+select {
+  appearance: auto; // Restore the default browser styles for dropdowns
+  padding-right: $spacing-small;
+  background-color: $background-color;
+  cursor: pointer;
 }
 
 input[type='checkbox'] {
@@ -51,8 +66,8 @@ input[type='checkbox'] {
 }
 
 textarea {
-  resize: vertical; /* Allow vertical resize */
-  min-height: 100px; /* Give the textarea a reasonable default height */
+  resize: vertical; // Allow vertical resizing only
+  min-height: 100px; // Set a reasonable default height for textareas
 }
 
 input:focus,
@@ -82,14 +97,12 @@ select:focus {
   color: $success;
   opacity: 1;
   transition: opacity 1s ease;
-  margin-left: $spacing-small;
 }
 
 .form-error {
   display: inline-block;
   color: $error;
   font-size: $font-size-small;
-  margin-left: $spacing-small;
 }
 
 .form-inline {

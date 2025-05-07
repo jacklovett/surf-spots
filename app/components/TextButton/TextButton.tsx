@@ -6,13 +6,19 @@ interface IProps {
   text: string
   iconKey?: IconKey
   filled?: boolean
+  disabled?: boolean
 }
 
 export const TextButton = (props: IProps) => {
-  const { filled = false, iconKey, onClick, text } = props
+  const { disabled, filled = false, iconKey, onClick, text } = props
 
   return (
-    <button className="text-button" onClick={onClick}>
+    <button
+      type="button"
+      className="text-button"
+      onClick={onClick}
+      disabled={disabled}
+    >
       {iconKey && (
         <span className={classNames({ 'text-button-icon': true, filled })}>
           <Icon iconKey={iconKey} useAccentColor />

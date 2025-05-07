@@ -2,6 +2,7 @@ import {
   ActionFunction,
   data,
   Link,
+  LinksFunction,
   LoaderFunctionArgs,
   MetaFunction,
   useNavigation,
@@ -15,6 +16,15 @@ import { validateEmail, validatePassword } from '~/hooks/useFormValidation'
 export const meta: MetaFunction = () => [
   { title: 'Surf Spots - Sign in' },
   { name: 'description', content: 'Welcome to Surf Spots!' },
+]
+
+export const links: LinksFunction = () => [
+  {
+    rel: 'preload',
+    href: '/images/png/logo.png',
+    as: 'image',
+    type: 'image/png',
+  },
 ]
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {

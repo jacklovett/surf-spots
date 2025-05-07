@@ -1,4 +1,4 @@
-import { FetcherWithComponents } from 'react-router';
+import { FetcherWithComponents } from 'react-router'
 
 import { SurfSpotActions } from './SurfSpotActions'
 

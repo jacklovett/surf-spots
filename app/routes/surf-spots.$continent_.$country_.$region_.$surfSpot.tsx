@@ -18,6 +18,7 @@ import {
   ErrorBoundary,
   InfoMessage,
   NavButton,
+  Rating,
   SurfHeightIcon,
   SurfMap,
   SurfSpotActions,
@@ -32,7 +33,6 @@ import { useUser, useSettings } from '~/contexts'
 import { units } from '~/contexts/SettingsContext'
 import { surfSpotAction } from '~/services/surfSpot.server'
 import { getSession } from '~/services/session.server'
-
 import { metersToFeet } from '~/utils'
 
 interface LoaderData {
@@ -147,7 +147,6 @@ export default function SurfSpotDetails() {
               <Details label="Break Type" value={type} />
               <Details label="Beach Bottom" value={beachBottomType} />
               <Details label="Skill Level" value={skillLevel} />
-              <Details label="Rating" value={rating ? `${rating}/ 5` : 'N/A'} />
             </div>
           </div>
         </div>
@@ -225,6 +224,12 @@ export default function SurfSpotDetails() {
             <Details label="Parking" value="Paid Car Park" />
             <Details label="Surf Schools" value="Yes" />
             <Details label="Restaurants/Cafes" value="Yes" />
+          </div>
+        </section>
+        <section className="content">
+          <b>Overall Rating</b>
+          <div className="row gap mb pv">
+            <Rating value={rating} readOnly />
           </div>
         </section>
         <div className="content">

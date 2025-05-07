@@ -30,14 +30,23 @@ button.text-button {
     }
   }
 
-  &:hover {
+  &:not(:disabled):hover {
     background-color: $text-hover-background;
     color: adjust-color($text-color, $lightness: -10%);
     transform: scale(1.02);
     transition: transform 0.2s ease-in-out;
   }
 
- span {
+  &:disabled {
+    color: $disabled-color;
+    cursor: not-allowed;
+
+    & span.text-button-icon {
+      opacity: 0.6;
+    }
+  }
+
+  span {
     font-size: $font-size-small;
   }
 }

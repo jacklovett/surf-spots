@@ -13,6 +13,7 @@ export type FormInputType =
   | 'select'
   | 'email'
   | 'password'
+  | 'url'
 
 export interface SelectOption {
   key: string
@@ -39,6 +40,7 @@ export interface ValidationRules {
 }
 
 export interface Option {
+  key: string
   value: string
   label: string
 }

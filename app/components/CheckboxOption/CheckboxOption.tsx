@@ -1,4 +1,5 @@
 interface IProps {
+  name: string
   title: string
   description: string
   checked: boolean
@@ -6,21 +7,23 @@ interface IProps {
 }
 
 export const CheckboxOption = ({
+  name,
   title,
   description,
   checked,
   onChange,
 }: IProps) => (
-  <label className="row space-between gap">
+  <label className="checkbox-option row space-between gap">
     <span className="flex-1">
-      <p>{title}</p>
+      <p className="bold">{title}</p>
       <p className="font-small">{description}</p>
     </span>
     <input
+      name={name}
       type="checkbox"
       checked={checked}
       onChange={(e) => onChange(e.target.checked)}
     />
-    <span className="checkmark"></span>
+    <span className="custom-checkbox"></span>
   </label>
 )

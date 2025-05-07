@@ -2,8 +2,8 @@ import { useState } from 'react'
 import classNames from 'classnames'
 
 interface IProps {
-  value: number
-  onChange: (value: number) => void
+  value?: number
+  onChange?: (value?: number) => void
   maxStars?: number
   readOnly?: boolean
 }
@@ -16,7 +16,7 @@ const Rating = ({
 }: IProps) => {
   const [hoveredStar, setHoveredStar] = useState<number | null>(null)
 
-  const handleClick = (star: number) => !readOnly && onChange(star)
+  const handleClick = (star: number) => !readOnly && onChange && onChange(star)
   const handleMouseEnter = (star: number) => !readOnly && setHoveredStar(star)
   const handleMouseLeave = () => !readOnly && setHoveredStar(null)
 
@@ -26,7 +26,7 @@ const Rating = ({
         const starValue = index + 1
         const isFilled = hoveredStar
           ? starValue <= hoveredStar
-          : starValue <= value
+          : value && starValue <= value
 
         return (
           <span
@@ -43,6 +43,8 @@ const Rating = ({
           </span>
         )
       })}
+      {/* Hidden input to serialize the rating */}
+      <input type="hidden" name="rating" value={value} />
     </div>
   )
 }

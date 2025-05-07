@@ -4,8 +4,8 @@ import mapboxgl, {
   Map,
   MapMouseEvent,
 } from 'mapbox-gl'
-import { BoundingBox, Coordinates, SurfSpot } from '~/types/surfSpots'
-import { post } from './networkService'
+import { BoundingBox, Coordinates, Region, SurfSpot } from '~/types/surfSpots'
+import { get, post } from './networkService'
 import { SurfSpotPopUp } from '~/components'
 import { getCssVariable } from '~/utils'
 import { User } from '~/types/user'
@@ -17,6 +17,25 @@ export const ICON_IMAGE_PATH = `/images/png/pin.png`
 export const defaultMapCenter = {
   longitude: -9.2398383,
   latitude: 38.6429801,
+}
+
+/**
+ * Fetch Region from backend that the chosen location is contained withint
+ */
+export const getRegionFromLocationData = async (
+  country: string,
+  longitude: number,
+  latitude: number,
+): Promise<Region | null> => {
+  try {
+    const region = await get<Region>(
+      `/regions?country=${country}&longitude=${longitude}&latitude=${latitude}`,
+    )
+    return region
+  } catch (e) {
+    console.error('Unable to get region from location data: ', e)
+    return null
+  }
 }
 
 export const fetchSurfSpotsByBounds = async (

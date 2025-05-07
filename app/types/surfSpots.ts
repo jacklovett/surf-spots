@@ -1,3 +1,5 @@
+import { ForecastLink } from '~/components/ForecastLinks'
+
 export interface Coordinates {
   longitude: number
   latitude: number
@@ -42,38 +44,38 @@ export interface Region {
 }
 
 export enum SurfSpotStatus {
-  Approved = 'Approved',
-  Pending = 'Pending',
-  Private = 'Private',
+  APPROVED = 'Approved',
+  PENDING = 'Pending',
+  PRIVATE = 'Private',
 }
 
 export enum SurfSpotType {
-  BeachBreak = 'Beach Break',
-  ReefBreak = 'Reef Break',
-  PointBreak = 'Point Break',
+  BEACH_BREAK = 'Beach Break',
+  REEF_BREAK = 'Reef Break',
+  POINT_BREAK = 'Point Break',
 }
 
 export enum BeachBottomType {
-  Sand = 'Sand',
-  Rock = 'Rock',
-  Reef = 'Reef',
+  SAND = 'Sand',
+  ROCK = 'Rock',
+  REEF = 'Reef',
 }
 
 export enum SkillLevel {
-  Beginner = 'Beginner',
-  BeginnerIntermediate = 'Beginner - Intermediate',
-  Intermediate = 'Intermediate',
-  IntermediateAdvanced = 'Intermediate - Advanced',
-  Advanced = 'Advanced',
+  BEGINNER = 'Beginner',
+  BEGINNER_INTERMEDIATE = 'Beginner - Intermediate',
+  INTERMEDIATE = 'Intermediate',
+  INTERMEDIATE_ADVANCED = 'Intermediate - Advanced',
+  ADVANCED = 'Advanced',
 }
 
 export enum Tide {
-  Any = 'Any',
-  Low = 'Low',
-  LowMid = 'Low - Mid',
-  Mid = 'Mid',
-  MidHigh = 'Mid - High',
-  High = 'High',
+  ANY = 'Any',
+  LOW = 'Low',
+  LOW_MID = 'Low - Mid',
+  MID = 'Mid',
+  MID_HIGH = 'Mid - High',
+  HIGH = 'High',
 }
 
 export enum Direction {
@@ -101,20 +103,54 @@ export interface SurfSpot extends NewSurfSpot {
 }
 
 export interface NewSurfSpot extends Coordinates {
-  beachBottomType: BeachBottomType
+  name: string
+  description: string
+  isPrivate: boolean
+  status: SurfSpotStatus
   country?: Country
   region?: Region
   continent?: Continent
-  name: string
-  description: string
-  rating: number
-  skillLevel: SkillLevel
   type: SurfSpotType
-  forecasts: Forecasts[]
-  tide: Tide
+  beachBottomType: BeachBottomType
   swellDirection: Direction
   windDirection: Direction
+  tide: Tide
   minSurfHeight: number
   maxSurfHeight: number
-  status: SurfSpotStatus
+  seasonStart: string
+  seasonEnd: string
+  skillLevel: SkillLevel
+  parking: string
+  foodNearby: boolean
+  foodTypes: string[]
+  accommodationNearby: boolean
+  accommodationTypes: string[]
+  facilities: string[]
+  hazards: string[]
+  rating: number
+  forecasts: Forecasts[]
+}
+
+export interface SurfSpotFormState {
+  continent: string
+  country: string
+  region: string
+  name: string
+  type?: SurfSpotType
+  beachBottomType?: BeachBottomType
+  description: string
+  longitude?: number
+  latitude?: number
+  swellDirection: string
+  windDirection: string
+  rating?: number
+  tide?: Tide
+  minSurfHeight?: number
+  maxSurfHeight?: number
+  seasonStart: string
+  seasonEnd: string
+  parking: string
+  foodNearby: boolean
+  skillLevel?: SkillLevel
+  forecastLinks: ForecastLink[]
 }

@@ -31,6 +31,8 @@ import LocationSelector from './LocationSelector'
 import SignInOptions from './SignInOptions'
 import CheckboxOption from './CheckboxOption'
 import Rating from './Rating'
+import ChipSelector from './ChipSelector'
+import ForecastLinks from './ForecastLinks'
 
 export {
   AuthPage,
@@ -38,11 +40,13 @@ export {
   Button,
   CalendarIcon,
   CheckboxOption,
+  ChipSelector,
   ContentStatus,
   Details,
   DirectionIcon,
   ErrorBoundary,
   FormComponent,
+  ForecastLinks,
   FormInput,
   Header,
   Icon,

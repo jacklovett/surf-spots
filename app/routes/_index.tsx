@@ -1,4 +1,4 @@
-import type { MetaFunction } from 'react-router'
+import type { LinksFunction, MetaFunction } from 'react-router'
 
 import { Page, NavButton } from '~/components'
 
@@ -8,6 +8,15 @@ export const meta: MetaFunction = () => {
     { name: 'description', content: 'Welcome to Surf Spots!' },
   ]
 }
+
+export const links: LinksFunction = () => [
+  {
+    rel: 'preload',
+    href: '/images/png/logo.png',
+    as: 'image',
+    type: 'image/png',
+  },
+]
 
 export default function Index() {
   return (

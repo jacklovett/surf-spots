@@ -1,23 +1,26 @@
 import { useState, useEffect } from 'react'
 import { ValidationFn } from './index'
 
-interface UseFormValidationProps {
-  initialFormState: { [key: string]: string }
-  validationFunctions: { [key: string]: ValidationFn }
+interface UseFormValidationProps<T> {
+  initialFormState: T
+  validationFunctions: { [K in keyof T]?: ValidationFn<T[K]> }
 }
 
-const initializeTouchedFields = (fields: { [key: string]: string }) =>
-  Object.keys(fields).reduce((acc, key) => ({ ...acc, [key]: false }), {})
+const initializeTouchedFields = <T extends Record<string, any>>(fields: T) =>
+  Object.keys(fields).reduce(
+    (acc, key) => ({ ...acc, [key]: false }),
+    {} as { [K in keyof T]: boolean },
+  )
 
-export const useFormValidation = ({
+export const useFormValidation = <T extends Record<string, any>>({
   initialFormState,
   validationFunctions,
-}: UseFormValidationProps) => {
-  const [formState, setFormState] = useState(initialFormState)
+}: UseFormValidationProps<T>) => {
+  const [formState, setFormState] = useState<T>(initialFormState)
   const [touchedFields, setTouchedFields] = useState<{
-    [key: string]: boolean
-  }>(() => initializeTouchedFields(initialFormState))
-  const [errors, setErrors] = useState<{ [key: string]: string }>({})
+    [K in keyof T]: boolean
+  }>(initializeTouchedFields(initialFormState))
+  const [errors, setErrors] = useState<{ [K in keyof T]?: string }>({})
   const [isFormValid, setIsFormValid] = useState(false)
 
   useEffect(() => {
@@ -25,24 +28,28 @@ export const useFormValidation = ({
     let allFieldsValid = true
 
     // Calculate new errors and validity
-    const newErrors = Object.keys(formState).reduce((acc, field) => {
-      const validationFn = validationFunctions[field]
-      const error = validationFn ? validationFn(formState[field]) : ''
-
-      // Only update errors for touched fields
-      if (touchedFields[field]) {
-        acc[field] = error
+    const newErrors = Object.keys(formState as Record<string, any>).reduce(
+      (acc, field) => {
+        const key = field as keyof T
+        const validationFn = validationFunctions[key]
+        const error = validationFn ? validationFn(formState[key]) : ''
 
         if (error) {
           allFieldsValid = false
         }
 
-        if (errors[field] !== error) {
-          hasErrorsChanged = true
+        // Only update errors for touched fields
+        if (touchedFields[key]) {
+          acc[key] = error
+
+          if (errors[key] !== error) {
+            hasErrorsChanged = true
+          }
         }
-      }
-      return acc
-    }, {} as { [key: string]: string })
+        return acc
+      },
+      {} as { [K in keyof T]?: string },
+    )
 
     // Update errors only if they have changed
     if (hasErrorsChanged) {
@@ -59,7 +66,7 @@ export const useFormValidation = ({
     }
   }, [formState, touchedFields, validationFunctions])
 
-  const handleChange = (name: string, value: string) => {
+  const handleChange = <K extends keyof T>(name: K, value: T[K]) => {
     setTouchedFields((prev) =>
       prev[name] !== true ? { ...prev, [name]: true } : prev,
     )
@@ -68,7 +75,7 @@ export const useFormValidation = ({
     )
   }
 
-  const handleBlur = (name: string) =>
+  const handleBlur = <K extends keyof T>(name: K) =>
     setTouchedFields((prev) =>
       prev[name] !== true ? { ...prev, [name]: true } : prev,
     )

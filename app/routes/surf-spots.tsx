@@ -122,7 +122,7 @@ export default function SurfSpots() {
   return (
     <Page showHeader overrideLoading>
       <div className="row toolbar flex-end space-between">
-        <div className="row flex-1">
+        <div className="row flex-1 mh-s">
           {user && (
             <TextButton
               text="Add new spot"

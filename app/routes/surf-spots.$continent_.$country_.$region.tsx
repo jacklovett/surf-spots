@@ -1,6 +1,7 @@
-import { data, Link, useLoaderData } from 'react-router'
+import { data, Link, LoaderFunction, useLoaderData } from 'react-router'
 import { ContentStatus } from '~/components'
 import { cacheControlHeader, get } from '~/services/networkService'
+import { getSession } from '~/services/session.server'
 import type { SurfSpot, Region } from '~/types/surfSpots'
 
 interface LoaderData {
@@ -9,16 +10,20 @@ interface LoaderData {
   regionDetails?: Region
 }
 
-interface LoaderParams {
-  region: string
-}
-
-export const loader = async ({ params }: { params: LoaderParams }) => {
+export const loader: LoaderFunction = async ({ request, params }) => {
   const { region } = params
+
+  const session = await getSession(request.headers.get('Cookie'))
+  const user = session.get('user')
+  const userId = user?.id
+
+  const surfSpotsFetchUrl = userId
+    ? `surf-spots/region/${region}?userId=${userId}`
+    : `surf-spots/region/${region}`
 
   try {
     const regionDetails = await get<Region>(`regions/${region}`)
-    const surfSpots = await get<SurfSpot[]>(`surf-spots/region/${region}`)
+    const surfSpots = await get<SurfSpot[]>(surfSpotsFetchUrl)
 
     return data<LoaderData>(
       { surfSpots: surfSpots ?? [], regionDetails },

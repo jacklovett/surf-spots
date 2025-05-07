@@ -1,0 +1,48 @@
+.checkbox-option {
+  @extend %flex-center;
+  gap: $spacing-small;
+
+  input[type='checkbox'] {
+    display: none; // Hide the default checkbox
+  }
+
+  .custom-checkbox {
+    width: $spacing-unit;
+    height: $spacing-unit;
+    border: 2px solid $primary-color;
+    border-radius: 4px;
+    background-color: $background-color;
+    position: relative;
+    cursor: pointer;
+    transition: background-color 0.2s, border-color 0.2s;
+
+    &:after {
+      content: '';
+      position: absolute;
+      top: calc(50% - 1px);
+      left: 50%;
+      width: 6px;
+      height: 12px;
+      border: solid $white;
+      border-width: 0 3px 3px 0;
+      transform: translate(-50%, -50%) rotate(45deg);
+      transform-origin: center;
+      transition: transform 0.2s ease-in-out;
+      opacity: 0; /* Hide the tick initially */
+    }
+  }
+
+  input[type='checkbox']:checked + .custom-checkbox {
+    background-color: $primary-color;
+    border-color: $primary-color;
+
+    &:after {
+      opacity: 1; /* Show the tick */
+      transform: translate(-50%, -50%) rotate(45deg); /* Fully visible tick */
+    }
+  }
+
+  input[type='checkbox']:focus + .custom-checkbox {
+    box-shadow: 0 0 4px rgba(0, 119, 182, 0.5);
+  }
+}

@@ -30,7 +30,17 @@ const generateWaves = (tideValue: number, color: string) => {
 const TideIcon = ({ tide, color = '#046380' }: TideIconProps) => {
   if (!tide) return null
 
-  const tideValue = TIDES[tide]
+  const tideKey = Object.keys(Tide).find(
+    (key) => Tide[key as keyof typeof Tide] === tide,
+  )
+
+  const tideValue = tideKey ? TIDES[tideKey] : null
+
+  if (tideValue === null) {
+    console.error(`Unknown tide value: ${tide}`)
+    return
+  }
+
   const commonIconStyles = getCommonStyles(color)
 
   return (

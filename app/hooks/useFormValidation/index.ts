@@ -1,78 +1,96 @@
 import { useFormValidation } from './useFormValidation'
 
 // Validation helpers
-export const validateRequired = (value: string, fieldName?: string): string =>
-  !value ? `${fieldName || 'This field'} is required.` : ''
-
-export const validateEmail = (email: string): string =>
-  !email
-    ? 'Email is required.'
-    : !email.includes('@')
-    ? 'Please enter a valid email address.'
+export const validateRequired = <T>(value: T, fieldName = 'This field') =>
+  value === null || value === undefined || value === '' || value === false
+    ? `${fieldName} is required.`
     : ''
 
-export const validatePassword = (password: string): string =>
-  !password
-    ? 'Password is required.'
-    : password.length < 8
-    ? 'Password must be at least 8 characters long.'
+export const validateEmail: ValidationFn<string> = (
+  email,
+  fieldName = 'Email',
+) => {
+  const requiredError = validateRequired(email, fieldName)
+
+  if (requiredError) {
+    return requiredError
+  }
+
+  return !email.includes('@')
+    ? `Please enter a valid ${fieldName.toLowerCase()}.`
     : ''
+}
+
+export const validatePassword: ValidationFn<string> = (
+  password,
+  fieldName = 'Password',
+) => {
+  const requiredError = validateRequired(password, fieldName)
+
+  if (requiredError) {
+    return requiredError
+  }
+
+  return password.length < 8
+    ? `${fieldName} must be at least 8 characters long.`
+    : ''
+}
 
 export const validateDirection = (
   value: string,
-  isRequired: boolean = true,
-  fieldName: string = 'Direction',
+  fieldName = 'Direction',
 ): string => {
-  // Handle required validation
-  if (isRequired) {
-    const requiredError = validateRequired(value, fieldName)
-    if (requiredError) {
-      return requiredError
-    }
+  if (!value) {
+    return ''
   }
 
   // Handle direction format validation
   const directionRegex = /^(N|NE|E|SE|S|SW|W|NW)(-(N|NE|E|SE|S|SW|W|NW))?$/
   return directionRegex.test(value)
     ? ''
-    : `Enter a valid direction range in the format 'NW-S'.`
+    : `Enter a valid ${fieldName.toLowerCase()} range in the format 'NW-S'.`
 }
 
-export const validateLongitude = (value: string): string => {
-  if (!value) {
-    return 'Longitude is required.'
+export const validateLongitude: ValidationFn<number | undefined> = (
+  value,
+  fieldName = 'Longitude',
+) => {
+  if (value === null || value === undefined) {
+    return `${fieldName} is required.`
   }
 
-  const numValue = parseFloat(value)
-
-  if (isNaN(numValue)) {
-    return 'Longitude must be a number.'
-  }
-
-  if (numValue < -180 || numValue > 180) {
-    return 'Enter a valid longitude (-180 to 180).'
+  if (value < -180 || value > 180) {
+    return `Enter a valid ${fieldName.toLowerCase()} (-180 to 180).`
   }
   return ''
 }
 
-export const validateLatitude = (value: string): string => {
-  if (!value) {
-    return 'Latitude is required.'
+export const validateLatitude: ValidationFn<number | undefined> = (
+  value,
+  fieldName = 'Latitude',
+) => {
+  if (value === null || value === undefined) {
+    return `${fieldName} is required.`
   }
 
-  const numValue = parseFloat(value)
-
-  if (isNaN(numValue)) {
-    return 'Latitude must be a number.'
-  }
-
-  if (numValue < -90 || numValue > 90) {
-    return 'Enter a valid latitude (-90 to 90).'
+  if (value < -90 || value > 90) {
+    return `Enter a valid ${fieldName.toLowerCase()} (-90 to 90).`
   }
 
   return ''
 }
 
-export type ValidationFn = (value: string, fieldName?: string) => string
+export const validateUrl = (value: string, fieldName = 'URL') => {
+  try {
+    if (value) {
+      new URL(value)
+    }
+    return ''
+  } catch {
+    return `Enter a valid ${fieldName.toLowerCase()} (e.g. https://example.com).`
+  }
+}
+
+export type ValidationFn<T> = (value: T, fieldName?: string) => string
 
 export default useFormValidation

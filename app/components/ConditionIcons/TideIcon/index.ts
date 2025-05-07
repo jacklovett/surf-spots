@@ -12,13 +12,13 @@ export const TIDE_WAVE_MAP: Record<number, number[]> = {
   5: [3, 4], // High - Show top 2 waves
 }
 
-export const TIDES: Record<Tide, number> = {
-  Any: 0,
-  Low: 1,
-  'Low - Mid': 2,
-  Mid: 3,
-  'Mid - High': 4,
-  High: 5,
+export const TIDES: Record<string, number> = {
+  ANY: 0,
+  LOW: 1,
+  LOW_MID: 2,
+  MID: 3,
+  MID_HIGH: 4,
+  HIGH: 5,
 }
 
 export default TideIcon
