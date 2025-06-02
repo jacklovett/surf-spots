@@ -2,7 +2,7 @@ import { ReactNode } from 'react'
 import { useNavigation } from 'react-router'
 import classNames from 'classnames'
 
-import { ErrorBoundary } from '../index'
+import { ErrorBoundary, Footer } from '../index'
 import { renderContent } from '../Page'
 
 interface IProps {
@@ -27,10 +27,10 @@ export const AuthPage = (props: IProps) => {
             reversed,
           })}
         >
-          <div className="center column flex-1">
-            <div className="column center auth-content">
+          <div className="center column h-full flex-1">
+            <div className="column h-full center auth-content">
               {renderContent(children, loading, error)}
-              <footer className="footer">© 2025 Surf Spots</footer>
+              <Footer isAlternate={false} />
             </div>
           </div>
           <div className="flex-1 auth-hero">

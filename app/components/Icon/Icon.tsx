@@ -57,13 +57,12 @@ export const Icon = (props: IProps) => {
         )
       case 'info':
         return (
-          <svg {...commonIconStyles} stroke="#ffffff" strokeWidth={1}>
+          <svg {...commonIconStyles}>
             {/* Outer circle */}
             <circle cx="12" cy="12" r="10" />
-            {/* Dot for the "i" */}
-            <circle cx="12" cy="8" r="1" fill="#ffffff" />
-            {/* Body of the "i" */}
-            <rect x="11.25" y="11" width="1.5" height="6" fill="#ffffff" />
+            {/* Question mark */}
+            <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" />
+            <line x1="12" y1="17" x2="12.01" y2="17" />
           </svg>
         )
       case 'logout':
@@ -162,6 +161,16 @@ export const Icon = (props: IProps) => {
               stroke="#ffffff"
               strokeWidth="2"
             />
+          </svg>
+        )
+      case 'about':
+        return (
+          <svg {...commonIconStyles}>
+            {/* Outer circle */}
+            <circle cx="12" cy="12" r="10" />
+            {/* Question mark */}
+            <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" />
+            <line x1="12" y1="17" x2="12.01" y2="17" />
           </svg>
         )
       default:

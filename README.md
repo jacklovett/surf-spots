@@ -37,4 +37,4 @@ Make sure to deploy the output of `npm run build`
 
 ## Styling
 
-This app is styles with SASS.
+This app is styled with SASS.

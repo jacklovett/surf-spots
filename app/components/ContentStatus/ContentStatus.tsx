@@ -10,7 +10,7 @@ interface IProps {
 export const ContentStatus = (props: IProps) => {
   const { children, isError = false } = props
   return (
-    <div className="center column">
+    <div className="center column h-full">
       <div className={`ph ${isError ? 'error' : ''}`}>
         {/* TODO: Add some icon/image ? */}
         {children}

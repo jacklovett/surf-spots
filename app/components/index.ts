@@ -8,6 +8,7 @@ import {
   TideIcon,
 } from './ConditionIcons'
 import ErrorBoundary from './ErrorBoundary'
+import Footer from './Footer'
 import FormComponent from './FormComponent'
 import FormInput from './FormInput'
 import Icon from './Icon'
@@ -33,6 +34,7 @@ import CheckboxOption from './CheckboxOption'
 import Rating from './Rating'
 import ChipSelector from './ChipSelector'
 import ForecastLinks from './ForecastLinks'
+import KofiButton from './KofiButton'
 
 export {
   AuthPage,
@@ -45,12 +47,14 @@ export {
   Details,
   DirectionIcon,
   ErrorBoundary,
+  Footer,
   FormComponent,
   ForecastLinks,
   FormInput,
   Header,
   Icon,
   InfoMessage,
+  KofiButton,
   Loading,
   LocationSelector,
   Menu,

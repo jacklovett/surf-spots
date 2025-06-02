@@ -1,6 +1,7 @@
 import { Icon } from './Icon'
 
 export type IconKey =
+  | 'about'
   | 'bin'
   | 'cog'
   | 'crosshair'

@@ -21,7 +21,7 @@ export const links: LinksFunction = () => [
 export default function Index() {
   return (
     <Page isAlternate>
-      <section className="center column content mt">
+      <section className="center column h-full content mt">
         <div className="page-content">
           <div className="column center">
             <img src="/images/png/logo.png" width="240" alt="Surf spots logo" />

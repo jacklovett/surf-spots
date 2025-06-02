@@ -1,9 +1,9 @@
 import { ReactNode } from 'react'
-import { useNavigation } from 'react-router';
-
-import { ErrorBoundary, Header } from '../index'
-import { renderContent } from './index'
+import { useNavigation } from 'react-router'
 import classNames from 'classnames'
+
+import { ErrorBoundary, Footer, Header } from '../index'
+import { renderContent } from './index'
 
 interface IProps {
   children: ReactNode
@@ -41,13 +41,7 @@ export const Page = (props: IProps) => {
           </ErrorBoundary>
         </section>
       </main>
-      <footer
-        className={classNames({
-          alternate: isAlternate,
-        })}
-      >
-        © 2025 Surf Spots
-      </footer>
+      <Footer isAlternate={isAlternate} />
     </>
   )
 }
