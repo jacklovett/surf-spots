@@ -140,13 +140,13 @@ export default function SurfSpots() {
         />
       </div>
       {isMapView ? (
-        <div className="center column">
+        <div className="center column h-full">
           <ErrorBoundary message="Uh-oh! Something went wrong displaying the map!">
             <SurfMap />
           </ErrorBoundary>
         </div>
       ) : (
-        <div className="column">
+        <div className="column h-full">
           <Breadcrumb items={breadcrumbs} />
           {loading ? (
             <ContentStatus>

@@ -89,12 +89,6 @@ export enum Direction {
   NW = 'NW',
 }
 
-export interface Forecasts {
-  siteName: string
-  link: string
-  icon: string
-}
-
 export interface SurfSpot extends NewSurfSpot {
   id: string
   path: string
@@ -120,6 +114,7 @@ export interface NewSurfSpot extends Coordinates {
   seasonStart: string
   seasonEnd: string
   skillLevel: SkillLevel
+  boatRequired: boolean
   parking: string
   foodNearby: boolean
   foodTypes: string[]
@@ -128,7 +123,7 @@ export interface NewSurfSpot extends Coordinates {
   facilities: string[]
   hazards: string[]
   rating: number
-  forecasts: Forecasts[]
+  forecasts: string[]
 }
 
 export interface SurfSpotFormState {

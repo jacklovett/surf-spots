@@ -55,6 +55,7 @@ export const loader: LoaderFunction = async ({ request, params }) => {
       : `surf-spots/${surfSpot}`
 
     const surfSpotDetails = await get<SurfSpot>(url)
+    console.log(surfSpotDetails)
     return { surfSpotDetails }
   } catch (error) {
     console.error('Error fetching surf spot details: ', error)
@@ -117,13 +118,23 @@ export default function SurfSpotDetails() {
       rating,
       skillLevel,
       type,
-      forecasts,
       tide,
       swellDirection,
       windDirection,
       minSurfHeight,
       maxSurfHeight,
+      boatRequired,
+      parking,
+      foodNearby,
+      foodTypes,
+      accommodationNearby,
+      accommodationTypes,
+      hazards,
+      facilities,
+      forecasts,
     } = surfSpotDetails
+
+    console.log(surfSpotDetails)
 
     return (
       <div className="column">
@@ -196,20 +207,18 @@ export default function SurfSpotDetails() {
                 Looking for real time conditions? Below is a list of forecasts
                 to check out
               </p>
-              <div className="row gap">
-                {forecasts.map((forecast) => {
-                  const { icon, link, siteName } = forecast
-                  return (
-                    <NavButton
-                      label={siteName}
-                      icon={{
-                        name: siteName,
-                        filePath: `/images/png/${icon}.png`,
-                      }}
-                      to={link}
-                    />
-                  )
-                })}
+              <div className="column mv">
+                {/* TODO: add icons for well known forecasting sites */}
+                {forecasts.map((forecast) => (
+                  <a
+                    key={forecast}
+                    href={forecast}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    {forecast}
+                  </a>
+                ))}
               </div>
             </>
           )}
@@ -221,9 +230,56 @@ export default function SurfSpotDetails() {
         <section className="content">
           <h3>Amenities</h3>
           <div className="row gap mb pv">
-            <Details label="Parking" value="Paid Car Park" />
-            <Details label="Surf Schools" value="Yes" />
-            <Details label="Restaurants/Cafes" value="Yes" />
+            <p className="bold">How to get there?</p>
+            <Details
+              label="Is a boat required?"
+              value={boatRequired ? 'Yes' : 'No'}
+            />
+            <Details label="Parking" value={parking} />
+
+            {facilities && (
+              <div>
+                <p className="bold">Facilities:</p>
+                <div className="flex column">
+                  {facilities.map((facility: string) => (
+                    <p>{facility}</p>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {hazards && (
+              <div>
+                <p className="bold">Hazard:</p>
+                <div className="flex column">
+                  {hazards.map((hazard: string) => (
+                    <p>{hazard}</p>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {accommodationNearby && (
+              <div>
+                <p className="bold">Accomodation Options:</p>
+                <div className="flex column">
+                  {accommodationTypes.map((accommodationType: string) => (
+                    <p>{accommodationType}</p>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {foodNearby && (
+              <div>
+                <p className="bold">Food Options:</p>
+                <div className="flex column">
+                  {foodTypes.map((foodType: string) => (
+                    <p>{foodType}</p>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
         </section>
         <section className="content">
