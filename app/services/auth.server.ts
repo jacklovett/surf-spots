@@ -1,9 +1,9 @@
 import { data, redirect } from 'react-router'
-import { AuthRequest, AuthUser, User } from '~/types/user'
+import { AuthRequest, User } from '~/types/user'
 import { getSession, commitSession } from '~/services/session.server'
 import { post } from './networkService'
 import { validateEmail, validatePassword } from '~/hooks/useFormValidation'
-import { ApiResponse } from '~/types/apiResponse'
+import { ApiResponse } from '~/types/api'
 
 export interface AuthErrors {
   email?: string
@@ -49,6 +49,7 @@ export const authenticateWithCredentials = async (request: Request) => {
 
     return await setSessionCookieAndRedirect(request, user)
   } catch (error) {
+    console.error('Login error:', error)
     return {
       submitStatus: 'Invalid login credentials',
       hasError: true,
@@ -75,38 +76,47 @@ export const setSessionCookieAndRedirect = async (
   }
 }
 
-export const saveUserToBackend = async (profile: AuthUser): Promise<User> => {
-  const user = await post<AuthUser, User>('user/profile', profile)
-  if (!user) {
-    throw new Error('Account could not be approved')
+export const verifyLogin = async (email: string, password: string) => {
+  try {
+    const response = await post<AuthRequest, ApiResponse<User>>('auth/login', {
+      email: formatEmail(email),
+      password,
+      provider: 'EMAIL',
+    })
+
+    if (!response.data) {
+      throw new Error(response.message || 'Invalid login credentials')
+    }
+    return response.data
+  } catch (error) {
+    console.error('Login API error:', error)
+    if (error instanceof Error && error.message.includes('401')) {
+      throw new Error('Invalid login credentials')
+    }
+    throw error
   }
-  return user
 }
 
-const verifyLogin = async (email: string, password: string) => {
-  const user = await post<AuthRequest, User>('auth/login', {
-    email: formatEmail(email),
-    password,
-    provider: 'EMAIL',
-  })
-  if (!user) {
-    throw new Error('Invalid login credentials')
-  }
-  return user
-}
-
-export const registerUser = async (email: string, password: string) => {
-  const response = await post<AuthRequest, ApiResponse>('auth/register', {
-    email: formatEmail(email),
-    password,
-    provider: 'EMAIL',
-  })
-
-  if (!response) {
+export const registerUser = async (
+  authRequest: AuthRequest,
+  request: Request,
+) => {
+  try {
+    const user = await post<AuthRequest, User>('auth/register', authRequest)
+    if (!user) {
+      throw new Error('Failed to register user')
+    }
+    return await setSessionCookieAndRedirect(request, user)
+  } catch (error) {
+    if (error instanceof Response) {
+      const errorData = await error.json()
+      throw new Error(errorData.message || 'Failed to register user')
+    }
+    if (error instanceof Error) {
+      throw error
+    }
     throw new Error('Failed to register user')
   }
-
-  return response
 }
 
 export const validate = (email: string, password: string) => {

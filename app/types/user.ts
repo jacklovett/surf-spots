@@ -4,14 +4,17 @@ export type AuthProvider = 'EMAIL' | 'FACEBOOK' | 'GOOGLE'
 
 export interface AuthRequest {
   email: string
-  password: string
+  password?: string
   provider: AuthProvider
+  name?: string
+  providerId?: string
 }
 
 export interface User extends AuthUser {
   id: string
   country?: string
   city?: string
+  settings?: UserSettings
 }
 
 export interface AuthUser {
@@ -26,4 +29,12 @@ export interface ProfileState {
   email: string
   name: string
   city: string
+}
+
+export interface UserSettings {
+  newSurfSpotEmails: boolean
+  nearbySurfSpotsEmails: boolean
+  swellSeasonEmails: boolean
+  eventEmails: boolean
+  promotionEmails: boolean
 }

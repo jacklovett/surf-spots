@@ -1,6 +1,7 @@
 import { ActionFunction, data } from 'react-router'
 import { post, deleteData } from './networkService'
 import { getSession, commitSession } from './session.server'
+import { requireSessionCookie } from './session.server'
 
 export const surfSpotAction: ActionFunction = async ({ request }) => {
   const clonedRequest = request.clone()
@@ -9,24 +10,29 @@ export const surfSpotAction: ActionFunction = async ({ request }) => {
   const actionType = formData.get('actionType') as string
   const target = formData.get('target') as string
   const surfSpotId = formData.get('surfSpotId') as string
-  const userId = formData.get('userId') as string
 
-  if (!actionType || !target || !surfSpotId || !userId) {
+  if (!actionType || !target || !surfSpotId) {
     console.error('Missing required fields:', {
       actionType,
       target,
       surfSpotId,
-      userId,
     })
     return data({ error: 'Missing required fields' }, { status: 400 })
   }
 
-  const endpoint =
-    actionType === 'add'
-      ? `${target}`
-      : `${target}/${userId}/remove/${surfSpotId}`
-
   try {
+    const user = await requireSessionCookie(request)
+    const userId = user.id
+
+    if (!userId) {
+      return data({ error: 'User not authenticated' }, { status: 401 })
+    }
+
+    const endpoint =
+      actionType === 'add'
+        ? `${target}`
+        : `${target}/${userId}/remove/${surfSpotId}`
+
     const session = await getSession(request.headers.get('Cookie'))
     const cookie = request.headers.get('Cookie') || ''
 

@@ -3,7 +3,6 @@ import {
   data,
   Link,
   LinksFunction,
-  LoaderFunctionArgs,
   MetaFunction,
   useNavigation,
 } from 'react-router'
@@ -26,18 +25,6 @@ export const links: LinksFunction = () => [
     type: 'image/png',
   },
 ]
-
-export const loader = async ({ request }: LoaderFunctionArgs) => {
-  const url = new URL(request.url)
-  const accountCreated = url.searchParams.get('accountCreated')
-  if (accountCreated) {
-    return {
-      submitStatus: 'Account created successfully! Try signing in',
-      hasError: false,
-    }
-  }
-  return null
-}
 
 export const action: ActionFunction = async ({ request }) => {
   const clonedRequest = request.clone()

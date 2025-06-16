@@ -3,15 +3,15 @@ import {
   ActionFunctionArgs,
   Link,
   MetaFunction,
-  redirect,
   useNavigation,
 } from 'react-router'
 
-import { registerUser, validate } from '~/services/auth.server'
+import { formatEmail, registerUser, validate } from '~/services/auth.server'
 
 import { AuthPage, FormComponent, FormInput, SignInOptions } from '~/components'
 import { useFormValidation, useSubmitStatus } from '~/hooks'
 import { validateEmail, validatePassword } from '~/hooks/useFormValidation'
+import { AuthRequest } from '~/types/user'
 
 export const meta: MetaFunction = () => {
   return [
@@ -33,22 +33,21 @@ export const action = async ({ request }: ActionFunctionArgs) => {
   }
 
   // Attempt user registration
-  let submitError = ''
   try {
-    const response = await registerUser(email, password)
-    if (response) {
-      return redirect('/auth?accountCreated=true')
+    const authRequest: AuthRequest = {
+      email: formatEmail(email),
+      password,
+      provider: 'EMAIL',
     }
 
-    submitError = 'Failed to register user'
+    return await registerUser(authRequest, request)
   } catch (e) {
-    submitError =
+    const submitError =
       e instanceof Error
         ? e.message
         : 'An unexpected error occurred. Please try again.'
+    return { submitStatus: submitError, hasError: true }
   }
-
-  return { submitStatus: submitError, hasError: true }
 }
 
 const SignUp = () => {

@@ -4,14 +4,36 @@ export const cacheControlHeader = {
   'Cache-Control': 'public, max-age=3600, stale-while-revalidate=86400',
 }
 
+interface NetworkError extends Error {
+  status?: number
+}
+
 // Handles the response, throwing an error if the response is not ok
 const handleResponse = async <T>(response: Response): Promise<T> => {
-  const data = await response.json().catch(() => null)
+  const data = await response.json().catch((e) => {
+    console.error('Error parsing response JSON:', e)
+    return null
+  })
+
   if (!response.ok) {
     const errorMessage =
       data?.message || `Request failed with status ${response.status}`
-    throw new Error(errorMessage)
+    const error = new Error(errorMessage) as NetworkError
+    error.status = response.status
+    throw error
   }
+
+  // If the response is an ApiResponse, return its data
+  if (
+    data &&
+    'data' in data &&
+    'message' in data &&
+    'status' in data &&
+    'success' in data
+  ) {
+    return data.data as T
+  }
+
   return data as T
 }
 
@@ -21,7 +43,6 @@ const request = async <T, B = undefined>(
   body?: B,
 ): Promise<T> => {
   const response = await fetch(`${API_URL}/${endpoint}`, {
-    // Spread provided options to ensure flexibility for any use case
     ...options,
     credentials: 'include',
     body: body ? JSON.stringify(body) : undefined,

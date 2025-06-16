@@ -1,9 +1,8 @@
 import { redirect } from 'react-router'
-import { AuthUser } from '~/types/user'
-import { saveUserToBackend, setSessionCookieAndRedirect } from './auth.server'
+import { AuthRequest } from '~/types/user'
+import { registerUser } from './auth.server'
 
 // Google OAuth configuration
-
 const googleConfig = {
   clientId: process.env.GOOGLE_CLIENT_ID!,
   clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
@@ -26,20 +25,24 @@ export const authenticateWithGoogle = async (request: Request) => {
     return redirect(url.toString())
   }
 
-  // Handle OAuth callback
-  const tokens = await getGoogleTokens(code)
-  const profile = await getGoogleProfile(tokens.access_token)
-  const { name, email, sub } = profile
+  try {
+    // Handle OAuth callback
+    const tokens = await getGoogleTokens(code)
+    const profile = await getGoogleProfile(tokens.access_token)
+    const { name, email, sub } = profile
 
-  const googleProfile: AuthUser = {
-    name,
-    email,
-    provider: 'GOOGLE',
-    providerId: sub,
+    const authRequest: AuthRequest = {
+      email,
+      name,
+      provider: 'GOOGLE',
+      providerId: sub,
+    }
+
+    return await registerUser(authRequest, request)
+  } catch (error) {
+    console.log(`Failed to authenticate with Google: ${error}`)
+    throw error
   }
-
-  const user = await saveUserToBackend(googleProfile)
-  return await setSessionCookieAndRedirect(request, user)
 }
 
 // Helper functions for token exchange and profile fetching
@@ -56,6 +59,10 @@ const getGoogleTokens = async (code: string) => {
     }),
   })
 
+  if (!response.ok) {
+    throw new Error('Failed to get Google tokens')
+  }
+
   return response.json()
 }
 
@@ -66,6 +73,10 @@ const getGoogleProfile = async (access_token: string) => {
       headers: { Authorization: `Bearer ${access_token}` },
     },
   )
+
+  if (!response.ok) {
+    throw new Error('Failed to get Google profile')
+  }
 
   return response.json()
 }
