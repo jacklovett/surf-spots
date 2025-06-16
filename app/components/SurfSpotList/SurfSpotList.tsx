@@ -1,11 +1,13 @@
-import { useNavigate } from 'react-router';
+import { memo } from 'react'
+import { useNavigate } from 'react-router'
+
 import { SurfSpot } from '~/types/surfSpots'
 
 interface IProps {
   surfSpots: SurfSpot[]
 }
 
-const SurfSpotList = (props: IProps): JSX.Element => {
+const SurfSpotList = memo((props: IProps): JSX.Element => {
   const { surfSpots } = props
   const navigate = useNavigate()
   // Group surf spots by continent, then by country
@@ -76,6 +78,8 @@ const SurfSpotList = (props: IProps): JSX.Element => {
       ))}
     </>
   )
-}
+})
+
+SurfSpotList.displayName = 'SurfSpotList'
 
 export default SurfSpotList

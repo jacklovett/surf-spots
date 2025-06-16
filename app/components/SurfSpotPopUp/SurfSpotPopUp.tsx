@@ -1,3 +1,5 @@
+import { memo } from 'react'
+
 import { User } from '~/types/user'
 import { SurfSpot } from '~/types/surfSpots'
 
@@ -14,7 +16,7 @@ interface IProps {
   ) => void
 }
 
-export const SurfSpotPopUp = (props: IProps) => {
+export const SurfSpotPopUp = memo((props: IProps) => {
   const { surfSpot, user, navigate, onFetcherSubmit } = props
   const { beachBottomType, name, rating, skillLevel, path, type } = surfSpot
 
@@ -35,4 +37,6 @@ export const SurfSpotPopUp = (props: IProps) => {
       </div>
     </div>
   )
-}
+})
+
+SurfSpotPopUp.displayName = 'SurfSpotPopUp'

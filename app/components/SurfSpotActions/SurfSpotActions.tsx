@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, memo } from 'react'
 
 import { SurfSpot } from '~/types/surfSpots'
 import { User } from '~/types/user'
@@ -17,7 +17,7 @@ interface IProps {
   ) => void
 }
 
-export const SurfSpotActions = (props: IProps) => {
+export const SurfSpotActions = memo((props: IProps) => {
   const { surfSpot, navigate, user, onFetcherSubmit } = props
   const [modalState, setModalState] = useState<IModalState>(initialModalState)
   const [surfSpotState, setSurfSpotState] = useState<SurfSpot>(surfSpot)
@@ -83,7 +83,7 @@ export const SurfSpotActions = (props: IProps) => {
           surf achievements.
         </p>
         <ul className="benefits-list mb">
-          <li>Capture every spot you’ve surfed.</li>
+          <li>Capture every spot you've surfed.</li>
           <li>Track your exploration progress around the globe.</li>
           <li>Discover your surf trends and favorite wave types.</li>
           <li>Share your journey with others!</li>
@@ -147,4 +147,6 @@ export const SurfSpotActions = (props: IProps) => {
       )}
     </div>
   )
-}
+})
+
+SurfSpotActions.displayName = 'SurfSpotActions'

@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react'
+import { useRef, useState, memo } from 'react'
 import classNames from 'classnames'
 
 import 'mapbox-gl/dist/mapbox-gl.css'
@@ -12,7 +12,7 @@ interface IProps {
   disableInteractions?: boolean
 }
 
-export const SurfMap = (props: IProps) => {
+export const SurfMap = memo((props: IProps) => {
   const { surfSpots, disableInteractions } = props
   const [loading, setLoading] = useState(true)
 
@@ -39,4 +39,6 @@ export const SurfMap = (props: IProps) => {
       {loading && <SkeletonLoader />}
     </div>
   )
-}
+})
+
+SurfMap.displayName = 'SurfMap'
