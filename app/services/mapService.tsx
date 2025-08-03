@@ -55,12 +55,21 @@ export const fetchSurfSpotsByBounds = async (
       maxLatitude: bounds.getNorthEast().lat,
     }
 
-    // Build API URL with optional userId
-    const url = userId
-      ? `surf-spots/within-bounds?userId=${userId}`
-      : `surf-spots/within-bounds`
+    // Build URL with query parameters
+    const params = new URLSearchParams({
+      minLatitude: boundingBox.minLatitude.toString(),
+      maxLatitude: boundingBox.maxLatitude.toString(),
+      minLongitude: boundingBox.minLongitude.toString(),
+      maxLongitude: boundingBox.maxLongitude.toString(),
+    })
 
-    const surfSpots = await post<BoundingBox, SurfSpot[]>(url, boundingBox)
+    if (userId) {
+      params.append('userId', userId)
+    }
+
+    const url = `surf-spots/within-bounds?${params.toString()}`
+
+    const surfSpots = await get<SurfSpot[]>(url)
     return surfSpots ?? []
   } catch (error) {
     console.error('Error fetching surf spots:', error)
