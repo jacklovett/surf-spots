@@ -7,7 +7,9 @@ import {
   SurfHeightIcon,
   TideIcon,
 } from './ConditionIcons'
+import Drawer from './Drawer'
 import ErrorBoundary from './ErrorBoundary'
+import Filters from './Filters'
 import Footer from './Footer'
 import FormComponent from './FormComponent'
 import FormInput from './FormInput'
@@ -18,6 +20,7 @@ import Menu from './Menu'
 import Modal from './Modal'
 import NavButton from './NavButton'
 import SurfSpotList from './SurfSpotList'
+import SurfSpotPreview from './SurfSpotPreview'
 import TextButton from './TextButton'
 import Breadcrumb from './Breadcrumb'
 import SurfMap from './SurfMap'
@@ -46,7 +49,9 @@ export {
   ContentStatus,
   Details,
   DirectionIcon,
+  Drawer,
   ErrorBoundary,
+  Filters,
   Footer,
   FormComponent,
   ForecastLinks,
@@ -67,6 +72,7 @@ export {
   SurfHeightIcon,
   SurfMap,
   SurfSpotActions,
+  SurfSpotPreview,
   SurfSpotList,
   SurfSpotPopUp,
   TextButton,

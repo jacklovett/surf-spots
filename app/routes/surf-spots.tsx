@@ -14,6 +14,7 @@ import {
   Breadcrumb,
   ContentStatus,
   ErrorBoundary,
+  Filters,
   Loading,
   SurfMap,
   Page,
@@ -22,7 +23,7 @@ import {
 } from '~/components'
 import { BreadcrumbItem } from '~/components/Breadcrumb'
 import { surfSpotAction } from '~/services/surfSpot.server'
-import { useUser } from '~/contexts'
+import { useUser, useLayout } from '~/contexts'
 
 interface LoaderData {
   isMapView: boolean
@@ -60,6 +61,7 @@ export const action: ActionFunction = surfSpotAction
 
 export default function SurfSpots() {
   const { user } = useUser()
+  const { openDrawer } = useLayout()
   const navigate = useNavigate()
   const { pathname } = useLocation()
   const { state } = useNavigation()
@@ -78,9 +80,21 @@ export default function SurfSpots() {
   }
 
   const [filters, setFilters] = useState(initialFilters)
-  const [isFiltersViewOpen, setFiltersViewOpen] = useState(false)
 
   const showFilters = filters && filters?.length > 0
+
+  const handleOpenFilters = () => {
+    const filtersContent = (
+      <Filters
+        onApplyFilters={(appliedFilters) => {
+          console.log('Applied filters:', appliedFilters)
+          // TODO: Apply filters to surf spots
+          // Should this be filtering in frontend or calling backend?
+        }}
+      />
+    )
+    openDrawer(filtersContent, 'left', 'Filters')
+  }
 
   useEffect(() => {
     setIsMapView(checkIsMapView(pathname))
@@ -129,6 +143,13 @@ export default function SurfSpots() {
               onClick={() => navigate('/add-surf-spot')}
               iconKey="plus"
               filled
+            />
+          )}
+          {showFilters && (
+            <TextButton
+              text="Filters"
+              onClick={handleOpenFilters}
+              iconKey="filters"
             />
           )}
         </div>

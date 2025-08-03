@@ -55,7 +55,6 @@ export const loader: LoaderFunction = async ({ request, params }) => {
       : `surf-spots/${surfSpot}`
 
     const surfSpotDetails = await get<SurfSpot>(url)
-    console.log(surfSpotDetails)
     return { surfSpotDetails }
   } catch (error) {
     console.error('Error fetching surf spot details: ', error)
@@ -134,8 +133,6 @@ export default function SurfSpotDetails() {
       forecasts,
     } = surfSpotDetails
 
-    console.log(surfSpotDetails)
-
     return (
       <div className="column">
         <div className="content">
@@ -208,7 +205,7 @@ export default function SurfSpotDetails() {
                 to check out
               </p>
               <div className="column mv">
-                {/* TODO: add icons for well known forecasting sites */}
+                {/* TODO: add icons/logos for well known forecasting sites */}
                 {forecasts.map((forecast) => (
                   <a
                     key={forecast}

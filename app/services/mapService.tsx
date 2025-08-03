@@ -1,15 +1,11 @@
-import { createRoot } from 'react-dom/client'
 import mapboxgl, {
   GeoJSONSourceSpecification,
   Map,
   MapMouseEvent,
 } from 'mapbox-gl'
 import { BoundingBox, Coordinates, Region, SurfSpot } from '~/types/surfSpots'
-import { get, post } from './networkService'
-import { SurfSpotPopUp } from '~/components'
+import { get } from './networkService'
 import { getCssVariable } from '~/utils'
-import { User } from '~/types/user'
-import { FetcherSubmitParams } from '~/components/SurfSpotActions'
 
 export const MAP_ACCESS_TOKEN = import.meta.env.VITE_MAP_ACCESS_TOKEN
 export const ICON_IMAGE_PATH = `/images/png/pin.png`
@@ -111,6 +107,8 @@ export const initializeMap = (
     doubleClickZoom: interactive,
     boxZoom: interactive,
     touchZoomRotate: interactive,
+    cooperativeGestures: true,
+    preserveDrawingBuffer: false,
   })
 }
 
@@ -119,9 +117,8 @@ export const initializeMap = (
  * @param map - the initialized map
  * @param surfSpots - the array of surf spots to be added
  */
-export const addSourceData = (map: Map, surfSpots: SurfSpot[]) => {
+export const addSourceData = (map: Map, surfSpots: SurfSpot[]) =>
   map.addSource('surfSpots', createSurfSpotsSource(surfSpots))
-}
 
 /**
  * Converts surf spots data into a GeoJSON source format for Mapbox.
@@ -159,27 +156,24 @@ export const getSourceData = (surfSpots: SurfSpot[]): GeoJSON.GeoJSON => ({
 /**
  * Adds layers for clustered and unclustered points on the map.
  * @param map - the initialized map
- * @param user - the logged in user
- * @param onNavigate - function to handle navigation on feature click
+ * @param onMarkerClick - function to handle marker click
  */
 export const addLayers = (
   map: Map,
-  user: User | null,
-  navigate: (path: string) => void,
-  onFetcherSubmit: (
-    params: FetcherSubmitParams,
-    updatedSurfSpot: SurfSpot,
-  ) => void,
+  onMarkerClick: (event: MapMouseEvent) => void,
 ) => {
-  if (!map) {
-    throw new Error('Map is not initialized. Unable to add layers.')
-  }
+  console.log('onMarkerClick: ', onMarkerClick)
 
   addClusterLayers(map)
   addMarkerLayers(map)
-  setupLayerInteractions(map, user, navigate, onFetcherSubmit)
+  setupLayerInteractions(map, onMarkerClick)
 }
 
+/**
+ * Adds cluster and marker layers to the map.
+ * @param map - the initialized map
+ * @param onMarkerClick - function to handle marker click
+ */
 const addClusterLayers = (map: Map) => {
   const primaryColor = getCssVariable('--primary-color')
   const accentColor = getCssVariable('--accent-color')
@@ -284,103 +278,23 @@ const handleClusterClick = (map: Map, event: MapMouseEvent) => {
     console.error('Error handling cluster click:', error)
   }
 }
-
-/**
- * Handles a click event on a surf spot marker.
- * @param map - the initialized map
- * @param onNavigate - function to handle navigation
- * @param event - the Mapbox mouse event
- */
-const handleMarkerClick = (
-  map: Map,
-  navigate: (path: string) => void,
-  user: User | null,
-  onFetcherSubmit: (
-    params: FetcherSubmitParams,
-    updatedSurfSpot: SurfSpot,
-  ) => void,
-  event: MapMouseEvent,
-) => {
-  try {
-    const features = event.features
-    if (!features || !features[0].properties) {
-      throw new Error('No features or properties found on marker.')
-    }
-
-    const surfSpot: SurfSpot = JSON.parse(features[0].properties.surfSpot)
-    if (!surfSpot) {
-      throw new Error('No surf spot data found in feature.')
-    }
-
-    createPopUp(surfSpot, user, navigate, onFetcherSubmit).addTo(map)
-  } catch (error) {
-    console.error('Error handling marker click:', error)
-  }
-}
-
 /**
  * Sets up interactions for cluster and marker layers.
  * @param map - the initialized map
- * @param onNavigate - function to handle navigation on feature click
+ * @param onMarkerClick - function to handle marker click
  */
 const setupLayerInteractions = (
   map: Map,
-  user: User | null,
-  navigate: (path: string) => void,
-  onFetcherSubmit: (
-    params: FetcherSubmitParams,
-    updatedSurfSpot: SurfSpot,
-  ) => void,
+  onMarkerClick: (event: MapMouseEvent) => void,
 ) => {
   map.on('click', 'clusters', (event) => handleClusterClick(map, event))
-  map.on('click', 'marker', (event) =>
-    handleMarkerClick(map, navigate, user, onFetcherSubmit, event),
-  )
+  map.on('click', 'marker', onMarkerClick)
 
   const setCursorStyle = (cursor: string) => () =>
     (map.getCanvas().style.cursor = cursor)
 
   map.on('mouseenter', ['clusters', 'marker'], setCursorStyle('pointer'))
   map.on('mouseleave', ['clusters', 'marker'], setCursorStyle(''))
-}
-
-/**
- * Creates and returns a Mapbox popup for a surf spot.
- * @param surfSpot - the surf spot data
- * @param user - if logged in then our active user
- * @param onNavigate - function to handle navigation
- */
-const createPopUp = (
-  surfSpot: SurfSpot,
-  user: User | null,
-  navigate: (path: string) => void,
-  onFetcherSubmit: (
-    params: FetcherSubmitParams,
-    updatedSurfSpot: SurfSpot,
-  ) => void,
-): mapboxgl.Popup => {
-  try {
-    const popupContainer = document.createElement('div')
-    createRoot(popupContainer).render(
-      <SurfSpotPopUp {...{ surfSpot, user, navigate, onFetcherSubmit }} />,
-    )
-
-    const { longitude, latitude, name } = surfSpot
-
-    if (!longitude || !latitude) {
-      throw new Error(`Missing coordinates for surf spot "${name}".`)
-    }
-
-    return new mapboxgl.Popup({
-      maxWidth: '272px',
-      focusAfterOpen: false,
-    })
-      .setLngLat([longitude, latitude])
-      .setDOMContent(popupContainer)
-  } catch (error) {
-    console.error('Error creating popup:', error)
-    throw error
-  }
 }
 
 /**
@@ -426,15 +340,29 @@ const createMarkerElement = () => {
 }
 
 export const removeSource = (map: Map) => {
-  const source = map.getSource('surfSpots')
-  if (!source) {
-    return console.error(
-      'Source not found. Unable to remove surf spots source.',
-    )
-  }
+  try {
+    // Check if source exists before trying to remove it
+    const source = map.getSource('surfSpots')
+    if (!source) {
+      // Source doesn't exist, which is fine - just return silently
+      return
+    }
 
-  map.removeLayer('clusters')
-  map.removeLayer('cluster-count')
-  map.removeLayer('marker')
-  map.removeSource('surfSpots')
+    // Check if layers exist before removing them
+    if (map.getLayer('clusters')) {
+      map.removeLayer('clusters')
+    }
+    if (map.getLayer('cluster-count')) {
+      map.removeLayer('cluster-count')
+    }
+    if (map.getLayer('marker')) {
+      map.removeLayer('marker')
+    }
+
+    // Remove the source
+    map.removeSource('surfSpots')
+  } catch (error) {
+    // Log error but don't throw - this is cleanup code
+    console.warn('Error during map cleanup:', error)
+  }
 }

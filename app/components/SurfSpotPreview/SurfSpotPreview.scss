@@ -1,0 +1,27 @@
+.surf-spot-preview {
+  padding: $spacing-unit;
+
+  .surf-spot-preview-title {
+    font-size: $font-size-large;
+    font-weight: 600;
+    margin-bottom: $spacing-unit;
+    color: $text-color;
+  }
+
+  .surf-spot-preview-content {
+    .surf-spot-preview-details {
+      margin-bottom: $spacing-unit;
+    }
+
+    .surf-spot-preview-link {
+      color: $primary-color;
+      cursor: pointer;
+      text-decoration: underline;
+      margin-bottom: $spacing-unit;
+
+      &:hover {
+        color: adjust-color($primary-color, $lightness: -10%);
+      }
+    }
+  }
+}

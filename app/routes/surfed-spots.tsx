@@ -34,7 +34,6 @@ export const loader: LoaderFunction = async ({ request }) => {
         Cookie: cookie,
       },
     })
-    console.log('surfedSpotsSummary', surfedSpotsSummary)
     return data<LoaderData>(
       { surfedSpotsSummary: surfedSpotsSummary as SurfedSpotsSummary },
       {
@@ -59,9 +58,6 @@ export default function SurfedSpots() {
   const loading = state === 'loading'
 
   const { surfedSpotsSummary, error } = useLoaderData<LoaderData>()
-
-  console.log('surfedSpotsSummary', surfedSpotsSummary)
-  console.log('error', error)
 
   if (error) {
     return (

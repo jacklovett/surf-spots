@@ -36,13 +36,6 @@
     margin-bottom: -4px;
   }
 
-  .menu-item {
-    @extend %flex-base;
-    height: $header-height;
-    gap: $spacing-unit;
-    align-items: center;
-  }
-
   .dropdown-menu {
     position: absolute;
     top: calc($header-height + $spacing-unit);
@@ -156,4 +149,11 @@
       display: none;
     }
   }
+}
+
+.menu-item {
+  @extend %flex-base;
+  height: $header-height;
+  gap: $spacing-unit;
+  align-items: center;
 }

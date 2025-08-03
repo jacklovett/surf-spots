@@ -2,7 +2,7 @@ import { ReactNode } from 'react'
 import { useNavigation } from 'react-router'
 import classNames from 'classnames'
 
-import { ErrorBoundary, Footer, Header } from '../index'
+import { Drawer, ErrorBoundary, Footer, Header } from '../index'
 import { renderContent } from './index'
 
 interface IProps {
@@ -42,6 +42,7 @@ export const Page = (props: IProps) => {
         </section>
       </main>
       <Footer isAlternate={isAlternate} />
+      <Drawer />
     </>
   )
 }

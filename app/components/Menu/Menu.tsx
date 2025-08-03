@@ -1,24 +1,32 @@
 import { useState } from 'react'
-import { useNavigate } from 'react-router';
-import classNames from 'classnames'
+import { useNavigate } from 'react-router'
 
 import { MenuItem, profileMenuItems, spotsMenuItems } from './index'
 import { ErrorBoundary, Icon } from '../index'
+import { useLayout } from '~/contexts'
 
 const Menu = () => {
   const navigate = useNavigate()
+  const { openDrawer, closeDrawer } = useLayout()
   const [isDropdownOpen, setDropdownOpen] = useState(false)
-  const [isSidebarOpen, setSidebarOpen] = useState(false)
 
   const toggleDropdown = () => setDropdownOpen((prev) => !prev)
-  const toggleSidebar = () => setSidebarOpen((prev) => !prev)
+
+  const handleMenuItemClick = (path: string) => {
+    navigate(path)
+    closeDrawer()
+  }
 
   const createMenuList = (items: MenuItem[], itemClass: string) => (
     <ul>
       {items.map((item: MenuItem) => {
         const { key, icon, label, path } = item
         return (
-          <li key={key} className={itemClass} onClick={() => navigate(path)}>
+          <li
+            key={key}
+            className={itemClass}
+            onClick={() => handleMenuItemClick(path)}
+          >
             <Icon iconKey={icon} />
             {label}
           </li>
@@ -26,6 +34,22 @@ const Menu = () => {
       })}
     </ul>
   )
+
+  const handleOpenMobileMenu = () => {
+    const mobileMenuContent = (
+      <div className="sidebar-menu">
+        <div className="sidebar-content">
+          <ErrorBoundary message="Unable to display menu">
+            {createMenuList(spotsMenuItems, 'menu-item ph')}
+            <div className="menu-section">
+              {createMenuList(profileMenuItems, 'menu-item ph')}
+            </div>
+          </ErrorBoundary>
+        </div>
+      </div>
+    )
+    openDrawer(mobileMenuContent, 'right', '')
+  }
 
   return (
     <div className="menu">
@@ -48,27 +72,8 @@ const Menu = () => {
           </ErrorBoundary>
         </div>
       )}
-      {/* Sidebar Menu */}
-      <div
-        className={classNames({
-          'sidebar-menu': true,
-          active: isSidebarOpen,
-        })}
-      >
-        <div className="sidebar-header">
-          <button onClick={toggleSidebar}>✕</button>
-        </div>
-        <ErrorBoundary message="Unable to display menu">
-          <div className="sidebar-content">
-            {createMenuList(spotsMenuItems, 'menu-item')}
-            <div className="menu-section">
-              {createMenuList(profileMenuItems, 'menu-item')}
-            </div>
-          </div>
-        </ErrorBoundary>
-      </div>
       {/* Hamburger Icon (Mobile) */}
-      <div className="hamburger-icon" onClick={toggleSidebar}>
+      <div className="hamburger-icon" onClick={handleOpenMobileMenu}>
         <span></span>
         <span></span>
         <span></span>

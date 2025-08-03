@@ -5,7 +5,7 @@ import {
   useRef,
   useState,
 } from 'react'
-import { useFetcher, useNavigate } from 'react-router';
+import { useFetcher, useNavigate } from 'react-router'
 import mapboxgl from 'mapbox-gl'
 import {
   addLayers,
@@ -24,6 +24,7 @@ import {
   submitFetcher,
   SurfSpotActionFetcherResponse,
 } from '~/components/SurfSpotActions'
+import { useMapDrawer } from './useMapDrawer'
 
 export const useDynamicMap = (
   mapContainer: MutableRefObject<HTMLDivElement | null>,
@@ -46,6 +47,18 @@ export const useDynamicMap = (
   const [surfSpotPendingUpdate, setSurfSpotPendingUpdate] =
     useState<SurfSpot | null>(null)
 
+  const onFetcherSubmit = (
+    params: FetcherSubmitParams,
+    updatedSurfSpot: SurfSpot,
+  ) => {
+    // Save the updated surf spot to state for later use
+    setSurfSpotPendingUpdate(updatedSurfSpot)
+    submitFetcher(params, fetcher)
+  }
+
+  // Use the drawer hook for marker clicks
+  const { handleMarkerClick } = useMapDrawer(onFetcherSubmit)
+
   /**
    * Helper function to check if bounds are already loaded
    */
@@ -66,7 +79,9 @@ export const useDynamicMap = (
     debounce(async (currentMap: mapboxgl.Map) => {
       const newBounds = currentMap.getBounds()
 
-      if (!newBounds || isBoundsAlreadyLoaded(newBounds)) return
+      if (!newBounds || isBoundsAlreadyLoaded(newBounds)) {
+        return
+      }
 
       try {
         const newSurfSpots: SurfSpot[] = await fetchSurfSpotsByBounds(
@@ -85,14 +100,6 @@ export const useDynamicMap = (
     }, 500),
     [userId],
   )
-
-  const onFetcherSubmit = (
-    params: FetcherSubmitParams,
-    updatedSurfSpot: SurfSpot,
-  ) => {
-    setSurfSpotPendingUpdate(updatedSurfSpot) // Save the updated surf spot to state for later use
-    submitFetcher(params, fetcher)
-  }
 
   // Handle fetcher completion and update surfSpots
   useEffect(() => {
@@ -138,7 +145,7 @@ export const useDynamicMap = (
     currentMap.on('load', () => {
       setLoading(false)
       addSourceData(currentMap, surfSpots)
-      addLayers(currentMap, user, navigate, onFetcherSubmit)
+      addLayers(currentMap, handleMarkerClick)
       debouncedFetchSurfSpots(currentMap)
     })
 
@@ -164,6 +171,8 @@ export const useDynamicMap = (
       ) as mapboxgl.GeoJSONSource
       if (source) {
         source.setData(getSourceData(surfSpots))
+      } else {
+        console.warn('Surf spots source not found on map')
       }
     }
   }, [surfSpots])

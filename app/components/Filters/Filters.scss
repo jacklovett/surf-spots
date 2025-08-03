@@ -1,0 +1,67 @@
+.filters-container {
+  @extend %flex-column;
+  height: calc(100% - $header-height);
+}
+
+.filters-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: $spacing-unit;
+
+  .filters-content-section {
+    margin-bottom: $spacing-large;
+
+    &:last-of-type {
+      margin-bottom: $spacing-unit;
+    }
+  }
+
+  .filters-content-title {
+    font-size: $font-size-small;
+    font-weight: 600;
+    margin-bottom: $spacing-unit;
+    color: $text-color;
+    border-bottom: 1px solid $outline-color;
+    padding-bottom: $spacing-small;
+  }
+
+  .filters-content-options {
+    @extend %flex-column;
+    gap: $spacing-small;
+
+    .checkbox-option {
+      padding: $spacing-small;
+      border-radius: $content-border-radius;
+      transition: background-color 0.2s ease;
+
+      &:hover {
+        background-color: $text-hover-background;
+      }
+
+      // Override the bold class with higher specificity
+      p.bold {
+        margin-bottom: 0;
+        font-size: $font-size-small;
+        font-weight: normal !important;
+      }
+
+      p.font-small {
+        display: none;
+      }
+    }
+  }
+}
+
+.filters-content-actions {
+  @extend %flex-row;
+  flex-shrink: 0;
+  gap: $spacing-unit;
+  padding: $spacing-unit $spacing-small;
+  background: $white;
+
+  .button {
+    flex: 1 1 120px;
+    padding: $spacing-small $spacing-large;
+    white-space: nowrap;
+  }
+}
