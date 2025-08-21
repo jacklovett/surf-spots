@@ -1,3 +1,5 @@
+@use 'sass:color';
+
 button.text-button {
   @extend %flex-center;
   background: none;
@@ -32,7 +34,7 @@ button.text-button {
 
   &:not(:disabled):hover {
     background-color: $text-hover-background;
-    color: adjust-color($text-color, $lightness: -10%);
+    color: color.adjust($text-color, $lightness: -10%);
     transform: scale(1.02);
     transition: transform 0.2s ease-in-out;
   }

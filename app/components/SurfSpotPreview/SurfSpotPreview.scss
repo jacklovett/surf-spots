@@ -1,3 +1,5 @@
+@use 'sass:color';
+
 .surf-spot-preview {
   padding: $spacing-unit;
 
@@ -20,7 +22,7 @@
       margin-bottom: $spacing-unit;
 
       &:hover {
-        color: adjust-color($primary-color, $lightness: -10%);
+        color: color.adjust($primary-color, $lightness: -10%);
       }
     }
   }

@@ -1,3 +1,5 @@
+@use 'sass:color';
+
 .mapboxgl-popup-close-button {
   padding: 0 $spacing-unit;
   font-size: $font-size-x-large;
@@ -33,7 +35,7 @@
     &:hover,
     &:focus {
       text-decoration: underline;
-      color: adjust-color($primary-color, $lightness: 10%);
+      color: color.adjust($primary-color, $lightness: 10%);
       outline: none;
     }
   }

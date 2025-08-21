@@ -1,3 +1,5 @@
+@use 'sass:color';
+
 .view-switch {
   cursor: pointer;
   border-radius: $button-border-radius;
@@ -5,7 +7,7 @@
   padding: $spacing-small $spacing-unit;
 
   &:hover {
-    border-color: adjust-color($outline-color, $lightness: -20%);
+    border-color: color.adjust($outline-color, $lightness: -20%);
     transform: scale(1.03);
     transition: transform 0.2s ease-in-out;
   }

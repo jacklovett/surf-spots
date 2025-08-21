@@ -1,8 +1,10 @@
+@use 'sass:color';
+
 .button {
   @extend %flex-center;
   gap: $spacing-small;
   background-color: $accent-color;
-  color: adjust-color($primary-color, $lightness: -10%);
+  color: color.adjust($primary-color, $lightness: -10%);
   padding: $spacing-unit;
   border: none;
   border-radius: $button-border-radius;
@@ -13,7 +15,7 @@
   text-align: center;
   text-decoration: none;
   width: 100%;
-  
+
   &.secondary {
     background: $primary-color;
     color: $accent-color;
@@ -23,28 +25,28 @@
     width: fit-content;
     margin: 0 auto;
     padding: $spacing-small $spacing-large;
-    background: adjust-color($accent-color, $lightness: -10%);
+    background: color.adjust($accent-color, $lightness: -10%);
     color: $white;
   }
 
   &:hover {
-    background: adjust-color($accent-color, $lightness: -5%);
+    background: color.adjust($accent-color, $lightness: -5%);
     transform: scale(1.03);
     transition: background-color 0.3s, transform 0.3s ease-in-out;
     text-decoration: none;
 
     &.alternate {
-      color: adjust-color($primary-color, $lightness: -10%);
+      color: color.adjust($primary-color, $lightness: -10%);
     }
 
     &.secondary {
-      background: adjust-color($primary-color, $lightness: -10%);
+      background: color.adjust($primary-color, $lightness: -10%);
       color: $accent-color;
     }
   }
 
   &:active {
-    background: adjust-color($primary-color, $lightness: -5%);
+    background: color.adjust($primary-color, $lightness: -5%);
     transform: scale(0.95);
   }
 
@@ -68,7 +70,7 @@
   border-radius: $circle-border-radius;
 
   &:hover {
-    color: adjust-color($text-color, $lightness: -10%);
+    color: color.adjust($text-color, $lightness: -10%);
     background: $text-hover-background;
     transform: scale(1.03);
     transition: transform 0.3s ease-in-out;
