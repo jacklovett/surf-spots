@@ -75,6 +75,7 @@ export {
   SurfSpotPreview,
   SurfSpotList,
   SurfSpotPopUp,
+  Toolbar,
   TextButton,
   TideIcon,
   ViewSwitch,

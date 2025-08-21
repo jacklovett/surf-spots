@@ -22,6 +22,8 @@ import {
   TextButton,
 } from '~/components'
 import { BreadcrumbItem } from '~/components/Breadcrumb'
+import { getAppliedFiltersCount } from '~/components/Filters'
+
 import { surfSpotAction } from '~/services/surfSpot.server'
 import { useUser, useLayout } from '~/contexts'
 
@@ -53,7 +55,6 @@ export const loader: LoaderFunction = async ({ request }) => {
   const { pathname } = new URL(request.url)
   return {
     isMapView: checkIsMapView(pathname),
-    filters: getFilters(pathname),
   }
 }
 
@@ -69,8 +70,7 @@ export default function SurfSpots() {
   const loading = state === 'loading'
 
   // Get the initial view from the loader data
-  const { isMapView: initialMapView, filters: initialFilters } =
-    useLoaderData<LoaderData>()
+  const { isMapView: initialMapView } = useLoaderData<LoaderData>()
 
   const [isMapView, setIsMapView] = useState(initialMapView)
   // Handle the toggle view logic
@@ -79,9 +79,7 @@ export default function SurfSpots() {
     setIsMapView(!isMapView)
   }
 
-  const [filters, setFilters] = useState(initialFilters)
-
-  const showFilters = filters && filters?.length > 0
+  const { filters } = useSurfSpotsContext()
 
   const handleOpenFilters = () => {
     const filtersContent = (
@@ -98,7 +96,6 @@ export default function SurfSpots() {
 
   useEffect(() => {
     setIsMapView(checkIsMapView(pathname))
-    setFilters(getFilters(pathname))
   }, [pathname])
 
   const generateBreadcrumbItems = (): BreadcrumbItem[] => {

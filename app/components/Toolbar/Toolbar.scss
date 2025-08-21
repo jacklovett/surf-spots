@@ -1,0 +1,48 @@
+// Mobile toolbar layout
+// Hide the toolbar Add button on small screens (use floating button instead)
+.toolbar-add {
+  @media (max-width: 420px) {
+    display: none;
+  }
+}
+
+// Floating add button for mobile
+.floating-add-button {
+  display: none;
+
+  @media (max-width: 420px) {
+    display: block;
+    position: absolute;
+    bottom: 72px;
+    right: $spacing-unit;
+    z-index: 100;
+
+    button.text-button {
+      box-shadow: $box-shadow;
+      background: $white;
+      border-radius: 50%;
+      width: 56px;
+      height: 56px;
+      padding: 0;
+
+      .text-button-icon {
+        margin-right: 0;
+        width: 32px;
+        height: 32px;
+
+        svg {
+          width: 20px;
+          height: 20px;
+        }
+      }
+
+      span:not(.text-button-icon):not(.text-button-badge) {
+        display: none; // Hide text on mobile
+      }
+    }
+  }
+}
+
+.toolbar {
+  padding: $spacing-unit $spacing-small;
+}

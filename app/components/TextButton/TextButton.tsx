@@ -7,10 +7,11 @@ interface IProps {
   iconKey?: IconKey
   filled?: boolean
   disabled?: boolean
+  badge?: number
 }
 
 export const TextButton = (props: IProps) => {
-  const { disabled, filled = false, iconKey, onClick, text } = props
+  const { disabled, filled = false, iconKey, onClick, text, badge } = props
 
   return (
     <button
@@ -25,6 +26,7 @@ export const TextButton = (props: IProps) => {
         </span>
       )}
       <span className="text-button-text">{text}</span>
+      {badge && <span className="text-button-badge">{badge}</span>}
     </button>
   )
 }
