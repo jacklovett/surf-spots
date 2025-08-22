@@ -3,22 +3,24 @@ import { memo } from 'react'
 import { User } from '~/types/user'
 import { SurfSpot } from '~/types/surfSpots'
 
-import { Details, SurfSpotActions } from '../index'
+import Details from '../Details'
+import SurfSpotActions from '../SurfSpotActions'
+import { useLayoutContext } from '~/contexts'
 import { FetcherSubmitParams } from '../SurfSpotActions'
 
 interface IProps {
   surfSpot: SurfSpot
   user: User | null
   navigate: (path: string) => void
-  onFetcherSubmit: (
-    params: FetcherSubmitParams,
-    updatedSurfSpot: SurfSpot,
-  ) => void
+  onFetcherSubmit?: (params: FetcherSubmitParams) => void
+  onSurfSpotUpdate?: (updatedSurfSpot: SurfSpot) => void
 }
 
 export const SurfSpotPreview = memo((props: IProps) => {
-  const { surfSpot, user, navigate, onFetcherSubmit } = props
-  const { beachBottomType, name, rating, skillLevel, path, type } = surfSpot
+  const { surfSpot, user, navigate, onFetcherSubmit, onSurfSpotUpdate } = props
+  const { beachBottomType, rating, skillLevel, path, type } = surfSpot
+
+  const { closeDrawer } = useLayoutContext()
 
   return (
     <div className="surf-spot-preview">
@@ -31,12 +33,17 @@ export const SurfSpotPreview = memo((props: IProps) => {
         </div>
         <p
           className="surf-spot-preview-link"
-          onClick={() => navigate(path)}
+          onClick={() => {
+            navigate(path)
+            closeDrawer()
+          }}
           tabIndex={0}
         >
           Learn more
         </p>
-        <SurfSpotActions {...{ surfSpot, navigate, user, onFetcherSubmit }} />
+        <SurfSpotActions
+          {...{ surfSpot, navigate, user, onFetcherSubmit, onSurfSpotUpdate }}
+        />
       </div>
     </div>
   )

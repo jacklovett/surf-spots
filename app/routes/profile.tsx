@@ -17,7 +17,7 @@ import {
   getSession,
   requireSessionCookie,
 } from '~/services/session.server'
-import { useUser } from '~/contexts/UserContext'
+import { useUserContext } from '~/contexts'
 
 import {
   ContentStatus,
@@ -112,7 +112,7 @@ export const action: ActionFunction = async ({ request }) => {
 }
 
 const Profile = () => {
-  const { user } = useUser()
+  const { user } = useUserContext()
   const { state } = useNavigation()
   const loading = state === 'loading'
 

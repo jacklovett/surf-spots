@@ -3,8 +3,14 @@ import mapboxgl, {
   Map,
   MapMouseEvent,
 } from 'mapbox-gl'
-import { BoundingBox, Coordinates, Region, SurfSpot } from '~/types/surfSpots'
-import { get } from './networkService'
+import {
+  BoundingBox,
+  Coordinates,
+  Region,
+  SurfSpot,
+  SurfSpotFilters,
+} from '~/types/surfSpots'
+import { get, post } from './networkService'
 import { getCssVariable } from '~/utils'
 
 export const MAP_ACCESS_TOKEN = import.meta.env.VITE_MAP_ACCESS_TOKEN
@@ -37,13 +43,13 @@ export const getRegionFromLocationData = async (
 export const fetchSurfSpotsByBounds = async (
   map: mapboxgl.Map,
   userId?: string,
+  filters?: SurfSpotFilters,
 ): Promise<SurfSpot[]> => {
   try {
     const bounds = map.getBounds()
     if (!bounds) {
       throw new Error('Map bounds not available.')
     }
-
     const boundingBox: BoundingBox = {
       minLongitude: bounds.getSouthWest().lng,
       maxLongitude: bounds.getNorthEast().lng,
@@ -51,24 +57,16 @@ export const fetchSurfSpotsByBounds = async (
       maxLatitude: bounds.getNorthEast().lat,
     }
 
-    // Build URL with query parameters
-    const params = new URLSearchParams({
-      minLatitude: boundingBox.minLatitude.toString(),
-      maxLatitude: boundingBox.maxLatitude.toString(),
-      minLongitude: boundingBox.minLongitude.toString(),
-      maxLongitude: boundingBox.maxLongitude.toString(),
-    })
-
-    if (userId) {
-      params.append('userId', userId)
-    }
-
-    const url = `surf-spots/within-bounds?${params.toString()}`
-
-    const surfSpots = await get<SurfSpot[]>(url)
-    return surfSpots ?? []
-  } catch (error) {
-    console.error('Error fetching surf spots:', error)
+    // Only spread filters if provided
+    const payload = filters
+      ? { ...boundingBox, ...filters, userId }
+      : { ...boundingBox, userId }
+    return await post<
+      BoundingBox & Partial<SurfSpotFilters> & { userId?: string },
+      SurfSpot[]
+    >('surf-spots/within-bounds', payload)
+  } catch (e) {
+    console.error('Unable to fetch surf spots by bounds:', e)
     return []
   }
 }
@@ -162,8 +160,6 @@ export const addLayers = (
   map: Map,
   onMarkerClick: (event: MapMouseEvent) => void,
 ) => {
-  console.log('onMarkerClick: ', onMarkerClick)
-
   addClusterLayers(map)
   addMarkerLayers(map)
   setupLayerInteractions(map, onMarkerClick)

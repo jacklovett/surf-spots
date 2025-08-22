@@ -10,7 +10,7 @@ import {
   FormComponent,
 } from '~/components'
 import { SelectOption } from '~/components/FormInput'
-import { useSettings, useUser } from '~/contexts'
+import { useSettingsContext, useUserContext } from '~/contexts'
 import { edit } from '~/services/networkService'
 import {
   requireSessionCookie,
@@ -104,10 +104,10 @@ export default function Settings() {
   const loading = state === 'loading'
   const submitStatus = useSubmitStatus()
 
-  const { settings, updateSetting } = useSettings()
+  const { settings, updateSetting } = useSettingsContext()
   const { preferredUnits } = settings
 
-  const { user } = useUser()
+  const { user } = useUserContext()
 
   const [newSurfSpots, setNewSurfSpots] = useState<boolean>(
     user?.settings?.newSurfSpotEmails ?? true,

@@ -36,21 +36,19 @@ export const LayoutProvider = ({ children }: LayoutProviderProps) => {
     content: ReactNode,
     position: DrawerPosition = 'right',
     title?: string,
-  ) => {
+  ) =>
     setDrawer({
       isOpen: true,
       position,
       content,
       title,
     })
-  }
 
-  const closeDrawer = () => {
+  const closeDrawer = () =>
     setDrawer((prev) => ({
       ...prev,
       isOpen: false,
     }))
-  }
 
   const value: LayoutContextType = {
     drawer,
@@ -63,10 +61,10 @@ export const LayoutProvider = ({ children }: LayoutProviderProps) => {
   )
 }
 
-export const useLayout = (): LayoutContextType => {
+export const useLayoutContext = (): LayoutContextType => {
   const context = useContext(LayoutContext)
   if (!context) {
-    throw new Error('useLayout must be used within a LayoutProvider')
+    throw new Error('useLayoutContext must be used within a LayoutProvider')
   }
   return context
 }

@@ -59,10 +59,17 @@ export const Icon = (props: IProps) => {
         return (
           <svg {...commonIconStyles}>
             {/* Outer circle */}
-            <circle cx="12" cy="12" r="10" />
-            {/* Question mark */}
-            <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" />
-            <line x1="12" y1="17" x2="12.01" y2="17" />
+            <circle cx="12" cy="12" r="10" stroke={color} fill="none" />
+            {/* White 'i' in the center */}
+            <line
+              x1="12"
+              y1="9"
+              x2="12"
+              y2="15"
+              stroke="#ffffff"
+              strokeWidth={2.5}
+            />
+            <circle cx="12" cy="17" r="1.2" fill="#ffffff" />
           </svg>
         )
       case 'logout':

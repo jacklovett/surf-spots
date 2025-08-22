@@ -9,7 +9,12 @@ import {
   useLoaderData,
 } from 'react-router'
 
-import { SettingsProvider, UserProvider, LayoutProvider } from './contexts'
+import {
+  SettingsProvider,
+  UserProvider,
+  LayoutProvider,
+  SurfSpotsProvider,
+} from './contexts'
 
 import { getSession } from './services/session.server'
 import { User } from './types/user'
@@ -81,11 +86,13 @@ export default function App() {
   const { user } = useLoaderData<LoaderData>()
   return (
     <UserProvider {...{ user }}>
-      <SettingsProvider>
-        <LayoutProvider>
-          <Outlet />
-        </LayoutProvider>
-      </SettingsProvider>
+      <LayoutProvider>
+        <SettingsProvider>
+          <SurfSpotsProvider>
+            <Outlet />
+          </SurfSpotsProvider>
+        </SettingsProvider>
+      </LayoutProvider>
     </UserProvider>
   )
 }

@@ -3,11 +3,11 @@ import { useNavigate } from 'react-router'
 
 import { MenuItem, profileMenuItems, spotsMenuItems } from './index'
 import { ErrorBoundary, Icon } from '../index'
-import { useLayout } from '~/contexts'
+import { useLayoutContext } from '~/contexts'
 
 const Menu = () => {
   const navigate = useNavigate()
-  const { openDrawer, closeDrawer } = useLayout()
+  const { openDrawer, closeDrawer } = useLayoutContext()
   const [isDropdownOpen, setDropdownOpen] = useState(false)
 
   const toggleDropdown = () => setDropdownOpen((prev) => !prev)

@@ -1,10 +1,10 @@
 import { useEffect, useRef, useState } from 'react'
 import classNames from 'classnames'
 
-import { useLayout } from '~/contexts/LayoutContext'
+import { useLayoutContext } from '~/contexts'
 
 export const Drawer = () => {
-  const { drawer, closeDrawer } = useLayout()
+  const { drawer, closeDrawer } = useLayoutContext()
   const { isOpen, position, content, title } = drawer
   const drawerRef = useRef<HTMLDivElement>(null)
   const [isAnimating, setIsAnimating] = useState(false)

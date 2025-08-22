@@ -6,8 +6,9 @@ import {
   SurfSpotType,
   BeachBottomType,
   Tide,
+  SurfSpotFilters,
+  defaultSurfSpotFilters,
 } from '~/types/surfSpots'
-import { FilterState } from './index'
 import {
   ACCOMMODATION_TYPES,
   FOOD_OPTIONS,
@@ -16,26 +17,14 @@ import {
   FACILITIES,
 } from '~/types/formData'
 import { Option } from '../FormInput'
+import { useLayoutContext, useSurfSpotsContext } from '~/contexts'
 
-interface IProps {
-  onApplyFilters?: (filters: any) => void // TODO: Remove 'any'
-}
+export const Filters = memo(() => {
+  const { filters, setFilters } = useSurfSpotsContext()
+  const { closeDrawer } = useLayoutContext()
 
-export const Filters = memo((props: IProps) => {
-  const { onApplyFilters } = props
-
-  const [selectedFilters, setSelectedFilters] = useState<FilterState>({
-    skillLevel: [],
-    breakType: [],
-    beachBottom: [],
-    tide: [],
-    rating: 0,
-    parking: [],
-    foodNearby: [],
-    accommodationNearby: [],
-    hazards: [],
-    facilities: [],
-  })
+  const [selectedFilters, setSelectedFilters] =
+    useState<SurfSpotFilters>(filters)
 
   const skillLevels = Object.values(SkillLevel)
   const breakTypes = Object.values(SurfSpotType)
@@ -47,57 +36,74 @@ export const Filters = memo((props: IProps) => {
     { key: 'boatRequired', value: 'boat required', label: 'Boat required' },
   ]
 
-  const handleFilterChange = (category: keyof FilterState, value: string) =>
-    setSelectedFilters((prev) => ({
-      ...prev,
-      [category]:
-        Array.isArray(prev[category]) && prev[category].includes(value)
-          ? (prev[category] as string[]).filter((item) => item !== value)
-          : [...(prev[category] as string[]), value],
-    }))
+  /**
+   * Generic toggle function for array filters
+   * Handles both string arrays (skillLevel, breakType, etc.) and Option object arrays (parking, foodOptions, etc.)
+   *
+   * @param category - The filter category to update (e.g., 'skillLevel', 'parking')
+   * @param value - The value to toggle (string for simple filters, Option object for complex filters)
+   * @param isOption - Whether this is an Option object filter (true) or string filter (false)
+   */
+  const toggleArrayFilter = (
+    category: keyof SurfSpotFilters,
+    value: string | Option,
+    isOption = false,
+  ) => {
+    setSelectedFilters((prev) => {
+      const current = prev[category] as (string | Option)[]
 
+      let updated: (string | Option)[]
+
+      if (isOption) {
+        // Handle Option object arrays (parking, foodOptions, accommodationOptions, hazards, facilities)
+        const option = value as Option
+        const isSelected = current.some(
+          (item) => (item as Option).value === option.value,
+        )
+        updated = isSelected
+          ? current.filter((item) => (item as Option).value !== option.value)
+          : [...current, value]
+      } else {
+        // Handle string arrays (skillLevel, breakType, beachBottom, tide)
+        const stringValue = value as string
+        const isSelected = current.includes(stringValue)
+        updated = isSelected
+          ? current.filter((item) => item !== stringValue)
+          : [...current, value]
+      }
+
+      return { ...prev, [category]: updated }
+    })
+  }
+
+  // Toggle a string value in an array filter (e.g. skillLevel, breakType, etc.)
+  const handleFilterChange = (category: keyof SurfSpotFilters, value: string) =>
+    toggleArrayFilter(category, value, false)
+
+  // Toggle an Option object in an array filter (e.g. parking, foodOptions, etc.)
   const handleOptionFilterChange = (
-    category: keyof FilterState,
+    category: keyof SurfSpotFilters,
     option: Option,
-  ) =>
-    setSelectedFilters((prev) => ({
-      ...prev,
-      [category]:
-        Array.isArray(prev[category]) &&
-        (prev[category] as Option[]).some((item) => item.value === option.value)
-          ? (prev[category] as Option[]).filter(
-              (item) => item.value !== option.value,
-            )
-          : [...(prev[category] as Option[]), option],
-    }))
+  ) => toggleArrayFilter(category, option, true)
 
-  const handleBooleanFilterChange = (category: keyof FilterState) =>
-    setSelectedFilters((prev) => ({
-      ...prev,
-      [category]: !prev[category],
-    }))
-
+  // Set the rating filter (number)
   const handleRatingChange = (rating?: number) =>
     setSelectedFilters((prev) => ({
       ...prev,
       rating: rating || 0,
     }))
 
-  const handleApplyFilters = () => onApplyFilters?.(selectedFilters)
+  // Apply filters: update global context
+  const handleApplyFilters = () => {
+    setFilters(selectedFilters)
+    closeDrawer()
+  }
 
-  const handleClearFilters = () =>
-    setSelectedFilters({
-      skillLevel: [],
-      breakType: [],
-      beachBottom: [],
-      tide: [],
-      rating: 0,
-      parking: [],
-      foodNearby: [],
-      accommodationNearby: [],
-      hazards: [],
-      facilities: [],
-    })
+  // Clear all filters to their default state
+  const handleClearFilters = () => {
+    setSelectedFilters(defaultSurfSpotFilters)
+    setFilters(defaultSurfSpotFilters)
+  }
 
   return (
     <div className="filters-container">
@@ -209,10 +215,10 @@ export const Filters = memo((props: IProps) => {
                 name={`food-${option.value}`}
                 title={option.label}
                 description=""
-                checked={selectedFilters.foodNearby.some(
+                checked={selectedFilters.foodOptions.some(
                   (item) => item.value === option.value,
                 )}
-                onChange={() => handleOptionFilterChange('foodNearby', option)}
+                onChange={() => handleOptionFilterChange('foodOptions', option)}
               />
             ))}
           </div>
@@ -227,11 +233,11 @@ export const Filters = memo((props: IProps) => {
                 name={`accommodation-${option.value}`}
                 title={option.label}
                 description=""
-                checked={selectedFilters.accommodationNearby.some(
+                checked={selectedFilters.accommodationOptions.some(
                   (item) => item.value === option.value,
                 )}
                 onChange={() =>
-                  handleOptionFilterChange('accommodationNearby', option)
+                  handleOptionFilterChange('accommodationOptions', option)
                 }
               />
             ))}

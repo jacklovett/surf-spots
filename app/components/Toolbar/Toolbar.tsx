@@ -1,4 +1,5 @@
-import { TextButton, ViewSwitch } from '..'
+import TextButton from '../TextButton'
+import ViewSwitch from '../ViewSwitch'
 
 interface ToolbarProps {
   showAddButton: boolean

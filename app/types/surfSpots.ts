@@ -1,4 +1,5 @@
 import { ForecastLink } from '~/components/ForecastLinks'
+import { Option } from '~/components/FormInput'
 
 export interface Coordinates {
   longitude: number
@@ -149,4 +150,30 @@ export interface SurfSpotFormState {
   foodNearby: boolean
   skillLevel?: SkillLevel
   forecastLinks: ForecastLink[]
+}
+
+export interface SurfSpotFilters {
+  skillLevel: string[]
+  breakType: string[]
+  beachBottom: string[]
+  tide: string[]
+  rating: number
+  parking: Option[]
+  foodOptions: Option[]
+  accommodationOptions: Option[]
+  hazards: Option[]
+  facilities: Option[]
+}
+
+export const defaultSurfSpotFilters: SurfSpotFilters = {
+  skillLevel: [],
+  breakType: [],
+  beachBottom: [],
+  tide: [],
+  rating: 0,
+  parking: [],
+  foodOptions: [],
+  accommodationOptions: [],
+  hazards: [],
+  facilities: [],
 }

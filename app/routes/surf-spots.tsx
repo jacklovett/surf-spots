@@ -8,6 +8,7 @@ import {
   useNavigate,
   useNavigation,
   useParams,
+  useFetcher,
 } from 'react-router'
 
 import {
@@ -18,14 +19,22 @@ import {
   Loading,
   SurfMap,
   Page,
-  ViewSwitch,
-  TextButton,
+  Toolbar,
 } from '~/components'
+import { submitFetcher } from '~/components/SurfSpotActions'
+import {
+  FetcherSubmitParams,
+  SurfSpotActionFetcherResponse,
+} from '~/components/SurfSpotActions'
 import { BreadcrumbItem } from '~/components/Breadcrumb'
 import { getAppliedFiltersCount } from '~/components/Filters'
 
 import { surfSpotAction } from '~/services/surfSpot.server'
-import { useUser, useLayout } from '~/contexts'
+import {
+  useLayoutContext,
+  useSurfSpotsContext,
+  useUserContext,
+} from '~/contexts'
 
 interface LoaderData {
   isMapView: boolean
@@ -34,22 +43,6 @@ interface LoaderData {
 
 const checkIsMapView = (pathname: string) =>
   pathname === '/surf-spots' || pathname === '/surf-spots/'
-
-/**
- * Determine if and what filters to display - TODO
- * @param pathname
- * @returns filters - array of filters that can be applied
- */
-const getFilters = (pathname: string) => {
-  const isMapView = checkIsMapView(pathname)
-  const filters: { label: string }[] = []
-
-  if (isMapView) {
-    filters.push({ label: 'Break Type' })
-  }
-
-  return filters
-}
 
 export const loader: LoaderFunction = async ({ request }) => {
   const { pathname } = new URL(request.url)
@@ -61,13 +54,18 @@ export const loader: LoaderFunction = async ({ request }) => {
 export const action: ActionFunction = surfSpotAction
 
 export default function SurfSpots() {
-  const { user } = useUser()
-  const { openDrawer } = useLayout()
+  const { user } = useUserContext()
+  const { openDrawer } = useLayoutContext()
   const navigate = useNavigate()
   const { pathname } = useLocation()
   const { state } = useNavigation()
 
   const loading = state === 'loading'
+
+  const fetcher = useFetcher<SurfSpotActionFetcherResponse>()
+
+  const onFetcherSubmit = (params: FetcherSubmitParams) =>
+    submitFetcher(params, fetcher)
 
   // Get the initial view from the loader data
   const { isMapView: initialMapView } = useLoaderData<LoaderData>()
@@ -82,15 +80,7 @@ export default function SurfSpots() {
   const { filters } = useSurfSpotsContext()
 
   const handleOpenFilters = () => {
-    const filtersContent = (
-      <Filters
-        onApplyFilters={(appliedFilters) => {
-          console.log('Applied filters:', appliedFilters)
-          // TODO: Apply filters to surf spots
-          // Should this be filtering in frontend or calling backend?
-        }}
-      />
-    )
+    const filtersContent = <Filters />
     openDrawer(filtersContent, 'left', 'Filters')
   }
 
@@ -132,35 +122,20 @@ export default function SurfSpots() {
 
   return (
     <Page showHeader overrideLoading>
-      <div className="row toolbar flex-end space-between">
-        <div className="row flex-1 mh-s">
-          {user && (
-            <TextButton
-              text="Add new spot"
-              onClick={() => navigate('/add-surf-spot')}
-              iconKey="plus"
-              filled
-            />
-          )}
-          {showFilters && (
-            <TextButton
-              text="Filters"
-              onClick={handleOpenFilters}
-              iconKey="filters"
-            />
-          )}
-        </div>
-        <ViewSwitch
-          isPrimaryView={isMapView}
-          onToggleView={handleToggleView}
-          primaryLabel="Map"
-          secondaryLabel="List"
-        />
-      </div>
+      <Toolbar
+        showAddButton={!!user}
+        onAddNewSpot={() => navigate('/add-surf-spot')}
+        onOpenFilters={handleOpenFilters}
+        filtersBadge={getAppliedFiltersCount(filters)}
+        isMapView={isMapView}
+        onToggleView={handleToggleView}
+      />
       {isMapView ? (
-        <div className="center column h-full">
+        <div className="center column h-full map-wrapper">
           <ErrorBoundary message="Uh-oh! Something went wrong displaying the map!">
-            <SurfMap />
+            <div className="map-container">
+              <SurfMap onFetcherSubmit={onFetcherSubmit} />
+            </div>
           </ErrorBoundary>
         </div>
       ) : (

@@ -2,7 +2,9 @@ import { useState, memo } from 'react'
 
 import { SurfSpot } from '~/types/surfSpots'
 import { User } from '~/types/user'
-import { Button, Modal, TextButton } from '../index'
+import Button from '../Button'
+import Modal from '../Modal'
+import TextButton from '../TextButton'
 import { IModalState, initialModalState } from '../Modal'
 
 import { FetcherSubmitParams } from './index'
@@ -11,14 +13,12 @@ interface IProps {
   surfSpot: SurfSpot
   navigate: (path: string) => void
   user: User | null
-  onFetcherSubmit: (
-    params: FetcherSubmitParams,
-    updatedSurfSpot: SurfSpot,
-  ) => void
+  onFetcherSubmit?: (params: FetcherSubmitParams) => void
+  onSurfSpotUpdate?: (updatedSurfSpot: SurfSpot) => void
 }
 
 export const SurfSpotActions = memo((props: IProps) => {
-  const { surfSpot, navigate, user, onFetcherSubmit } = props
+  const { surfSpot, navigate, user, onFetcherSubmit, onSurfSpotUpdate } = props
   const [modalState, setModalState] = useState<IModalState>(initialModalState)
   const [surfSpotState, setSurfSpotState] = useState<SurfSpot>(surfSpot)
 
@@ -31,32 +31,39 @@ export const SurfSpotActions = memo((props: IProps) => {
     target: 'user-spots' | 'watch',
   ) => {
     if (user) {
+      // Submit the action to the server
+      if (onFetcherSubmit) {
+        const formData = new FormData()
+        formData.append('actionType', actionType)
+        formData.append('target', target)
+        formData.append('surfSpotId', surfSpotId.toString())
+        onFetcherSubmit(formData)
+      } else {
+        console.warn('onFetcherSubmit is not available')
+      }
+
+      // Update local state optimistically
       let updatedSurfSpot = surfSpotState
       if (target === 'user-spots') {
         updatedSurfSpot = {
           ...surfSpotState,
-          isSurfedSpot: !surfSpot.isSurfedSpot,
+          isSurfedSpot: !surfSpotState.isSurfedSpot,
         }
       }
 
       if (target === 'watch') {
         updatedSurfSpot = {
           ...surfSpotState,
-          isWatched: !surfSpot.isWatched,
+          isWatched: !surfSpotState.isWatched,
         }
       }
 
-      onFetcherSubmit(
-        {
-          actionType,
-          target,
-          surfSpotId,
-          userId: user.id,
-        },
-        updatedSurfSpot,
-      )
-
       setSurfSpotState(updatedSurfSpot)
+
+      // Update parent's surf spot data
+      if (onSurfSpotUpdate) {
+        onSurfSpotUpdate(updatedSurfSpot)
+      }
     } else {
       showSignUpPromptModal(target === 'watch')
     }
@@ -139,6 +146,14 @@ export const SurfSpotActions = memo((props: IProps) => {
           text="Remove from surfed spots"
           onClick={() => handleAction('remove', 'user-spots')}
           iconKey="bin"
+          filled
+        />
+      )}
+      {canEdit && (
+        <TextButton
+          text="Edit surf spot"
+          onClick={() => navigate(`/edit-surf-spot/${surfSpot.id}`)}
+          iconKey="plus" // TODO: Create edit icon
           filled
         />
       )}

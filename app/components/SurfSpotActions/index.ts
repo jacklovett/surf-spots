@@ -2,11 +2,6 @@ import { FetcherWithComponents } from 'react-router'
 
 import { SurfSpotActions } from './SurfSpotActions'
 
-export interface SurfSpotActionFetcherResponse {
-  success: boolean
-  error?: string
-}
-
 export type FetcherSubmitParams =
   | FormData
   | URLSearchParams
@@ -14,9 +9,7 @@ export type FetcherSubmitParams =
 
 export const submitFetcher = (
   params: FetcherSubmitParams,
-  fetcher: FetcherWithComponents<SurfSpotActionFetcherResponse>,
-) => {
-  fetcher.submit(params, { method: 'POST' })
-}
+  fetcher: FetcherWithComponents<string>,
+) => fetcher.submit(params, { method: 'POST' })
 
 export default SurfSpotActions

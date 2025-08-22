@@ -3,17 +3,19 @@ import classNames from 'classnames'
 
 import 'mapbox-gl/dist/mapbox-gl.css'
 
-import { SkeletonLoader } from '../index'
+import SkeletonLoader from '../SkeletonLoader'
 import { SurfSpot } from '~/types/surfSpots'
 import { useDynamicMap, useStaticMap } from '~/hooks'
+import { FetcherSubmitParams } from '../SurfSpotActions'
 
 interface IProps {
   surfSpots?: SurfSpot[]
   disableInteractions?: boolean
+  onFetcherSubmit?: (params: FetcherSubmitParams) => void
 }
 
 export const SurfMap = memo((props: IProps) => {
-  const { surfSpots, disableInteractions } = props
+  const { surfSpots, disableInteractions, onFetcherSubmit } = props
   const [loading, setLoading] = useState(true)
 
   const mapContainerRef = useRef<HTMLDivElement | null>(null)
@@ -22,7 +24,7 @@ export const SurfMap = memo((props: IProps) => {
     const { longitude, latitude } = surfSpots[0]
     useStaticMap({ longitude, latitude }, mapContainerRef, setLoading)
   } else {
-    useDynamicMap(mapContainerRef, setLoading)
+    useDynamicMap(mapContainerRef, setLoading, onFetcherSubmit)
   }
 
   return (

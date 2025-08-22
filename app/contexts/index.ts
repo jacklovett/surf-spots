@@ -1,12 +1,15 @@
-import { SettingsProvider, useSettings } from './SettingsContext'
-import { UserProvider, useUser } from './UserContext'
-import { LayoutProvider, useLayout } from './LayoutContext'
+import { SettingsProvider, useSettingsContext } from './SettingsContext'
+import { UserProvider, useUserContext } from './UserContext'
+import { LayoutProvider, useLayoutContext } from './LayoutContext'
+import { SurfSpotsProvider, useSurfSpotsContext } from './SurfSpotsContext'
 
 export {
-  SettingsProvider,
-  UserProvider,
   LayoutProvider,
-  useSettings,
-  useUser,
-  useLayout,
+  SettingsProvider,
+  SurfSpotsProvider,
+  UserProvider,
+  useSettingsContext,
+  useUserContext,
+  useLayoutContext,
+  useSurfSpotsContext,
 }

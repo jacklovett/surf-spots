@@ -24,13 +24,12 @@ import {
   SurfSpotActions,
   TideIcon,
 } from '~/components'
-import {
-  FetcherSubmitParams,
-  submitFetcher,
-  SurfSpotActionFetcherResponse,
-} from '~/components/SurfSpotActions'
-import { useUser, useSettings } from '~/contexts'
+import { submitFetcher } from '~/components/SurfSpotActions'
+import { FetcherSubmitParams } from '~/components/SurfSpotActions'
+
+import { useUserContext, useSettingsContext } from '~/contexts'
 import { units } from '~/contexts/SettingsContext'
+
 import { surfSpotAction } from '~/services/surfSpot.server'
 import { getSession } from '~/services/session.server'
 import { metersToFeet } from '~/utils'
@@ -91,12 +90,12 @@ const formatSurfHeightRange = (
 
 export default function SurfSpotDetails() {
   const { surfSpotDetails } = useLoaderData<LoaderData>()
-  const { user } = useUser()
-  const { settings } = useSettings()
+  const { user } = useUserContext()
+  const { settings } = useSettingsContext()
   const { preferredUnits } = settings
   const navigate = useNavigate()
 
-  const fetcher = useFetcher<SurfSpotActionFetcherResponse>()
+  const fetcher = useFetcher<string>()
 
   const onFetcherSubmit = (params: FetcherSubmitParams) =>
     submitFetcher(params, fetcher)

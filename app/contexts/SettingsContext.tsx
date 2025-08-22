@@ -57,11 +57,11 @@ export const SettingsProvider = ({ children }: SettingsProviderProps) => {
   )
 }
 
-export const useSettings = () => {
+export const useSettingsContext = () => {
   const context = useContext(SettingsContext)
 
-  if (context === undefined) {
-    throw new Error('useSettings must be used within a SettingsProvider')
+  if (!context) {
+    throw new Error('useSettingsContext must be used within a SettingsProvider')
   }
 
   return context
