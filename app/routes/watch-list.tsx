@@ -105,6 +105,7 @@ export default function Watchlist() {
               {notifications.map((notification) => {
                 const { title, description, link } = notification
                 return (
+                  // TODO: Different colors/theming to notifications based on type?
                   <div className="flex column gap">
                     <p className="bold">{title}</p>
                     <p>{description}</p>

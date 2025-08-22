@@ -22,7 +22,9 @@ export const SurfSpotActions = memo((props: IProps) => {
   const [modalState, setModalState] = useState<IModalState>(initialModalState)
   const [surfSpotState, setSurfSpotState] = useState<SurfSpot>(surfSpot)
 
-  const { id: surfSpotId, isSurfedSpot, isWatched } = surfSpotState
+  const { id: surfSpotId, isSurfedSpot, isWatched, createdBy } = surfSpotState
+
+  const canEdit = user && createdBy === user?.id
 
   const handleAction = async (
     actionType: 'add' | 'remove',

@@ -38,6 +38,8 @@ import Rating from './Rating'
 import ChipSelector from './ChipSelector'
 import ForecastLinks from './ForecastLinks'
 import KofiButton from './KofiButton'
+import SurfSpotForm from './SurfSpotForm'
+import Toolbar from './Toolbar'
 
 export {
   AuthPage,
@@ -72,6 +74,7 @@ export {
   SurfHeightIcon,
   SurfMap,
   SurfSpotActions,
+  SurfSpotForm,
   SurfSpotPreview,
   SurfSpotList,
   SurfSpotPopUp,

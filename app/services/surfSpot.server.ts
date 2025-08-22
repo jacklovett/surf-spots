@@ -2,6 +2,7 @@ import { ActionFunction, data } from 'react-router'
 import { post, deleteData } from './networkService'
 import { getSession, commitSession } from './session.server'
 import { requireSessionCookie } from './session.server'
+import { SurfSpotStatus } from '~/types/surfSpots'
 
 export const surfSpotAction: ActionFunction = async ({ request }) => {
   const clonedRequest = request.clone()
@@ -68,4 +69,88 @@ export const surfSpotAction: ActionFunction = async ({ request }) => {
       { status: 500 },
     )
   }
+}
+
+export const createSurfSpotFromFormData = async (request: Request) => {
+  const user = await requireSessionCookie(request)
+  const userId = user.id
+
+  const formData = await request.formData()
+
+  // Handle boolean fields
+  const isPrivate = formData.get('isPrivate') === 'on'
+  const foodNearby = formData.get('foodNearby') === 'on'
+  const accommodationNearby = formData.get('accommodationNearby') === 'on'
+  const boatRequired = formData.get('boatRequired') === 'on'
+
+  // Handle array fields
+  const foodOptions = formData.getAll('foodOptions') as string[]
+  const accommodationOptions = formData.getAll(
+    'accommodationOptions',
+  ) as string[]
+  const forecasts = formData.getAll('forecasts') as string[]
+  const facilities = formData.getAll('facilities') as string[]
+  const hazards = formData.getAll('hazards') as string[]
+  // Handle other fields
+  const name = formData.get('name')?.toString() || ''
+  const description = formData.get('description')?.toString() || ''
+  const regionId = formData.get('region')?.toString() || ''
+  const longitude = parseFloat(formData.get('longitude')?.toString() || '0')
+  const latitude = parseFloat(formData.get('latitude')?.toString() || '0')
+  const type = formData.get('type')?.toString() || ''
+  const beachBottomType = formData.get('beachBottomType')?.toString() || ''
+  const swellDirection = formData.get('swellDirection')?.toString() || ''
+  const windDirection = formData.get('windDirection')?.toString() || ''
+  const tide = formData.get('tide')?.toString() || ''
+
+  const minSurfHeightFormValue = formData.get('minSurfHeight')?.toString()
+  const minSurfHeight = minSurfHeightFormValue
+    ? parseFloat(minSurfHeightFormValue)
+    : undefined
+  const maxSurfHeightFormValue = formData.get('maxSurfHeight')?.toString()
+  const maxSurfHeight = maxSurfHeightFormValue
+    ? parseFloat(maxSurfHeightFormValue)
+    : undefined
+
+  const seasonStart = formData.get('seasonStart')?.toString() || ''
+  const seasonEnd = formData.get('seasonEnd')?.toString() || ''
+  const skillLevel = formData.get('skillLevel')?.toString() || ''
+
+  const ratingFormValue = formData.get('rating')?.toString()
+  const rating = ratingFormValue ? parseFloat(ratingFormValue) : undefined
+
+  const parking = formData.get('parking')?.toString() || ''
+
+  // Construct the new surf spot object
+  const newSurfSpot = {
+    name,
+    description,
+    regionId,
+    longitude,
+    latitude,
+    type,
+    beachBottomType,
+    swellDirection,
+    windDirection,
+    tide,
+    minSurfHeight,
+    maxSurfHeight,
+    seasonStart,
+    seasonEnd,
+    skillLevel,
+    forecasts,
+    boatRequired,
+    parking,
+    foodNearby,
+    foodOptions,
+    accommodationNearby,
+    accommodationOptions,
+    facilities,
+    hazards,
+    rating,
+    status: isPrivate ? SurfSpotStatus.PRIVATE : SurfSpotStatus.PENDING,
+    userId,
+  }
+
+  return newSurfSpot
 }
