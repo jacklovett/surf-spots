@@ -1,11 +1,11 @@
 import { Link, useNavigate } from 'react-router'
-import { useUser } from '~/contexts/UserContext'
+import { useUserContext } from '~/contexts'
 
 import Menu from '../Menu'
 
 export const Header = () => {
   const navigate = useNavigate()
-  const { user } = useUser()
+  const { user } = useUserContext()
   const isLoggedIn = !!user
 
   return (
