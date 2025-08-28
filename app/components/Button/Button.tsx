@@ -1,3 +1,4 @@
+import Icon from '../Icon'
 import { ButtonIcon, ButtonType } from './index'
 
 interface IProps {
@@ -30,7 +31,15 @@ export const Button = (props: IProps) => {
       aria-label={ariaLabel || label}
       aria-disabled={disabled}
     >
-      {icon && <img src={icon.filePath} alt={icon.name} width="24" />}
+      {icon &&
+        (icon.filePath ? (
+          <img src={icon.filePath} alt={icon.name} width="24" />
+        ) : (
+          <Icon
+            iconKey={icon.name}
+            useBrandColors={icon.name === 'facebook' || icon.name === 'google'}
+          />
+        ))}
       {label}
     </button>
   )

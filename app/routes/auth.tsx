@@ -128,7 +128,7 @@ export default function Auth() {
           <SignInOptions />
         </div>
         <div className="center auth-options">
-          <div className="row center auth-cta">
+          <div className="auth-cta">
             <p>Don't have an account?</p>
             <Link className="font-small" to="/auth/sign-up" prefetch="intent">
               Sign up

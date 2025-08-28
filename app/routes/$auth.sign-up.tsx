@@ -113,7 +113,7 @@ const SignUp = () => {
           <SignInOptions />
         </div>
         <div className="center auth-options">
-          <div className="row center auth-cta">
+          <div className="auth-cta">
             <p>Already have an account?</p>
             <Link className="font-small" to="/auth" prefetch="intent">
               Sign in

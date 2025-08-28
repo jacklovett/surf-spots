@@ -1,4 +1,5 @@
 import { Button } from './Button'
+import { IconKey } from '../Icon'
 
 export type ButtonType =
   | 'primary'
@@ -14,8 +15,8 @@ export type ButtonType =
   | 'icon'
 
 export interface ButtonIcon {
-  name: string
-  filePath: string
+  name: IconKey
+  filePath?: string
 }
 
 export default Button
