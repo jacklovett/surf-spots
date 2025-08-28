@@ -4,3 +4,8 @@ node_modules
 /build
 .env
 .react-router/
+
+# Playwright test results
+test-results/
+playwright-report/
+playwright/.cache/

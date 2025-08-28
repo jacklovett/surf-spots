@@ -8,7 +8,13 @@
     "dev": "react-router dev",
     "lint": "eslint --ignore-path .gitignore --cache --cache-location ./node_modules/.cache/eslint .",
     "start": "react-router-serve ./build/server/index.js",
-    "typecheck": "react-router typegen && tsc"
+    "typecheck": "react-router typegen && tsc",
+    "test": "playwright test",
+    "test:ui": "playwright test --ui",
+    "test:headed": "playwright test --headed",
+    "test:debug": "playwright test --debug",
+    "test:report": "playwright show-report",
+    "test:install": "playwright install"
   },
   "dependencies": {
     "@react-router/fs-routes": "^7.2.0",
@@ -24,6 +30,7 @@
     "sass": "^1.78.0"
   },
   "devDependencies": {
+    "@playwright/test": "^1.40.0",
     "@react-router/dev": "^7.2.0",
     "@types/node": "^22.13.5",
     "@types/react": "^18.2.20",
