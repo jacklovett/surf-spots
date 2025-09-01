@@ -1,4 +1,5 @@
 .auth-cta {
+  @extend %flex-base;
   gap: $spacing-small;
 
   & p,
@@ -46,10 +47,25 @@
   }
 }
 
+.auth-copyright {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  text-align: center;
+  padding: $spacing-small 0;
+
+  p {
+    margin: 0;
+    font-size: $font-size-x-small;
+    color: $text-color;
+  }
+}
+
 .auth-hero {
   @extend %flex-center;
   flex-direction: column;
-  background: $primary-color;
+  @include hero-background;
 }
 
 @media (max-width: 1008px) {

@@ -52,16 +52,6 @@ export const links: LinksFunction = () => [
     href: '/images/png/logo-no-text.png',
     as: 'image',
   },
-  {
-    rel: 'prefetch',
-    href: '/images/png/google.png',
-    as: 'image',
-  },
-  {
-    rel: 'prefetch',
-    href: '/images/png/facebook.png',
-    as: 'image',
-  },
 ]
 
 export function Layout({ children }: { children: React.ReactNode }) {

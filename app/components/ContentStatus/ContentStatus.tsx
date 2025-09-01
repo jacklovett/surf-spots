@@ -1,18 +1,16 @@
 import { ReactNode } from 'react'
+import Icon from '../Icon'
 
 interface IProps {
   children: ReactNode
   isError?: boolean
 }
-
-// TODO: Is this needed? where is the styling?
-
 export const ContentStatus = (props: IProps) => {
   const { children, isError = false } = props
   return (
-    <div className="center column h-full">
-      <div className={`ph ${isError ? 'error' : ''}`}>
-        {/* TODO: Add some icon/image ? */}
+    <div className="center column content-status">
+      <div className={`ph center column ${isError ? 'error' : ''}`}>
+        {isError && <Icon iconKey="error" useAccentColor />}
         {children}
       </div>
     </div>

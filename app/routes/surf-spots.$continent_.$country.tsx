@@ -55,7 +55,7 @@ export default function Country() {
   const { name, description } = countryDetails
 
   return (
-    <div className="content">
+    <div className="content mb-l">
       <h1>{name}</h1>
       <p className="description">{description}</p>
       <div className="list-map">

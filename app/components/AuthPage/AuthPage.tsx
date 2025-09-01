@@ -2,8 +2,9 @@ import { ReactNode } from 'react'
 import { useNavigation } from 'react-router'
 import classNames from 'classnames'
 
-import { ErrorBoundary, Footer } from '../index'
+import { ErrorBoundary } from '../index'
 import { renderContent } from '../Page'
+import { COPYRIGHT_TEXT } from '../Footer'
 
 interface IProps {
   children: ReactNode
@@ -30,7 +31,9 @@ export const AuthPage = (props: IProps) => {
           <div className="center column h-full flex-1">
             <div className="column h-full center auth-content">
               {renderContent(children, loading, error)}
-              <Footer isAlternate={false} />
+              <div className="auth-copyright">
+                <p>{COPYRIGHT_TEXT}</p>
+              </div>
             </div>
           </div>
           <div className="flex-1 auth-hero">

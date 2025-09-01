@@ -6,9 +6,7 @@
 }
 
 .animated-tide-loader {
-  display: flex;
-  justify-content: center;
-  align-items: center;
+  @extend %flex-center;
 }
 
 .wave-line {

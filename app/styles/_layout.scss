@@ -126,6 +126,7 @@
 .content-container {
   @extend %flex-column;
   flex: 1;
+  min-height: calc(100vh - $header-height);
   margin-bottom: $spacing-unit;
   @include container(
     100%,
@@ -196,6 +197,10 @@
 
 .mb {
   margin-bottom: $spacing-unit;
+}
+
+.mb-l {
+  margin-bottom: $spacing-large;
 }
 
 .m-0 {
