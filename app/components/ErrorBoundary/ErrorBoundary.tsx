@@ -1,4 +1,5 @@
 import { Component, ReactNode } from 'react'
+import Icon from '../Icon'
 
 interface ErrorBoundaryProps {
   message?: string
@@ -32,7 +33,10 @@ export class ErrorBoundary extends Component<
     if (this.state.hasError) {
       return (
         <div className="center center-text column ph">
-          <h4>{this.props.message ?? 'Oops! Something went wrong.'}</h4>
+          <Icon iconKey="error" useAccentColor />
+          <h4 className="mt">
+            {this.props.message ?? 'Oops! Something went wrong.'}
+          </h4>
           <p>{this.state.error?.message}</p>
         </div>
       )

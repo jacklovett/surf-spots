@@ -180,20 +180,10 @@ export const Icon = (props: IProps) => {
         )
       case 'error':
         return (
-          <svg
-            width="48"
-            height="48"
-            fill="none"
-            stroke={color}
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            viewBox="0 0 48 48"
-          >
+          <svg {...commonIconStyles} width="48" height="48" viewBox="0 0 48 48">
             {/* Warning triangle */}
             <path
               d="M24 3L3 42h42L24 3z"
-              stroke={color}
               strokeWidth="4"
               fill="none"
               strokeLinejoin="round"
@@ -205,7 +195,6 @@ export const Icon = (props: IProps) => {
               y1="16"
               x2="24"
               y2="26"
-              stroke={color}
               strokeWidth="3"
               strokeLinecap="round"
             />
