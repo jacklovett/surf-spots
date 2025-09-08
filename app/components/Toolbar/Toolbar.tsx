@@ -24,6 +24,12 @@ export const Toolbar = (props: ToolbarProps) => {
     <>
       <div className="row toolbar flex-end space-between">
         <div className="row flex-1">
+          <TextButton
+            text="Filters"
+            onClick={onOpenFilters}
+            iconKey="filters"
+            badge={filtersBadge}
+          />
           {showAddButton && (
             <div className="toolbar-add">
               <TextButton
@@ -34,12 +40,6 @@ export const Toolbar = (props: ToolbarProps) => {
               />
             </div>
           )}
-          <TextButton
-            text="Filters"
-            onClick={onOpenFilters}
-            iconKey="filters"
-            badge={filtersBadge}
-          />
         </div>
         <ViewSwitch
           isPrimaryView={isMapView}

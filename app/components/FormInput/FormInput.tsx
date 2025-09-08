@@ -10,11 +10,20 @@ interface IProps {
   errorMessage?: string
   disabled?: boolean
   showLabel?: boolean
+  readOnly?: boolean
 }
 
 export const FormInput = (props: IProps) => {
-  const { field, value, onChange, onBlur, errorMessage, disabled, showLabel } =
-    props
+  const {
+    field,
+    value,
+    onChange,
+    onBlur,
+    errorMessage,
+    disabled,
+    showLabel,
+    readOnly,
+  } = props
   const { label, name, type, options } = field
 
   return (
@@ -35,6 +44,7 @@ export const FormInput = (props: IProps) => {
           placeholder={label}
           disabled={disabled}
           aria-disabled={disabled}
+          readOnly={readOnly}
         />
       ) : type === 'select' ? (
         <select
@@ -43,8 +53,8 @@ export const FormInput = (props: IProps) => {
           value={value as string}
           onChange={onChange}
           onBlur={onBlur}
-          disabled={disabled}
-          aria-disabled={disabled}
+          disabled={disabled || readOnly}
+          aria-disabled={disabled || readOnly}
         >
           {options?.map((option) => (
             <option key={option.key} value={option.value}>
@@ -63,6 +73,7 @@ export const FormInput = (props: IProps) => {
           placeholder={label}
           disabled={disabled}
           aria-disabled={disabled}
+          readOnly={readOnly}
         />
       )}
       {errorMessage && <span className="form-error">{errorMessage}</span>}

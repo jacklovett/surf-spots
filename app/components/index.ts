@@ -23,7 +23,7 @@ import SurfSpotList from './SurfSpotList'
 import SurfSpotPreview from './SurfSpotPreview'
 import TextButton from './TextButton'
 import Breadcrumb from './Breadcrumb'
-import SurfMap from './SurfMap'
+import SurfMap, { AddSurfSpotMap } from './SurfMap'
 import SkeletonLoader from './SkeletonLoader'
 import Details from './Details'
 import ViewSwitch from './ViewSwitch'
@@ -38,6 +38,7 @@ import Rating from './Rating'
 import ChipSelector from './ChipSelector'
 import ForecastLinks from './ForecastLinks'
 import KofiButton from './KofiButton'
+import SocialLinks from './SocialLinks'
 import SurfSpotForm from './SurfSpotForm'
 import Toolbar from './Toolbar'
 
@@ -71,8 +72,10 @@ export {
   Rating,
   SignInOptions,
   SkeletonLoader,
+  SocialLinks,
   SurfHeightIcon,
   SurfMap,
+  AddSurfSpotMap,
   SurfSpotActions,
   SurfSpotForm,
   SurfSpotPreview,

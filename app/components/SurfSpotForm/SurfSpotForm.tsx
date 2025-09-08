@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef, useCallback } from 'react'
 import { useNavigation, useLoaderData } from 'react-router'
 
 import { getRegionFromLocationData } from '~/services/mapService'
@@ -35,10 +35,12 @@ import {
   BeachBottomType,
   SkillLevel,
   Tide,
+  Coordinates,
 } from '~/types/surfSpots'
 import { kmToMiles } from '~/utils'
 import { determineInitialOptions, LoaderData } from './index'
 import {
+  AddSurfSpotMap,
   CheckboxOption,
   ChipSelector,
   ErrorBoundary,
@@ -48,12 +50,12 @@ import {
   InfoMessage,
   Page,
   Rating,
-  SurfMap,
   TextButton,
   ViewSwitch,
 } from '~/components'
 import { Option } from '~/components/FormInput'
 import { ForecastLink } from '../ForecastLinks'
+import type { AddSurfSpotMapRef } from '~/components/SurfMap/AddSurfSpotMap'
 
 interface SurfSpotFormProps {
   actionType: 'Add' | 'Edit'
@@ -79,6 +81,7 @@ export const SurfSpotForm = (props: SurfSpotFormProps) => {
   const [spotStatus, setSpotStatus] = useState(
     surfSpot?.status || SurfSpotStatus.PENDING,
   )
+
   const [isBoatRequired, setIsBoatRequired] = useState(!!surfSpot?.boatRequired)
 
   const [accommodation, setAccommodation] = useState<Availability>({
@@ -100,6 +103,8 @@ export const SurfSpotForm = (props: SurfSpotFormProps) => {
   )
   const [filteredCountries, setFilteredCountries] = useState<Country[]>([])
   const [filteredRegions, setFilteredRegions] = useState<Region[]>([])
+  const mapRef = useRef<AddSurfSpotMapRef | null>(null)
+  const [isMapReady, setIsMapReady] = useState(false)
 
   const isPrivateSpot = spotStatus === SurfSpotStatus.PRIVATE
 
@@ -155,6 +160,42 @@ export const SurfSpotForm = (props: SurfSpotFormProps) => {
       },
     },
   })
+
+  // Handle location updates from the map
+  const handleLocationUpdate = useCallback(
+    (coordinates: Coordinates) => {
+      handleChange('longitude', coordinates.longitude)
+      handleChange('latitude', coordinates.latitude)
+    },
+    [handleChange],
+  )
+
+  // Handle getting user's current location
+  const handleUseMyLocation = useCallback(() => {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const coords: Coordinates = {
+            longitude: position.coords.longitude,
+            latitude: position.coords.latitude,
+          }
+          handleChange('longitude', coords.longitude)
+          handleChange('latitude', coords.latitude)
+
+          // Place pin on map and pan to location
+          if (mapRef.current) {
+            mapRef.current.addPinToMap(coords)
+          }
+        },
+        (error) => {
+          console.error('Error getting location:', error)
+          alert('Could not get your location. Please enter manually.')
+        },
+      )
+    } else {
+      alert('Geolocation is not supported by your browser.')
+    }
+  }, [handleChange])
 
   const { continent, country } = formState
 
@@ -225,7 +266,7 @@ export const SurfSpotForm = (props: SurfSpotFormProps) => {
 
   return (
     <Page showHeader>
-      <div className="column center-vertical mv">
+      <div className="column center-vertical mv ph">
         <div className="page-content">
           <h1 className="mt">{`${actionType} Surf Spot`}</h1>
           <InfoMessage message="Public surf spots are reviewed and, if approved, become visible to everyone." />
@@ -281,11 +322,10 @@ export const SurfSpotForm = (props: SurfSpotFormProps) => {
                 <div className="find-by-location">
                   <TextButton
                     text="Use my location"
-                    onClick={() =>
-                      console.log('placing marker based on user location')
-                    }
+                    onClick={handleUseMyLocation}
                     iconKey="crosshair"
                     filled
+                    disabled={!isMapReady}
                   />
                 </div>
               )}
@@ -293,7 +333,19 @@ export const SurfSpotForm = (props: SurfSpotFormProps) => {
             {findOnMap && (
               <div className="find-spot-map">
                 <ErrorBoundary message="Uh-oh! Something went wrong displaying the map!">
-                  <SurfMap />
+                  <AddSurfSpotMap
+                    onLocationUpdate={handleLocationUpdate}
+                    initialCoordinates={
+                      formState.longitude && formState.latitude
+                        ? {
+                            longitude: formState.longitude,
+                            latitude: formState.latitude,
+                          }
+                        : undefined
+                    }
+                    onMapReady={() => setIsMapReady(true)}
+                    ref={mapRef}
+                  />
                 </ErrorBoundary>
               </div>
             )}
@@ -382,6 +434,7 @@ export const SurfSpotForm = (props: SurfSpotFormProps) => {
                 errorMessage={errors.longitude || ''}
                 showLabel={!!formState.longitude}
                 disabled={findOnMap}
+                readOnly={findOnMap}
               />
               <FormInput
                 field={{
@@ -396,6 +449,7 @@ export const SurfSpotForm = (props: SurfSpotFormProps) => {
                 errorMessage={errors.latitude || ''}
                 showLabel={!!formState.latitude}
                 disabled={findOnMap}
+                readOnly={findOnMap}
               />
             </div>
             <h3 className="mt pt">Tell us about the spot</h3>

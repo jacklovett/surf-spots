@@ -17,7 +17,9 @@ export const loader = async (
 
     const { surfSpotId } = params
 
-    const surfSpot = await get<SurfSpot>(`/api/surf-spots/${surfSpotId}`)
+    const surfSpot = await get<SurfSpot>(
+      `surf-spots/${surfSpotId}?userId=${user.id}`,
+    )
 
     if (!surfSpot) {
       throw new Error('Surf spot details not found')

@@ -1,3 +1,7 @@
+@use 'sass:color';
+
+/* Mapbox styles */
+
 .mapboxgl-ctrl-bottom-right,
 .mapboxgl-ctrl-bottom-left {
   display: none;
@@ -10,6 +14,14 @@
 .static-map {
   & .mapboxgl-marker {
     cursor: auto;
+  }
+}
+
+.map-wrapper {
+  padding-bottom: $spacing-large;
+
+  @media (max-width: 560px) {
+    padding-bottom: 0;
   }
 }
 
@@ -43,6 +55,7 @@
   height: 100%;
   opacity: 0;
   transition: opacity 0.4s ease-in;
+  touch-action: manipulation;
 }
 
 .map-visible {
@@ -67,5 +80,38 @@ ellipse {
 .find-by-location {
   @media (max-width: 435px) {
     margin-top: $spacing-unit;
+  }
+}
+
+// Map instructions overlay
+.map-instructions-overlay {
+  position: absolute;
+  margin: 0 auto;
+  text-align: center;
+  bottom: $spacing-small;
+  left: 0;
+  right: 0;
+  width: fit-content;
+  z-index: 1000;
+  background: $white;
+  font-size: $font-size-x-small;
+  padding: $spacing-small $spacing-unit;
+  border-radius: 6px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+
+  @media (max-width: 640px) {
+    max-width: 320px;
+  }
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+  100% {
+    transform: scale(1);
   }
 }

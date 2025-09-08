@@ -18,10 +18,8 @@ export const renderContent = (
         )}
         {error && (
           <ContentStatus isError>
-            <>
-              <h1>Error</h1>
-              <p>{error}</p>
-            </>
+            <h1>Error</h1>
+            <p>{error}</p>
           </ContentStatus>
         )}
       </>
