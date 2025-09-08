@@ -10,17 +10,17 @@ import {
 import { ContentStatus } from '~/components'
 import { cacheControlHeader, get, post } from '~/services/networkService'
 import { getSession } from '~/services/session.server'
-import type { SurfSpot, Region, SurfSpotFilters } from '~/types/surfSpots'
+import type { SurfSpot, SubRegion, SurfSpotFilters } from '~/types/surfSpots'
 import { useSurfSpotsContext } from '~/contexts'
 
 interface LoaderData {
   surfSpots: SurfSpot[]
   error?: string
-  regionDetails?: Region
+  subRegionDetails?: SubRegion
 }
 
 export const loader: LoaderFunction = async ({ request, params }) => {
-  const { region } = params
+  const { continent, country, region, subRegion } = params
   const url = new URL(request.url)
   const searchParams = Object.fromEntries(url.searchParams.entries())
 
@@ -31,38 +31,37 @@ export const loader: LoaderFunction = async ({ request, params }) => {
 
     const filters = { ...searchParams, userId }
 
-    // Try to get region details first
-    const regionDetails = await get<Region>(`regions/${region}`)
+    // Try to get sub-region details
+    const subRegionDetails = await get<SubRegion>(`sub-regions/${subRegion}`)
 
-    // Then get surf spots for this region
+    // Then get surf spots for this sub-region
     const surfSpots = await post<typeof filters, SurfSpot[]>(
-      `surf-spots/region/${region}`,
+      `surf-spots/sub-region/${subRegion}`,
       { ...filters },
     )
 
     return data<LoaderData>(
-      { surfSpots: surfSpots ?? [], regionDetails },
+      { surfSpots: surfSpots ?? [], subRegionDetails },
       {
         headers: cacheControlHeader,
       },
     )
   } catch (error) {
-    console.error('Error loading region data:', error)
-    return data<LoaderData>(
-      {
-        surfSpots: [],
-        regionDetails: undefined,
-        error: 'Failed to load region data. Please try again later.',
+    console.error('Error loading sub-region data:', error)
+
+    // If sub-region doesn't exist, redirect to the surf spot route
+    // This will let React Router try the surf spot route
+    throw new Response('', {
+      status: 302,
+      headers: {
+        Location: `/surf-spots/${continent}/${country}/${region}/${subRegion}`,
       },
-      {
-        status: 404,
-      },
-    )
+    })
   }
 }
 
-export default function Region() {
-  const { surfSpots, regionDetails, error } = useLoaderData<LoaderData>()
+export default function SubRegionPage() {
+  const { surfSpots, subRegionDetails, error } = useLoaderData<LoaderData>()
   const { filters } = useSurfSpotsContext()
   const navigate = useNavigate()
   const location = useLocation()
@@ -93,43 +92,21 @@ export default function Region() {
     }
   }, [filters, location.pathname, location.search, navigate])
 
-  if (error || !regionDetails) {
+  if (error || !subRegionDetails) {
     return (
       <ContentStatus isError>
-        <p>{error ?? "Couldn't find details for this region"}</p>
+        <p>{error ?? "Couldn't find details for this sub-region"}</p>
       </ContentStatus>
     )
   }
 
-  const { name, description, subRegions } = regionDetails
+  const { name, description } = subRegionDetails
 
   return (
     <div className="content">
       <h1>{name}</h1>
       <p className="description">{description}</p>
 
-      {/* Show sub-regions if they exist */}
-      {subRegions && subRegions.length > 0 && (
-        <div className="sub-regions">
-          <h2>Sub-Regions</h2>
-          <div className="list-map">
-            {subRegions.map((subRegion) => {
-              const { id, name, slug } = subRegion
-              return (
-                <Link
-                  key={id}
-                  to={`${location.pathname}/sub-regions/${slug}`}
-                  prefetch="intent"
-                >
-                  {name}
-                </Link>
-              )
-            })}
-          </div>
-        </div>
-      )}
-
-      {/* Show surf spots that are directly in this region (not in sub-regions) */}
       <div className="surf-spots">
         <h2>Surf Spots</h2>
         <div className="list-map">

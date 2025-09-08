@@ -109,6 +109,11 @@ export default function SurfSpots() {
         label: region,
         link: `/surf-spots/${continent}/${country}/${region}`,
       })
+    subRegion &&
+      breadcrumbItems.push({
+        label: subRegion,
+        link: `/surf-spots/${continent}/${country}/${region}/sub-regions/${subRegion}`,
+      })
     surfSpot &&
       breadcrumbItems.push({
         label: surfSpot,

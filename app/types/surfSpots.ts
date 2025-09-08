@@ -42,6 +42,15 @@ export interface Region {
   slug: string
   description: string
   surfSpots: []
+  subRegions: SubRegion[]
+}
+
+export interface SubRegion {
+  id: string
+  name: string
+  slug: string
+  description: string
+  surfSpots: []
 }
 
 export enum SurfSpotStatus {
