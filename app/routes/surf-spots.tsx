@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import {
   ActionFunction,
   Outlet,
@@ -22,10 +22,7 @@ import {
   Toolbar,
 } from '~/components'
 import { submitFetcher } from '~/components/SurfSpotActions'
-import {
-  FetcherSubmitParams,
-  SurfSpotActionFetcherResponse,
-} from '~/components/SurfSpotActions'
+import { FetcherSubmitParams } from '~/components/SurfSpotActions'
 import { BreadcrumbItem } from '~/components/Breadcrumb'
 import { getAppliedFiltersCount } from '~/components/Filters'
 
@@ -62,10 +59,12 @@ export default function SurfSpots() {
 
   const loading = state === 'loading'
 
-  const fetcher = useFetcher<SurfSpotActionFetcherResponse>()
+  const fetcher = useFetcher()
 
-  const onFetcherSubmit = (params: FetcherSubmitParams) =>
-    submitFetcher(params, fetcher)
+  const onFetcherSubmit = useCallback(
+    (params: FetcherSubmitParams) => submitFetcher(params, fetcher),
+    [fetcher],
+  )
 
   // Get the initial view from the loader data
   const { isMapView: initialMapView } = useLoaderData<LoaderData>()
@@ -84,15 +83,17 @@ export default function SurfSpots() {
     openDrawer(filtersContent, 'left', 'Filters')
   }
 
+  // Update isMapView when pathname changes, but don't redirect
   useEffect(() => {
-    setIsMapView(checkIsMapView(pathname))
+    const newIsMapView = checkIsMapView(pathname)
+    setIsMapView(newIsMapView)
   }, [pathname])
 
   const generateBreadcrumbItems = (): BreadcrumbItem[] => {
     const breadcrumbItems: BreadcrumbItem[] = [
       { label: 'World', link: '/surf-spots/continents' },
     ]
-    const { continent, country, region, surfSpot } = useParams()
+    const { continent, country, region, subRegion, surfSpot } = useParams()
 
     continent &&
       breadcrumbItems.push({
@@ -117,7 +118,9 @@ export default function SurfSpots() {
     surfSpot &&
       breadcrumbItems.push({
         label: surfSpot,
-        link: `/surf-spots/${continent}/${country}/${region}/${surfSpot}`,
+        link: subRegion
+          ? `/surf-spots/${continent}/${country}/${region}/sub-regions/${subRegion}/${surfSpot}`
+          : `/surf-spots/${continent}/${country}/${region}/${surfSpot}`,
       })
 
     return breadcrumbItems
@@ -138,13 +141,11 @@ export default function SurfSpots() {
       {isMapView ? (
         <div className="center column h-full map-wrapper">
           <ErrorBoundary message="Uh-oh! Something went wrong displaying the map!">
-            <div className="map-container">
-              <SurfMap onFetcherSubmit={onFetcherSubmit} />
-            </div>
+            <SurfMap onFetcherSubmit={onFetcherSubmit} />
           </ErrorBoundary>
         </div>
       ) : (
-        <div className="column h-full">
+        <div className="content column">
           <Breadcrumb items={breadcrumbs} />
           {loading ? (
             <ContentStatus>

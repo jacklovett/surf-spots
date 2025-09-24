@@ -6,21 +6,21 @@ import Button from '../Button'
 import Modal from '../Modal'
 import TextButton from '../TextButton'
 import { IModalState, initialModalState } from '../Modal'
-
 import { FetcherSubmitParams } from './index'
+import { useSurfSpotsContext } from '~/contexts'
 
 interface IProps {
   surfSpot: SurfSpot
   navigate: (path: string) => void
   user: User | null
   onFetcherSubmit?: (params: FetcherSubmitParams) => void
-  onSurfSpotUpdate?: (updatedSurfSpot: SurfSpot) => void
 }
 
 export const SurfSpotActions = memo((props: IProps) => {
-  const { surfSpot, navigate, user, onFetcherSubmit, onSurfSpotUpdate } = props
+  const { surfSpot, navigate, user, onFetcherSubmit } = props
   const [modalState, setModalState] = useState<IModalState>(initialModalState)
   const [surfSpotState, setSurfSpotState] = useState<SurfSpot>(surfSpot)
+  const { updateSurfSpot } = useSurfSpotsContext()
 
   const { id: surfSpotId, isSurfedSpot, isWatched, createdBy } = surfSpotState
 
@@ -30,42 +30,39 @@ export const SurfSpotActions = memo((props: IProps) => {
     actionType: 'add' | 'remove',
     target: 'user-spots' | 'watch',
   ) => {
-    if (user) {
-      // Submit the action to the server
-      if (onFetcherSubmit) {
-        const formData = new FormData()
-        formData.append('actionType', actionType)
-        formData.append('target', target)
-        formData.append('surfSpotId', surfSpotId.toString())
-        onFetcherSubmit(formData)
-      } else {
-        console.warn('onFetcherSubmit is not available')
-      }
-
-      // Update local state optimistically
-      let updatedSurfSpot = surfSpotState
-      if (target === 'user-spots') {
-        updatedSurfSpot = {
-          ...surfSpotState,
-          isSurfedSpot: !surfSpotState.isSurfedSpot,
-        }
-      }
-
-      if (target === 'watch') {
-        updatedSurfSpot = {
-          ...surfSpotState,
-          isWatched: !surfSpotState.isWatched,
-        }
-      }
-
-      setSurfSpotState(updatedSurfSpot)
-
-      // Update parent's surf spot data
-      if (onSurfSpotUpdate) {
-        onSurfSpotUpdate(updatedSurfSpot)
-      }
-    } else {
+    if (!user) {
       showSignUpPromptModal(target === 'watch')
+      return
+    }
+
+    // Determine which property to toggle based on target
+    const propertyMap = {
+      'user-spots': 'isSurfedSpot' as const,
+      watch: 'isWatched' as const,
+    }
+
+    const property = propertyMap[target]
+    const currentValue = surfSpotState[property]
+    const newValue = !currentValue
+
+    // Update local state optimistically
+    const updatedSurfSpot = {
+      ...surfSpotState,
+      [property]: newValue,
+    }
+
+    setSurfSpotState(updatedSurfSpot)
+
+    // Update context immediately - no need to wait for API
+    updateSurfSpot(surfSpotId, { [property]: newValue })
+
+    // Submit to server using existing action
+    if (onFetcherSubmit) {
+      const formData = new FormData()
+      formData.append('actionType', actionType)
+      formData.append('target', target)
+      formData.append('surfSpotId', surfSpotId.toString())
+      onFetcherSubmit(formData)
     }
   }
 

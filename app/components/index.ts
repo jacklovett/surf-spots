@@ -28,7 +28,6 @@ import SkeletonLoader from './SkeletonLoader'
 import Details from './Details'
 import ViewSwitch from './ViewSwitch'
 import SurfSpotActions from './SurfSpotActions'
-import SurfSpotPopUp from './SurfSpotPopUp'
 import Header from './Header'
 import InfoMessage from './InfoMessage'
 import LocationSelector from './LocationSelector'
@@ -80,7 +79,6 @@ export {
   SurfSpotForm,
   SurfSpotPreview,
   SurfSpotList,
-  SurfSpotPopUp,
   Toolbar,
   TextButton,
   TideIcon,

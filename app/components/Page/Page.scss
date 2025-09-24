@@ -2,6 +2,7 @@
   @extend %flex-column;
   flex: 1;
   border: none;
+  min-height: 100vh;
 }
 
 .page-content {

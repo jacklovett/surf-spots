@@ -161,7 +161,9 @@ export const addLayers = (
   onMarkerClick: (event: MapMouseEvent) => void,
 ) => {
   addClusterLayers(map)
+  // Then add marker layers (these depend on image loading)
   addMarkerLayers(map)
+  // Set up interactions after all layers are added
   setupLayerInteractions(map, onMarkerClick)
 }
 
@@ -206,28 +208,51 @@ const addClusterLayers = (map: Map) => {
 }
 
 const addMarkerLayers = (map: Map) => {
+  // Check if source exists before trying to add layers
+  const source = map.getSource('surfSpots')
+  if (!source) {
+    console.warn('SurfSpots source not found, skipping marker layers')
+    return
+  }
+
   // Load the pin icon image
   map.loadImage(`/images/png/pin.png`, (error, image) => {
-    if (error) throw error
+    if (error) {
+      console.error('Error loading pin image:', error)
+      return
+    }
 
     if (!image) {
-      throw new Error('No icon image found!')
+      console.error('No icon image found!')
+      return
+    }
+
+    // Check again if source still exists (map might have been reinitialized)
+    const currentSource = map.getSource('surfSpots')
+    if (!currentSource) {
+      console.warn('Surf spots source no longer exists, skipping marker layer')
+      return
     }
 
     // Add the custom image to the map
     map.addImage('custom-pin', image)
+
     // Add a layer using the custom icon
-    map.addLayer({
-      id: 'marker',
-      type: 'symbol',
-      source: 'surfSpots',
-      filter: ['!', ['has', 'point_count']],
-      layout: {
-        'icon-image': 'custom-pin', // Use the custom icon
-        'icon-size': 0.5, // Adjust size as needed
-        'icon-allow-overlap': true,
-      },
-    })
+    try {
+      map.addLayer({
+        id: 'marker',
+        type: 'symbol',
+        source: 'surfSpots',
+        filter: ['!', ['has', 'point_count']],
+        layout: {
+          'icon-image': 'custom-pin', // Use the custom icon
+          'icon-size': 0.5, // Adjust size as needed
+          'icon-allow-overlap': true,
+        },
+      })
+    } catch (error) {
+      console.error('Error adding marker layer:', error)
+    }
   })
 }
 
@@ -317,21 +342,27 @@ export const addMarkerForCoordinate = (coordinates: Coordinates, map: Map) => {
     map.addImage('custom-pin', image)
     // Create the marker using the custom pin image
     new mapboxgl.Marker({
-      element: createMarkerElement(),
+      element: createPinElement(),
     })
       .setLngLat([coordinates.longitude, coordinates.latitude])
       .addTo(map)
   })
 }
 
-// Helper function to create a marker element
-const createMarkerElement = () => {
+/**
+ * Creates a styled pin element for map markers
+ * @param size - Optional size in pixels (default: 42px)
+ * @returns HTMLDivElement with pin styling
+ */
+export const createPinElement = (size: number = 42) => {
   const markerDiv = document.createElement('div')
+  markerDiv.className = 'custom-pin'
+  markerDiv.style.width = `${size}px`
+  markerDiv.style.height = `${size}px`
   markerDiv.style.backgroundImage = `url(${ICON_IMAGE_PATH})`
-  markerDiv.style.width = '42px'
-  markerDiv.style.height = '42px'
   markerDiv.style.backgroundSize = 'contain'
   markerDiv.style.backgroundRepeat = 'no-repeat'
+  markerDiv.style.backgroundPosition = 'center'
   return markerDiv
 }
 

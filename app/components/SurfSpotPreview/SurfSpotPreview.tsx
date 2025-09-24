@@ -7,17 +7,15 @@ import Details from '../Details'
 import SurfSpotActions from '../SurfSpotActions'
 import { useLayoutContext } from '~/contexts'
 import { FetcherSubmitParams } from '../SurfSpotActions'
-
 interface IProps {
   surfSpot: SurfSpot
   user: User | null
   navigate: (path: string) => void
   onFetcherSubmit?: (params: FetcherSubmitParams) => void
-  onSurfSpotUpdate?: (updatedSurfSpot: SurfSpot) => void
 }
 
 export const SurfSpotPreview = memo((props: IProps) => {
-  const { surfSpot, user, navigate, onFetcherSubmit, onSurfSpotUpdate } = props
+  const { surfSpot, user, navigate, onFetcherSubmit } = props
   const { beachBottomType, rating, skillLevel, path, type } = surfSpot
 
   const { closeDrawer } = useLayoutContext()
@@ -41,9 +39,7 @@ export const SurfSpotPreview = memo((props: IProps) => {
         >
           Learn more
         </p>
-        <SurfSpotActions
-          {...{ surfSpot, navigate, user, onFetcherSubmit, onSurfSpotUpdate }}
-        />
+        <SurfSpotActions {...{ surfSpot, navigate, user, onFetcherSubmit }} />
       </div>
     </div>
   )

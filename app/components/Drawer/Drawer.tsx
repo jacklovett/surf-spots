@@ -21,8 +21,11 @@ export const Drawer = () => {
     if (isOpen) {
       setShouldRender(true)
       document.addEventListener('keydown', handleEscape)
-      // Prevent body scroll when drawer is open
+      // Prevent body scroll when drawer is open while maintaining scrollbar space
+      const scrollbarWidth =
+        window.innerWidth - document.documentElement.clientWidth
       document.body.style.overflow = 'hidden'
+      document.body.style.paddingRight = `${scrollbarWidth}px`
       // Trigger animation after a brief delay to ensure DOM is ready
       setTimeout(() => setIsAnimating(true), 10)
     } else {
@@ -35,6 +38,7 @@ export const Drawer = () => {
     return () => {
       document.removeEventListener('keydown', handleEscape)
       document.body.style.overflow = 'unset'
+      document.body.style.paddingRight = 'unset'
     }
   }, [isOpen, closeDrawer])
 

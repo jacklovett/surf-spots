@@ -60,7 +60,7 @@ const SurfSpotList = memo((props: IProps): JSX.Element => {
                         <tr
                           key={spot.id}
                           className="table-row"
-                          onClick={() => navigate(`/surf-spot/${id}`)}
+                          onClick={() => navigate(spot.path)}
                         >
                           <td>{name}</td>
                           <td>{region?.name}</td>

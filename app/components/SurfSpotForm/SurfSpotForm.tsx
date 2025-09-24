@@ -189,6 +189,7 @@ export const SurfSpotForm = (props: SurfSpotFormProps) => {
         },
         (error) => {
           console.error('Error getting location:', error)
+          // TODO: implement toast notifications
           alert('Could not get your location. Please enter manually.')
         },
       )

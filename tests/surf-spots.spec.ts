@@ -5,31 +5,23 @@ test.describe('Surf Spots', () => {
     await page.goto('/surf-spots')
   })
 
-  test('should load surf spots page and redirect to continents', async ({
-    page,
-  }) => {
-    // Navigate to surf spots - it should redirect to continents view
+  test('should load surf spots page and show map view', async ({ page }) => {
+    // Navigate to surf spots - it should show map view
     await page.goto('/surf-spots')
 
-    // Wait for any redirects to complete
+    // Wait for page to load
     await page.waitForTimeout(2000)
 
-    // Check if we're on continents page or still on surf-spots (both are valid)
+    // Check if we're on surf-spots page (map view)
     const currentUrl = page.url()
-    const isOnContinents = currentUrl.includes('/continents')
     const isOnSurfSpots =
       currentUrl.includes('/surf-spots') && !currentUrl.includes('/continents')
 
-    // Either should be valid
-    expect(isOnContinents || isOnSurfSpots).toBe(true)
+    // Should stay on surf-spots page in map view
+    expect(isOnSurfSpots).toBe(true)
 
-    // Check if main elements are present
-    if (isOnContinents) {
-      await expect(page.locator('.breadcrumb')).toBeVisible()
-    } else {
-      // If on map view, check for map container
-      await expect(page.locator('.content .map-container')).toBeVisible()
-    }
+    // Check if map is present
+    await expect(page.locator('.map-container')).toBeVisible()
   })
 
   test('should display breadcrumb navigation', async ({ page }) => {
@@ -107,8 +99,8 @@ test.describe('Surf Spots', () => {
     // Navigate to map view
     await page.goto('/surf-spots')
 
-    // Check if map is present - use more specific selector
-    const map = page.locator('.content .map-container')
+    // Check if map is present - map container is rendered directly when in map view
+    const map = page.locator('.map-container')
     await expect(map).toBeVisible()
 
     // Test map zoom controls if they exist
@@ -128,9 +120,6 @@ test.describe('Surf Spots', () => {
     // Navigate to map view
     await page.goto('/surf-spots')
 
-    // Wait for map to load
-    await page.waitForTimeout(3000)
-
     // Check if surf spot markers are present
     const markers = page.locator('.mapboxgl-marker')
     if (await markers.first().isVisible()) {
@@ -143,9 +132,6 @@ test.describe('Surf Spots', () => {
   }) => {
     // Navigate to map view
     await page.goto('/surf-spots')
-
-    // Wait for map to load
-    await page.waitForTimeout(3000)
 
     // Click on a surf spot marker
     const marker = page.locator('.mapboxgl-marker').first()
