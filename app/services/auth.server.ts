@@ -136,3 +136,36 @@ export const validate = (email: string, password: string) => {
 
   return Object.keys(errors).length ? errors : null
 }
+
+export const handleOAuthError = (
+  error: unknown,
+  provider: 'facebook' | 'google',
+) => {
+  console.error(`${provider} OAuth error:`, error)
+
+  // Extract meaningful error message
+  let errorMessage = `${provider} authentication failed`
+  if (error instanceof Error) {
+    if (
+      provider === 'facebook' &&
+      error.message.includes('Email is required')
+    ) {
+      errorMessage =
+        'Email access is required. Please allow email access in Facebook settings and try again.'
+    } else if (error.message.includes(`Failed to get ${provider} tokens`)) {
+      errorMessage = `${provider} authentication failed. Please try again.`
+    } else if (error.message.includes(`Failed to get ${provider} profile`)) {
+      errorMessage = `Unable to retrieve your ${provider} profile. Please try again.`
+    } else {
+      errorMessage = error.message
+    }
+  }
+
+  // Redirect to auth page with error message
+  const searchParams = new URLSearchParams({
+    error: provider,
+    message: encodeURIComponent(errorMessage),
+  })
+
+  return redirect(`/auth?${searchParams.toString()}`)
+}
