@@ -1,6 +1,6 @@
 import { MetaFunction, useNavigate } from 'react-router'
 
-import { Page, Button } from '~/components'
+import { Page, Button, Icon } from '~/components'
 
 export const meta: MetaFunction = () => {
   return [
@@ -11,16 +11,18 @@ export const meta: MetaFunction = () => {
 
 export default function PageNotFound() {
   const navigate = useNavigate()
+
+  const handleGoBack = () => navigate(-1)
+
   return (
-    <Page isAlternate>
-      <div className="center column">
-        <h1>404: Page not found</h1>
-        <p className="mb">Looks like you've explored too much!</p>
-        <Button
-          label="Go Back"
-          onClick={() => navigate(-1)}
-          variant="alternate"
-        />
+    <Page>
+      <div className="center column h-full">
+        <div className="center column">
+          <Icon iconKey="error" useAccentColor />
+          <h1>404: Page not found</h1>
+          <p className="mb">Looks like you've explored too much!</p>
+          <Button label="Go Back" onClick={handleGoBack} variant="alternate" />
+        </div>
       </div>
     </Page>
   )

@@ -3,7 +3,7 @@ import { KofiButton, Page } from '~/components'
 export default function AboutUs() {
   return (
     <Page showHeader>
-      <div className="page-content mv">
+      <div className="info-page-content mv">
         <div className="content-container">
           <h1 className="mb">About Surf Spots</h1>
 

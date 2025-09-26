@@ -2,7 +2,7 @@ import Page from '~/components/Page'
 
 const DataPolicy = () => (
   <Page showHeader>
-    <div className="page-content mv">
+    <div className="info-page-content mv">
       <h1>Data Policy</h1>
       <p>
         Your privacy is important to us. This Data Policy explains how we

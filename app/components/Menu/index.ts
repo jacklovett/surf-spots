@@ -33,6 +33,7 @@ export const profileMenuItems: MenuItem[] = [
   { key: 'profile', icon: 'profile', label: 'Profile', path: '/profile' },
   { key: 'settings', icon: 'cog', label: 'Settings', path: '/settings' },
   { key: 'about-us', icon: 'about', label: 'About Us', path: '/about-us' },
+  { key: 'contact', icon: 'envelope', label: 'Contact', path: '/contact' },
   { key: 'logout', icon: 'logout', label: 'Logout', path: '/auth/logout' },
 ]
 
