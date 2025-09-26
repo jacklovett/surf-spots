@@ -23,6 +23,7 @@ export default defineConfig({
     ['html'],
     ['json', { outputFile: 'test-results/results.json' }],
     ['junit', { outputFile: 'test-results/results.xml' }],
+    ['./tests/custom-reporter.ts'],
   ],
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
   use: {

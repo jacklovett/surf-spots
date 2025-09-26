@@ -7,4 +7,18 @@ export default defineConfig({
     reactRouter(),
     tsconfigPaths(),
   ],
+  css: {
+    preprocessorOptions: {
+      scss: {
+        // Enable source maps for better debugging
+        sourceMap: true,
+      },
+    },
+  },
+  // Ensure proper file watching
+  server: {
+    watch: {
+      usePolling: true,
+    },
+  },
 })

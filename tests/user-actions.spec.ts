@@ -95,8 +95,8 @@ test.describe('User Actions', () => {
     // Wait for map to load
     await page.waitForTimeout(3000)
 
-    // Check if map is present - use more specific selector
-    const map = page.locator('.content .map-container')
+    // Check if map is present - map container is rendered directly when in map view
+    const map = page.locator('.map-container')
     await expect(map).toBeVisible()
 
     // Test map zoom controls if they exist

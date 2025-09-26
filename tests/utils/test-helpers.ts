@@ -82,8 +82,8 @@ export async function takeScreenshot(page: Page, name: string) {
  * Wait for map to load
  */
 export async function waitForMapLoad(page: Page) {
-  // Wait for map container to be visible - use more specific selector
-  await page.waitForSelector('.content .map-container', {
+  // Wait for map container to be visible - map container is rendered directly when in map view
+  await page.waitForSelector('.map-container', {
     state: 'visible',
     timeout: 20000,
   })
