@@ -1,40 +1,112 @@
-# Welcome to Remix!
+# Surf Spots
 
-- 📖 [Remix docs](https://remix.run/docs)
+A modern web application for discovering and sharing surf spots worldwide, built with React Router v7.
 
-## Development
+## Documentation
+
+- [React Router v7 docs](https://reactrouter.com/dev)
+- [Deployment Guide](./VERCEL_DEPLOY.md) - Deploy to Vercel (Recommended)
+
+## Quick Start
+
+### Development
+
+Install dependencies:
+```bash
+npm install
+```
 
 Run the dev server:
-
-```shellscript
+```bash
 npm run dev
 ```
 
-## Deployment
+Visit `http://localhost:5173` to see your app.
 
-First, build your app for production:
+### Environment Variables
 
-```sh
+Create a `.env` file in the `surf-spots` directory:
+```env
+VITE_API_URL=http://localhost:8080/api
+VITE_MAP_ACCESS_TOKEN=your_mapbox_token
+SESSION_SECRET=your-secret-key-min-32-chars
+BASE_URL=http://localhost:5173
+
+# Optional OAuth
+GOOGLE_CLIENT_ID=your_google_client_id
+GOOGLE_CLIENT_SECRET=your_google_client_secret
+GOOGLE_CALLBACK_URL=http://localhost:5173/auth/google
+
+FACEBOOK_CLIENT_ID=your_facebook_app_id
+FACEBOOK_CLIENT_SECRET=your_facebook_app_secret
+FACEBOOK_CALLBACK_URL=http://localhost:5173/auth/facebook
+```
+
+## 🌐 Deployment
+
+**Recommended:** Deploy to Vercel for the best React Router v7 experience.
+
+📝 **[Follow the Vercel Deployment Guide](./VERCEL_DEPLOY.md)**
+
+Key features:
+- ✅ Zero configuration needed
+- ✅ Automatic serverless functions
+- ✅ Global CDN
+- ✅ 100% FREE for personal projects
+
+## 🏗️ Project Structure
+
+```
+surf-spots/
+├── app/
+│   ├── components/     # React components
+│   ├── contexts/       # React contexts
+│   ├── hooks/          # Custom hooks
+│   ├── routes/         # React Router routes
+│   ├── services/       # API services
+│   ├── styles/         # SCSS styles
+│   └── types/          # TypeScript types
+├── public/             # Static assets
+├── build/              # Build output (generated)
+└── vercel.json         # Vercel configuration
+```
+
+## 🎨 Styling
+
+This app uses SCSS for styling with a modular approach.
+
+## 🧪 Testing
+
+Run end-to-end tests with Playwright:
+```bash
+npm run test
+```
+
+Run tests in UI mode:
+```bash
+npm run test:ui
+```
+
+## 📦 Build
+
+Build for production:
+```bash
 npm run build
 ```
 
-Then run the app in production mode:
+This creates:
+- `build/client` - Client-side assets
+- `build/server` - Server-side code
 
-```sh
-npm start
-```
+## 🔧 Tech Stack
 
-Now you'll need to pick a host to deploy it to.
+- **React Router v7** - Framework
+- **TypeScript** - Type safety
+- **Vite** - Build tool
+- **SCSS** - Styling
+- **Mapbox GL** - Maps
+- **Playwright** - Testing
 
-### DIY
+## 📄 License
 
-If you're familiar with deploying Node applications, the built-in Remix app server is production-ready.
-
-Make sure to deploy the output of `npm run build`
-
-- `build/server`
-- `build/client`
-
-## Styling
-
-This app is styled with SASS.
+MIT

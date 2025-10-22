@@ -30,7 +30,6 @@
     "sass": "^1.78.0"
   },
   "devDependencies": {
-    "@netlify/remix-adapter": "^2.5.3",
     "@playwright/test": "^1.40.0",
     "@react-router/dev": "7.9.4",
     "@types/node": "^22.13.5",

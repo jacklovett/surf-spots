@@ -1,5 +1,14 @@
 # Deploy to Netlify in 5 Minutes (FREE & EASY!)
 
+> **⚠️ NOTE:** This project now uses Vercel for better React Router v7 support.  
+> **See `VERCEL_DEPLOY.md` for the recommended deployment method.**
+>
+> This guide is kept for reference but may not work with React Router v7.
+
+---
+
+# Deploy to Netlify (LEGACY)
+
 ## Step 1: Go to Netlify
 Open your browser and go to: **https://app.netlify.com/signup**
 
