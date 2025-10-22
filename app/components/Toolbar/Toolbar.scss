@@ -12,7 +12,7 @@
 
   @media (max-width: 420px) {
     display: block;
-    position: absolute;
+    position: fixed;
     bottom: 72px;
     right: $spacing-unit;
     z-index: 10;
