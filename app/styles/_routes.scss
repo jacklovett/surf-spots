@@ -15,8 +15,14 @@
 
 h2 {
   font-size: $font-size-large;
-  font-weight: 600;
   margin-bottom: $spacing-unit;
+}
+
+.content .surf-spots h2 {
+  font-size: $font-size-large;
+  margin: $spacing-large 0 $spacing-unit 0;
+  padding-bottom: $spacing-small;
+  border-bottom: 2px solid $primary-color;
 }
 
 .spot-details {
@@ -26,9 +32,116 @@ h2 {
   border: solid 1px $outline-color;
   border-radius: $content-border-radius;
   padding: $spacing-large $spacing-unit;
+  margin-bottom: $spacing-large;
 
   & p {
     margin-bottom: 0;
+  }
+}
+
+/* Surf Spot Details Page Styling */
+
+.content h1 {
+  font-size: $font-size-xx-large;
+  margin-bottom: $spacing-large;
+}
+
+.content h3 {
+  font-size: $font-size-large;
+  margin: $spacing-large 0 $spacing-unit 0;
+  padding-bottom: $spacing-small;
+  border-bottom: 2px solid $primary-color;
+}
+
+.content section {
+  margin-bottom: $spacing-large;
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+}
+
+.content .description {
+  font-size: $font-size-base;
+  line-height: 1.6;
+  color: $text-color;
+  margin-bottom: $spacing-large;
+}
+
+.content .row.spot-details {
+  margin-bottom: $spacing-large;
+}
+
+.content .row.gap {
+  gap: $spacing-unit;
+}
+
+.content .column.mv {
+  margin: $spacing-unit 0;
+}
+
+.content .column.mv a {
+  display: block;
+  padding: $spacing-small 0;
+  color: $primary-color;
+  text-decoration: none;
+  border-bottom: 1px solid $outline-color;
+
+  &:hover {
+    color: $accent-color;
+    text-decoration: underline;
+  }
+
+  &:last-child {
+    border-bottom: none;
+  }
+}
+
+/* Amenities Section Styling */
+.amenities-content {
+  @extend %flex-column;
+  gap: $spacing-large;
+}
+
+.amenities-section {
+  border: 1px solid $outline-color;
+  border-radius: $content-border-radius;
+  padding: $spacing-unit;
+
+  h4 {
+    font-size: $font-size-base;
+    font-weight: 600;
+    color: $text-heading;
+    margin: 0 0 $spacing-small 0;
+    padding-bottom: $spacing-small;
+    border-bottom: 1px solid $border-light;
+  }
+}
+
+.amenities-details {
+  @extend %flex-column;
+  gap: $spacing-small;
+}
+
+.amenities-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $spacing-small;
+}
+
+.amenities-item {
+  background: $white;
+  border: 1px solid $outline-color;
+  border-radius: $button-border-radius;
+  padding: $spacing-small $spacing-unit;
+  font-size: $font-size-small;
+  color: $text-color;
+
+  &.empty {
+    background: $background-light;
+    border-color: $outline-color;
+    color: $text-secondary;
+    font-style: italic;
   }
 }
 
@@ -505,7 +618,9 @@ h2 {
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
   border: 1px solid $border-light;
   text-align: center;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
   position: relative;
 
   &:hover {
@@ -630,7 +745,9 @@ h2 {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
 
   &:hover {
     transform: translateY(-2px);
@@ -692,7 +809,9 @@ h2 {
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
   border: 1px solid $border-light;
   overflow: hidden;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
 
   &:hover {
     transform: translateY(-2px);
@@ -712,7 +831,6 @@ h2 {
 
 .notification-header h3 {
   font-size: 1.1rem;
-  font-weight: 600;
   margin: 0;
 }
 
@@ -753,9 +871,7 @@ h2 {
 
   h3 {
     font-size: 1.5rem;
-    font-weight: 600;
     margin-bottom: 1rem;
-    color: $text-heading;
   }
 
   p {
@@ -794,14 +910,12 @@ h2 {
 
 .page-content h2 {
   font-size: 1.75rem;
-  font-weight: 600;
 
   margin: 2rem 0 1rem;
 }
 
 .page-content h3 {
   font-size: 1.25rem;
-  font-weight: 600;
 
   margin: 1.5rem 0 0.75rem;
 }
@@ -855,8 +969,7 @@ h2 {
 }
 
 .contact-form {
-  display: flex;
-  flex-direction: column;
+  @extend %flex-column;
   gap: 1.5rem;
 }
 
@@ -871,8 +984,7 @@ h2 {
 }
 
 .contact-form .form-item {
-  display: flex;
-  flex-direction: column;
+  @extend %flex-column;
   gap: 0.5rem;
 }
 

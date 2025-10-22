@@ -15,16 +15,18 @@ interface DirectionIconProps {
   type: DirectionIconKey
   directionRange: string
   color?: string
+  size?: number
 }
 
 const DirectionIcon = ({
   type,
   directionRange,
   color = '#046380',
+  size,
 }: DirectionIconProps) => {
   if (!directionRange) return null
 
-  const commonIconStyles = getCommonStyles(color)
+  const commonIconStyles = getCommonStyles(color, size)
 
   const [start, end] = parseDirectionRange(directionRange)
 

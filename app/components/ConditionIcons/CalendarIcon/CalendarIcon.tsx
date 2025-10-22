@@ -1,7 +1,13 @@
 import { getCommonStyles } from '../index'
 
-const CalendarIcon = ({ color = '#046380' }: { color?: string }) => {
-  const commonIconStyles = getCommonStyles(color)
+const CalendarIcon = ({
+  color = '#046380',
+  size,
+}: {
+  color?: string
+  size?: number
+}) => {
+  const commonIconStyles = getCommonStyles(color, size)
 
   const ringBinderWidth = Number(commonIconStyles.strokeWidth ?? 0) + 1
 

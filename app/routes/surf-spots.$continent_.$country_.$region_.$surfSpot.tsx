@@ -31,7 +31,7 @@ import { units } from '~/contexts/SettingsContext'
 
 import { surfSpotAction } from '~/services/surfSpot.server'
 import { getSession } from '~/services/session.server'
-import { metersToFeet } from '~/utils'
+import { formatSurfHeightRange, formatSeason } from '~/utils/surfSpotUtils'
 
 interface LoaderData {
   surfSpotDetails?: SurfSpot
@@ -72,26 +72,6 @@ export const loader: LoaderFunction = async ({ request, params }) => {
   }
 }
 
-const formatSurfHeightRange = (
-  preferredUnits: units,
-  minSurfHeight?: number,
-  maxSurfHeight?: number,
-) => {
-  if (!minSurfHeight && !maxSurfHeight) {
-    return '-'
-  }
-
-  const convertHeight = (height: number = 0) =>
-    preferredUnits === 'imperial' ? metersToFeet(height) : height
-
-  const min = convertHeight(minSurfHeight)
-  const max = maxSurfHeight ? convertHeight(maxSurfHeight) : null
-
-  const unit = preferredUnits === 'imperial' ? 'ft' : 'm'
-  const heightRange = max ? `${min}-${max}` : `+${min}`
-  return `${heightRange}${unit}`
-}
-
 export default function SurfSpotDetails() {
   const { surfSpotDetails, error } = useLoaderData<LoaderData>()
   const { user } = useUserContext()
@@ -124,6 +104,8 @@ export default function SurfSpotDetails() {
     windDirection,
     minSurfHeight,
     maxSurfHeight,
+    seasonStart,
+    seasonEnd,
     boatRequired,
     parking,
     foodNearby,
@@ -136,7 +118,7 @@ export default function SurfSpotDetails() {
   } = surfSpotDetails
 
   return (
-    <div className="content column mb-l">
+    <div className="mb-l">
       <div className="column">
         <div className="row space-between">
           <h1>{name}</h1>
@@ -192,13 +174,16 @@ export default function SurfSpotDetails() {
           </div>
           <div className="gap center-vertical">
             <CalendarIcon />
-            <Details label="Season" value="Sept - May" />
+            <Details
+              label="Season"
+              value={formatSeason(seasonStart, seasonEnd)}
+            />
           </div>
         </div>
       </section>
       <section>
         <h3>Surf Forecasts</h3>
-        {forecasts && (
+        {forecasts && forecasts.length > 0 ? (
           <>
             <p>
               Looking for real time conditions? Below is a list of forecasts to
@@ -218,65 +203,89 @@ export default function SurfSpotDetails() {
               ))}
             </div>
           </>
+        ) : (
+          <p>
+            Know a reliable forecast for this spot? Let us know and share the
+            love!
+          </p>
         )}
-        <p>
-          Know a reliable forecast for this spot? Let us know and share the
-          love!
-        </p>
       </section>
       <section>
         <h3>Amenities</h3>
-        <div className="row gap mb pv">
-          <p className="bold">How to get there?</p>
-          <Details
-            label="Is a boat required?"
-            value={boatRequired ? 'Yes' : 'No'}
-          />
-          <Details label="Parking" value={parking} />
-
-          {facilities && (
-            <div>
-              <p className="bold">Facilities:</p>
-              <div className="flex column">
-                {facilities.map((facility: string) => (
-                  <p key={facility}>{facility}</p>
-                ))}
-              </div>
+        <div className="amenities-content">
+          <div className="amenities-section">
+            <h4>How to get there?</h4>
+            <div className="amenities-details">
+              <Details
+                label="Is a boat required?"
+                value={boatRequired ? 'Yes' : 'No'}
+              />
+              <Details label="Parking" value={parking} />
             </div>
-          )}
+          </div>
 
-          {hazards && (
-            <div>
-              <p className="bold">Hazard:</p>
-              <div className="flex column">
-                {hazards.map((hazard: string) => (
-                  <p key={hazard}>{hazard}</p>
-                ))}
-              </div>
+          <div className="amenities-section">
+            <h4>Facilities</h4>
+            <div className="amenities-list">
+              {facilities && facilities.length > 0 ? (
+                facilities.map((facility: string) => (
+                  <span key={facility} className="amenities-item">
+                    {facility}
+                  </span>
+                ))
+              ) : (
+                <span className="amenities-item empty">
+                  No facilities listed
+                </span>
+              )}
             </div>
-          )}
+          </div>
 
-          {accommodationNearby && (
-            <div>
-              <p className="bold">Accomodation Options:</p>
-              <div className="flex column">
-                {accommodationTypes.map((accommodationType: string) => (
-                  <p key={accommodationType}>{accommodationType}</p>
-                ))}
+          {accommodationNearby &&
+            accommodationTypes &&
+            accommodationTypes.length > 0 && (
+              <div className="amenities-section">
+                <h4>Accommodation Options</h4>
+                <div className="amenities-list">
+                  {accommodationTypes.map((accommodationType: string) => (
+                    <span key={accommodationType} className="amenities-item">
+                      {accommodationType}
+                    </span>
+                  ))}
+                </div>
               </div>
-            </div>
-          )}
+            )}
 
-          {foodNearby && (
-            <div>
-              <p className="bold">Food Options:</p>
-              <div className="flex column">
+          {foodNearby && foodTypes && foodTypes.length > 0 && (
+            <div className="amenities-section">
+              <h4>Food Options</h4>
+              <div className="amenities-list">
                 {foodTypes.map((foodType: string) => (
-                  <p key={foodType}>{foodType}</p>
+                  <span key={foodType} className="amenities-item">
+                    {foodType}
+                  </span>
                 ))}
               </div>
             </div>
           )}
+        </div>
+      </section>
+      <section>
+        <h3>Hazards</h3>
+        <div className="amenities-content">
+          <div className="amenities-section">
+            <div className="amenities-list">
+              {hazards && hazards.length > 0 ? (
+                hazards.map((hazard: string) => (
+                  <span key={hazard} className="amenities-item">
+                    {hazard}
+                  </span>
+                ))
+              ) : (
+                <span className="amenities-item empty">No hazards listed</span>
+              )}
+            </div>
+          </div>
         </div>
       </section>
       <section>

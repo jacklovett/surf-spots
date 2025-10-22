@@ -1,15 +1,19 @@
+.page-wrapper {
+  @extend %flex-column;
+  min-height: 100vh;
+}
+
 .page {
   @extend %flex-column;
   flex: 1;
   border: none;
-  min-height: 100vh;
 }
 
 .page-content {
   width: 100%;
   padding: 0 $spacing-unit;
   max-width: 560px;
-  min-height: calc(100vh - $header-height);
+  flex: 1;
 
   @media (min-width: 1440px) {
     max-width: 840px;

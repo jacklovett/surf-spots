@@ -10,6 +10,7 @@ import { TIDE_WAVE_MAP, TIDES, TOTAL_TIDE_COUNT } from './index'
 interface TideIconProps {
   tide: Tide
   color?: string
+  size?: number
 }
 
 const generateWaves = (tideValue: number, color: string) => {
@@ -27,7 +28,7 @@ const generateWaves = (tideValue: number, color: string) => {
   ))
 }
 
-const TideIcon = ({ tide, color = '#046380' }: TideIconProps) => {
+const TideIcon = ({ tide, color = '#046380', size }: TideIconProps) => {
   if (!tide) return null
 
   const tideKey = Object.keys(Tide).find(
@@ -41,7 +42,7 @@ const TideIcon = ({ tide, color = '#046380' }: TideIconProps) => {
     return
   }
 
-  const commonIconStyles = getCommonStyles(color)
+  const commonIconStyles = getCommonStyles(color, size)
 
   return (
     <svg {...commonIconStyles}>

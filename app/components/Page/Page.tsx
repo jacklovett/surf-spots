@@ -27,7 +27,7 @@ export const Page = (props: IProps) => {
   const loading = state === 'loading' && !overrideLoading
 
   return (
-    <>
+    <div className="page-wrapper">
       {showHeader && <Header />}
       <main
         className={classNames({
@@ -43,6 +43,6 @@ export const Page = (props: IProps) => {
       </main>
       <Footer isAlternate={isAlternate} />
       <Drawer />
-    </>
+    </div>
   )
 }

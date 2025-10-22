@@ -5,6 +5,9 @@ node_modules
 .env
 .react-router/
 
+# Cursor AI memory and rules
+.cursor/
+
 # Playwright test results
 test-results/
 playwright-report/

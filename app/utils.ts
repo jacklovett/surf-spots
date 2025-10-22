@@ -24,7 +24,8 @@ export const getCssVariable = (variable: string) =>
  * @param meters - distance in meters
  * @returns number - distance in feet
  */
-export const metersToFeet = (meters: number): number => meters * 3.28084
+export const metersToFeet = (meters: number): number =>
+  Math.round(meters * 3.28084 * 10) / 10
 
 /**
  * Converts km to miles - 1km ≈ 0.621371mi

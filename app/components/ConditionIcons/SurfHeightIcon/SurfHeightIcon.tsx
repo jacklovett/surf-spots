@@ -1,7 +1,13 @@
 import { getCommonStyles } from '../index'
 
-const SurfHeightIcon = ({ color = '#046380' }: { color?: string }) => {
-  const commonIconStyles = getCommonStyles(color)
+const SurfHeightIcon = ({
+  color = '#046380',
+  size,
+}: {
+  color?: string
+  size?: number
+}) => {
+  const commonIconStyles = getCommonStyles(color, size)
 
   return (
     <svg {...commonIconStyles}>

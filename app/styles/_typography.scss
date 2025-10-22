@@ -8,34 +8,38 @@ body {
 }
 
 /* Headings */
-h1, h2, h3 {
+h1,
+h2,
+h3 {
   letter-spacing: 0; /* Slightly tight for impact */
+  color: $text-heading;
 }
 
 /* Body Text */
-button, p {
+button,
+p {
   letter-spacing: 0.02em; /* Neutral or slightly loose */
 }
 
 /* Small Text */
-.breadcrumb-link, .breadcrumb-current {
+.breadcrumb-link,
+.breadcrumb-current {
   letter-spacing: 0.03em; /* Looser for readability */
 }
 
 /* All Caps */
 .button {
   letter-spacing: 0.05em; /* Spacious for clarity */
-  text-transform:uppercase;
+  text-transform: uppercase;
 }
 
 h1,
 h2,
 h3,
 h4 {
-  color: $text-color;
+  color: $text-heading;
   line-height: 1.4;
   font-family: $font-family-heading;
-  font-weight: 600;
 }
 
 h1,
@@ -71,11 +75,10 @@ p {
 
 a {
   color: $primary-color;
-  text-decoration: none;
+  text-decoration: underline;
 
   &:hover {
     color: $accent-color;
-    text-decoration: underline;
   }
 }
 
@@ -84,9 +87,9 @@ a {
 }
 
 .font-small {
-  font-size: $font-size-small; 
+  font-size: $font-size-small;
 }
 
 .font-x-small {
-  font-size: $font-size-x-small; 
+  font-size: $font-size-x-small;
 }

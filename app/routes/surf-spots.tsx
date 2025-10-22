@@ -153,7 +153,9 @@ export default function SurfSpots() {
             </ContentStatus>
           ) : (
             <ErrorBoundary message="Uh-oh! Something went wrong!">
-              <Outlet />
+              <div className="mt">
+                <Outlet />
+              </div>
             </ErrorBoundary>
           )}
         </div>

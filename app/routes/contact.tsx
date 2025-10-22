@@ -1,5 +1,5 @@
 import type { MetaFunction } from 'react-router'
-import { Page, Button, Icon, SocialLinks } from '~/components'
+import { Page, Button, SocialLinks } from '~/components'
 
 export const meta: MetaFunction = () => {
   return [

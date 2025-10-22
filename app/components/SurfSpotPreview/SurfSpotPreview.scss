@@ -1,29 +1,59 @@
 @use 'sass:color';
 
 .surf-spot-preview {
-  padding: $spacing-unit;
+  padding: $spacing-unit $spacing-large;
+  font-size: $font-size-small;
+  line-height: 1.5;
 
-  .surf-spot-preview-title {
-    font-size: $font-size-large;
-    font-weight: 600;
-    margin-bottom: $spacing-unit;
-    color: $text-color;
-  }
+  .preview-section {
+    padding-bottom: $spacing-unit;
 
-  .surf-spot-preview-content {
-    .surf-spot-preview-details {
-      margin-bottom: $spacing-unit;
+    .details {
+      margin-bottom: 2px;
+      padding: 2px 0;
+
+      .label {
+        font-size: $font-size-x-small;
+        color: $text-secondary;
+        min-width: 90px;
+      }
+
+      .value {
+        font-size: $font-size-small;
+        color: $text-color;
+      }
     }
 
-    .surf-spot-preview-link {
-      color: $primary-color;
-      cursor: pointer;
-      text-decoration: underline;
-      margin-bottom: $spacing-unit;
+    .condition-item {
+      display: flex;
+      align-items: center;
+      gap: $spacing-small;
+      margin-bottom: 2px;
+      padding: 2px 0;
+    }
+  }
 
-      &:hover {
-        color: color.adjust($primary-color, $lightness: -10%);
-      }
+  .preview-subtitle {
+    font-size: $font-size-small;
+    color: $text-heading;
+    margin: $spacing-small 0 $spacing-small 0;
+    padding-bottom: $spacing-small;
+    border-bottom: 1px solid $outline-color;
+  }
+
+  .surf-spot-preview-link {
+    cursor: pointer;
+    font-size: $font-size-small;
+    margin: 0 0 $spacing-large 0;
+  }
+
+  .surf-spot-preview-actions {
+    margin-top: $spacing-unit;
+    padding-top: $spacing-unit;
+    border-top: 1px solid $outline-color;
+
+    .actions {
+      gap: $spacing-small;
     }
   }
 }
