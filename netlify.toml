@@ -4,7 +4,6 @@
 
 [build.environment]
   NODE_VERSION = "20"
-  NPM_FLAGS = "--legacy-peer-deps"
   # VITE_ prefixed variables are intentionally bundled into client-side code
   # They must be public for the browser to access them. Secured via:
   # - Mapbox tokens: URL restrictions + limited scopes in Mapbox dashboard
