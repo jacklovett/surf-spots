@@ -1,5 +1,4 @@
 [build]
-  base = "surf-spots"
   command = "npm run build"
   publish = "build/client"
 
@@ -10,4 +9,3 @@
   from = "/*"
   to = "/index.html"
   status = 200
-
