@@ -12,11 +12,4 @@
   # Exclude source files where process.env.X references (not values) are normal
   SECRETS_SCAN_OMIT_PATHS = "app/**,*.md,tests/**,.github/**,.vscode/**,playwright.config.ts"
 
-[functions]
-  directory = "netlify/functions"
-  node_bundler = "esbuild"
-
-[[redirects]]
-  from = "/*"
-  to = "/.netlify/functions/server"
-  status = 200
+# The @netlify/remix-adapter automatically handles functions and redirects

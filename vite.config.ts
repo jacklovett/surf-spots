@@ -1,12 +1,10 @@
-import { reactRouter } from "@react-router/dev/vite";
+import { reactRouter } from '@react-router/dev/vite'
 import { defineConfig } from 'vite'
 import tsconfigPaths from 'vite-tsconfig-paths'
+import { netlifyPlugin } from '@netlify/remix-adapter/plugin'
 
 export default defineConfig({
-  plugins: [
-    reactRouter(),
-    tsconfigPaths(),
-  ],
+  plugins: [reactRouter(), tsconfigPaths(), netlifyPlugin()],
   css: {
     preprocessorOptions: {
       scss: {
