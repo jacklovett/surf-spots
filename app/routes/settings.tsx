@@ -158,7 +158,7 @@ export default function Settings() {
 
   return (
     <Page showHeader>
-      <div className="settings-page">
+      <div className="info-page-content mv">
         <h1>Settings</h1>
         <FormComponent
           loading={loading}
