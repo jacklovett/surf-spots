@@ -28,7 +28,7 @@ export const AuthPage = (props: IProps) => {
             reversed,
           })}
         >
-          <div className="center column h-full flex-1 space-between">
+          <div className="center column h-full flex-1">
             <div className="column center auth-content">
               {renderContent(children, loading, error)}
             </div>
