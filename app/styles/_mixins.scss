@@ -48,7 +48,6 @@
 ) {
   width: 100%;
   margin: 0 auto;
-  padding: 0 $spacing-unit;
   max-width: $default-width;
 
   @if $tablet-width {
