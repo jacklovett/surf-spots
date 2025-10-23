@@ -27,7 +27,7 @@ export default function Index() {
     <div className="landing-page">
       <div className="main-content">
         {/* Hero Section */}
-        <section className="hero">
+        <section className="hero column center">
           <div className="hero-container">
             <div className="hero-content">
               <div className="hero-visual">
