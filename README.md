@@ -5,7 +5,6 @@ A modern web application for discovering and sharing surf spots worldwide, built
 ## Documentation
 
 - [React Router v7 docs](https://reactrouter.com/dev)
-- [Deployment Guide](./VERCEL_DEPLOY.md) - Deploy to Vercel (Recommended)
 
 ## Quick Start
 
@@ -42,19 +41,13 @@ FACEBOOK_CLIENT_SECRET=your_facebook_app_secret
 FACEBOOK_CALLBACK_URL=http://localhost:5173/auth/facebook
 ```
 
-## 🌐 Deployment
+## Deployment
 
-**Recommended:** Deploy to Vercel for the best React Router v7 experience.
+Currently deployed to Vercel:
 
-📝 **[Follow the Vercel Deployment Guide](./VERCEL_DEPLOY.md)**
+https://surf-spots-five.vercel.app/
 
-Key features:
-- ✅ Zero configuration needed
-- ✅ Automatic serverless functions
-- ✅ Global CDN
-- ✅ 100% FREE for personal projects
-
-## 🏗️ Project Structure
+## Project Structure
 
 ```
 surf-spots/
@@ -68,14 +61,13 @@ surf-spots/
 │   └── types/          # TypeScript types
 ├── public/             # Static assets
 ├── build/              # Build output (generated)
-└── vercel.json         # Vercel configuration
 ```
 
-## 🎨 Styling
+## Styling
 
 This app uses SCSS for styling with a modular approach.
 
-## 🧪 Testing
+## Testing
 
 Run end-to-end tests with Playwright:
 ```bash
@@ -87,7 +79,7 @@ Run tests in UI mode:
 npm run test:ui
 ```
 
-## 📦 Build
+## Build
 
 Build for production:
 ```bash
@@ -98,7 +90,7 @@ This creates:
 - `build/client` - Client-side assets
 - `build/server` - Server-side code
 
-## 🔧 Tech Stack
+## Tech Stack
 
 - **React Router v7** - Framework
 - **TypeScript** - Type safety
@@ -107,6 +99,6 @@ This creates:
 - **Mapbox GL** - Maps
 - **Playwright** - Testing
 
-## 📄 License
+## License
 
 MIT
