@@ -158,95 +158,93 @@ export default function Settings() {
 
   return (
     <Page showHeader>
-      <div className="column h-full center-vertical mv">
-        <div className="page-content h-full">
-          <h1 className="mt">Settings</h1>
-          <FormComponent
-            loading={loading}
-            submitLabel="Save Changes"
-            submitStatus={submitStatus}
-            method="put"
-            isDisabled={!hasChanges || loading}
-          >
-            <div className="column h-full">
-              <section>
-                <FormInput
-                  field={{
-                    label: 'Preferred Units',
-                    name: 'preferredUnits',
-                    type: 'select',
-                    options: unitOptions,
-                  }}
-                  value={preferredUnits}
-                  onChange={(e) =>
-                    updateSetting('preferredUnits', e.target.value)
-                  }
-                  showLabel={!!preferredUnits}
-                  disabled={loading}
-                />
-              </section>
-              {user ? (
-                <>
-                  <div className="mt pt">
-                    <h4>Email Notifications</h4>
-                  </div>
-                  <div className="mb">
-                    <p className="bold">General</p>
-                    <section>
-                      <CheckboxOption
-                        name="newSurfSpots"
-                        title="New Surf Spots"
-                        description="Be notified when new spots are discovered and added to
-                              the platform"
-                        checked={newSurfSpots}
-                        onChange={() => setNewSurfSpots(!newSurfSpots)}
-                      />
-                      <CheckboxOption
-                        name="nearbySurfSpots"
-                        title="Nearby Surf Spots"
-                        description="Get alerts about surf spots near your location when you
-                              travel."
-                        checked={nearbySurfSpots}
-                        onChange={() => setNearbySurfSpots(!nearbySurfSpots)}
-                      />
-                    </section>
-                    <section>
-                      <p className="bold mt">Watched Surf Spots</p>
-                      <CheckboxOption
-                        name="swellSeasons"
-                        title="Swell Season Alerts"
-                        description="Get notified when the swell season begins and ends for
-                              the surf spots you're following."
-                        checked={swellSeasons}
-                        onChange={() => setSwellSeasons(!swellSeasons)}
-                      />
-                      <CheckboxOption
-                        name="events"
-                        title="Event & Contests"
-                        description="Stay up to date on contests and events at your watched
-                              spots."
-                        checked={events}
-                        onChange={() => setEvents(!events)}
-                      />
-                      <CheckboxOption
-                        name="promotions"
-                        title="Deals & Promotions"
-                        description="Receive deals and promotions related to the surf spots
-                              you follow. (i.e. flights, surf camps etc.)."
-                        checked={promotions}
-                        onChange={() => setPromotions(!promotions)}
-                      />
-                    </section>
-                  </div>
-                </>
-              ) : (
+      <div className="settings-page">
+        <h1>Settings</h1>
+        <FormComponent
+          loading={loading}
+          submitLabel="Save Changes"
+          submitStatus={submitStatus}
+          method="put"
+          isDisabled={!hasChanges || loading}
+        >
+          <div className="column h-full">
+            <section>
+              <FormInput
+                field={{
+                  label: 'Preferred Units',
+                  name: 'preferredUnits',
+                  type: 'select',
+                  options: unitOptions,
+                }}
+                value={preferredUnits}
+                onChange={(e) =>
+                  updateSetting('preferredUnits', e.target.value)
+                }
+                showLabel={!!preferredUnits}
+                disabled={loading}
+              />
+            </section>
+            {user ? (
+              <>
                 <div className="mt pt">
-                  <p>Sign in to manage more settings</p>
+                  <h4>Email Notifications</h4>
                 </div>
-              )}
-            </div>
-          </FormComponent>
-        </div>
+                <div>
+                  <p className="bold">General</p>
+                  <section>
+                    <CheckboxOption
+                      name="newSurfSpots"
+                      title="New Surf Spots"
+                      description="Be notified when new spots are discovered and added to
+                              the platform"
+                      checked={newSurfSpots}
+                      onChange={() => setNewSurfSpots(!newSurfSpots)}
+                    />
+                    <CheckboxOption
+                      name="nearbySurfSpots"
+                      title="Nearby Surf Spots"
+                      description="Get alerts about surf spots near your location when you
+                              travel."
+                      checked={nearbySurfSpots}
+                      onChange={() => setNearbySurfSpots(!nearbySurfSpots)}
+                    />
+                  </section>
+                  <section>
+                    <p className="bold mt">Watched Surf Spots</p>
+                    <CheckboxOption
+                      name="swellSeasons"
+                      title="Swell Season Alerts"
+                      description="Get notified when the swell season begins and ends for
+                              the surf spots you're following."
+                      checked={swellSeasons}
+                      onChange={() => setSwellSeasons(!swellSeasons)}
+                    />
+                    <CheckboxOption
+                      name="events"
+                      title="Event & Contests"
+                      description="Stay up to date on contests and events at your watched
+                              spots."
+                      checked={events}
+                      onChange={() => setEvents(!events)}
+                    />
+                    <CheckboxOption
+                      name="promotions"
+                      title="Deals & Promotions"
+                      description="Receive deals and promotions related to the surf spots
+                              you follow. (i.e. flights, surf camps etc.)."
+                      checked={promotions}
+                      onChange={() => setPromotions(!promotions)}
+                    />
+                  </section>
+                </div>
+              </>
+            ) : (
+              <div className="mt pt">
+                <p>Sign in to manage more settings</p>
+              </div>
+            )}
+          </div>
+        </FormComponent>
       </div>
     </Page>
   )

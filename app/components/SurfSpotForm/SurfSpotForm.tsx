@@ -267,7 +267,7 @@ export const SurfSpotForm = (props: SurfSpotFormProps) => {
 
   return (
     <Page showHeader>
-      <div className="column center-vertical mv ph">
+      <div className="column center-vertical mv">
         <div className="page-content">
           <h1 className="mt">{`${actionType} Surf Spot`}</h1>
           <InfoMessage message="Public surf spots are reviewed and, if approved, become visible to everyone." />

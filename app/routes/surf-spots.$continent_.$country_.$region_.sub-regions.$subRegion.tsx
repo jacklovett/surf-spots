@@ -103,7 +103,7 @@ export default function SubRegionPage() {
   const { name, description } = subRegionDetails
 
   return (
-    <div className="content">
+    <div className="content mb-l">
       <h1>{name}</h1>
       <p className="description">{description}</p>
 

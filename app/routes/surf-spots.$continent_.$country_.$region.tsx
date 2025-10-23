@@ -104,7 +104,7 @@ export default function Region() {
   const { name, description, subRegions } = regionDetails
 
   return (
-    <div className="content">
+    <div className="content mb-l">
       <h1>{name}</h1>
       <p className="description">{description}</p>
 

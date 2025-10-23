@@ -18,10 +18,9 @@
 }
 
 .map-wrapper {
-  padding-bottom: $spacing-large;
-
-  @media (max-width: 560px) {
-    padding-bottom: 0;
+  @media (max-width: 640px) {
+    margin-left: -$spacing-unit;
+    margin-right: -$spacing-unit;
   }
 }
 
@@ -67,12 +66,11 @@ ellipse {
 }
 
 .find-spot-map {
+  @extend .map-wrapper;
   margin-top: $spacing-large;
   margin-bottom: $spacing-small;
 
-  @media (max-width: 435px) {
-    margin-left: -$spacing-unit;
-    margin-right: -$spacing-unit;
+  @media (max-width: 640px) {
     margin-top: $spacing-unit;
   }
 }

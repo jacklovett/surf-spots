@@ -158,57 +158,55 @@ const Profile = () => {
 
   return (
     <Page showHeader>
-      <div className="column center-vertical mv">
-        <div className="page-content">
-          <h1 className="mt">Profile</h1>
-          <FormComponent
-            loading={loading}
-            isDisabled={!hasUnsavedChanges || !isFormValid}
-            submitLabel="Save Changes"
-            submitStatus={submitStatus}
-            method="put"
-          >
-            <FormInput
-              field={{
-                label: 'Email',
-                name: 'email',
-                type: 'email',
-                validationRules: { required: true },
-              }}
-              value={formState.email}
-              onChange={(e) => handleChange('email', e.target.value)}
-              onBlur={() => handleBlur('email')}
-              errorMessage={errors.email || ''}
-              showLabel={!!formState.email}
-            />
-            <FormInput
-              field={{ label: 'Name', name: 'name', type: 'text' }}
-              value={formState.name}
-              onChange={(e) => handleChange('name', e.target.value)}
-              onBlur={() => handleBlur('name')}
-              errorMessage={errors.name || ''}
-              showLabel={!!formState.name}
-            />
-            <LocationSelector
-              locationData={locationData || []}
-              selectedCountry={formState.country}
-              selectedCity={formState.city}
-              onCountryChange={(country) => handleChange('country', country)}
-              onCityChange={(city) => handleChange('city', city)}
-            />
-            <div className="row flex-end disclaimer">
-              <Link to="/data-policy" prefetch="intent">
-                Why do we want this information?
-              </Link>
-            </div>
-          </FormComponent>
-          <div className="mv">
-            <NavButton
-              label="Change Password"
-              to="/auth/change-password"
-              variant="secondary"
-            />
+      <div className="profile-page">
+        <h1>Profile</h1>
+        <FormComponent
+          loading={loading}
+          isDisabled={!hasUnsavedChanges || !isFormValid}
+          submitLabel="Save Changes"
+          submitStatus={submitStatus}
+          method="put"
+        >
+          <FormInput
+            field={{
+              label: 'Email',
+              name: 'email',
+              type: 'email',
+              validationRules: { required: true },
+            }}
+            value={formState.email}
+            onChange={(e) => handleChange('email', e.target.value)}
+            onBlur={() => handleBlur('email')}
+            errorMessage={errors.email || ''}
+            showLabel={!!formState.email}
+          />
+          <FormInput
+            field={{ label: 'Name', name: 'name', type: 'text' }}
+            value={formState.name}
+            onChange={(e) => handleChange('name', e.target.value)}
+            onBlur={() => handleBlur('name')}
+            errorMessage={errors.name || ''}
+            showLabel={!!formState.name}
+          />
+          <LocationSelector
+            locationData={locationData || []}
+            selectedCountry={formState.country}
+            selectedCity={formState.city}
+            onCountryChange={(country) => handleChange('country', country)}
+            onCityChange={(city) => handleChange('city', city)}
+          />
+          <div className="row flex-end disclaimer">
+            <Link to="/data-policy" prefetch="intent">
+              Why do we want this information?
+            </Link>
           </div>
+        </FormComponent>
+        <div className="mv">
+          <NavButton
+            label="Change Password"
+            to="/auth/change-password"
+            variant="secondary"
+          />
         </div>
       </div>
     </Page>

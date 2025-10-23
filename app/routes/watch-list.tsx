@@ -87,7 +87,7 @@ export default function Watchlist() {
 
   return (
     <Page showHeader>
-      <div className="column h-full content mt">
+      <div className="watch-list-page">
         <h1>Watch List</h1>
         <p>
           Here, we'll keep you updated on swell seasons, local news, events, and
@@ -96,9 +96,7 @@ export default function Watchlist() {
         </p>
         <ErrorBoundary message="Uh-oh! Something went wrong displaying the latest updates">
           {!hasNotifications && (
-            <ContentStatus>
-              <p>No updates found for your watched surf spots</p>
-            </ContentStatus>
+            <p className="mv-l">No updates found for your watched surf spots</p>
           )}
           {hasNotifications && (
             <div className="flex column gap">
@@ -126,16 +124,16 @@ export default function Watchlist() {
           )}
         </ErrorBoundary>
         <ErrorBoundary message="Uh-oh! Something went wrong displaying the map!">
-          <SurfMap />
+          <div className="map-wrapper">
+            <SurfMap />
+          </div>
         </ErrorBoundary>
         <ErrorBoundary message="Unable to load surf spot list">
           {!surfSpotsFound && (
-            <ContentStatus>
-              <p>
-                No watched surf spots found. Add some spots to your watch list
-                so you can stay up to date.
-              </p>
-            </ContentStatus>
+            <p className="mv-l">
+              No watched surf spots found. Add some spots to your watch list so
+              you can stay up to date.
+            </p>
           )}
           {surfSpotsFound && (
             <SurfSpotList

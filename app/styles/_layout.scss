@@ -118,7 +118,7 @@
 .content {
   padding: 0;
 
-  @media (max-width: 670px) {
+  @media (max-width: 640px) {
     padding: 0 $spacing-unit;
   }
 }
@@ -179,6 +179,10 @@
   margin: $spacing-unit 0;
 }
 
+.mv-l {
+  margin: $spacing-large 0;
+}
+
 .mh {
   margin: 0 $spacing-unit;
 }
@@ -193,6 +197,10 @@
 
 .mt-s {
   margin-top: $spacing-small;
+}
+
+.mt-l {
+  margin-top: $spacing-large;
 }
 
 .mb {
@@ -213,8 +221,4 @@
 
 .border-top {
   border-top: solid 1px $outline-color;
-}
-
-ul {
-  margin-bottom: $spacing-unit;
 }

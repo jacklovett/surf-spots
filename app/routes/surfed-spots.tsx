@@ -64,11 +64,14 @@ const getSkillLevelDisplay = (
   if (surfedSpots.length === 0) return 'Not assessed'
 
   // Count spots by skill level
-  const skillLevelCounts = surfedSpots.reduce((acc, spot) => {
-    const level = spot.skillLevel || 'beginner'
-    acc[level] = (acc[level] || 0) + 1
-    return acc
-  }, {} as Record<string, number>)
+  const skillLevelCounts = surfedSpots.reduce(
+    (acc, spot) => {
+      const level = spot.skillLevel || 'beginner'
+      acc[level] = (acc[level] || 0) + 1
+      return acc
+    },
+    {} as Record<string, number>,
+  )
 
   // Calculate percentages
   const total = surfedSpots.length
@@ -148,11 +151,14 @@ export default function SurfedSpots() {
   const getPreferredTide = () => {
     if (surfedSpots.length === 0) return null
 
-    const tideCounts = surfedSpots.reduce((acc, spot) => {
-      const tide = spot.tide || 'Any'
-      acc[tide] = (acc[tide] || 0) + 1
-      return acc
-    }, {} as Record<string, number>)
+    const tideCounts = surfedSpots.reduce(
+      (acc, spot) => {
+        const tide = spot.tide || 'Any'
+        acc[tide] = (acc[tide] || 0) + 1
+        return acc
+      },
+      {} as Record<string, number>,
+    )
 
     const mostSurfed = Object.entries(tideCounts).reduce((a, b) =>
       tideCounts[a[0]] > tideCounts[b[0]] ? a : b,
@@ -166,14 +172,7 @@ export default function SurfedSpots() {
   return (
     <Page showHeader>
       <div className="surfed-spots-page">
-        {/* Hero Section */}
-        <div className="hero-section">
-          <h1>Your Surf Journey</h1>
-          <p className="hero-subtitle">
-            Track your progress across countries, continents, and different
-            types of waves
-          </p>
-        </div>
+        <h1>Surfed Spots</h1>
 
         {/* Stats Overview */}
         <div className="stats-overview">
@@ -261,12 +260,13 @@ export default function SurfedSpots() {
         <div className="map-section">
           <h2>Your Surf Journey Map</h2>
           <ErrorBoundary message="Uh-oh! Something went wrong displaying the map!">
-            <SurfMap surfSpots={surfedSpots} />
+            <div className="map-wrapper">
+              <SurfMap surfSpots={surfedSpots} />
+            </div>
           </ErrorBoundary>
         </div>
-
         {/* All Surf Spots List */}
-        <div className="spots-section">
+        <div className="spots-section mt-l">
           <h2>All Surfed Spots</h2>
           <ErrorBoundary message="Unable to load surf spot list">
             {!surfedSpotsFound && (

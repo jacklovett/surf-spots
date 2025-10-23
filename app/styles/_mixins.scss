@@ -11,8 +11,8 @@
 
   @media (min-width: $min-screen) {
     font-size: calc(
-      #{$min-size} + (#{$max-size} - #{$min-size}) * ((100vw - #{$min-screen}) /
-            (#{$max-screen} - #{$min-screen}))
+      #{$min-size} + (#{$max-size} - #{$min-size}) *
+        ((100vw - #{$min-screen}) / (#{$max-screen} - #{$min-screen}))
     );
   }
 
@@ -49,6 +49,7 @@
   width: 100%;
   margin: 0 auto;
   max-width: $default-width;
+  padding: 0 $spacing-unit;
 
   @if $tablet-width {
     @media (max-width: 900px) {

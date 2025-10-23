@@ -42,13 +42,15 @@ h2 {
 /* Surf Spot Details Page Styling */
 
 .content h1 {
-  font-size: $font-size-xx-large;
-  margin-bottom: $spacing-large;
+  font-size: 2.5rem;
+  font-weight: 700;
+  margin-bottom: $spacing-unit;
 }
 
 .content h3 {
   font-size: $font-size-large;
-  margin: $spacing-large 0 $spacing-unit 0;
+  font-weight: 600;
+  margin: 0 0 $spacing-unit 0;
   padding-bottom: $spacing-small;
   border-bottom: 2px solid $primary-color;
 }
@@ -70,6 +72,15 @@ h2 {
 
 .content .row.spot-details {
   margin-bottom: $spacing-large;
+}
+
+.content .map-wrapper {
+  margin-bottom: $spacing-large;
+}
+
+.content section p {
+  line-height: 1.6;
+  margin-bottom: $spacing-unit;
 }
 
 .content .row.gap {
@@ -458,9 +469,24 @@ h2 {
 
 /* Info Pages Styling */
 .info-page-content {
-  padding: $spacing-large 0;
+  padding: $spacing-large $spacing-unit;
   max-width: 800px;
   margin: 0 auto;
+
+  h2 {
+    margin: $spacing-large 0 $spacing-unit;
+  }
+
+  ul,
+  ol {
+    line-height: 1.6;
+    padding-left: $spacing-large;
+    margin-bottom: $spacing-unit;
+  }
+
+  li {
+    margin-bottom: $spacing-small;
+  }
 }
 
 /* Professional Page Layouts */
@@ -468,7 +494,23 @@ h2 {
 .watch-list-page {
   max-width: 1200px;
   margin: 0 auto;
-  padding: 0 $spacing-unit;
+  padding: 0;
+
+  @media (min-width: 1201px) {
+    padding: 0 $spacing-unit;
+  }
+
+  h1 {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin-bottom: $spacing-unit;
+    padding: $spacing-large $spacing-unit 0;
+  }
+
+  > p {
+    padding: 0 $spacing-unit;
+    margin-bottom: $spacing-large;
+  }
 }
 
 /* Hero Sections */
@@ -607,6 +649,11 @@ h2 {
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
   gap: 1.5rem;
   margin-bottom: 3rem;
+
+  @media (max-width: 640px) {
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: $spacing-unit;
+  }
 }
 
 .stat-card {
@@ -675,6 +722,11 @@ h2 {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
   gap: 1.5rem;
+
+  @media (max-width: 640px) {
+    grid-template-columns: 1fr;
+    gap: $spacing-unit;
+  }
 }
 
 .stat-item {
@@ -711,20 +763,17 @@ h2 {
 }
 
 /* Section Styling */
-.map-section,
 .spots-section,
 .notifications-section,
 .recent-spots-section {
-  margin-bottom: 3rem;
+  margin-bottom: $spacing-large;
 }
 
-.map-section h2,
 .spots-section h2,
 .notifications-section h2,
 .recent-spots-section h2 {
   font-size: 1.75rem;
-  font-weight: 600;
-  margin-bottom: 1.5rem;
+  margin-bottom: $spacing-unit;
 }
 
 /* Recent Spots Section */
@@ -732,6 +781,11 @@ h2 {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
   gap: 1.5rem;
+
+  @media (max-width: 640px) {
+    grid-template-columns: 1fr;
+    gap: $spacing-unit;
+  }
 }
 
 .recent-spot-card {
@@ -946,15 +1000,45 @@ h2 {
   }
 }
 
+/* Settings Page */
+.settings-page,
+.profile-page {
+  max-width: 600px;
+  margin: 0 auto;
+  padding: $spacing-large $spacing-unit;
+
+  h1 {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin-bottom: $spacing-large;
+  }
+
+  h4 {
+    font-size: $font-size-large;
+    font-weight: 600;
+    margin-bottom: $spacing-unit;
+  }
+
+  section {
+    margin-bottom: $spacing-large;
+  }
+}
+
 /* Contact Page */
 .contact-page {
   max-width: 800px;
   margin: 0 auto;
-}
+  padding: $spacing-large $spacing-unit;
 
-.contact-header {
-  text-align: center;
-  margin-bottom: 3rem;
+  h1 {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin-bottom: $spacing-unit;
+  }
+
+  > p {
+    margin-bottom: $spacing-large;
+  }
 }
 
 .contact-form-section {

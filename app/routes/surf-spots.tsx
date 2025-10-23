@@ -145,7 +145,7 @@ export default function SurfSpots() {
           </ErrorBoundary>
         </div>
       ) : (
-        <div className="content column">
+        <div className="column">
           <Breadcrumb items={breadcrumbs} />
           {loading ? (
             <ContentStatus>
