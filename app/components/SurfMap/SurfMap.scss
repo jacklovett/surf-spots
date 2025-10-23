@@ -18,7 +18,9 @@
 }
 
 .map-wrapper {
+  padding-bottom: $spacing-large;
   @media (max-width: 640px) {
+    padding-bottom: 0;
     margin-left: -$spacing-unit;
     margin-right: -$spacing-unit;
   }
