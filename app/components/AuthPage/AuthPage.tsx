@@ -28,12 +28,12 @@ export const AuthPage = (props: IProps) => {
             reversed,
           })}
         >
-          <div className="center column h-full flex-1 mt">
-            <div className="column h-full center auth-content">
+          <div className="center column h-full flex-1">
+            <div className="column center auth-content">
               {renderContent(children, loading, error)}
-              <div className="auth-copyright">
-                <p>{COPYRIGHT_TEXT}</p>
-              </div>
+            </div>
+            <div className="auth-copyright">
+              <p>{COPYRIGHT_TEXT}</p>
             </div>
           </div>
           <div className="flex-1 auth-hero">

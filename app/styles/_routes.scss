@@ -199,7 +199,6 @@ h2 {
   padding: $spacing-large 0;
 
   @media (max-width: 768px) {
-    min-height: auto;
     padding: $spacing-x-large $spacing-unit;
     align-items: flex-start;
   }
@@ -283,12 +282,11 @@ h2 {
   filter: drop-shadow(0 10px 30px rgba(0, 0, 0, 0.3));
 
   @media (max-width: 768px) {
-    width: 150px;
     margin-bottom: $spacing-unit;
   }
 
   @media (max-width: 480px) {
-    width: 120px;
+    width: 240px;
   }
 }
 
