@@ -139,15 +139,6 @@ export default function SurfedSpots() {
   // Get most recent surf spots (last 5)
   const recentSpots = surfedSpots.slice(0, 5)
 
-  // Calculate average rating
-  const averageRating =
-    surfedSpots.length > 0
-      ? (
-          surfedSpots.reduce((sum, spot) => sum + (spot.rating || 0), 0) /
-          surfedSpots.length
-        ).toFixed(1)
-      : 0
-
   // Calculate preferred tide
   const getPreferredTide = () => {
     if (surfedSpots.length === 0) return null
@@ -283,11 +274,7 @@ export default function SurfedSpots() {
               </div>
             )}
             {surfedSpotsFound && (
-              <SurfSpotList
-                {...{
-                  surfSpots: surfedSpots,
-                }}
-              />
+              <SurfSpotList surfSpots={surfedSpots} />
             )}
           </ErrorBoundary>
         </div>
