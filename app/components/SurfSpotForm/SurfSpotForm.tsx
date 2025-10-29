@@ -267,473 +267,464 @@ export const SurfSpotForm = (props: SurfSpotFormProps) => {
 
   return (
     <Page showHeader>
-      <div className="column center-vertical mv">
-        <div className="page-content">
-          <h1 className="mt">{`${actionType} Surf Spot`}</h1>
-          <InfoMessage message="Public surf spots are reviewed and, if approved, become visible to everyone." />
-          <FormComponent
-            loading={loading}
-            isDisabled={!isFormValid}
-            submitStatus={submitStatus}
-          >
-            <CheckboxOption
-              name="isPrivate"
-              title="Keep Private"
-              description="Only you will be able to see this spot. Your secret is safe with us!"
-              checked={isPrivateSpot}
-              onChange={() =>
-                setSpotStatus(
-                  isPrivateSpot
-                    ? SurfSpotStatus.PENDING
-                    : SurfSpotStatus.PRIVATE,
-                )
-              }
+      <div className="info-page-content mv">
+        <h1>{`${actionType} Surf Spot`}</h1>
+        <InfoMessage message="Public surf spots are reviewed and, if approved, become visible to everyone." />
+        <FormComponent
+          loading={loading}
+          isDisabled={!isFormValid}
+          submitStatus={submitStatus}
+        >
+          <CheckboxOption
+            name="isPrivate"
+            title="Keep Private"
+            description="Only you will be able to see this spot. Your secret is safe with us!"
+            checked={isPrivateSpot}
+            onChange={() =>
+              setSpotStatus(
+                isPrivateSpot ? SurfSpotStatus.PENDING : SurfSpotStatus.PRIVATE,
+              )
+            }
+          />
+          <FormInput
+            field={{
+              label: 'Name',
+              name: 'name',
+              type: 'text',
+            }}
+            value={formState.name}
+            onChange={(e) => handleChange('name', e.target.value)}
+            errorMessage={errors.name || ''}
+            showLabel={!!formState.name}
+          />
+          <FormInput
+            field={{
+              label: 'Description',
+              name: 'description',
+              type: 'textarea',
+            }}
+            onChange={(e) => handleChange('description', e.target.value)}
+            value={formState.description}
+            errorMessage={errors.description || ''}
+            showLabel={!!formState.description}
+          />
+          <h3 className="mv pt">Set Location</h3>
+          <div className="mb row space-between">
+            <ViewSwitch
+              isPrimaryView={findOnMap}
+              onToggleView={() => setFindOnMap(!findOnMap)}
+              primaryLabel="Use Map"
+              secondaryLabel="Enter Manually"
             />
-            <FormInput
-              field={{
-                label: 'Name',
-                name: 'name',
-                type: 'text',
-              }}
-              value={formState.name}
-              onChange={(e) => handleChange('name', e.target.value)}
-              errorMessage={errors.name || ''}
-              showLabel={!!formState.name}
-            />
-            <FormInput
-              field={{
-                label: 'Description',
-                name: 'description',
-                type: 'textarea',
-              }}
-              onChange={(e) => handleChange('description', e.target.value)}
-              value={formState.description}
-              errorMessage={errors.description || ''}
-              showLabel={!!formState.description}
-            />
-            <h3 className="mv pt">Set Location</h3>
-            <div className="mb row space-between">
-              <ViewSwitch
-                isPrimaryView={findOnMap}
-                onToggleView={() => setFindOnMap(!findOnMap)}
-                primaryLabel="Use Map"
-                secondaryLabel="Enter Manually"
-              />
-              {findOnMap && (
-                <div className="find-by-location">
-                  <TextButton
-                    text="Use my location"
-                    onClick={handleUseMyLocation}
-                    iconKey="crosshair"
-                    filled
-                    disabled={!isMapReady}
-                  />
-                </div>
-              )}
-            </div>
             {findOnMap && (
-              <div className="find-spot-map">
-                <ErrorBoundary message="Uh-oh! Something went wrong displaying the map!">
-                  <AddSurfSpotMap
-                    onLocationUpdate={handleLocationUpdate}
-                    initialCoordinates={
-                      formState.longitude && formState.latitude
-                        ? {
-                            longitude: formState.longitude,
-                            latitude: formState.latitude,
-                          }
-                        : undefined
-                    }
-                    onMapReady={() => setIsMapReady(true)}
-                    ref={mapRef}
-                  />
-                </ErrorBoundary>
+              <div className="find-by-location">
+                <TextButton
+                  text="Use my location"
+                  onClick={handleUseMyLocation}
+                  iconKey="crosshair"
+                  filled
+                  disabled={!isMapReady}
+                />
               </div>
             )}
-            {!findOnMap && (
-              <FormInput
-                field={{
-                  label: 'Continent',
-                  name: 'continent',
-                  type: 'select',
-                  options: [
-                    { key: '', value: '', label: 'Select a continent' },
-                    ...continents.map((c) => ({
-                      key: c.slug,
-                      value: c.slug,
-                      label: c.name,
-                    })),
-                  ],
-                }}
-                value={formState.continent}
-                onChange={(e) => handleChange('continent', e.target.value)}
-                errorMessage={errors.continent || ''}
-                showLabel={!!formState.continent}
-              />
-            )}
-            <div className="form-inline">
-              <FormInput
-                field={{
-                  label: 'Country',
-                  name: 'country',
-                  type: 'select',
-                  options: [
-                    {
-                      key: '',
-                      value: '',
-                      label: findOnMap ? 'Country' : 'Select a country',
-                    },
-                    ...filteredCountries.map((c) => ({
-                      key: c.id,
-                      value: c.id,
-                      label: c.name,
-                    })),
-                  ],
-                }}
-                value={formState.country}
-                onChange={(e) => handleChange('country', e.target.value)}
-                errorMessage={errors.country || ''}
-                showLabel={!!formState.country}
-                disabled={!continent || findOnMap}
-              />
-              <FormInput
-                field={{
-                  label: 'Region',
-                  name: 'region',
-                  type: 'select',
-                  options: [
-                    {
-                      key: '',
-                      value: '',
-                      label: findOnMap ? 'Region' : 'Select a region',
-                    },
-                    ...filteredRegions.map((r) => ({
-                      key: r.id,
-                      value: r.id,
-                      label: r.name,
-                    })),
-                  ],
-                }}
-                value={formState.region}
-                onChange={(e) => handleChange('region', e.target.value)}
-                errorMessage={errors.region || ''}
-                showLabel={!!formState.region}
-                disabled={!country || findOnMap}
-              />
+          </div>
+          {findOnMap && (
+            <div className="find-spot-map">
+              <ErrorBoundary message="Uh-oh! Something went wrong displaying the map!">
+                <AddSurfSpotMap
+                  onLocationUpdate={handleLocationUpdate}
+                  initialCoordinates={
+                    formState.longitude && formState.latitude
+                      ? {
+                          longitude: formState.longitude,
+                          latitude: formState.latitude,
+                        }
+                      : undefined
+                  }
+                  onMapReady={() => setIsMapReady(true)}
+                  ref={mapRef}
+                />
+              </ErrorBoundary>
             </div>
-            <div className="form-inline">
-              <FormInput
-                field={{
-                  label: 'Longitude',
-                  name: 'longitude',
-                  type: 'number',
-                }}
-                value={formState.longitude}
-                onChange={(e) =>
-                  handleChange('longitude', parseFloat(e.target.value))
-                }
-                errorMessage={errors.longitude || ''}
-                showLabel={!!formState.longitude}
-                disabled={findOnMap}
-                readOnly={findOnMap}
-              />
-              <FormInput
-                field={{
-                  label: 'Latitude',
-                  name: 'latitude',
-                  type: 'number',
-                }}
-                value={formState.latitude}
-                onChange={(e) =>
-                  handleChange('latitude', parseFloat(e.target.value))
-                }
-                errorMessage={errors.latitude || ''}
-                showLabel={!!formState.latitude}
-                disabled={findOnMap}
-                readOnly={findOnMap}
-              />
-            </div>
-            <h3 className="mt pt">Tell us about the spot</h3>
-            <div className="form-inline">
-              <FormInput
-                field={{
-                  label: 'Break Type',
-                  name: 'type',
-                  type: 'select',
-                  options: BREAK_TYPE_OPTIONS,
-                }}
-                onChange={(e) =>
-                  handleChange('type', e.target.value as SurfSpotType)
-                }
-                errorMessage={errors.type || ''}
-                value={formState.type}
-                showLabel
-              />
-              <FormInput
-                field={{
-                  label: 'Beach Bottom Type',
-                  name: 'beachBottomType',
-                  type: 'select',
-                  options: BEACH_BOTTOM_OPTIONS,
-                }}
-                onChange={(e) =>
-                  handleChange(
-                    'beachBottomType',
-                    e.target.value as BeachBottomType,
-                  )
-                }
-                errorMessage={errors.beachBottomType || ''}
-                value={formState.beachBottomType}
-                showLabel
-              />
-            </div>
+          )}
+          {!findOnMap && (
             <FormInput
               field={{
-                label: 'Skill Level',
-                name: 'skillLevel',
+                label: 'Continent',
+                name: 'continent',
                 type: 'select',
-                options: SKILL_LEVEL_OPTIONS,
+                options: [
+                  { key: '', value: '', label: 'Select a continent' },
+                  ...continents.map((c) => ({
+                    key: c.slug,
+                    value: c.slug,
+                    label: c.name,
+                  })),
+                ],
+              }}
+              value={formState.continent}
+              onChange={(e) => handleChange('continent', e.target.value)}
+              errorMessage={errors.continent || ''}
+              showLabel={!!formState.continent}
+            />
+          )}
+          <div className="form-inline">
+            <FormInput
+              field={{
+                label: 'Country',
+                name: 'country',
+                type: 'select',
+                options: [
+                  {
+                    key: '',
+                    value: '',
+                    label: findOnMap ? 'Country' : 'Select a country',
+                  },
+                  ...filteredCountries.map((c) => ({
+                    key: c.id,
+                    value: c.id,
+                    label: c.name,
+                  })),
+                ],
+              }}
+              value={formState.country}
+              onChange={(e) => handleChange('country', e.target.value)}
+              errorMessage={errors.country || ''}
+              showLabel={!!formState.country}
+              disabled={!continent || findOnMap}
+            />
+            <FormInput
+              field={{
+                label: 'Region',
+                name: 'region',
+                type: 'select',
+                options: [
+                  {
+                    key: '',
+                    value: '',
+                    label: findOnMap ? 'Region' : 'Select a region',
+                  },
+                  ...filteredRegions.map((r) => ({
+                    key: r.id,
+                    value: r.id,
+                    label: r.name,
+                  })),
+                ],
+              }}
+              value={formState.region}
+              onChange={(e) => handleChange('region', e.target.value)}
+              errorMessage={errors.region || ''}
+              showLabel={!!formState.region}
+              disabled={!country || findOnMap}
+            />
+          </div>
+          <div className="form-inline">
+            <FormInput
+              field={{
+                label: 'Longitude',
+                name: 'longitude',
+                type: 'number',
+              }}
+              value={formState.longitude}
+              onChange={(e) =>
+                handleChange('longitude', parseFloat(e.target.value))
+              }
+              errorMessage={errors.longitude || ''}
+              showLabel={!!formState.longitude}
+              disabled={findOnMap}
+              readOnly={findOnMap}
+            />
+            <FormInput
+              field={{
+                label: 'Latitude',
+                name: 'latitude',
+                type: 'number',
+              }}
+              value={formState.latitude}
+              onChange={(e) =>
+                handleChange('latitude', parseFloat(e.target.value))
+              }
+              errorMessage={errors.latitude || ''}
+              showLabel={!!formState.latitude}
+              disabled={findOnMap}
+              readOnly={findOnMap}
+            />
+          </div>
+          <h3 className="mt pt">Tell us about the spot</h3>
+          <div className="form-inline">
+            <FormInput
+              field={{
+                label: 'Break Type',
+                name: 'type',
+                type: 'select',
+                options: BREAK_TYPE_OPTIONS,
               }}
               onChange={(e) =>
-                handleChange('skillLevel', e.target.value as SkillLevel)
+                handleChange('type', e.target.value as SurfSpotType)
               }
-              errorMessage={errors.skillLevel || ''}
-              value={formState.skillLevel}
+              errorMessage={errors.type || ''}
+              value={formState.type}
               showLabel
             />
+            <FormInput
+              field={{
+                label: 'Beach Bottom Type',
+                name: 'beachBottomType',
+                type: 'select',
+                options: BEACH_BOTTOM_OPTIONS,
+              }}
+              onChange={(e) =>
+                handleChange(
+                  'beachBottomType',
+                  e.target.value as BeachBottomType,
+                )
+              }
+              errorMessage={errors.beachBottomType || ''}
+              value={formState.beachBottomType}
+              showLabel
+            />
+          </div>
+          <FormInput
+            field={{
+              label: 'Skill Level',
+              name: 'skillLevel',
+              type: 'select',
+              options: SKILL_LEVEL_OPTIONS,
+            }}
+            onChange={(e) =>
+              handleChange('skillLevel', e.target.value as SkillLevel)
+            }
+            errorMessage={errors.skillLevel || ''}
+            value={formState.skillLevel}
+            showLabel
+          />
 
-            <div className="pv">
-              <h4 className="m-0 pt">Best Conditions</h4>
-              <div className="form-inline">
-                <FormInput
-                  field={{
-                    label: 'Swell Direction',
-                    name: 'swellDirection',
-                    type: 'text',
-                  }}
-                  value={formState.swellDirection}
-                  onChange={(e) =>
-                    handleChange('swellDirection', e.target.value)
-                  }
-                  errorMessage={errors.swellDirection || ''}
-                  showLabel={!!formState.swellDirection}
-                />
-                <FormInput
-                  field={{
-                    label: 'Wind Direction',
-                    name: 'windDirection',
-                    type: 'text',
-                  }}
-                  value={formState.windDirection}
-                  onChange={(e) =>
-                    handleChange('windDirection', e.target.value)
-                  }
-                  errorMessage={errors.windDirection || ''}
-                  showLabel={!!formState.windDirection}
-                />
-              </div>
+          <div className="pv">
+            <h4 className="m-0 pt">Best Conditions</h4>
+            <div className="form-inline">
               <FormInput
                 field={{
-                  label: 'Tide',
-                  name: 'tide',
-                  type: 'select',
-                  options: TIDE_OPTIONS,
+                  label: 'Swell Direction',
+                  name: 'swellDirection',
+                  type: 'text',
                 }}
-                onChange={(e) => handleChange('tide', e.target.value as Tide)}
-                errorMessage={errors.tide || ''}
-                value={formState.tide}
-                showLabel
+                value={formState.swellDirection}
+                onChange={(e) => handleChange('swellDirection', e.target.value)}
+                errorMessage={errors.swellDirection || ''}
+                showLabel={!!formState.swellDirection}
               />
-              <div className="mv">
-                <p className="m-0 pt bold">Ideal Surf Height</p>
-                <div className="form-inline">
-                  <FormInput
-                    field={{
-                      label: `Min Surf Height (${waveUnits})`,
-                      name: 'minSurfHeight',
-                      type: 'number',
-                    }}
-                    value={formState.minSurfHeight}
-                    onChange={(e) =>
-                      handleChange('minSurfHeight', parseFloat(e.target.value))
-                    }
-                    errorMessage={errors.minSurfHeight || ''}
-                    showLabel={!!formState.minSurfHeight}
-                  />
-                  <FormInput
-                    field={{
-                      label: `Max Surf Height (${waveUnits})`,
-                      name: 'maxSurfHeight',
-                      type: 'number',
-                    }}
-                    value={formState.maxSurfHeight}
-                    onChange={(e) =>
-                      handleChange('maxSurfHeight', parseFloat(e.target.value))
-                    }
-                    errorMessage={errors.maxSurfHeight || ''}
-                    showLabel={!!formState.maxSurfHeight}
-                  />
-                </div>
-              </div>
-              <p className="m-0 pt bold">When is the best time to go?</p>
+              <FormInput
+                field={{
+                  label: 'Wind Direction',
+                  name: 'windDirection',
+                  type: 'text',
+                }}
+                value={formState.windDirection}
+                onChange={(e) => handleChange('windDirection', e.target.value)}
+                errorMessage={errors.windDirection || ''}
+                showLabel={!!formState.windDirection}
+              />
+            </div>
+            <FormInput
+              field={{
+                label: 'Tide',
+                name: 'tide',
+                type: 'select',
+                options: TIDE_OPTIONS,
+              }}
+              onChange={(e) => handleChange('tide', e.target.value as Tide)}
+              errorMessage={errors.tide || ''}
+              value={formState.tide}
+              showLabel
+            />
+            <div className="mv">
+              <p className="m-0 pt bold">Ideal Surf Height</p>
               <div className="form-inline">
                 <FormInput
                   field={{
-                    label: 'Season Starts',
-                    name: 'seasonStart',
-                    type: 'select',
-                    options: MONTH_LIST,
+                    label: `Min Surf Height (${waveUnits})`,
+                    name: 'minSurfHeight',
+                    type: 'number',
                   }}
-                  onChange={(e) => handleChange('seasonStart', e.target.value)}
-                  errorMessage={errors.seasonStart || ''}
-                  value={formState.seasonStart}
-                  showLabel
+                  value={formState.minSurfHeight}
+                  onChange={(e) =>
+                    handleChange('minSurfHeight', parseFloat(e.target.value))
+                  }
+                  errorMessage={errors.minSurfHeight || ''}
+                  showLabel={!!formState.minSurfHeight}
                 />
                 <FormInput
                   field={{
-                    label: 'Season Ends',
-                    name: 'seasonEnd',
-                    type: 'select',
-                    options: MONTH_LIST,
+                    label: `Max Surf Height (${waveUnits})`,
+                    name: 'maxSurfHeight',
+                    type: 'number',
                   }}
-                  onChange={(e) => handleChange('seasonEnd', e.target.value)}
-                  errorMessage={errors.seasonEnd || ''}
-                  value={formState.seasonEnd}
-                  showLabel
+                  value={formState.maxSurfHeight}
+                  onChange={(e) =>
+                    handleChange('maxSurfHeight', parseFloat(e.target.value))
+                  }
+                  errorMessage={errors.maxSurfHeight || ''}
+                  showLabel={!!formState.maxSurfHeight}
                 />
               </div>
             </div>
-            <h4 className="mt pt">Access & Amenities</h4>
-            {/* Access */}
-            <div className="pv">
-              <CheckboxOption
-                name="boatRequired"
-                title="Boat Required?"
-                description="Is a boat required to access this surf spot?"
-                checked={isBoatRequired}
-                onChange={() => setIsBoatRequired(!isBoatRequired)}
+            <p className="m-0 pt bold">When is the best time to go?</p>
+            <div className="form-inline">
+              <FormInput
+                field={{
+                  label: 'Season Starts',
+                  name: 'seasonStart',
+                  type: 'select',
+                  options: MONTH_LIST,
+                }}
+                onChange={(e) => handleChange('seasonStart', e.target.value)}
+                errorMessage={errors.seasonStart || ''}
+                value={formState.seasonStart}
+                showLabel
               />
-              {/* Parking */}
-              {!isBoatRequired && (
-                <FormInput
-                  field={{
-                    label: 'Parking',
-                    name: 'parking',
-                    type: 'select',
-                    options: PARKING_OPTIONS,
-                  }}
-                  value={formState.parking}
-                  onChange={(e) => handleChange('parking', e.target.value)}
-                  errorMessage={errors.parking || ''}
-                  showLabel
+              <FormInput
+                field={{
+                  label: 'Season Ends',
+                  name: 'seasonEnd',
+                  type: 'select',
+                  options: MONTH_LIST,
+                }}
+                onChange={(e) => handleChange('seasonEnd', e.target.value)}
+                errorMessage={errors.seasonEnd || ''}
+                value={formState.seasonEnd}
+                showLabel
+              />
+            </div>
+          </div>
+          <h4 className="mt pt">Access & Amenities</h4>
+          {/* Access */}
+          <div className="pv">
+            <CheckboxOption
+              name="boatRequired"
+              title="Boat Required?"
+              description="Is a boat required to access this surf spot?"
+              checked={isBoatRequired}
+              onChange={() => setIsBoatRequired(!isBoatRequired)}
+            />
+            {/* Parking */}
+            {!isBoatRequired && (
+              <FormInput
+                field={{
+                  label: 'Parking',
+                  name: 'parking',
+                  type: 'select',
+                  options: PARKING_OPTIONS,
+                }}
+                value={formState.parking}
+                onChange={(e) => handleChange('parking', e.target.value)}
+                errorMessage={errors.parking || ''}
+                showLabel
+              />
+            )}
+          </div>
+          {/* Forecast Links */}
+          <div className="pv">
+            <h4 className="m-0 pt">Forecast Links</h4>
+            <p className="mb">
+              Add forecast sites you know for this surf spot. (Maximum of 3)
+            </p>
+            <ForecastLinks
+              forecastLinks={formState.forecastLinks}
+              onChange={(links) => handleChange('forecastLinks', links)}
+            />
+          </div>
+          {/* Amenities */}
+          {/* Accommodation Nearby */}
+          <div className="pv">
+            <CheckboxOption
+              name="accommodationNearby"
+              title="Accommodation Nearby?"
+              description={`Is there bookable accommodation available within ~${
+                distanceUnits === 'mi' ? kmToMiles(10) : 10
+              }${distanceUnits}?`}
+              checked={accommodation.nearby}
+              onChange={() =>
+                setAccommodation({
+                  ...accommodation,
+                  nearby: !accommodation.nearby,
+                })
+              }
+            />
+            {accommodation.nearby && (
+              <div className="mt">
+                <ChipSelector
+                  name="accommodationOptions"
+                  options={ACCOMMODATION_TYPES}
+                  selected={accommodation.options}
+                  onChange={(selected) =>
+                    setAccommodation({ ...accommodation, options: selected })
+                  }
                 />
-              )}
-            </div>
-            {/* Forecast Links */}
-            <div className="pv">
-              <h4 className="m-0 pt">Forecast Links</h4>
-              <p className="mb">
-                Add forecast sites you know for this surf spot. (Maximum of 3)
-              </p>
-              <ForecastLinks
-                forecastLinks={formState.forecastLinks}
-                onChange={(links) => handleChange('forecastLinks', links)}
-              />
-            </div>
-            {/* Amenities */}
-            {/* Accommodation Nearby */}
-            <div className="pv">
-              <CheckboxOption
-                name="accommodationNearby"
-                title="Accommodation Nearby?"
-                description={`Is there bookable accommodation available within ~${
-                  distanceUnits === 'mi' ? kmToMiles(10) : 10
-                }${distanceUnits}?`}
-                checked={accommodation.nearby}
-                onChange={() =>
-                  setAccommodation({
-                    ...accommodation,
-                    nearby: !accommodation.nearby,
-                  })
-                }
-              />
-              {accommodation.nearby && (
-                <div className="mt">
-                  <ChipSelector
-                    name="accommodationOptions"
-                    options={ACCOMMODATION_TYPES}
-                    selected={accommodation.options}
-                    onChange={(selected) =>
-                      setAccommodation({ ...accommodation, options: selected })
-                    }
-                  />
-                </div>
-              )}
-            </div>
-            {/* Food Nearby */}
-            <div className="pv">
-              <CheckboxOption
-                name="foodNearby"
-                title="Food Nearby?"
-                description="Is food available nearby?"
-                checked={food.nearby}
-                onChange={() =>
-                  setFood({
-                    ...food,
-                    nearby: !food.nearby,
-                  })
-                }
-              />
-              {food.nearby && (
-                <div className="mt">
-                  <ChipSelector
-                    name="foodOptions"
-                    options={FOOD_OPTIONS}
-                    selected={food.options}
-                    onChange={(selected) =>
-                      setFood({
-                        ...food,
-                        options: selected,
-                      })
-                    }
-                  />
-                </div>
-              )}
-            </div>
-            {/* Facilities */}
-            <div className="pv">
-              <p className="bold pb">Facilities</p>
-              <ChipSelector
-                name="facilities"
-                options={FACILITIES}
-                selected={facilities}
-                onChange={(selected) => setFacilities(selected)}
-              />
-            </div>
-            {/* Hazards */}
-            <div className="pv">
-              <p className="bold pb">Hazards</p>
-              <ChipSelector
-                name="hazards"
-                options={HAZARDS}
-                selected={hazards}
-                onChange={(selected) => setHazards(selected)}
-              />
-            </div>
-            <h4 className="mv">How would you rate this spot?</h4>
-            <div className="rating-container">
-              <Rating
-                value={formState.rating}
-                onChange={(value) => handleChange('rating', value)}
-              />
-              <p className="rating-description">
-                Rate this spot based on wave quality, amenities, safety, and
-                overall vibe. Focus on the spot itself, not just a single
-                session.
-              </p>
-            </div>
-          </FormComponent>
-        </div>
+              </div>
+            )}
+          </div>
+          {/* Food Nearby */}
+          <div className="pv">
+            <CheckboxOption
+              name="foodNearby"
+              title="Food Nearby?"
+              description="Is food available nearby?"
+              checked={food.nearby}
+              onChange={() =>
+                setFood({
+                  ...food,
+                  nearby: !food.nearby,
+                })
+              }
+            />
+            {food.nearby && (
+              <div className="mt">
+                <ChipSelector
+                  name="foodOptions"
+                  options={FOOD_OPTIONS}
+                  selected={food.options}
+                  onChange={(selected) =>
+                    setFood({
+                      ...food,
+                      options: selected,
+                    })
+                  }
+                />
+              </div>
+            )}
+          </div>
+          {/* Facilities */}
+          <div className="pv">
+            <p className="bold pb">Facilities</p>
+            <ChipSelector
+              name="facilities"
+              options={FACILITIES}
+              selected={facilities}
+              onChange={(selected) => setFacilities(selected)}
+            />
+          </div>
+          {/* Hazards */}
+          <div className="pv">
+            <p className="bold pb">Hazards</p>
+            <ChipSelector
+              name="hazards"
+              options={HAZARDS}
+              selected={hazards}
+              onChange={(selected) => setHazards(selected)}
+            />
+          </div>
+          <h4 className="mv">How would you rate this spot?</h4>
+          <div className="rating-container">
+            <Rating
+              value={formState.rating}
+              onChange={(value) => handleChange('rating', value)}
+            />
+            <p className="rating-description">
+              Rate this spot based on wave quality, amenities, safety, and
+              overall vibe. Focus on the spot itself, not just a single session.
+            </p>
+          </div>
+        </FormComponent>
       </div>
     </Page>
   )

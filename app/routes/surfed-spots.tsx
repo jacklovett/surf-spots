@@ -6,7 +6,6 @@ import {
 } from 'react-router'
 import {
   ContentStatus,
-  Details,
   ErrorBoundary,
   Loading,
   Page,
@@ -17,7 +16,6 @@ import {
 import { cacheControlHeader, get } from '~/services/networkService'
 import { requireSessionCookie } from '~/services/session.server'
 import { SurfedSpotsSummary } from '~/types/surfedSpotsSummary'
-import { SkillLevel } from '~/types/surfSpots'
 
 interface LoaderData {
   surfedSpotsSummary?: SurfedSpotsSummary
@@ -55,45 +53,13 @@ export const loader: LoaderFunction = async ({ request }) => {
   }
 }
 
-// Helper function to get skill level display based on surfed spots
-const getSkillLevelDisplay = (
-  skillLevel: SkillLevel | null,
-  surfedSpots: any[],
-) => {
-  if (skillLevel) return skillLevel
-
-  if (surfedSpots.length === 0) return 'Not assessed'
-
-  // Count spots by skill level
-  const skillLevelCounts = surfedSpots.reduce(
-    (acc, spot) => {
-      const level = spot.skillLevel || 'beginner'
-      acc[level] = (acc[level] || 0) + 1
-      return acc
-    },
-    {} as Record<string, number>,
-  )
-
-  // Calculate percentages
-  const total = surfedSpots.length
-  const percentages = {
-    beginner: (skillLevelCounts.beginner || 0) / total,
-    intermediate: (skillLevelCounts.intermediate || 0) / total,
-    advanced: (skillLevelCounts.advanced || 0) / total,
-    expert: (skillLevelCounts.expert || 0) / total,
-  }
-
-  // Determine skill level based on what they surf most
-  if (percentages.expert >= 0.4) return 'Expert'
-  if (percentages.advanced >= 0.4) return 'Advanced'
-  if (percentages.intermediate >= 0.4) return 'Intermediate'
-  if (percentages.beginner >= 0.6) return 'Beginner'
-
-  // If no clear majority, use the highest level they've surfed
-  if (skillLevelCounts.expert > 0) return 'Expert'
-  if (skillLevelCounts.advanced > 0) return 'Advanced'
-  if (skillLevelCounts.intermediate > 0) return 'Intermediate'
-  return 'Beginner'
+// Helper function to get surf explorer level based on countries surfed
+const getSurfExplorerLevel = (countryCount: number) => {
+  if (countryCount === 0) return 'Go Surf!'
+  if (countryCount <= 5) return 'Local Explorer'
+  if (countryCount <= 10) return 'Regional Explorer'
+  if (countryCount <= 15) return 'Globe Trotter'
+  return 'World Nomad'
 }
 
 export default function SurfedSpots() {
@@ -130,11 +96,9 @@ export default function SurfedSpots() {
     continentCount = 0,
     mostSurfedSpotType = null,
     mostSurfedBeachBottomType = null,
-    skillLevel = null,
   } = surfedSpotsSummary || {}
 
   const surfedSpotsFound = surfedSpots.length > 0
-  const displaySkillLevel = getSkillLevelDisplay(skillLevel, surfedSpots)
 
   // Get most recent surf spots (last 5)
   const recentSpots = surfedSpots.slice(0, 5)
@@ -163,60 +127,50 @@ export default function SurfedSpots() {
 
   return (
     <Page showHeader>
-      <div className="surfed-spots-page">
+      <div className="info-page-content mv map-content">
         <h1>Surfed Spots</h1>
 
         {/* Stats Overview */}
-        <div className="stats-overview">
+        <div className="stats-overview mt-l">
           <div className="stat-card primary">
-            <div className="stat-number">{totalCount}</div>
+            <div className="stat-value">{totalCount}</div>
             <div className="stat-label">Total Spots Surfed</div>
           </div>
           <div className="stat-card">
-            <div className="stat-number">{countryCount}</div>
+            <div className="stat-value">{countryCount}</div>
             <div className="stat-label">Countries</div>
           </div>
           <div className="stat-card">
-            <div className="stat-number">{continentCount}</div>
+            <div className="stat-calue">{continentCount}</div>
             <div className="stat-label">Continents</div>
           </div>
-           <div className="stat-card">
-            <div className="stat-number">{displaySkillLevel}</div>
-            <div className="stat-label">Skill level</div>
+          <div className="stat-card">
+            <div className="stat-label">Explorer Level</div>
+            <div className="stat-value">
+              {getSurfExplorerLevel(countryCount)}
+            </div>
           </div>
         </div>
 
-        {/* Detailed Stats Grid */}
-        <div className="detailed-stats">
-          <h2>Your Surf Profile</h2>
-          <div className="stats-grid">
-            <div className="stat-item">
-              <div className="stat-content">
-                <div className="stat-title">Favorite Break Type</div>
-                <div className="stat-value center">
-                  {mostSurfedSpotType || '-'}
-                </div>
-              </div>
+        {/* Wave Preferences */}
+        <div className="wave-preferences">
+          <h2>Wave Preferences</h2>
+          <div className="preferences-list">
+            <div className="preference-row">
+              <span className="preference-label">Favorite Break</span>
+              <span className="preference-value">
+                {mostSurfedSpotType || '-'}
+              </span>
             </div>
-            <div className="stat-item">
-              <div className="stat-content">
-                <div className="stat-title">Preferred Beach Type</div>
-                <div className="stat-value center">
-                  {mostSurfedBeachBottomType || '-'}
-                </div>
-              </div>
+            <div className="preference-row">
+              <span className="preference-label">Beach Type</span>
+              <span className="preference-value">
+                {mostSurfedBeachBottomType || '-'}
+              </span>
             </div>
-            <div className="stat-item">
-              <div className="stat-content">
-                <div className="stat-title">Skill Level</div>
-                <div className="stat-value center">{displaySkillLevel}</div>
-              </div>
-            </div>
-            <div className="stat-item">
-              <div className="stat-content">
-                <div className="stat-title">Preferred Tide</div>
-                <div className="stat-value center">{preferredTide || '-'}</div>
-              </div>
+            <div className="preference-row">
+              <span className="preference-label">Preferred Tide</span>
+              <span className="preference-value">{preferredTide || '-'}</span>
             </div>
           </div>
         </div>
@@ -234,7 +188,7 @@ export default function SurfedSpots() {
                       {spot.country?.name}, {spot.continent?.name}
                     </p>
                     <div className="spot-rating">
-                      <Rating rating={spot.rating} readOnly />
+                      <Rating value={spot.rating} readOnly />
                     </div>
                   </div>
                   <div className="spot-type">
@@ -247,12 +201,10 @@ export default function SurfedSpots() {
         )}
 
         {/* Map Section */}
-        <div className="map-section">
-          <h2>Your Surf Journey Map</h2>
+        <h2>Your Surf Journey Map</h2>
+        <div className="map-wrapper center">
           <ErrorBoundary message="Uh-oh! Something went wrong displaying the map!">
-            <div className="map-wrapper">
-              <SurfMap surfSpots={surfedSpots} />
-            </div>
+            <SurfMap surfSpots={surfedSpots} />
           </ErrorBoundary>
         </div>
         {/* All Surf Spots List */}
@@ -273,9 +225,7 @@ export default function SurfedSpots() {
                 </div>
               </div>
             )}
-            {surfedSpotsFound && (
-              <SurfSpotList surfSpots={surfedSpots} />
-            )}
+            {surfedSpotsFound && <SurfSpotList surfSpots={surfedSpots} />}
           </ErrorBoundary>
         </div>
       </div>

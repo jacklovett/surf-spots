@@ -130,7 +130,7 @@ const Profile = () => {
       },
       validationFunctions: {
         email: validateEmail,
-        name: (value) => validateRequired(value, 'Name'),
+        name: (value?: string) => validateRequired(value, 'Name'),
       },
     })
 
@@ -158,7 +158,7 @@ const Profile = () => {
 
   return (
     <Page showHeader>
-      <div className="profile-page">
+      <div className="info-page-content mv">
         <h1>Profile</h1>
         <FormComponent
           loading={loading}

@@ -474,6 +474,10 @@ h2 {
   width: 100%;
   margin: 0 auto;
 
+  &.map-content {
+    padding: $spacing-large 0;
+  }
+
   h2 {
     margin: $spacing-large 0 $spacing-unit;
   }
@@ -487,30 +491,6 @@ h2 {
 
   li {
     margin-bottom: $spacing-small;
-  }
-}
-
-/* Professional Page Layouts */
-.surfed-spots-page,
-.watch-list-page {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 0;
-
-  @media (min-width: 1201px) {
-    padding: 0 $spacing-unit;
-  }
-
-  h1 {
-    font-size: 2.5rem;
-    font-weight: 700;
-    margin-bottom: $spacing-unit;
-    padding: $spacing-large $spacing-unit 0;
-  }
-
-  > p {
-    padding: 0 $spacing-unit;
-    margin-bottom: $spacing-large;
   }
 }
 
@@ -544,7 +524,7 @@ h2 {
 
   @media (max-width: 768px) {
     flex-direction: column;
-    gap: 1rem;
+    gap: $spacing-unit;
   }
 }
 
@@ -553,7 +533,7 @@ h2 {
   font-size: 4rem;
   width: 100px;
   height: 100px;
-  background: white;
+  background: $white;
   border-radius: 50%;
   box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
   border: 4px solid currentColor;
@@ -567,7 +547,7 @@ h2 {
   }
 
   h1 {
-    margin-bottom: 0.5rem;
+    margin-bottom: $spacing-small;
   }
 }
 
@@ -575,14 +555,14 @@ h2 {
   font-size: 1.5rem;
   font-weight: 700;
   color: $accent-blue;
-  margin-bottom: 1rem;
+  margin-bottom: $spacing-unit;
   text-transform: uppercase;
   letter-spacing: 1px;
 }
 
 /* Progress Section */
 .progress-section {
-  margin-bottom: 3rem;
+  margin-bottom: $spacing-large;
 }
 
 .progress-card {
@@ -647,32 +627,30 @@ h2 {
 /* Stats Overview */
 .stats-overview {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 1.5rem;
-  margin-bottom: 3rem;
+  grid-template-columns: repeat(2, 1fr);
+  gap: $spacing-large;
+  margin-bottom: $spacing-large;
 
   @media (max-width: 640px) {
-    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    grid-template-columns: 1fr;
     gap: $spacing-unit;
+    padding: 0 $spacing-unit;
   }
 }
 
 .stat-card {
-  background: white;
-  padding: $spacing-large;
-  border-radius: 12px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+  @extend .animate-bounce-in;
+  background: $white;
+  padding: $spacing-x-large $spacing-large;
+  border-radius: $content-border-radius;
+  box-shadow: $box-shadow;
   border: 1px solid $border-light;
   text-align: center;
-  transition:
-    transform 0.2s ease,
-    box-shadow 0.2s ease;
-  position: relative;
-
-  &:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
-  }
+  @extend %flex-column;
+  justify-content: center;
+  align-items: center;
+  gap: $spacing-small;
+  min-height: 140px;
 
   &.primary {
     background: linear-gradient(
@@ -680,49 +658,52 @@ h2 {
       $primary-color,
       darken($primary-color, 10%)
     );
-    color: white;
+    color: $white;
     border: none;
+  }
+
+  @media (max-width: 640px) {
+    padding: $spacing-large;
+    min-height: 120px;
   }
 }
 
 .stat-icon {
-  font-size: 2rem;
-  margin-bottom: 1rem;
+  font-size: $font-size-x-large;
+  margin-bottom: $spacing-unit;
   display: block;
 }
 
-.stat-number {
-  font-size: 2.5rem;
-  font-weight: 800;
-  margin-bottom: 0.5rem;
+.stat-value {
+  font-size: $font-size-x-large;
+  font-weight: 700;
+  margin-bottom: $spacing-small;
 }
 
 .stat-label {
-  font-size: 1rem;
+  font-size: $font-size-large;
   font-weight: 600;
-  opacity: 0.9;
 }
 
-/* Detailed Stats */
-.detailed-stats {
-  background: white;
-  padding: $spacing-large;
-  border-radius: 12px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
-  border: 1px solid $border-light;
-  margin-bottom: 3rem;
+/* Wave Preferences */
+.wave-preferences {
+  margin-bottom: $spacing-large;
+
+  @media (max-width: 640px) {
+    padding: 0 $spacing-unit;
+  }
+
+  h2 {
+    font-size: $font-size-large;
+    font-weight: 600;
+    margin-bottom: $spacing-large;
+  }
 }
 
-.detailed-stats h2 {
-  font-size: 1.75rem;
-  font-weight: 600;
-  margin-bottom: 1.5rem;
-}
-
-.stats-grid {
+.preferences-list {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: 1.5rem;
+  grid-template-columns: repeat(3, 1fr);
+  gap: $spacing-large;
 
   @media (max-width: 640px) {
     grid-template-columns: 1fr;
@@ -730,37 +711,44 @@ h2 {
   }
 }
 
-.stat-item {
-  padding: 1.5rem;
-  background: $background-light;
-  border-radius: 8px;
-  border-left: 4px solid $primary-color;
+.preference-row {
+  background: $white;
+  padding: $spacing-large;
+  border-radius: $content-border-radius;
+  box-shadow: $box-shadow;
+  border: 1px solid $border-light;
+  text-align: center;
   display: flex;
-  align-items: center;
-  gap: 1rem;
+  flex-direction: column;
+  gap: $spacing-unit;
+  transition: transform 0.2s ease;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+  }
+
+  @media (max-width: 640px) {
+    padding: $spacing-unit;
+  }
 }
 
-.stat-icon {
-  font-size: 1.5rem;
-  flex-shrink: 0;
-}
-
-.stat-content {
-  flex: 1;
-}
-
-.stat-title {
-  font-size: 0.9rem;
+.preference-label {
   font-weight: 600;
   color: $text-secondary;
-  margin-bottom: 0.5rem;
+  font-size: $font-size-small;
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
 
-.stat-value {
-  font-size: 1.1rem;
-  font-weight: 600;
+.preference-value {
+  font-weight: 700;
+  color: $primary-color;
+  font-size: $font-size-x-large;
+
+  @media (max-width: 640px) {
+    font-size: $font-size-large;
+  }
 }
 
 /* Section Styling */
@@ -773,7 +761,7 @@ h2 {
 .spots-section h2,
 .notifications-section h2,
 .recent-spots-section h2 {
-  font-size: 1.75rem;
+  font-size: $font-size-large;
   margin-bottom: $spacing-unit;
 }
 
@@ -781,7 +769,7 @@ h2 {
 .recent-spots-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: 1.5rem;
+  gap: $spacing-large;
 
   @media (max-width: 640px) {
     grid-template-columns: 1fr;
@@ -790,10 +778,10 @@ h2 {
 }
 
 .recent-spot-card {
-  background: white;
-  padding: 1.5rem;
-  border-radius: 12px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+  background: $white;
+  padding: $spacing-large;
+  border-radius: $content-border-radius;
+  box-shadow: $box-shadow;
   border: 1px solid $border-light;
   display: flex;
   justify-content: space-between;
@@ -812,25 +800,22 @@ h2 {
   flex: 1;
 
   h4 {
-    font-size: 1.1rem;
     font-weight: 600;
-    margin-bottom: 0.5rem;
+    margin-bottom: $spacing-small;
     color: $text-heading;
   }
 
   .spot-location {
-    font-size: 0.9rem;
     color: $text-secondary;
-    margin-bottom: 0.5rem;
+    margin-bottom: $spacing-small;
   }
 
   .spot-rating {
     display: flex;
     align-items: center;
-    gap: 0.5rem;
+    gap: $spacing-small;
 
     .rating-text {
-      font-size: 0.9rem;
       color: $text-secondary;
     }
   }
@@ -839,10 +824,9 @@ h2 {
 .spot-type {
   .type-badge {
     background: $primary-color;
-    color: white;
-    padding: 0.5rem $spacing-unit;
+    color: $white;
+    padding: $spacing-small $spacing-unit;
     border-radius: 20px;
-    font-size: 0.8rem;
     font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 0.5px;
@@ -853,13 +837,18 @@ h2 {
 .notifications-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: 1.5rem;
+  gap: $spacing-large;
+
+  @media (max-width: 640px) {
+    grid-template-columns: 1fr;
+    gap: $spacing-unit;
+  }
 }
 
 .notification-card {
-  background: white;
-  border-radius: 12px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+  background: $white;
+  border-radius: $content-border-radius;
+  box-shadow: $box-shadow;
   border: 1px solid $border-light;
   overflow: hidden;
   transition:
@@ -878,12 +867,11 @@ h2 {
     $primary-color,
     darken($primary-color, 10%)
   );
-  color: white;
-  padding: 1.5rem;
+  color: $white;
+  padding: $spacing-large;
 }
 
 .notification-header h3 {
-  font-size: 1.1rem;
   margin: 0;
 }
 
@@ -894,14 +882,13 @@ h2 {
 .notification-content p {
   color: $text-secondary;
   line-height: 1.6;
-  margin-bottom: 1rem;
+  margin-bottom: $spacing-unit;
 }
 
 .notification-link {
   color: $primary-color;
   text-decoration: none;
   font-weight: 600;
-  font-size: 0.9rem;
 
   &:hover {
     text-decoration: underline;
@@ -1002,8 +989,7 @@ h2 {
 }
 
 /* Settings Page */
-.settings-page,
-.profile-page {
+.settings-page {
   max-width: 600px;
   margin: 0 auto;
   padding: $spacing-large $spacing-unit;

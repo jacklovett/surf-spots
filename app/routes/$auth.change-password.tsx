@@ -93,55 +93,53 @@ const ChangePassword = () => {
 
   return (
     <Page showHeader>
-      <div className="column center-vertical mv">
-        <div className="page-content">
-          <h1 className="mt">Change Password</h1>
-          <FormComponent
-            loading={loading}
-            isDisabled={!isFormValid}
-            submitStatus={submitStatus}
-            method="put"
-          >
-            <FormInput
-              field={{
-                label: 'Current Password',
-                name: 'currentPassword',
-                type: 'password',
-                validationRules: { required: true, minLength: 8 },
-              }}
-              value={formState.currentPassword}
-              onChange={(e) => handleChange('currentPassword', e.target.value)}
-              errorMessage={errors.currentPassword || ''}
-              showLabel={!!formState.currentPassword}
-            />
-            <FormInput
-              field={{
-                label: 'New Password',
-                name: 'newPassword',
-                type: 'password',
-                validationRules: { required: true, minLength: 8 },
-              }}
-              value={formState.newPassword}
-              onChange={(e) => handleChange('newPassword', e.target.value)}
-              errorMessage={errors.newPassword || ''}
-              showLabel={!!formState.newPassword}
-            />
-            <FormInput
-              field={{
-                label: 'Repeat New Password',
-                name: 'repeatedNewPassword',
-                type: 'password',
-                validationRules: { required: true, minLength: 8 },
-              }}
-              value={formState.repeatedNewPassword}
-              onChange={(e) =>
-                handleChange('repeatedNewPassword', e.target.value)
-              }
-              errorMessage={errors.repeatedNewPassword || ''}
-              showLabel={!!formState.repeatedNewPassword}
-            />
-          </FormComponent>
-        </div>
+      <div className="info-page-content mv">
+        <h1 className="mt">Change Password</h1>
+        <FormComponent
+          loading={loading}
+          isDisabled={!isFormValid}
+          submitStatus={submitStatus}
+          method="put"
+        >
+          <FormInput
+            field={{
+              label: 'Current Password',
+              name: 'currentPassword',
+              type: 'password',
+              validationRules: { required: true, minLength: 8 },
+            }}
+            value={formState.currentPassword}
+            onChange={(e) => handleChange('currentPassword', e.target.value)}
+            errorMessage={errors.currentPassword || ''}
+            showLabel={!!formState.currentPassword}
+          />
+          <FormInput
+            field={{
+              label: 'New Password',
+              name: 'newPassword',
+              type: 'password',
+              validationRules: { required: true, minLength: 8 },
+            }}
+            value={formState.newPassword}
+            onChange={(e) => handleChange('newPassword', e.target.value)}
+            errorMessage={errors.newPassword || ''}
+            showLabel={!!formState.newPassword}
+          />
+          <FormInput
+            field={{
+              label: 'Repeat New Password',
+              name: 'repeatedNewPassword',
+              type: 'password',
+              validationRules: { required: true, minLength: 8 },
+            }}
+            value={formState.repeatedNewPassword}
+            onChange={(e) =>
+              handleChange('repeatedNewPassword', e.target.value)
+            }
+            errorMessage={errors.repeatedNewPassword || ''}
+            showLabel={!!formState.repeatedNewPassword}
+          />
+        </FormComponent>
         <div className="mv center-horizontal">
           <Link to="/profile" prefetch="intent">
             Back to profile

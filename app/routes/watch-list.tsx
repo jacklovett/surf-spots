@@ -87,7 +87,7 @@ export default function Watchlist() {
 
   return (
     <Page showHeader>
-      <div className="watch-list-page">
+      <div className="info-page-content mv map-content">
         <h1>Watch List</h1>
         <p>
           Here, we'll keep you updated on swell seasons, local news, events, and
@@ -123,11 +123,11 @@ export default function Watchlist() {
             </div>
           )}
         </ErrorBoundary>
-        <ErrorBoundary message="Uh-oh! Something went wrong displaying the map!">
-          <div className="map-wrapper">
-            <SurfMap />
-          </div>
-        </ErrorBoundary>
+        <div className="map-wrapper center">
+          <ErrorBoundary message="Uh-oh! Something went wrong displaying the map!">
+            <SurfMap surfSpots={surfSpots} />
+          </ErrorBoundary>
+        </div>
         <ErrorBoundary message="Unable to load surf spot list">
           {!surfSpotsFound && (
             <p className="mv-l">
