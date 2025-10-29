@@ -10,6 +10,7 @@ import {
   ErrorBoundary,
   Loading,
   Page,
+  Rating,
   SurfMap,
   SurfSpotList,
 } from '~/components'
@@ -181,16 +182,16 @@ export default function SurfedSpots() {
             <div className="stat-label">Total Spots Surfed</div>
           </div>
           <div className="stat-card">
-            <div className="stat-number">{continentCount}</div>
-            <div className="stat-label">Continents</div>
-          </div>
-          <div className="stat-card">
             <div className="stat-number">{countryCount}</div>
             <div className="stat-label">Countries</div>
           </div>
           <div className="stat-card">
-            <div className="stat-number">{averageRating}</div>
-            <div className="stat-label">Avg Rating</div>
+            <div className="stat-number">{continentCount}</div>
+            <div className="stat-label">Continents</div>
+          </div>
+           <div className="stat-card">
+            <div className="stat-number">{displaySkillLevel}</div>
+            <div className="stat-label">Skill level</div>
           </div>
         </div>
 
@@ -242,9 +243,7 @@ export default function SurfedSpots() {
                       {spot.country?.name}, {spot.continent?.name}
                     </p>
                     <div className="spot-rating">
-                      <span className="rating-text">
-                        Rating: {spot.rating || 0}/5
-                      </span>
+                      <Rating rating={spot.rating} readOnly />
                     </div>
                   </div>
                   <div className="spot-type">
