@@ -464,7 +464,7 @@ h2 {
 }
 
 .content-status {
-  margin-top: 64px;
+  margin-top: 128px;
 }
 
 /* Info Pages Styling */
@@ -712,14 +712,13 @@ h2 {
 }
 
 .preference-row {
+  @extend %flex-column;
   background: $white;
   padding: $spacing-large;
   border-radius: $content-border-radius;
   box-shadow: $box-shadow;
   border: 1px solid $border-light;
   text-align: center;
-  display: flex;
-  flex-direction: column;
   gap: $spacing-unit;
   transition: transform 0.2s ease;
 
@@ -737,7 +736,6 @@ h2 {
   font-weight: 600;
   color: $text-secondary;
   font-size: $font-size-small;
-  text-transform: uppercase;
   letter-spacing: 0.5px;
 }
 

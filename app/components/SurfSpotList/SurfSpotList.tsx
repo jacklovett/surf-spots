@@ -11,26 +11,29 @@ const SurfSpotList = memo((props: IProps): JSX.Element => {
   const { surfSpots } = props
   const navigate = useNavigate()
   // Group surf spots by continent, then by country
-  const groupedSurfSpots = surfSpots.reduce((groupedSpots, spot) => {
-    const { continent, country } = spot
+  const groupedSurfSpots = surfSpots.reduce(
+    (groupedSpots, spot) => {
+      const { continent, country } = spot
 
-    if (!continent || !country) {
-      throw new Error('Incomplete surf spot data')
-    }
+      if (!continent || !country) {
+        throw new Error('Incomplete surf spot data')
+      }
 
-    const continentName = continent.name
-    const countryName = country.name
+      const continentName = continent.name
+      const countryName = country.name
 
-    // Initialize the continent group if it doesn't exist in the accumulator
-    groupedSpots[continentName] = groupedSpots[continentName] || {}
-    // Initialize the country group within the continent if it doesn't exist
-    groupedSpots[continentName][countryName] =
-      groupedSpots[continentName][countryName] || []
-    // Add the current surf spot to the correct country group
-    groupedSpots[continentName][countryName].push(spot)
-    // Return the updated accumulator so it can be used in the next iteration
-    return groupedSpots
-  }, {} as Record<string, Record<string, SurfSpot[]>>)
+      // Initialize the continent group if it doesn't exist in the accumulator
+      groupedSpots[continentName] = groupedSpots[continentName] || {}
+      // Initialize the country group within the continent if it doesn't exist
+      groupedSpots[continentName][countryName] =
+        groupedSpots[continentName][countryName] || []
+      // Add the current surf spot to the correct country group
+      groupedSpots[continentName][countryName].push(spot)
+      // Return the updated accumulator so it can be used in the next iteration
+      return groupedSpots
+    },
+    {} as Record<string, Record<string, SurfSpot[]>>,
+  )
 
   return (
     <>
@@ -58,7 +61,7 @@ const SurfSpotList = memo((props: IProps): JSX.Element => {
                       const { id, name, rating, region, type } = spot
                       return (
                         <tr
-                          key={spot.id}
+                          key={id}
                           className="table-row"
                           onClick={() => navigate(spot.path)}
                         >

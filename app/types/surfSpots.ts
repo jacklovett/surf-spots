@@ -77,6 +77,7 @@ export enum SkillLevel {
   INTERMEDIATE = 'Intermediate',
   INTERMEDIATE_ADVANCED = 'Intermediate - Advanced',
   ADVANCED = 'Advanced',
+  ALL_LEVELS = 'All Levels',
 }
 
 export enum Tide {

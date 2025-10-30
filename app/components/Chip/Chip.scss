@@ -1,0 +1,30 @@
+@use 'sass:color';
+
+.chip {
+  padding: 4px $spacing-unit;
+  border: 2px solid $accent-color;
+  border-radius: $button-border-radius;
+  background: $background-color;
+  color: $accent-color;
+  cursor: pointer;
+  transition:
+    background-color 0.2s,
+    color 0.2s;
+
+  &:hover {
+    border-color: color.adjust($accent-color, $lightness: -10%);
+    color: color.adjust($accent-color, $lightness: -10%);
+  }
+
+  &.filled {
+    background: $accent-color;
+    color: $primary-color;
+    border-color: $accent-color;
+
+    &:hover {
+      border-color: color.adjust($accent-color, $lightness: -5%);
+      background-color: color.adjust($accent-color, $lightness: -5%);
+      color: color.adjust($primary-color, $lightness: -5%);
+    }
+  }
+}

@@ -5,6 +5,7 @@ import {
   useNavigation,
 } from 'react-router'
 import {
+  Chip,
   ContentStatus,
   ErrorBoundary,
   Loading,
@@ -16,6 +17,7 @@ import {
 import { cacheControlHeader, get } from '~/services/networkService'
 import { requireSessionCookie } from '~/services/session.server'
 import { SurfedSpotsSummary } from '~/types/surfedSpotsSummary'
+import { SkillLevel, SurfSpot } from '~/types/surfSpots'
 
 interface LoaderData {
   surfedSpotsSummary?: SurfedSpotsSummary
@@ -62,6 +64,48 @@ const getSurfExplorerLevel = (countryCount: number) => {
   return 'World Nomad'
 }
 
+// Helper function to get skill level display based on surfed spots
+const getSkillLevelDisplay = (surfedSpots: SurfSpot[]) => {
+  if (surfedSpots.length === 0) return 'Not assessed'
+
+  // Count spots by skill level
+  const skillLevelCounts = surfedSpots.reduce(
+    (acc, spot) => {
+      const level =
+        spot.skillLevel && spot.skillLevel !== SkillLevel.ALL_LEVELS
+          ? spot.skillLevel
+          : SkillLevel.BEGINNER
+      acc[level] = (acc[level] || 0) + 1
+      return acc
+    },
+    {} as Record<string, number>,
+  )
+
+  // Calculate percentages
+  const total = surfedSpots.length
+  const percentages = {
+    beginner:
+      (skillLevelCounts[
+        SkillLevel.BEGINNER || SkillLevel.BEGINNER_INTERMEDIATE
+      ] || 0) / total,
+    intermediate:
+      (skillLevelCounts[
+        SkillLevel.INTERMEDIATE || SkillLevel.INTERMEDIATE_ADVANCED
+      ] || 0) / total,
+    advanced: (skillLevelCounts.advanced || 0) / total,
+  }
+
+  // Determine skill level based on what they surf most
+  if (percentages.advanced >= 0.4) return 'Advanced'
+  if (percentages.intermediate >= 0.4) return 'Intermediate'
+  if (percentages.beginner >= 0.6) return 'Beginner'
+
+  // If no clear majority, use the highest level they've surfed
+  if (skillLevelCounts.advanced > 0) return 'Advanced'
+  if (skillLevelCounts.intermediate > 0) return 'Intermediate'
+  return 'Beginner'
+}
+
 export default function SurfedSpots() {
   const { state } = useNavigation()
   const loading = state === 'loading'
@@ -99,31 +143,11 @@ export default function SurfedSpots() {
   } = surfedSpotsSummary || {}
 
   const surfedSpotsFound = surfedSpots.length > 0
+  // TODO: Refine and move calculation to backend
+  const displaySkillLevel = getSkillLevelDisplay(surfedSpots)
 
   // Get most recent surf spots (last 5)
   const recentSpots = surfedSpots.slice(0, 5)
-
-  // Calculate preferred tide
-  const getPreferredTide = () => {
-    if (surfedSpots.length === 0) return null
-
-    const tideCounts = surfedSpots.reduce(
-      (acc, spot) => {
-        const tide = spot.tide || 'Any'
-        acc[tide] = (acc[tide] || 0) + 1
-        return acc
-      },
-      {} as Record<string, number>,
-    )
-
-    const mostSurfed = Object.entries(tideCounts).reduce((a, b) =>
-      tideCounts[a[0]] > tideCounts[b[0]] ? a : b,
-    )
-
-    return mostSurfed ? mostSurfed[0] : null
-  }
-
-  const preferredTide = getPreferredTide()
 
   return (
     <Page showHeader>
@@ -141,7 +165,7 @@ export default function SurfedSpots() {
             <div className="stat-label">Countries</div>
           </div>
           <div className="stat-card">
-            <div className="stat-calue">{continentCount}</div>
+            <div className="stat-value">{continentCount}</div>
             <div className="stat-label">Continents</div>
           </div>
           <div className="stat-card">
@@ -169,8 +193,10 @@ export default function SurfedSpots() {
               </span>
             </div>
             <div className="preference-row">
-              <span className="preference-label">Preferred Tide</span>
-              <span className="preference-value">{preferredTide || '-'}</span>
+              <span className="preference-label">Assessed Skill Level</span>
+              <span className="preference-value">
+                {displaySkillLevel || '-'}
+              </span>
             </div>
           </div>
         </div>
@@ -187,12 +213,14 @@ export default function SurfedSpots() {
                     <p className="spot-location">
                       {spot.country?.name}, {spot.continent?.name}
                     </p>
+                    {/* TODO: Add the actual date the spot was added */}
+                    <p>{`Added: ${new Date().toLocaleDateString()}`}</p>
                     <div className="spot-rating">
                       <Rating value={spot.rating} readOnly />
                     </div>
                   </div>
-                  <div className="spot-type">
-                    <span className="type-badge">{spot.type}</span>
+                  <div className="mh">
+                    <Chip label={spot.type} isFilled={true} />
                   </div>
                 </div>
               ))}

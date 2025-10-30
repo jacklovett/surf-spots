@@ -34,6 +34,7 @@ import LocationSelector from './LocationSelector'
 import SignInOptions from './SignInOptions'
 import CheckboxOption from './CheckboxOption'
 import Rating from './Rating'
+import Chip from './Chip'
 import ChipSelector from './ChipSelector'
 import ForecastLinks from './ForecastLinks'
 import KofiButton from './KofiButton'
@@ -47,6 +48,7 @@ export {
   Button,
   CalendarIcon,
   CheckboxOption,
+  Chip,
   ChipSelector,
   ContentStatus,
   Details,

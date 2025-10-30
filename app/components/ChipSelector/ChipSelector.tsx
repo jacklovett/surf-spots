@@ -1,3 +1,4 @@
+import Chip from '../Chip'
 import { Option } from '../FormInput'
 
 interface ChipSelectorProps {
@@ -24,14 +25,11 @@ export const ChipSelector = ({
   return (
     <div className="chip-selector">
       {options.map((option) => (
-        <div
-          key={option.key}
-          className={`chip ${
-            selected.some((item) => item.key === option.key) ? 'selected' : ''
-          }`}
-          onClick={() => toggleSelection(option)}
-        >
-          {option.label}
+        <div key={option.key} onClick={() => toggleSelection(option)}>
+          <Chip
+            label={option.label}
+            isFilled={selected.some((item) => item.key === option.key)}
+          />
         </div>
       ))}
 
