@@ -8,6 +8,7 @@ interface ToolbarProps {
   filtersBadge?: number
   isMapView: boolean
   onToggleView: () => void
+  hideFilters?: boolean
 }
 
 export const Toolbar = (props: ToolbarProps) => {
@@ -18,18 +19,21 @@ export const Toolbar = (props: ToolbarProps) => {
     filtersBadge,
     isMapView,
     onToggleView,
+    hideFilters,
   } = props
 
   return (
     <>
       <div className="row toolbar flex-end space-between">
         <div className="row flex-1">
-          <TextButton
-            text="Filters"
-            onClick={onOpenFilters}
-            iconKey="filters"
-            badge={filtersBadge}
-          />
+          {!hideFilters && (
+            <TextButton
+              text="Filters"
+              onClick={onOpenFilters}
+              iconKey="filters"
+              badge={filtersBadge}
+            />
+          )}
           {showAddButton && (
             <div className="toolbar-add">
               <TextButton

@@ -137,6 +137,7 @@ export default function SurfSpots() {
         filtersBadge={getAppliedFiltersCount(filters)}
         isMapView={isMapView}
         onToggleView={handleToggleView}
+        hideFilters={!!useParams().surfSpot} // Hide filters when on surf spot details page
       />
       {isMapView ? (
         <div className="center column h-full map-wrapper">
