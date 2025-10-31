@@ -17,7 +17,9 @@
   background: $white;
   z-index: 30;
   transform: translateX(-100%); /* Initially off-screen */
-  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.3s ease; /* Smooth animation */
+  transition:
+    transform 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+    box-shadow 0.3s ease; /* Smooth animation */
   touch-action: pan-x; /* Enable horizontal touch gestures */
   will-change: transform; /* Optimize performance for transforms */
 

@@ -80,7 +80,10 @@ export const Drawer = () => {
 
     // For left drawer: allow only leftward swipes (negative deltaX)
     // For right drawer: allow only rightward swipes (positive deltaX)
-    if ((position === 'left' && deltaX < 0) || (position === 'right' && deltaX > 0)) {
+    if (
+      (position === 'left' && deltaX < 0) ||
+      (position === 'right' && deltaX > 0)
+    ) {
       setTranslateX(deltaX)
       event.preventDefault()
     }
@@ -94,9 +97,12 @@ export const Drawer = () => {
 
     // For left drawer: swipe left (negative translateX)
     // For right drawer: swipe right (positive translateX)
-    const shouldClose = position === 'left' 
-      ? (-translateX > window.innerWidth * 0.4 || (velocity > 0.5 && translateX < 0))
-      : (translateX > window.innerWidth * 0.4 || (velocity > 0.5 && translateX > 0))
+    const shouldClose =
+      position === 'left'
+        ? -translateX > window.innerWidth * 0.4 ||
+          (velocity > 0.5 && translateX < 0)
+        : translateX > window.innerWidth * 0.4 ||
+          (velocity > 0.5 && translateX > 0)
 
     if (shouldClose) {
       closeDrawer()
@@ -128,9 +134,9 @@ export const Drawer = () => {
           'drawer--open': isAnimating && !translateX,
         })}
         style={{
-          transform: translateX 
+          transform: translateX
             ? `translateX(${position === 'left' ? translateX : translateX + (position === 'right' ? window.innerWidth : 0)}px)`
-            : undefined
+            : undefined,
         }}
         onTouchStart={handleTouchStart}
         onTouchMove={handleTouchMove}
