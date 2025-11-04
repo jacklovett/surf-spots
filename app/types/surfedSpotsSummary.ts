@@ -5,6 +5,12 @@ import {
   SurfSpotType,
 } from './surfSpots'
 
+export interface SurfedSpotItem {
+  surfSpot: SurfSpot
+  addedAt: string
+  isFavourite: boolean
+}
+
 interface SurfedSpotsSummary {
   totalCount: number
   countryCount: number
@@ -12,7 +18,7 @@ interface SurfedSpotsSummary {
   mostSurfedSpotType: SurfSpotType
   mostSurfedBeachBottomType: BeachBottomType
   skillLevel: SkillLevel
-  surfedSpots: SurfSpot[]
+  surfedSpots: SurfedSpotItem[]
 }
 
 export type { SurfedSpotsSummary }

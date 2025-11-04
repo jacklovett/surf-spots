@@ -13,7 +13,7 @@ import {
   addLayers,
   removeSource,
   fetchSurfSpotsByBounds,
-  getSourceData,
+  updateMapSourceData,
 } from '~/services/mapService'
 import { useSurfSpotsContext, useUserContext } from '~/contexts'
 import { useMapDrawer } from '~/hooks/useMapDrawer'
@@ -21,7 +21,7 @@ import { debounce } from '~/utils'
 import { FetcherSubmitParams } from '../SurfSpotActions'
 
 interface IProps {
-  surfSpots?: SurfSpot[]
+  surfSpots?: SurfSpot[] // For static maps (with disableInteractions) OR pre-loaded spots for dynamic maps
   disableInteractions?: boolean
   onFetcherSubmit?: (params: FetcherSubmitParams) => void
 }
@@ -40,9 +40,31 @@ export const SurfMap = memo((props: IProps) => {
 
   const mapContainerRef = useRef<HTMLDivElement | null>(null)
 
-  // Update context when we fetch new surf spots
+  // Track pre-loaded spots for memoized callbacks (avoid stale closures)
+  const preloadedSpotsRef = useRef<SurfSpot[] | undefined>(
+    !disableInteractions && surfSpots?.length ? surfSpots : undefined,
+  )
+
+  useEffect(() => {
+    if (disableInteractions) return
+    preloadedSpotsRef.current = surfSpots?.length ? surfSpots : undefined
+
+    if (mapRef.current && surfSpots?.length) {
+      updateMapSourceData(mapRef.current, surfSpots)
+    }
+  }, [surfSpots, disableInteractions])
+
+  const filtersRef = useRef(filters)
+  const contextSurfSpotsRef = useRef(contextSurfSpots)
+
+  useEffect(() => {
+    contextSurfSpotsRef.current = contextSurfSpots
+  }, [contextSurfSpots])
+
   const debouncedFetchSurfSpots = useCallback(
     debounce(async (map: mapboxgl.Map) => {
+      if (preloadedSpotsRef.current) return
+
       try {
         const newSurfSpots = await fetchSurfSpotsByBounds(
           map,
@@ -50,24 +72,18 @@ export const SurfMap = memo((props: IProps) => {
           filtersRef.current,
         )
 
-        // Merge new surf spots with existing ones (don't replace)
         mergeSurfSpots(newSurfSpots)
 
-        if (map && !map._removed) {
-          const source = map.getSource('surfSpots') as mapboxgl.GeoJSONSource
-          if (source) {
-            // Get the updated surf spots from context after merge
-            const updatedSurfSpots = [
-              ...contextSurfSpots,
-              ...newSurfSpots.filter(
-                (newSpot) =>
-                  !contextSurfSpots.some(
-                    (existing) => existing.id === newSpot.id,
-                  ),
-              ),
-            ]
-            source.setData(getSourceData(updatedSurfSpots))
-          }
+        if (map && !map._removed && !preloadedSpotsRef.current) {
+          const currentSpots = contextSurfSpotsRef.current || []
+          const mergedSpots = [
+            ...currentSpots,
+            ...newSurfSpots.filter(
+              (spot) =>
+                !currentSpots.some((existing) => existing.id === spot.id),
+            ),
+          ]
+          updateMapSourceData(map, mergedSpots)
         }
       } catch (error) {
         console.error('Error fetching surf spots:', error)
@@ -76,34 +92,30 @@ export const SurfMap = memo((props: IProps) => {
     [user?.id, mergeSurfSpots],
   )
 
-  const filtersRef = useRef(filters)
   useEffect(() => {
+    const hasPreloaded = !disableInteractions && surfSpots?.length
+    if (hasPreloaded) return
+
     const prevFilters = filtersRef.current
+    const filtersChanged =
+      JSON.stringify(prevFilters) !== JSON.stringify(filters)
+
     filtersRef.current = filters
 
-    // If filters changed, clear existing surf spots and fetch with new filters
-    if (JSON.stringify(prevFilters) !== JSON.stringify(filters)) {
+    if (filtersChanged && mapRef.current) {
       setSurfSpots([])
-      if (mapRef.current) {
-        // Fetch immediately with the new filters
-        fetchSurfSpotsByBounds(mapRef.current, user?.id, filters).then(
-          (newSurfSpots) => {
-            setSurfSpots(newSurfSpots)
-            if (mapRef.current && !mapRef.current._removed) {
-              const source = mapRef.current.getSource(
-                'surfSpots',
-              ) as mapboxgl.GeoJSONSource
-              if (source) {
-                source.setData(getSourceData(newSurfSpots))
-              }
-            }
-          },
-        )
-      }
-    } else if (mapRef.current) {
-      debouncedFetchSurfSpots(mapRef.current)
+      fetchSurfSpotsByBounds(mapRef.current, user?.id, filters)
+        .then((newSurfSpots) => {
+          setSurfSpots(newSurfSpots)
+          if (mapRef.current && !mapRef.current._removed) {
+            updateMapSourceData(mapRef.current, newSurfSpots)
+          }
+        })
+        .catch((error) => {
+          console.error('Error fetching surf spots on filter change:', error)
+        })
     }
-  }, [filters])
+  }, [filters, user?.id, setSurfSpots, disableInteractions, surfSpots])
 
   const { handleMarkerClick } = useMapDrawer(onFetcherSubmit)
 
@@ -115,7 +127,6 @@ export const SurfMap = memo((props: IProps) => {
     let mapInstance: mapboxgl.Map
 
     if (disableInteractions && surfSpots && surfSpots.length > 0) {
-      // Static map for single surf spot
       const { longitude, latitude } = surfSpots[0]
       mapInstance = initializeMap(mapContainerRef.current, false, {
         longitude,
@@ -127,28 +138,37 @@ export const SurfMap = memo((props: IProps) => {
         addMarkerForCoordinate({ longitude, latitude }, mapInstance)
       })
     } else {
-      // Dynamic map for multiple surf spots
       mapInstance = initializeMap(mapContainerRef.current, true)
-
-      // Add navigation controls
       mapInstance.addControl(new mapboxgl.NavigationControl(), 'top-right')
 
       mapInstance.on('load', () => {
         setLoading(false)
-        addSourceData(mapInstance, contextSurfSpots || [])
+
+        const hasPreloaded = !disableInteractions && surfSpots?.length
+        const spotsToDisplay = hasPreloaded ? surfSpots : contextSurfSpots || []
+
+        addSourceData(mapInstance, spotsToDisplay)
         addLayers(mapInstance, handleMarkerClick)
-        debouncedFetchSurfSpots(mapInstance)
+
+        if (!hasPreloaded && !contextSurfSpots.length) {
+          debouncedFetchSurfSpots(mapInstance)
+        }
       })
 
-      // Add event listeners for map movements
-      const handleMapUpdate = () => debouncedFetchSurfSpots(mapInstance)
-      mapInstance.on('moveend', handleMapUpdate)
-      mapInstance.on('zoomend', handleMapUpdate)
+      const hasPreloaded = !disableInteractions && surfSpots?.length
+      if (!hasPreloaded) {
+        const handleMapUpdate = () => {
+          if (mapInstance && !mapInstance._removed) {
+            debouncedFetchSurfSpots(mapInstance)
+          }
+        }
+        mapInstance.on('moveend', handleMapUpdate)
+        mapInstance.on('zoomend', handleMapUpdate)
+      }
     }
 
     mapRef.current = mapInstance
 
-    // Cleanup function
     return () => {
       if (mapInstance) {
         removeSource(mapInstance)
@@ -156,20 +176,21 @@ export const SurfMap = memo((props: IProps) => {
         mapRef.current = null
       }
     }
-  }, [disableInteractions])
+  }, [disableInteractions, surfSpots])
 
-  // Update map source data when context surf spots change
   useEffect(() => {
-    if (mapRef.current && contextSurfSpots.length > 0) {
-      const source = mapRef.current.getSource(
-        'surfSpots',
-      ) as mapboxgl.GeoJSONSource
+    if (disableInteractions || !mapRef.current) return
 
-      if (source) {
-        source.setData(getSourceData(contextSurfSpots))
-      }
+    const hasPreloaded = surfSpots?.length
+    if (hasPreloaded) {
+      updateMapSourceData(mapRef.current, surfSpots)
+      return
     }
-  }, [contextSurfSpots])
+
+    if (contextSurfSpots.length) {
+      updateMapSourceData(mapRef.current, contextSurfSpots)
+    }
+  }, [contextSurfSpots, disableInteractions, surfSpots])
 
   return (
     <div className={classNames({ 'map-container': true, border: !loading })}>
@@ -181,7 +202,6 @@ export const SurfMap = memo((props: IProps) => {
           'static-map': disableInteractions,
         })}
       />
-      {/* Skeleton Loader shown on top of the map while loading */}
       {loading && <SkeletonLoader />}
     </div>
   )

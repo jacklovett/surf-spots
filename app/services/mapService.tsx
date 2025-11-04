@@ -355,6 +355,9 @@ export const addMarkerForCoordinate = (coordinates: Coordinates, map: Map) => {
  * @returns HTMLDivElement with pin styling
  */
 export const createPinElement = (size: number = 42) => {
+  if (typeof document === 'undefined') {
+    throw new Error('createPinElement can only be called on the client')
+  }
   const markerDiv = document.createElement('div')
   markerDiv.className = 'custom-pin'
   markerDiv.style.width = `${size}px`
@@ -364,6 +367,21 @@ export const createPinElement = (size: number = 42) => {
   markerDiv.style.backgroundRepeat = 'no-repeat'
   markerDiv.style.backgroundPosition = 'center'
   return markerDiv
+}
+
+/**
+ * Updates the surf spots data in the map source
+ * @param map - the map instance
+ * @param surfSpots - array of surf spots to display
+ */
+export const updateMapSourceData = (
+  map: Map,
+  surfSpots: SurfSpot[],
+): void => {
+  const source = map.getSource('surfSpots') as mapboxgl.GeoJSONSource
+  if (source) {
+    source.setData(getSourceData(surfSpots))
+  }
 }
 
 export const removeSource = (map: Map) => {

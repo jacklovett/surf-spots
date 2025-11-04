@@ -143,11 +143,14 @@ export default function SurfedSpots() {
   } = surfedSpotsSummary || {}
 
   const surfedSpotsFound = surfedSpots.length > 0
+  // Extract surfSpot from each SurfedSpotItem for calculations
+  const surfSpots = surfedSpots.map((item) => item.surfSpot)
+
   // TODO: Refine and move calculation to backend
-  const displaySkillLevel = getSkillLevelDisplay(surfedSpots)
+  const displaySkillLevel = getSkillLevelDisplay(surfSpots)
 
   // Get most recent surf spots (last 5)
-  const recentSpots = surfedSpots.slice(0, 5)
+  const recentSpots = surfSpots.slice(0, 5)
 
   return (
     <Page showHeader>
@@ -232,7 +235,7 @@ export default function SurfedSpots() {
         <h2>Your Surf Journey Map</h2>
         <div className="map-wrapper center">
           <ErrorBoundary message="Uh-oh! Something went wrong displaying the map!">
-            <SurfMap surfSpots={surfedSpots} />
+            <SurfMap surfSpots={surfSpots} />
           </ErrorBoundary>
         </div>
         {/* All Surf Spots List */}
@@ -253,7 +256,7 @@ export default function SurfedSpots() {
                 </div>
               </div>
             )}
-            {surfedSpotsFound && <SurfSpotList surfSpots={surfedSpots} />}
+            {surfedSpotsFound && <SurfSpotList surfSpots={surfSpots} />}
           </ErrorBoundary>
         </div>
       </div>

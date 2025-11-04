@@ -16,8 +16,13 @@ export const debounce = (action: (...args: any[]) => void, delay: number) => {
 }
 
 // TODO: Does this work?
-export const getCssVariable = (variable: string) =>
-  getComputedStyle(document.body).getPropertyValue(variable)
+export const getCssVariable = (variable: string) => {
+  if (typeof window === 'undefined' || !document.body) {
+    // Return defaults during SSR
+    return variable === '--primary-color' ? '#046380' : '#20c6f8'
+  }
+  return getComputedStyle(document.body).getPropertyValue(variable)
+}
 
 /**
  * Converts meters to feet - 1m ≈ 3.28ft

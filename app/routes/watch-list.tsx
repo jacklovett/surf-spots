@@ -80,10 +80,14 @@ export default function Watchlist() {
     )
   }
 
-  const { surfSpots = [], notifications = [] } = watchedSurfSpotsSummary || {}
+  const { surfSpots: watchListSpots = [], notifications = [] } =
+    watchedSurfSpotsSummary || {}
 
   const hasNotifications = notifications.length > 0
-  const surfSpotsFound = surfSpots.length > 0
+  const surfSpotsFound = watchListSpots.length > 0
+
+  // Extract surfSpot from each WatchListSpot (backend returns wrapped objects)
+  const surfSpots = watchListSpots?.map((item) => item.surfSpot)
 
   return (
     <Page showHeader>
@@ -135,13 +139,7 @@ export default function Watchlist() {
               you can stay up to date.
             </p>
           )}
-          {surfSpotsFound && (
-            <SurfSpotList
-              {...{
-                surfSpots,
-              }}
-            />
-          )}
+          {surfSpotsFound && <SurfSpotList surfSpots={surfSpots} />}
         </ErrorBoundary>
       </div>
     </Page>

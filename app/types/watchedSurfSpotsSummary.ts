@@ -10,8 +10,13 @@ interface WatchListNotification {
   link?: string
 }
 
+export interface WatchListSpot {
+  surfSpot: SurfSpot
+  addedAt: string
+}
+
 interface WatchedSurfSpotsSummary {
-  surfSpots: SurfSpot[]
+  surfSpots: WatchListSpot[] // Backend returns WatchListSpotDTO[], not SurfSpot[]
   notifications: WatchListNotification[]
 }
 
