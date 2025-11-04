@@ -34,11 +34,14 @@ export const Drawer = () => {
         window.innerWidth - document.documentElement.clientWidth
       document.body.style.overflow = 'hidden'
       document.body.style.paddingRight = `${scrollbarWidth}px`
-      // First render the drawer in its initial position
+      // Start with drawer off-screen, then animate in
+      setIsAnimating(false)
+      // Use double RAF to ensure the drawer renders off-screen first
       requestAnimationFrame(() => {
-        // Then trigger the open animation in the next frame
-        setTranslateX(0)
-        setIsAnimating(true)
+        requestAnimationFrame(() => {
+          // Then trigger the open animation
+          setIsAnimating(true)
+        })
       })
     } else {
       // Start close animation
@@ -131,7 +134,7 @@ export const Drawer = () => {
         ref={drawerRef}
         className={classNames('drawer', {
           [`drawer--${position}`]: true,
-          'drawer--open': isAnimating && !translateX,
+          'drawer--open': isAnimating,
         })}
         style={{
           transform: translateX
