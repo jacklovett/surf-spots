@@ -56,7 +56,12 @@ export const AddSurfSpotMap = memo(
           .addTo(map)
 
         // Handle marker drag events
-        marker.on('dragstart', () => (pinElement.style.cursor = 'grabbing'))
+        marker.on('dragstart', () => {
+          pinElement.style.cursor = 'grabbing'
+          // Disable page scrolling while dragging using CSS
+          document.body.style.overflow = 'hidden'
+          document.body.style.touchAction = 'none'
+        })
 
         marker.on('drag', () => {
           const lngLat = marker.getLngLat()
@@ -100,6 +105,9 @@ export const AddSurfSpotMap = memo(
 
         marker.on('dragend', () => {
           pinElement.style.cursor = 'grab'
+          // Re-enable page scrolling after drag ends
+          document.body.style.overflow = ''
+          document.body.style.touchAction = ''
           const lngLat = marker.getLngLat()
           const newCoords: Coordinates = {
             longitude: lngLat.lng,

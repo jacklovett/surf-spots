@@ -267,7 +267,7 @@ export const SurfSpotForm = (props: SurfSpotFormProps) => {
 
   return (
     <Page showHeader>
-      <div className="info-page-content mv">
+      <div className="info-page-content mv map-content">
         <h1>{`${actionType} Surf Spot`}</h1>
         <InfoMessage message="Public surf spots are reviewed and, if approved, become visible to everyone." />
         <FormComponent

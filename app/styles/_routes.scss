@@ -74,6 +74,51 @@ h2 {
   margin-bottom: $spacing-large;
 }
 
+/* Best Conditions Section */
+.best-conditions {
+  @extend %flex-column;
+  gap: $spacing-large;
+  border: solid 1px $outline-color;
+  border-radius: $content-border-radius;
+  padding: $spacing-large;
+  padding-right: 0;
+  margin-bottom: $spacing-large;
+
+  @media (min-width: 768px) {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: $spacing-unit;
+
+    // Center last item when odd number
+    &:has(> :nth-child(odd):last-child) {
+      > :last-child {
+        grid-column: 1 / -1;
+        justify-self: center;
+        max-width: fit-content;
+      }
+    }
+  }
+}
+
+.best-conditions-item {
+  display: flex;
+  align-items: center;
+  gap: $spacing-unit;
+
+  .details {
+    margin-bottom: 0;
+
+    p {
+      margin-bottom: 0;
+    }
+  }
+}
+
+// Override .content section p margin for best-conditions items
+.content section .best-conditions .details p {
+  margin-bottom: 0;
+}
+
 .content .map-wrapper {
   margin-bottom: $spacing-large;
 }

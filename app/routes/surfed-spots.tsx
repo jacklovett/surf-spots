@@ -66,7 +66,7 @@ const getSurfExplorerLevel = (countryCount: number) => {
 
 // Helper function to get skill level display based on surfed spots
 const getSkillLevelDisplay = (surfedSpots: SurfSpot[]) => {
-  if (surfedSpots.length === 0) return 'Not assessed'
+  if (!surfedSpots || surfedSpots.length === 0) return 'Not assessed'
 
   // Count spots by skill level
   const skillLevelCounts = surfedSpots.reduce(

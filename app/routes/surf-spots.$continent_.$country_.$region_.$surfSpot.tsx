@@ -148,21 +148,20 @@ export default function SurfSpotDetails() {
       <div className="content pt">
         <section>
           <h3>Best Conditions</h3>
-          <div className="row spot-details gap mb pv">
-            <div className="gap center-vertical">
+          <div className="best-conditions">
+            <div className="best-conditions-item">
               <DirectionIcon type="swell" directionRange={swellDirection} />
               <Details label="Swell Direction" value={swellDirection} />
             </div>
-            <div className="gap center-vertical">
+            <div className="best-conditions-item">
               <DirectionIcon type="wind" directionRange={windDirection} />
               <Details label="Wind Direction" value={windDirection} />
             </div>
-            <div className="gap center-vertical">
+            <div className="best-conditions-item">
               <TideIcon tide={tide} />
               <Details label="Tides" value={tide} />
             </div>
-
-            <div className="gap center-vertical">
+            <div className="best-conditions-item">
               <SurfHeightIcon />
               <Details
                 label="Surf Height"
@@ -173,7 +172,7 @@ export default function SurfSpotDetails() {
                 )}
               />
             </div>
-            <div className="gap center-vertical">
+            <div className="best-conditions-item">
               <CalendarIcon />
               <Details
                 label="Season"
