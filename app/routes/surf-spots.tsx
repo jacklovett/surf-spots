@@ -20,6 +20,7 @@ import {
   SurfMap,
   Page,
   Toolbar,
+  TripPlannerButton,
 } from '~/components'
 import { submitFetcher } from '~/components/SurfSpotActions'
 import { FetcherSubmitParams } from '~/components/SurfSpotActions'
@@ -83,10 +84,6 @@ export default function SurfSpots() {
     openDrawer(filtersContent, 'left', 'Filters')
   }
 
-  const handleOpenTripPlanner = () => {
-    navigate('/trip-planner')
-  }
-
   // Update isMapView when pathname changes, but don't redirect
   useEffect(() => {
     const newIsMapView = checkIsMapView(pathname)
@@ -138,12 +135,12 @@ export default function SurfSpots() {
         showAddButton={!!user}
         onAddNewSpot={() => navigate('/add-surf-spot')}
         onOpenFilters={handleOpenFilters}
-        onOpenTripPlanner={handleOpenTripPlanner}
         filtersBadge={getAppliedFiltersCount(filters)}
         isMapView={isMapView}
         onToggleView={handleToggleView}
         hideFilters={!!useParams().surfSpot} // Hide filters when on surf spot details page
       />
+      <TripPlannerButton onOpenTripPlanner={() => navigate('/trip-planner')} />
       {isMapView ? (
         <div className="center column h-full map-wrapper">
           <ErrorBoundary message="Uh-oh! Something went wrong displaying the map!">

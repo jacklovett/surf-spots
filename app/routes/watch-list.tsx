@@ -3,6 +3,7 @@ import {
   LoaderFunction,
   useLoaderData,
   useNavigation,
+  useNavigate,
 } from 'react-router'
 
 import { requireSessionCookie } from '~/services/session.server'
@@ -10,6 +11,7 @@ import { requireSessionCookie } from '~/services/session.server'
 import {
   ContentStatus,
   ErrorBoundary,
+  TripPlannerButton,
   Loading,
   Page,
   SurfMap,
@@ -56,6 +58,7 @@ export const loader: LoaderFunction = async ({ request }) => {
 
 export default function Watchlist() {
   const { state } = useNavigation()
+  const navigate = useNavigate()
   const loading = state === 'loading'
 
   const { watchedSurfSpotsSummary, error } = useLoaderData<LoaderData>()
@@ -91,6 +94,7 @@ export default function Watchlist() {
 
   return (
     <Page showHeader>
+      <TripPlannerButton onOpenTripPlanner={() => navigate('/trip-planner')} />
       <div className="info-page-content mv map-content">
         <h1>Watch List</h1>
         <p>

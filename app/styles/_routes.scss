@@ -519,6 +519,17 @@ h2 {
   width: 100%;
   margin: 0 auto;
 
+  .page-title-with-status {
+    display: flex;
+    align-items: center;
+    gap: $spacing-unit;
+    margin-bottom: $spacing-unit;
+
+    h1 {
+      margin: 0;
+    }
+  }
+
   &.map-content {
     padding: $spacing-large 0;
   }

@@ -3,11 +3,13 @@ import {
   LoaderFunction,
   useLoaderData,
   useNavigation,
+  useNavigate,
 } from 'react-router'
 import {
   Chip,
   ContentStatus,
   ErrorBoundary,
+  TripPlannerButton,
   Loading,
   Page,
   Rating,
@@ -137,6 +139,7 @@ const getFavoriteWaveDirection = (surfedSpots: SurfSpot[]) => {
 
 export default function SurfedSpots() {
   const { state } = useNavigation()
+  const navigate = useNavigate()
   const loading = state === 'loading'
 
   const { surfedSpotsSummary, error } = useLoaderData<LoaderData>()
@@ -184,6 +187,7 @@ export default function SurfedSpots() {
 
   return (
     <Page showHeader>
+      <TripPlannerButton onOpenTripPlanner={() => navigate('/trip-planner')} />
       <div className="info-page-content mv map-content">
         <h1>Surfed Spots</h1>
 

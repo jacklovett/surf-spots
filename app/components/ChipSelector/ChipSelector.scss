@@ -1,4 +1,25 @@
+@use 'sass:color';
+
 .chip-selector {
   @extend %flex-wrap;
   gap: $spacing-unit;
+
+  > div {
+    cursor: pointer;
+
+    .chip {
+      cursor: pointer;
+
+      &:hover {
+        border-color: color.adjust($accent-color, $lightness: -10%);
+        color: color.adjust($accent-color, $lightness: -10%);
+      }
+
+      &.filled:hover {
+        border-color: color.adjust($accent-color, $lightness: -5%);
+        background-color: color.adjust($accent-color, $lightness: -5%);
+        color: color.adjust($primary-color, $lightness: -5%);
+      }
+    }
+  }
 }

@@ -30,12 +30,17 @@ export const Drawer = () => {
 
     if (isOpen) {
       setShouldRender(true)
+      // Reset translateX to ensure clean animation
+      setTranslateX(0)
+      translateXRef.current = 0
       document.addEventListener('keydown', handleEscape)
       // Prevent body scroll when drawer is open while maintaining scrollbar space
       const scrollbarWidth =
         window.innerWidth - document.documentElement.clientWidth
       document.body.style.overflow = 'hidden'
       document.body.style.paddingRight = `${scrollbarWidth}px`
+      // Add class to body to disable pointer events on floating buttons
+      document.body.classList.add('drawer-open')
       // Start with drawer off-screen, then animate in
       setIsAnimating(false)
       // Use double RAF to ensure the drawer renders off-screen first
@@ -48,10 +53,13 @@ export const Drawer = () => {
     } else {
       // Start close animation
       setIsAnimating(false)
+      // Remove drawer-open class from body
+      document.body.classList.remove('drawer-open')
       // Remove from DOM after animation completes
       setTimeout(() => {
         setShouldRender(false)
         setTranslateX(0)
+        translateXRef.current = 0
       }, 300)
     }
 
@@ -63,86 +71,84 @@ export const Drawer = () => {
     }
   }, [isOpen, closeDrawer])
 
-  // Handle touch events for swipe-to-close using native listeners to avoid passive event issues
+  // Handle touch events for swipe-to-close
   useEffect(() => {
     const drawerElement = drawerRef.current
     if (!drawerElement || !isOpen) return
 
+    const headerElement = drawerElement.querySelector(
+      '.drawer-header',
+    ) as HTMLElement
+    if (!headerElement) return
+
     const handleTouchStart = (event: TouchEvent) => {
       const touch = event.touches[0]
-      const state = {
+      touchStateRef.current = {
         startX: touch.clientX,
         startY: touch.clientY,
         startTime: Date.now(),
       }
-      touchStateRef.current = state
-      setTouchState(state)
     }
 
     const handleTouchMove = (event: TouchEvent) => {
-      const currentTouchState = touchStateRef.current
-      if (!currentTouchState || !isOpen) return
+      if (!touchStateRef.current) return
 
       const touch = event.touches[0]
-      const deltaX = touch.clientX - currentTouchState.startX
-      const deltaY = touch.clientY - currentTouchState.startY
+      const deltaX = touch.clientX - touchStateRef.current.startX
+      const deltaY = touch.clientY - touchStateRef.current.startY
 
-      // Only handle horizontal swipes (ignore if more vertical than horizontal)
-      if (Math.abs(deltaY) > Math.abs(deltaX)) return
-
-      // For left drawer: allow only leftward swipes (negative deltaX)
-      // For right drawer: allow only rightward swipes (positive deltaX)
-      if (
-        (position === 'left' && deltaX < 0) ||
-        (position === 'right' && deltaX > 0)
-      ) {
-        translateXRef.current = deltaX
-        setTranslateX(deltaX)
-        event.preventDefault()
+      // Only handle if horizontal movement is greater than vertical
+      if (Math.abs(deltaX) > Math.abs(deltaY)) {
+        // For left drawer: swipe left (negative deltaX)
+        // For right drawer: swipe right (positive deltaX)
+        if (
+          (position === 'left' && deltaX < 0) ||
+          (position === 'right' && deltaX > 0)
+        ) {
+          translateXRef.current = deltaX
+          setTranslateX(deltaX)
+          event.preventDefault()
+          event.stopPropagation()
+        }
       }
     }
 
     const handleTouchEnd = () => {
-      const currentTouchState = touchStateRef.current
-      const currentTranslateX = translateXRef.current
-      if (!currentTouchState) return
+      if (!touchStateRef.current) return
 
-      const deltaTime = Date.now() - currentTouchState.startTime
-      const velocity = Math.abs(currentTranslateX) / deltaTime
-
-      // For left drawer: swipe left (negative translateX)
-      // For right drawer: swipe right (positive translateX)
+      const translateX = translateXRef.current
       const shouldClose =
-        position === 'left'
-          ? -currentTranslateX > window.innerWidth * 0.4 ||
-            (velocity > 0.5 && currentTranslateX < 0)
-          : currentTranslateX > window.innerWidth * 0.4 ||
-            (velocity > 0.5 && currentTranslateX > 0)
+        (position === 'left' && translateX < -100) ||
+        (position === 'right' && translateX > 100)
 
       if (shouldClose) {
         closeDrawer()
       } else {
-        // Reset position if not enough to close
         translateXRef.current = 0
         setTranslateX(0)
       }
 
       touchStateRef.current = null
-      setTouchState(null)
     }
 
-    // Use native listeners with passive: false to allow preventDefault
-    drawerElement.addEventListener('touchstart', handleTouchStart, {
-      passive: true,
+    // Attach listeners to header (non-scrollable) to ensure touches are captured
+    headerElement.addEventListener('touchstart', handleTouchStart)
+    headerElement.addEventListener('touchmove', handleTouchMove, {
+      passive: false,
     })
+    headerElement.addEventListener('touchend', handleTouchEnd)
+
+    // Also attach to drawer element itself
+    drawerElement.addEventListener('touchstart', handleTouchStart)
     drawerElement.addEventListener('touchmove', handleTouchMove, {
       passive: false,
     })
-    drawerElement.addEventListener('touchend', handleTouchEnd, {
-      passive: true,
-    })
+    drawerElement.addEventListener('touchend', handleTouchEnd)
 
     return () => {
+      headerElement.removeEventListener('touchstart', handleTouchStart)
+      headerElement.removeEventListener('touchmove', handleTouchMove)
+      headerElement.removeEventListener('touchend', handleTouchEnd)
       drawerElement.removeEventListener('touchstart', handleTouchStart)
       drawerElement.removeEventListener('touchmove', handleTouchMove)
       drawerElement.removeEventListener('touchend', handleTouchEnd)
@@ -169,9 +175,10 @@ export const Drawer = () => {
           'drawer--open': isAnimating,
         })}
         style={{
-          transform: translateX
-            ? `translateX(${position === 'left' ? translateX : translateX + (position === 'right' ? window.innerWidth : 0)}px)`
-            : undefined,
+          transform:
+            translateX !== 0
+              ? `translateX(${position === 'left' ? translateX : translateX + (position === 'right' ? window.innerWidth : 0)}px)`
+              : undefined,
         }}
       >
         <div className="drawer-header">

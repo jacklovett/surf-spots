@@ -20,7 +20,6 @@
   transition:
     transform 0.3s cubic-bezier(0.4, 0, 0.2, 1),
     box-shadow 0.3s ease; /* Smooth animation */
-  touch-action: pan-x; /* Enable horizontal touch gestures */
   will-change: transform; /* Optimize performance for transforms */
 
   &.drawer--left {
@@ -39,6 +38,8 @@
 
   .drawer-content {
     height: 100%;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
   }
 
   @media (max-width: 768px) {

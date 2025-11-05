@@ -1,0 +1,36 @@
+.floating-trip-planner-button {
+  position: fixed;
+  bottom: 64px;
+  right: $spacing-unit;
+  z-index: 10;
+
+  // Disable pointer events when drawer is open to prevent touch event interception
+  body.drawer-open & {
+    pointer-events: none;
+  }
+
+  button.text-button {
+    box-shadow: $box-shadow;
+    background: $white;
+    border-radius: 50%;
+    width: 64px;
+    height: 64px;
+    padding: 0;
+
+    .text-button-icon {
+      margin-right: 0;
+      width: 40px;
+      height: 40px;
+
+      svg {
+        width: 24px;
+        height: 24px;
+      }
+    }
+
+    span:not(.text-button-icon):not(.text-button-badge) {
+      display: none; // Hide text on button
+    }
+  }
+}
+

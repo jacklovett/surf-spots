@@ -41,6 +41,7 @@ import KofiButton from './KofiButton'
 import SocialLinks from './SocialLinks'
 import SurfSpotForm from './SurfSpotForm'
 import Toolbar from './Toolbar'
+import TripPlannerButton from './TripPlannerButton'
 
 export {
   AuthPage,
@@ -84,5 +85,6 @@ export {
   Toolbar,
   TextButton,
   TideIcon,
+  TripPlannerButton,
   ViewSwitch,
 }

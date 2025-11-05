@@ -6,15 +6,9 @@
   border-radius: $button-border-radius;
   background: $background-color;
   color: $accent-color;
-  cursor: pointer;
   transition:
     background-color 0.2s,
     color 0.2s;
-
-  &:hover {
-    border-color: color.adjust($accent-color, $lightness: -10%);
-    color: color.adjust($accent-color, $lightness: -10%);
-  }
 
   &.filled {
     background: $accent-color;

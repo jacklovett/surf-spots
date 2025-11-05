@@ -5,7 +5,6 @@ interface ToolbarProps {
   showAddButton: boolean
   onAddNewSpot: () => void
   onOpenFilters: () => void
-  onOpenTripPlanner: () => void
   filtersBadge?: number
   isMapView: boolean
   onToggleView: () => void
@@ -17,7 +16,6 @@ export const Toolbar = (props: ToolbarProps) => {
     showAddButton,
     onAddNewSpot,
     onOpenFilters,
-    onOpenTripPlanner,
     filtersBadge,
     isMapView,
     onToggleView,
@@ -64,15 +62,6 @@ export const Toolbar = (props: ToolbarProps) => {
             filled
           />
         )}
-      </div>
-
-      <div className="floating-trip-planner-button">
-        <TextButton
-          text="Trip Planner"
-          onClick={onOpenTripPlanner}
-          iconKey="ai"
-          filled
-        />
       </div>
     </>
   )
