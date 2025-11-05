@@ -231,14 +231,11 @@
 @keyframes bounceIn {
   0% {
     opacity: 0;
-    transform: scale(0.8) translateY(30px);
+    transform: scale(0.9) translateY(20px);
   }
-  60% {
-    opacity: 1;
-    transform: scale(1.02);
-  }
-  80% {
-    transform: scale(0.98);
+  50% {
+    opacity: 0.8;
+    transform: scale(1.01) translateY(-2px);
   }
   100% {
     opacity: 1;
@@ -249,66 +246,66 @@
 /* Base state - hidden before animation */
 .animate-on-scroll {
   opacity: 0;
-  transform: scale(0.8) translateY(30px);
+  transform: scale(0.9) translateY(20px);
   transition: none;
+  will-change: opacity, transform;
 }
 
 /* Visible state - triggers animation */
 .animate-on-scroll.visible {
-  animation: bounceIn 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
-  animation-fill-mode: forwards;
+  animation: bounceIn 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
 
   &:nth-child(1) {
     animation-delay: 0.05s;
   }
 
   &:nth-child(2) {
-    animation-delay: 0.15s;
+    animation-delay: 0.1s;
   }
 
   &:nth-child(3) {
-    animation-delay: 0.25s;
+    animation-delay: 0.15s;
   }
 
   &:nth-child(4) {
-    animation-delay: 0.35s;
+    animation-delay: 0.2s;
   }
 
   &:nth-child(5) {
-    animation-delay: 0.45s;
+    animation-delay: 0.25s;
   }
 
   &:nth-child(6) {
-    animation-delay: 0.55s;
+    animation-delay: 0.3s;
   }
 }
 
 /* Immediate animation on page load (no scroll detection needed) */
 .animate-bounce-in {
-  animation: bounceIn 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
-  animation-fill-mode: both;
+  animation: bounceIn 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94) both;
+  will-change: opacity, transform;
 
   &:nth-child(1) {
     animation-delay: 0.05s;
   }
 
   &:nth-child(2) {
-    animation-delay: 0.15s;
+    animation-delay: 0.1s;
   }
 
   &:nth-child(3) {
-    animation-delay: 0.25s;
+    animation-delay: 0.15s;
   }
 
   &:nth-child(4) {
-    animation-delay: 0.35s;
+    animation-delay: 0.2s;
   }
 
   &:nth-child(5) {
-    animation-delay: 0.45s;
+    animation-delay: 0.25s;
   }
 
   &:nth-child(6) {
-    animation-delay: 0.55s;
+    animation-delay: 0.3s;
   }
 }

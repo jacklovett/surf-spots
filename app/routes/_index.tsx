@@ -1,6 +1,8 @@
+import { RefObject } from 'react'
 import type { LinksFunction, MetaFunction } from 'react-router'
 
 import { NavButton, Icon, Footer } from '~/components'
+import { useScrollReveal } from '~/hooks'
 
 export const meta: MetaFunction = () => {
   return [
@@ -23,6 +25,9 @@ export const links: LinksFunction = () => [
 ]
 
 export default function Index() {
+  const featuresRef = useScrollReveal()
+  const stepsRef = useScrollReveal()
+
   return (
     <div className="landing-page">
       <div className="main-content">
@@ -63,8 +68,11 @@ export default function Index() {
               <p>Track, discover, and plan your surf adventures</p>
             </div>
 
-            <div className="features-grid flex-center">
-              <div className="feature-card">
+            <div
+              ref={featuresRef as RefObject<HTMLDivElement>}
+              className="features-grid flex-center"
+            >
+              <div className="feature-card animate-on-scroll">
                 <div className="feature-icon">
                   <Icon iconKey="pin" useAccentColor />
                 </div>
@@ -76,7 +84,7 @@ export default function Index() {
                 </p>
               </div>
 
-              <div className="feature-card">
+              <div className="feature-card animate-on-scroll">
                 <div className="feature-icon">
                   <Icon iconKey="map" useAccentColor />
                 </div>
@@ -89,7 +97,7 @@ export default function Index() {
                 </p>
               </div>
 
-              <div className="feature-card">
+              <div className="feature-card animate-on-scroll">
                 <div className="feature-icon">
                   <Icon iconKey="heart" useAccentColor />
                 </div>
@@ -101,7 +109,7 @@ export default function Index() {
                 </p>
               </div>
 
-              <div className="feature-card">
+              <div className="feature-card animate-on-scroll">
                 <div className="feature-icon">
                   <Icon iconKey="plus" useAccentColor />
                 </div>
@@ -113,7 +121,7 @@ export default function Index() {
                 </p>
               </div>
 
-              <div className="feature-card">
+              <div className="feature-card animate-on-scroll">
                 <div className="feature-icon">
                   <Icon iconKey="surfboard" useAccentColor />
                 </div>
@@ -136,8 +144,8 @@ export default function Index() {
               <p>Start tracking your surf journey in minutes</p>
             </div>
 
-            <div className="steps">
-              <div className="step">
+            <div ref={stepsRef as RefObject<HTMLDivElement>} className="steps">
+              <div className="step animate-on-scroll">
                 <div className="step-number">1</div>
                 <h3>Track Your Spots</h3>
                 <p>
@@ -147,7 +155,7 @@ export default function Index() {
                 </p>
               </div>
 
-              <div className="step">
+              <div className="step animate-on-scroll">
                 <div className="step-number">2</div>
                 <h3>Plan Your Sessions</h3>
                 <p>
@@ -157,7 +165,7 @@ export default function Index() {
                 </p>
               </div>
 
-              <div className="step">
+              <div className="step animate-on-scroll">
                 <div className="step-number">3</div>
                 <h3>Stay Updated</h3>
                 <p>

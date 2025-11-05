@@ -1,3 +1,4 @@
+import { RefObject } from 'react'
 import {
   data,
   LoaderFunction,
@@ -16,6 +17,7 @@ import {
   SurfMap,
   SurfSpotList,
 } from '~/components'
+import { useScrollReveal } from '~/hooks'
 import { cacheControlHeader, get } from '~/services/networkService'
 import { requireSessionCookie } from '~/services/session.server'
 import { SurfedSpotsSummary } from '~/types/surfedSpotsSummary'
@@ -144,6 +146,10 @@ export default function SurfedSpots() {
 
   const { surfedSpotsSummary, error } = useLoaderData<LoaderData>()
 
+  // Hooks to animate cards when they scroll into view
+  const recentSpotsRef = useScrollReveal()
+  const preferencesRef = useScrollReveal()
+
   if (error) {
     return (
       <Page showHeader>
@@ -216,26 +222,29 @@ export default function SurfedSpots() {
         {/* Wave Preferences */}
         <div className="wave-preferences">
           <h2>Wave Preferences</h2>
-          <div className="preferences-list">
-            <div className="preference-row">
+          <div
+            ref={preferencesRef as RefObject<HTMLDivElement>}
+            className="preferences-list"
+          >
+            <div className="preference-row animate-on-scroll">
               <span className="preference-label">Favorite Break</span>
               <span className="preference-value">
                 {mostSurfedSpotType || '-'}
               </span>
             </div>
-            <div className="preference-row">
+            <div className="preference-row animate-on-scroll">
               <span className="preference-label">Beach Type</span>
               <span className="preference-value">
                 {mostSurfedBeachBottomType || '-'}
               </span>
             </div>
-            <div className="preference-row">
+            <div className="preference-row animate-on-scroll">
               <span className="preference-label">Favorite Direction</span>
               <span className="preference-value">
                 {favoriteWaveDirection || '-'}
               </span>
             </div>
-            <div className="preference-row">
+            <div className="preference-row animate-on-scroll">
               <span className="preference-label">Assessed Skill Level</span>
               <span className="preference-value">
                 {displaySkillLevel || '-'}
@@ -248,15 +257,20 @@ export default function SurfedSpots() {
         {recentSpots.length > 0 && (
           <div className="recent-spots-section">
             <h2>Recently Surfed</h2>
-            <div className="recent-spots-grid">
+            <div
+              ref={recentSpotsRef as RefObject<HTMLDivElement>}
+              className="recent-spots-grid"
+            >
               {recentSpots.map((spot) => (
-                <div key={spot.id} className="recent-spot-card">
+                <div
+                  key={spot.id}
+                  className="recent-spot-card animate-on-scroll"
+                >
                   <div className="spot-info">
                     <h4>{spot.name}</h4>
                     <p className="spot-location">
                       {spot.country?.name}, {spot.continent?.name}
                     </p>
-                    {/* TODO: Add the actual date the spot was added */}
                     <p>{`Added: ${new Date().toLocaleDateString()}`}</p>
                     <div className="spot-rating">
                       <Rating value={spot.rating} readOnly />
