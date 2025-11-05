@@ -106,6 +106,35 @@ const getSkillLevelDisplay = (surfedSpots: SurfSpot[]) => {
   return 'Beginner'
 }
 
+// Helper function to get favorite wave direction based on surfed spots
+const getFavoriteWaveDirection = (surfedSpots: SurfSpot[]) => {
+  if (!surfedSpots || surfedSpots.length === 0) return null
+
+  // Count spots by wave direction
+  const waveDirectionCounts = surfedSpots.reduce(
+    (acc, spot) => {
+      if (spot.waveDirection) {
+        acc[spot.waveDirection] = (acc[spot.waveDirection] || 0) + 1
+      }
+      return acc
+    },
+    {} as Record<string, number>,
+  )
+
+  // Find the most common wave direction
+  let maxCount = 0
+  let favoriteDirection: string | null = null
+
+  Object.entries(waveDirectionCounts).forEach(([direction, count]) => {
+    if (count > maxCount) {
+      maxCount = count
+      favoriteDirection = direction
+    }
+  })
+
+  return favoriteDirection
+}
+
 export default function SurfedSpots() {
   const { state } = useNavigation()
   const loading = state === 'loading'
@@ -148,6 +177,7 @@ export default function SurfedSpots() {
 
   // TODO: Refine and move calculation to backend
   const displaySkillLevel = getSkillLevelDisplay(surfSpots)
+  const favoriteWaveDirection = getFavoriteWaveDirection(surfSpots)
 
   // Get most recent surf spots (last 5)
   const recentSpots = surfSpots.slice(0, 5)
@@ -193,6 +223,12 @@ export default function SurfedSpots() {
               <span className="preference-label">Beach Type</span>
               <span className="preference-value">
                 {mostSurfedBeachBottomType || '-'}
+              </span>
+            </div>
+            <div className="preference-row">
+              <span className="preference-label">Favorite Direction</span>
+              <span className="preference-value">
+                {favoriteWaveDirection || '-'}
               </span>
             </div>
             <div className="preference-row">

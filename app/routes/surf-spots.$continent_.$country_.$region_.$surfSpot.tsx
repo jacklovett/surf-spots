@@ -100,6 +100,7 @@ export default function SurfSpotDetails() {
     skillLevel,
     type,
     tide,
+    waveDirection,
     swellDirection,
     windDirection,
     minSurfHeight,
@@ -137,6 +138,7 @@ export default function SurfSpotDetails() {
         <div className="row spot-details gap mb pv">
           <Details label="Break Type" value={type} />
           <Details label="Beach Bottom" value={beachBottomType} />
+          <Details label="Wave Direction" value={waveDirection} />
           <Details label="Skill Level" value={skillLevel} />
         </div>
       </div>

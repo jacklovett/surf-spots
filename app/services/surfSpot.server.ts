@@ -102,6 +102,7 @@ export const createSurfSpotFromFormData = async (request: Request) => {
   const swellDirection = formData.get('swellDirection')?.toString() || ''
   const windDirection = formData.get('windDirection')?.toString() || ''
   const tide = formData.get('tide')?.toString() || ''
+  const waveDirection = formData.get('waveDirection')?.toString() || ''
 
   const minSurfHeightFormValue = formData.get('minSurfHeight')?.toString()
   const minSurfHeight = minSurfHeightFormValue
@@ -133,6 +134,7 @@ export const createSurfSpotFromFormData = async (request: Request) => {
     swellDirection,
     windDirection,
     tide,
+    waveDirection,
     minSurfHeight,
     maxSurfHeight,
     seasonStart,

@@ -6,6 +6,7 @@ import {
   SurfSpotType,
   BeachBottomType,
   Tide,
+  WaveDirection,
   SurfSpotFilters,
   defaultSurfSpotFilters,
 } from '~/types/surfSpots'
@@ -30,6 +31,7 @@ export const Filters = memo(() => {
   const breakTypes = Object.values(SurfSpotType)
   const beachBottoms = Object.values(BeachBottomType)
   const tides = Object.values(Tide)
+  const waveDirections = Object.values(WaveDirection)
 
   const parkingOptions = [
     ...PARKING_OPTIONS.slice(1, PARKING_OPTIONS.length - 1),
@@ -167,6 +169,22 @@ export const Filters = memo(() => {
                 description=""
                 checked={selectedFilters.tide.includes(tide)}
                 onChange={() => handleFilterChange('tide', tide)}
+              />
+            ))}
+          </div>
+        </div>
+
+        <div className="filters-content-section">
+          <h3 className="filters-content-title">Wave Direction</h3>
+          <div className="filters-content-options">
+            {waveDirections.map((direction) => (
+              <CheckboxOption
+                key={direction}
+                name={`wave-${direction}`}
+                title={direction}
+                description=""
+                checked={selectedFilters.waveDirection.includes(direction)}
+                onChange={() => handleFilterChange('waveDirection', direction)}
               />
             ))}
           </div>

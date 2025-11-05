@@ -1,5 +1,5 @@
 import { Option } from '~/components/FormInput'
-import { BeachBottomType, SkillLevel, SurfSpotType, Tide } from './surfSpots'
+import { BeachBottomType, SkillLevel, SurfSpotType, Tide, WaveDirection } from './surfSpots'
 
 const SELECT_OPTION: Option = { key: '', value: '', label: 'Select an option' }
 
@@ -197,6 +197,25 @@ export const TIDE_OPTIONS = [
     key: Tide.HIGH,
     value: Tide.HIGH,
     label: 'High',
+  },
+]
+
+export const WAVE_DIRECTION_OPTIONS = [
+  SELECT_OPTION,
+  {
+    key: WaveDirection.LEFT,
+    value: WaveDirection.LEFT,
+    label: 'Left',
+  },
+  {
+    key: WaveDirection.RIGHT,
+    value: WaveDirection.RIGHT,
+    label: 'Right',
+  },
+  {
+    key: WaveDirection.LEFT_AND_RIGHT,
+    value: WaveDirection.LEFT_AND_RIGHT,
+    label: 'Left and Right',
   },
 ]
 

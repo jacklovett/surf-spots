@@ -17,6 +17,8 @@ export const Drawer = () => {
   const [shouldRender, setShouldRender] = useState(false)
   const [touchState, setTouchState] = useState<TouchState | null>(null)
   const [translateX, setTranslateX] = useState(0)
+  const touchStateRef = useRef<TouchState | null>(null)
+  const translateXRef = useRef(0)
 
   // Handle escape key to close drawer
   useEffect(() => {
@@ -61,61 +63,91 @@ export const Drawer = () => {
     }
   }, [isOpen, closeDrawer])
 
-  // Handle touch events for swipe-to-close
-  const handleTouchStart = (event: React.TouchEvent) => {
-    const touch = event.touches[0]
-    setTouchState({
-      startX: touch.clientX,
-      startY: touch.clientY,
-      startTime: Date.now(),
+  // Handle touch events for swipe-to-close using native listeners to avoid passive event issues
+  useEffect(() => {
+    const drawerElement = drawerRef.current
+    if (!drawerElement || !isOpen) return
+
+    const handleTouchStart = (event: TouchEvent) => {
+      const touch = event.touches[0]
+      const state = {
+        startX: touch.clientX,
+        startY: touch.clientY,
+        startTime: Date.now(),
+      }
+      touchStateRef.current = state
+      setTouchState(state)
+    }
+
+    const handleTouchMove = (event: TouchEvent) => {
+      const currentTouchState = touchStateRef.current
+      if (!currentTouchState || !isOpen) return
+
+      const touch = event.touches[0]
+      const deltaX = touch.clientX - currentTouchState.startX
+      const deltaY = touch.clientY - currentTouchState.startY
+
+      // Only handle horizontal swipes (ignore if more vertical than horizontal)
+      if (Math.abs(deltaY) > Math.abs(deltaX)) return
+
+      // For left drawer: allow only leftward swipes (negative deltaX)
+      // For right drawer: allow only rightward swipes (positive deltaX)
+      if (
+        (position === 'left' && deltaX < 0) ||
+        (position === 'right' && deltaX > 0)
+      ) {
+        translateXRef.current = deltaX
+        setTranslateX(deltaX)
+        event.preventDefault()
+      }
+    }
+
+    const handleTouchEnd = () => {
+      const currentTouchState = touchStateRef.current
+      const currentTranslateX = translateXRef.current
+      if (!currentTouchState) return
+
+      const deltaTime = Date.now() - currentTouchState.startTime
+      const velocity = Math.abs(currentTranslateX) / deltaTime
+
+      // For left drawer: swipe left (negative translateX)
+      // For right drawer: swipe right (positive translateX)
+      const shouldClose =
+        position === 'left'
+          ? -currentTranslateX > window.innerWidth * 0.4 ||
+            (velocity > 0.5 && currentTranslateX < 0)
+          : currentTranslateX > window.innerWidth * 0.4 ||
+            (velocity > 0.5 && currentTranslateX > 0)
+
+      if (shouldClose) {
+        closeDrawer()
+      } else {
+        // Reset position if not enough to close
+        translateXRef.current = 0
+        setTranslateX(0)
+      }
+
+      touchStateRef.current = null
+      setTouchState(null)
+    }
+
+    // Use native listeners with passive: false to allow preventDefault
+    drawerElement.addEventListener('touchstart', handleTouchStart, {
+      passive: true,
     })
-  }
+    drawerElement.addEventListener('touchmove', handleTouchMove, {
+      passive: false,
+    })
+    drawerElement.addEventListener('touchend', handleTouchEnd, {
+      passive: true,
+    })
 
-  const handleTouchMove = (event: React.TouchEvent) => {
-    if (!touchState || !isOpen) return
-
-    const touch = event.touches[0]
-    const deltaX = touch.clientX - touchState.startX
-    const deltaY = touch.clientY - touchState.startY
-
-    // Only handle horizontal swipes (ignore if more vertical than horizontal)
-    if (Math.abs(deltaY) > Math.abs(deltaX)) return
-
-    // For left drawer: allow only leftward swipes (negative deltaX)
-    // For right drawer: allow only rightward swipes (positive deltaX)
-    if (
-      (position === 'left' && deltaX < 0) ||
-      (position === 'right' && deltaX > 0)
-    ) {
-      setTranslateX(deltaX)
-      event.preventDefault()
+    return () => {
+      drawerElement.removeEventListener('touchstart', handleTouchStart)
+      drawerElement.removeEventListener('touchmove', handleTouchMove)
+      drawerElement.removeEventListener('touchend', handleTouchEnd)
     }
-  }
-
-  const handleTouchEnd = () => {
-    if (!touchState) return
-
-    const deltaTime = Date.now() - touchState.startTime
-    const velocity = Math.abs(translateX) / deltaTime
-
-    // For left drawer: swipe left (negative translateX)
-    // For right drawer: swipe right (positive translateX)
-    const shouldClose =
-      position === 'left'
-        ? -translateX > window.innerWidth * 0.4 ||
-          (velocity > 0.5 && translateX < 0)
-        : translateX > window.innerWidth * 0.4 ||
-          (velocity > 0.5 && translateX > 0)
-
-    if (shouldClose) {
-      closeDrawer()
-    } else {
-      // Reset position if not enough to close
-      setTranslateX(0)
-    }
-
-    setTouchState(null)
-  }
+  }, [isOpen, position, closeDrawer])
 
   // Handle click outside to close drawer
   const handleBackdropClick = (event: React.MouseEvent) => {
@@ -141,9 +173,6 @@ export const Drawer = () => {
             ? `translateX(${position === 'left' ? translateX : translateX + (position === 'right' ? window.innerWidth : 0)}px)`
             : undefined,
         }}
-        onTouchStart={handleTouchStart}
-        onTouchMove={handleTouchMove}
-        onTouchEnd={handleTouchEnd}
       >
         <div className="drawer-header">
           {title && <div className="drawer-title">{title}</div>}

@@ -30,6 +30,7 @@ export const SurfSpotPreview = memo((props: IProps) => {
     skillLevel,
     path,
     type,
+    waveDirection,
     swellDirection,
     windDirection,
     tide,
@@ -52,6 +53,7 @@ export const SurfSpotPreview = memo((props: IProps) => {
             <Details label="Break Type" value={type} />
             <Details label="Beach Bottom" value={beachBottomType} />
             <Details label="Skill Level" value={skillLevel} />
+            <Details label="Wave Direction" value={waveDirection} />
           </div>
 
           {/* Best Conditions */}

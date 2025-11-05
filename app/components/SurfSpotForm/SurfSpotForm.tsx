@@ -19,6 +19,7 @@ import {
   BEACH_BOTTOM_OPTIONS,
   SKILL_LEVEL_OPTIONS,
   TIDE_OPTIONS,
+  WAVE_DIRECTION_OPTIONS,
   MONTH_LIST,
   PARKING_OPTIONS,
   ACCOMMODATION_TYPES,
@@ -35,6 +36,7 @@ import {
   BeachBottomType,
   SkillLevel,
   Tide,
+  WaveDirection,
   Coordinates,
 } from '~/types/surfSpots'
 import { kmToMiles } from '~/utils'
@@ -123,6 +125,7 @@ export const SurfSpotForm = (props: SurfSpotFormProps) => {
       windDirection: surfSpot?.windDirection || '',
       rating: surfSpot?.rating,
       tide: surfSpot?.tide,
+      waveDirection: surfSpot?.waveDirection,
       minSurfHeight: surfSpot?.minSurfHeight,
       maxSurfHeight: surfSpot?.maxSurfHeight,
       seasonStart: surfSpot?.seasonStart || '',
@@ -496,6 +499,20 @@ export const SurfSpotForm = (props: SurfSpotFormProps) => {
             }
             errorMessage={errors.skillLevel || ''}
             value={formState.skillLevel}
+            showLabel
+          />
+          <FormInput
+            field={{
+              label: 'Wave Direction',
+              name: 'waveDirection',
+              type: 'select',
+              options: WAVE_DIRECTION_OPTIONS,
+            }}
+            onChange={(e) =>
+              handleChange('waveDirection', e.target.value as WaveDirection)
+            }
+            errorMessage={errors.waveDirection || ''}
+            value={formState.waveDirection}
             showLabel
           />
 

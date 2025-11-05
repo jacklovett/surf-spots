@@ -89,6 +89,12 @@ export enum Tide {
   HIGH = 'High',
 }
 
+export enum WaveDirection {
+  LEFT = 'Left',
+  RIGHT = 'Right',
+  LEFT_AND_RIGHT = 'Left and Right',
+}
+
 export enum Direction {
   N = 'N',
   NE = 'NE',
@@ -121,6 +127,7 @@ export interface NewSurfSpot extends Coordinates {
   swellDirection: Direction
   windDirection: Direction
   tide: Tide
+  waveDirection: WaveDirection
   minSurfHeight: number
   maxSurfHeight: number
   seasonStart: string
@@ -152,6 +159,7 @@ export interface SurfSpotFormState {
   windDirection: string
   rating?: number
   tide?: Tide
+  waveDirection?: WaveDirection
   minSurfHeight?: number
   maxSurfHeight?: number
   seasonStart: string
@@ -167,6 +175,7 @@ export interface SurfSpotFilters {
   breakType: string[]
   beachBottom: string[]
   tide: string[]
+  waveDirection: string[]
   rating: number
   parking: Option[]
   foodOptions: Option[]
@@ -180,6 +189,7 @@ export const defaultSurfSpotFilters: SurfSpotFilters = {
   breakType: [],
   beachBottom: [],
   tide: [],
+  waveDirection: [],
   rating: 0,
   parking: [],
   foodOptions: [],
