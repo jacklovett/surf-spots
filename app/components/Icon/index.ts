@@ -2,6 +2,7 @@ import { Icon } from './Icon'
 
 export type IconKey =
   | 'about'
+  | 'ai'
   | 'bin'
   | 'cog'
   | 'crosshair'

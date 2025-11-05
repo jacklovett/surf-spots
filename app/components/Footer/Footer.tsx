@@ -39,6 +39,9 @@ export const Footer = ({ isAlternate }: IProps) => (
             <li>
               <a href="/add-surf-spot">Add Spot</a>
             </li>
+            <li>
+              <a href="/trip-planner">Trip Planner</a>
+            </li>
           </ul>
         </div>
 

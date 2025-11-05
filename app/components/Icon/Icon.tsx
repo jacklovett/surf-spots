@@ -33,6 +33,23 @@ export const Icon = (props: IProps) => {
             <path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2" />
           </svg>
         )
+      case 'ai':
+        return (
+          <svg {...commonIconStyles} viewBox="0 0 24 24" fill="none">
+            {/* Two sparkle stars for AI - commonly used AI icon pattern */}
+            {/* White stars that will be visible on the filled button background - almost filling the space */}
+            <path
+              d="M7 1L9 9L17 11L9 13L7 21L5 13L0 11L5 9L7 1Z"
+              fill="#ffffff"
+              stroke="none"
+            />
+            <path
+              d="M18 9L19.5 14L23 16L19.5 18L18 22L16.5 18L13 16L16.5 14L18 9Z"
+              fill="#ffffff"
+              stroke="none"
+            />
+          </svg>
+        )
       case 'cog':
         return (
           <svg {...commonIconStyles}>

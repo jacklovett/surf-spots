@@ -83,6 +83,10 @@ export default function SurfSpots() {
     openDrawer(filtersContent, 'left', 'Filters')
   }
 
+  const handleOpenTripPlanner = () => {
+    navigate('/trip-planner')
+  }
+
   // Update isMapView when pathname changes, but don't redirect
   useEffect(() => {
     const newIsMapView = checkIsMapView(pathname)
@@ -134,6 +138,7 @@ export default function SurfSpots() {
         showAddButton={!!user}
         onAddNewSpot={() => navigate('/add-surf-spot')}
         onOpenFilters={handleOpenFilters}
+        onOpenTripPlanner={handleOpenTripPlanner}
         filtersBadge={getAppliedFiltersCount(filters)}
         isMapView={isMapView}
         onToggleView={handleToggleView}
