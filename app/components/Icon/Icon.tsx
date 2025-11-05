@@ -76,18 +76,13 @@ export const Icon = (props: IProps) => {
       case 'info':
         return (
           <svg {...commonIconStyles}>
-            {/* Outer circle */}
-            <circle cx="12" cy="12" r="10" stroke={color} fill="none" />
-            {/* White 'i' in the center */}
-            <line
-              x1="12"
-              y1="9"
-              x2="12"
-              y2="15"
-              stroke="#ffffff"
-              strokeWidth={2.5}
-            />
-            <circle cx="12" cy="17" r="1.2" fill="#ffffff" />
+            {/* Outer circle - background */}
+            <circle cx="12" cy="12" r="11" fill={color} />
+            {/* White 'i' letter - dot on top, line below */}
+            {/* Dot at the top */}
+            <circle cx="12" cy="7" r="2.5" fill="#ffffff" />
+            {/* Vertical stem below the dot */}
+            <rect x="10" y="10" width="4" height="9" fill="#ffffff" />
           </svg>
         )
       case 'logout':
