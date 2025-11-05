@@ -1,6 +1,6 @@
 .checkbox-option {
   @extend %flex-center;
-  gap: $spacing-small;
+  gap: $spacing-unit;
 
   input[type='checkbox'] {
     display: none; // Hide the default checkbox
@@ -14,7 +14,9 @@
     background-color: $background-color;
     position: relative;
     cursor: pointer;
-    transition: background-color 0.2s, border-color 0.2s;
+    transition:
+      background-color 0.2s,
+      border-color 0.2s;
 
     &:after {
       content: '';

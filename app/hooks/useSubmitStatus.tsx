@@ -30,8 +30,11 @@ export const useSubmitStatus = () => {
         const timeout = setTimeout(() => setSubmitStatus(null), 10000)
         return () => clearTimeout(timeout)
       }
+    } else {
+      // Clear status if no data (e.g., after navigation)
+      setSubmitStatus(null)
     }
-  }, [data, loaderData])
+  }, [actionData, loaderData])
 
   return submitStatus
 }

@@ -1,5 +1,11 @@
-import { useState, useMemo } from 'react'
-import { ActionFunction, data, MetaFunction, useNavigation } from 'react-router'
+import { useState, useMemo, useEffect, useRef } from 'react'
+import {
+  ActionFunction,
+  data,
+  LoaderFunction,
+  MetaFunction,
+  useNavigation,
+} from 'react-router'
 
 import {
   Page,
@@ -11,6 +17,7 @@ import {
 } from '~/components'
 import { SelectOption } from '~/components/FormInput'
 import { useSettingsContext, useUserContext } from '~/contexts'
+import { units } from '~/contexts/SettingsContext'
 import { edit } from '~/services/networkService'
 import {
   requireSessionCookie,
@@ -19,72 +26,69 @@ import {
 } from '~/services/session.server'
 import { useSubmitStatus } from '~/hooks'
 
-export const meta: MetaFunction = () => {
-  return [
-    { title: 'Surf Spots - Settings' },
-    { name: 'description', content: 'Settings controls' },
-  ]
-}
+export const meta: MetaFunction = () => [
+  { title: 'Surf Spots - Settings' },
+  { name: 'description', content: 'Settings controls' },
+]
 
 const unitOptions: SelectOption[] = [
   { key: 'metric', label: 'Metric (km/m)', value: 'metric' },
   { key: 'imperial', label: 'Imperial (mi/ft)', value: 'imperial' },
 ]
 
-export const action: ActionFunction = async ({ request }) => {
-  // TODO: is this needed? what about settings that don't require users to register?
-  const user = await requireSessionCookie(request)
-  const userId = user.id
-  const formData = await request.formData()
+export const loader: LoaderFunction = async () => data({})
 
-  // Handle boolean fields
-  const newSurfSpots = formData.get('newSurfSpots') === 'on'
-  const nearbySurfSpots = formData.get('nearbySurfSpots') === 'on'
-  const swellSeasons = formData.get('swellSeasons') === 'on'
-  const events = formData.get('events') === 'on'
-  const promotions = formData.get('promotions') === 'on'
+export const action: ActionFunction = async ({ request }) => {
+  const formData = await request.formData()
   const preferredUnits = formData.get('preferredUnits') as string
 
+  // Check if user is logged in
+  let user = null
+  try {
+    user = await requireSessionCookie(request)
+  } catch {
+    // Non-logged-in user - save to localStorage in component
+    return data(
+      { submitStatus: 'Settings updated successfully', hasError: false },
+      { status: 200 },
+    )
+  }
+
+  // Logged-in user - save all settings to backend
   const settings = {
-    userId: userId,
-    newSurfSpotsEmails: newSurfSpots,
-    nearbySurfSpotEmails: nearbySurfSpots,
-    swellSeasonEmails: swellSeasons,
-    eventEmails: events,
-    promotionEmails: promotions,
+    userId: user.id,
+    newSurfSpotsEmails: formData.get('newSurfSpots') === 'on',
+    nearbySurfSpotEmails: formData.get('nearbySurfSpots') === 'on',
+    swellSeasonEmails: formData.get('swellSeasons') === 'on',
+    eventEmails: formData.get('events') === 'on',
+    promotionEmails: formData.get('promotions') === 'on',
     preferredUnits,
   }
 
   try {
     const cookie = request.headers.get('Cookie') ?? ''
     await edit(`user/settings`, settings, {
-      headers: {
-        Cookie: cookie,
-      },
+      headers: { Cookie: cookie },
     })
 
-    // Update the session with the new settings
     const session = await getSession(cookie)
-    const updatedUser = {
+    session.set('user', {
       ...user,
       settings: {
-        newSurfSpotEmails: newSurfSpots,
-        nearbySurfSpotsEmails: nearbySurfSpots,
-        swellSeasonEmails: swellSeasons,
-        eventEmails: events,
-        promotionEmails: promotions,
+        newSurfSpotEmails: settings.newSurfSpotsEmails,
+        nearbySurfSpotsEmails: settings.nearbySurfSpotEmails,
+        swellSeasonEmails: settings.swellSeasonEmails,
+        eventEmails: settings.eventEmails,
+        promotionEmails: settings.promotionEmails,
         preferredUnits,
       },
-    }
-    session.set('user', updatedUser)
+    })
 
     return data(
       { submitStatus: 'Settings updated successfully', hasError: false },
       {
         status: 200,
-        headers: {
-          'Set-Cookie': await commitSession(session),
-        },
+        headers: { 'Set-Cookie': await commitSession(session) },
       },
     )
   } catch (error) {
@@ -103,48 +107,51 @@ export default function Settings() {
   const { state } = useNavigation()
   const loading = state === 'loading'
   const submitStatus = useSubmitStatus()
-
   const { settings, updateSetting } = useSettingsContext()
-  const { preferredUnits } = settings
-
   const { user } = useUserContext()
 
-  const [newSurfSpots, setNewSurfSpots] = useState<boolean>(
-    user?.settings?.newSurfSpotEmails ?? true,
+  const [preferredUnits, setPreferredUnits] = useState<units>(
+    settings.preferredUnits,
   )
-  const [nearbySurfSpots, setNearbySurfSpots] = useState<boolean>(
-    user?.settings?.nearbySurfSpotsEmails ?? true,
-  )
-  const [swellSeasons, setSwellSeasons] = useState<boolean>(
-    user?.settings?.swellSeasonEmails ?? true,
-  )
-  const [events, setEvents] = useState<boolean>(
-    user?.settings?.eventEmails ?? true,
-  )
-  const [promotions, setPromotions] = useState<boolean>(
-    user?.settings?.promotionEmails ?? true,
-  )
+  const [emailSettings, setEmailSettings] = useState({
+    newSurfSpots: user?.settings?.newSurfSpotEmails ?? true,
+    nearbySurfSpots: user?.settings?.nearbySurfSpotsEmails ?? true,
+    swellSeasons: user?.settings?.swellSeasonEmails ?? true,
+    events: user?.settings?.eventEmails ?? true,
+    promotions: user?.settings?.promotionEmails ?? true,
+  })
 
-  // Track if any settings have changed
+  // Track if we've already saved to avoid infinite loop
+  const hasSavedRef = useRef<string | null>(null)
+
+  // Save preferredUnits to localStorage after successful form submission
+  useEffect(() => {
+    if (
+      submitStatus &&
+      !submitStatus.isError &&
+      submitStatus.message &&
+      submitStatus.message !== hasSavedRef.current
+    ) {
+      hasSavedRef.current = submitStatus.message
+      updateSetting('preferredUnits', preferredUnits)
+    }
+  }, [submitStatus?.message, preferredUnits, updateSetting])
+
+  // Check if any settings have changed
   const hasChanges = useMemo(() => {
+    if (preferredUnits !== settings.preferredUnits) return true
     if (!user?.settings) return false
-
     return (
-      newSurfSpots !== user.settings.newSurfSpotEmails ||
-      nearbySurfSpots !== user.settings.nearbySurfSpotsEmails ||
-      swellSeasons !== user.settings.swellSeasonEmails ||
-      events !== user.settings.eventEmails ||
-      promotions !== user.settings.promotionEmails
+      emailSettings.newSurfSpots !== user.settings.newSurfSpotEmails ||
+      emailSettings.nearbySurfSpots !== user.settings.nearbySurfSpotsEmails ||
+      emailSettings.swellSeasons !== user.settings.swellSeasonEmails ||
+      emailSettings.events !== user.settings.eventEmails ||
+      emailSettings.promotions !== user.settings.promotionEmails
     )
-  }, [
-    preferredUnits,
-    user?.settings,
-    newSurfSpots,
-    nearbySurfSpots,
-    swellSeasons,
-    events,
-    promotions,
-  ])
+  }, [preferredUnits, settings.preferredUnits, emailSettings, user?.settings])
+
+  const toggleEmailSetting = (key: keyof typeof emailSettings) =>
+    setEmailSettings((prev) => ({ ...prev, [key]: !prev[key] }))
 
   if (loading) {
     return (
@@ -177,9 +184,7 @@ export default function Settings() {
                   options: unitOptions,
                 }}
                 value={preferredUnits}
-                onChange={(e) =>
-                  updateSetting('preferredUnits', e.target.value)
-                }
+                onChange={(e) => setPreferredUnits(e.target.value as units)}
                 showLabel={!!preferredUnits}
                 disabled={loading}
               />
@@ -195,18 +200,16 @@ export default function Settings() {
                     <CheckboxOption
                       name="newSurfSpots"
                       title="New Surf Spots"
-                      description="Be notified when new spots are discovered and added to
-                              the platform"
-                      checked={newSurfSpots}
-                      onChange={() => setNewSurfSpots(!newSurfSpots)}
+                      description="Be notified when new spots are discovered and added to the platform"
+                      checked={emailSettings.newSurfSpots}
+                      onChange={() => toggleEmailSetting('newSurfSpots')}
                     />
                     <CheckboxOption
                       name="nearbySurfSpots"
                       title="Nearby Surf Spots"
-                      description="Get alerts about surf spots near your location when you
-                              travel."
-                      checked={nearbySurfSpots}
-                      onChange={() => setNearbySurfSpots(!nearbySurfSpots)}
+                      description="Get alerts about surf spots near your location when you travel."
+                      checked={emailSettings.nearbySurfSpots}
+                      onChange={() => toggleEmailSetting('nearbySurfSpots')}
                     />
                   </section>
                   <section>
@@ -214,26 +217,23 @@ export default function Settings() {
                     <CheckboxOption
                       name="swellSeasons"
                       title="Swell Season Alerts"
-                      description="Get notified when the swell season begins and ends for
-                              the surf spots you're following."
-                      checked={swellSeasons}
-                      onChange={() => setSwellSeasons(!swellSeasons)}
+                      description="Get notified when the swell season begins and ends for the surf spots you're following."
+                      checked={emailSettings.swellSeasons}
+                      onChange={() => toggleEmailSetting('swellSeasons')}
                     />
                     <CheckboxOption
                       name="events"
                       title="Event & Contests"
-                      description="Stay up to date on contests and events at your watched
-                              spots."
-                      checked={events}
-                      onChange={() => setEvents(!events)}
+                      description="Stay up to date on contests and events at your watched spots."
+                      checked={emailSettings.events}
+                      onChange={() => toggleEmailSetting('events')}
                     />
                     <CheckboxOption
                       name="promotions"
                       title="Deals & Promotions"
-                      description="Receive deals and promotions related to the surf spots
-                              you follow. (i.e. flights, surf camps etc.)."
-                      checked={promotions}
-                      onChange={() => setPromotions(!promotions)}
+                      description="Receive deals and promotions related to the surf spots you follow. (i.e. flights, surf camps etc.)."
+                      checked={emailSettings.promotions}
+                      onChange={() => toggleEmailSetting('promotions')}
                     />
                   </section>
                 </div>

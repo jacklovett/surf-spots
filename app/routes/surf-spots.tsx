@@ -56,9 +56,15 @@ export default function SurfSpots() {
   const { openDrawer } = useLayoutContext()
   const navigate = useNavigate()
   const { pathname } = useLocation()
-  const { state } = useNavigation()
+  const navigation = useNavigation()
+  const { state } = navigation
 
-  const loading = state === 'loading'
+  // Check if we're navigating away from this route (to a different route)
+  // navigation.location is the location being navigated to (if navigation is in progress)
+  const navigatingTo = navigation.location?.pathname
+  const isNavigatingAway =
+    state === 'loading' && !navigatingTo?.startsWith('/surf-spots')
+  const loading = state === 'loading' && !isNavigatingAway
 
   const fetcher = useFetcher()
 
@@ -130,7 +136,7 @@ export default function SurfSpots() {
   const breadcrumbs = generateBreadcrumbItems()
 
   return (
-    <Page showHeader overrideLoading>
+    <Page showHeader overrideLoading={loading}>
       <Toolbar
         showAddButton={!!user}
         onAddNewSpot={() => navigate('/add-surf-spot')}

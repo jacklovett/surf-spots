@@ -3,6 +3,7 @@ import {
   useContext,
   useState,
   useEffect,
+  useCallback,
   ReactNode,
 } from 'react'
 
@@ -47,8 +48,11 @@ export const SettingsProvider = ({ children }: SettingsProviderProps) => {
     }
   }, [settings, isClient])
 
-  const updateSetting = (key: string, value: string | units) =>
-    setSettings((prev) => ({ ...prev, [key]: value }))
+  const updateSetting = useCallback(
+    (key: string, value: string | units) =>
+      setSettings((prev) => ({ ...prev, [key]: value })),
+    [],
+  )
 
   return (
     <SettingsContext.Provider value={{ settings, updateSetting }}>

@@ -218,10 +218,11 @@ export default function SurfSpotDetails() {
             <div className="amenities-section">
               <h4>How to get there?</h4>
               <div className="amenities-details">
-                <Details
-                  label="Is a boat required?"
-                  value={boatRequired ? 'Yes' : 'No'}
-                />
+                {boatRequired && (
+                  <div className="details">
+                    <p className="label">Boat is required</p>
+                  </div>
+                )}
                 <Details label="Parking" value={parking} />
               </div>
             </div>

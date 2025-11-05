@@ -7,7 +7,7 @@
   background: $scrollbar-color;
   border-radius: $content-border-radius;
   animation: pulse-opacity 2s infinite;
-
+  pointer-events: none;
   @media (max-width: 640px) {
     border-radius: 0;
   }
