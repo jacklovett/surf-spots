@@ -1,3 +1,4 @@
+import { useEffect } from 'react'
 import {
   Links,
   LinksFunction,
@@ -7,6 +8,7 @@ import {
   Scripts,
   ScrollRestoration,
   useLoaderData,
+  useLocation,
 } from 'react-router'
 
 import {
@@ -74,6 +76,11 @@ export function Layout({ children }: { children: React.ReactNode }) {
 
 export default function App() {
   const { user } = useLoaderData<LoaderData>()
+  const location = useLocation()
+
+  // Scroll to top when pathname changes (on navigation)
+  useEffect(() => window.scrollTo(0, 0), [location.pathname])
+
   return (
     <UserProvider {...{ user }}>
       <LayoutProvider>
