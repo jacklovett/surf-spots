@@ -4,6 +4,7 @@ import { User } from '~/types/user'
 import { SurfSpot } from '~/types/surfSpots'
 
 import Details from '../Details'
+import Rating from '../Rating'
 import SurfSpotActions from '../SurfSpotActions'
 import { useLayoutContext, useSettingsContext } from '~/contexts'
 import { FetcherSubmitParams } from '../SurfSpotActions'
@@ -38,6 +39,7 @@ export const SurfSpotPreview = memo((props: IProps) => {
     maxSurfHeight,
     seasonStart,
     seasonEnd,
+    rating,
   } = surfSpot
 
   const { closeDrawer } = useLayoutContext()
@@ -97,6 +99,12 @@ export const SurfSpotPreview = memo((props: IProps) => {
                 value={formatSeason(seasonStart, seasonEnd)}
               />
             </div>
+          </div>
+
+          {/* Rating */}
+          <div className="preview-section">
+            <h4 className="preview-subtitle">Rating</h4>
+            <Rating value={rating} readOnly />
           </div>
         </div>
         <a

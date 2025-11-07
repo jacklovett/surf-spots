@@ -258,3 +258,19 @@ export const FACILITIES = [
     label: 'Surf Lessons',
   },
 ]
+
+// Month options with 3-4 character abbreviations for filter chips
+export const MONTH_OPTIONS: Option[] = [
+  { key: 'January', value: 'January', label: 'Jan' },
+  { key: 'February', value: 'February', label: 'Feb' },
+  { key: 'March', value: 'March', label: 'Mar' },
+  { key: 'April', value: 'April', label: 'Apr' },
+  { key: 'May', value: 'May', label: 'May' },
+  { key: 'June', value: 'June', label: 'Jun' },
+  { key: 'July', value: 'July', label: 'Jul' },
+  { key: 'August', value: 'August', label: 'Aug' },
+  { key: 'September', value: 'September', label: 'Sep' },
+  { key: 'October', value: 'October', label: 'Oct' },
+  { key: 'November', value: 'November', label: 'Nov' },
+  { key: 'December', value: 'December', label: 'Dec' },
+]

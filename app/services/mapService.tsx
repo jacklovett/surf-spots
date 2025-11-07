@@ -12,6 +12,10 @@ import {
 } from '~/types/surfSpots'
 import { get, post } from './networkService'
 import { getCssVariable } from '~/utils'
+import {
+  convertFiltersToBackendFormat,
+  type BackendFilterFormat,
+} from '~/utils/filterUtils'
 
 export const MAP_ACCESS_TOKEN = import.meta.env.VITE_MAP_ACCESS_TOKEN
 export const ICON_IMAGE_PATH = `/images/png/pin.png`
@@ -57,12 +61,14 @@ export const fetchSurfSpotsByBounds = async (
       maxLatitude: bounds.getNorthEast().lat,
     }
 
-    // Only spread filters if provided
-    const payload = filters
-      ? { ...boundingBox, ...filters, userId }
-      : { ...boundingBox, userId }
+    // Convert filters to backend format if provided
+    const backendFilters = filters ? convertFiltersToBackendFormat(filters) : {}
+    const payload = { ...boundingBox, ...backendFilters }
+    if (userId) {
+      payload.userId = userId
+    }
     return await post<
-      BoundingBox & Partial<SurfSpotFilters> & { userId?: string },
+      BoundingBox & Partial<BackendFilterFormat> & { userId?: string },
       SurfSpot[]
     >('surf-spots/within-bounds', payload)
   } catch (e) {
@@ -374,10 +380,7 @@ export const createPinElement = (size: number = 42) => {
  * @param map - the map instance
  * @param surfSpots - array of surf spots to display
  */
-export const updateMapSourceData = (
-  map: Map,
-  surfSpots: SurfSpot[],
-): void => {
+export const updateMapSourceData = (map: Map, surfSpots: SurfSpot[]): void => {
   const source = map.getSource('surfSpots') as mapboxgl.GeoJSONSource
   if (source) {
     source.setData(getSourceData(surfSpots))

@@ -1,6 +1,6 @@
 import { memo, useState } from 'react'
 
-import { Button, CheckboxOption, Rating } from '../index'
+import { Button, CheckboxOption, Rating, ChipSelector } from '../index'
 import {
   SkillLevel,
   SurfSpotType,
@@ -16,6 +16,7 @@ import {
   HAZARDS,
   PARKING_OPTIONS,
   FACILITIES,
+  MONTH_OPTIONS,
 } from '~/types/formData'
 import { Option } from '../FormInput'
 import { useLayoutContext, useSurfSpotsContext } from '~/contexts'
@@ -87,6 +88,13 @@ export const Filters = memo(() => {
     category: keyof SurfSpotFilters,
     option: Option,
   ) => toggleArrayFilter(category, option, true)
+
+  // Handle season filter change (convert Option[] to string[])
+  const handleSeasonFilterChange = (selected: Option[]) =>
+    setSelectedFilters((prev) => ({
+      ...prev,
+      seasons: selected.map((opt) => opt.value),
+    }))
 
   // Set the rating filter (number)
   const handleRatingChange = (rating?: number) =>
@@ -187,6 +195,20 @@ export const Filters = memo(() => {
                 onChange={() => handleFilterChange('waveDirection', direction)}
               />
             ))}
+          </div>
+        </div>
+
+        <div className="filters-content-section">
+          <h3 className="filters-content-title">Season</h3>
+          <div className="filters-content-options">
+            <ChipSelector
+              name="seasons"
+              options={MONTH_OPTIONS}
+              selected={MONTH_OPTIONS.filter((opt) =>
+                selectedFilters.seasons.includes(opt.value),
+              )}
+              onChange={handleSeasonFilterChange}
+            />
           </div>
         </div>
 

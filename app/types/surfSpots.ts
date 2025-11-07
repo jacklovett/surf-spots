@@ -182,6 +182,7 @@ export interface SurfSpotFilters {
   accommodationOptions: Option[]
   hazards: Option[]
   facilities: Option[]
+  seasons: string[] // Array of month names (e.g., "January", "February", etc.)
 }
 
 export const defaultSurfSpotFilters: SurfSpotFilters = {
@@ -196,4 +197,5 @@ export const defaultSurfSpotFilters: SurfSpotFilters = {
   accommodationOptions: [],
   hazards: [],
   facilities: [],
+  seasons: [],
 }

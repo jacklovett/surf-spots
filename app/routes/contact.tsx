@@ -1,5 +1,7 @@
 import type { MetaFunction } from 'react-router'
+import { RefObject } from 'react'
 import { Page, Button, SocialLinks } from '~/components'
+import { useScrollReveal } from '~/hooks'
 
 export const meta: MetaFunction = () => {
   return [
@@ -13,6 +15,8 @@ export const meta: MetaFunction = () => {
 }
 
 export default function Contact() {
+  const infoCardsRef = useScrollReveal()
+
   return (
     <Page showHeader>
       <div className="contact-page">
@@ -76,8 +80,11 @@ export default function Contact() {
           </form>
         </div>
 
-        <div className="contact-info-section">
-          <div className="info-card">
+        <div
+          ref={infoCardsRef as RefObject<HTMLDivElement>}
+          className="contact-info-section"
+        >
+          <div className="info-card animate-on-scroll">
             <h3>Get in Touch</h3>
             <p>
               Email us directly at:{' '}
@@ -86,7 +93,7 @@ export default function Contact() {
             <p>We typically respond within 24 hours.</p>
           </div>
 
-          <div className="info-card">
+          <div className="info-card animate-on-scroll">
             <h3>Follow Us</h3>
             <p>Stay updated with the latest news and surf spot discoveries:</p>
             <SocialLinks />
