@@ -5,7 +5,7 @@ import mapboxgl from 'mapbox-gl'
 import 'mapbox-gl/dist/mapbox-gl.css'
 
 import SkeletonLoader from '../SkeletonLoader'
-import { SurfSpot } from '~/types/surfSpots'
+import { SurfSpot, Coordinates } from '~/types/surfSpots'
 import {
   initializeMap,
   addMarkerForCoordinate,
@@ -14,6 +14,7 @@ import {
   removeSource,
   fetchSurfSpotsByBounds,
   updateMapSourceData,
+  defaultMapCenter,
 } from '~/services/mapService'
 import { useSurfSpotsContext, useUserContext } from '~/contexts'
 import { useMapDrawer } from '~/hooks/useMapDrawer'
@@ -29,6 +30,8 @@ interface IProps {
 export const SurfMap = memo((props: IProps) => {
   const { surfSpots, disableInteractions, onFetcherSubmit } = props
   const [loading, setLoading] = useState(true)
+  const [userLocation, setUserLocation] = useState<Coordinates | null>(null)
+  const [locationFetched, setLocationFetched] = useState(false)
   const mapRef = useRef<mapboxgl.Map | null>(null)
   const { user } = useUserContext()
   const {
@@ -119,8 +122,45 @@ export const SurfMap = memo((props: IProps) => {
 
   const { handleMarkerClick } = useMapDrawer(onFetcherSubmit)
 
+  // Fetch user's location on mount (only for interactive maps)
+  useEffect(() => {
+    if (disableInteractions || locationFetched) return
+
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          setUserLocation({
+            longitude: position.coords.longitude,
+            latitude: position.coords.latitude,
+          })
+          setLocationFetched(true)
+        },
+        (error) => {
+          console.error('Error getting user location:', error)
+          // Fall back to default location
+          setUserLocation(defaultMapCenter)
+          setLocationFetched(true)
+        },
+        {
+          enableHighAccuracy: true,
+          timeout: 10000,
+          maximumAge: 60000,
+        },
+      )
+    } else {
+      // Geolocation not supported, use default location
+      setUserLocation(defaultMapCenter)
+      setLocationFetched(true)
+    }
+  }, [disableInteractions, locationFetched])
+
   useEffect(() => {
     if (!mapContainerRef.current || mapRef.current) {
+      return
+    }
+
+    // For interactive maps, wait for location to be fetched
+    if (!disableInteractions && !locationFetched) {
       return
     }
 
@@ -138,7 +178,9 @@ export const SurfMap = memo((props: IProps) => {
         addMarkerForCoordinate({ longitude, latitude }, mapInstance)
       })
     } else {
-      mapInstance = initializeMap(mapContainerRef.current, true)
+      // Use user location if available, otherwise fall back to default
+      const initialCoords = userLocation || defaultMapCenter
+      mapInstance = initializeMap(mapContainerRef.current, true, initialCoords)
       mapInstance.addControl(new mapboxgl.NavigationControl(), 'top-right')
 
       mapInstance.on('load', () => {
@@ -176,7 +218,7 @@ export const SurfMap = memo((props: IProps) => {
         mapRef.current = null
       }
     }
-  }, [disableInteractions, surfSpots])
+  }, [disableInteractions, surfSpots, locationFetched, userLocation])
 
   useEffect(() => {
     if (disableInteractions || !mapRef.current) return
