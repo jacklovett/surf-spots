@@ -36,6 +36,7 @@ import CheckboxOption from './CheckboxOption'
 import Rating from './Rating'
 import Chip from './Chip'
 import ChipSelector from './ChipSelector'
+import DirectionSelector from './DirectionSelector'
 import ForecastLinks from './ForecastLinks'
 import KofiButton from './KofiButton'
 import SocialLinks from './SocialLinks'
@@ -54,6 +55,7 @@ export {
   ContentStatus,
   Details,
   DirectionIcon,
+  DirectionSelector,
   Drawer,
   ErrorBoundary,
   Filters,
