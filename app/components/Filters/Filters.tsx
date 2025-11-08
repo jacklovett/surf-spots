@@ -1,12 +1,19 @@
 import { memo, useState } from 'react'
 
-import { Button, CheckboxOption, Rating, ChipSelector } from '../index'
+import {
+  Button,
+  CheckboxOption,
+  Rating,
+  ChipSelector,
+  DirectionSelector,
+} from '../index'
 import {
   SkillLevel,
   SurfSpotType,
   BeachBottomType,
   Tide,
   WaveDirection,
+  Direction,
   SurfSpotFilters,
   defaultSurfSpotFilters,
 } from '~/types/surfSpots'
@@ -33,6 +40,7 @@ export const Filters = memo(() => {
   const beachBottoms = Object.values(BeachBottomType)
   const tides = Object.values(Tide)
   const waveDirections = Object.values(WaveDirection)
+  const directions = Object.values(Direction)
 
   const parkingOptions = [
     ...PARKING_OPTIONS.slice(1, PARKING_OPTIONS.length - 1),
@@ -119,16 +127,16 @@ export const Filters = memo(() => {
     <div className="filters-container">
       <div className="filters-content">
         <div className="filters-content-section">
-          <h3 className="filters-content-title">Skill Level</h3>
+          <h3 className="filters-content-title">Wave Direction</h3>
           <div className="filters-content-options">
-            {skillLevels.map((level) => (
+            {waveDirections.map((direction) => (
               <CheckboxOption
-                key={level}
-                name={`skill-${level}`}
-                title={level}
+                key={direction}
+                name={`wave-${direction}`}
+                title={direction}
                 description=""
-                checked={selectedFilters.skillLevel.includes(level)}
-                onChange={() => handleFilterChange('skillLevel', level)}
+                checked={selectedFilters.waveDirection.includes(direction)}
+                onChange={() => handleFilterChange('waveDirection', direction)}
               />
             ))}
           </div>
@@ -183,18 +191,54 @@ export const Filters = memo(() => {
         </div>
 
         <div className="filters-content-section">
-          <h3 className="filters-content-title">Wave Direction</h3>
+          <h3 className="filters-content-title">Skill Level</h3>
           <div className="filters-content-options">
-            {waveDirections.map((direction) => (
+            {skillLevels.map((level) => (
               <CheckboxOption
-                key={direction}
-                name={`wave-${direction}`}
-                title={direction}
+                key={level}
+                name={`skill-${level}`}
+                title={level}
                 description=""
-                checked={selectedFilters.waveDirection.includes(direction)}
-                onChange={() => handleFilterChange('waveDirection', direction)}
+                checked={selectedFilters.skillLevel.includes(level)}
+                onChange={() => handleFilterChange('skillLevel', level)}
               />
             ))}
+          </div>
+        </div>
+
+        <div className="filters-content-section">
+          <h3 className="filters-content-title">Swell Direction</h3>
+          <p className="direction-selector-help">
+            Click a direction, then click another to select a range
+          </p>
+          <div className="filters-content-options">
+            <DirectionSelector
+              selected={selectedFilters.swellDirection}
+              onChange={(directions) =>
+                setSelectedFilters((prev) => ({
+                  ...prev,
+                  swellDirection: directions,
+                }))
+              }
+            />
+          </div>
+        </div>
+
+        <div className="filters-content-section">
+          <h3 className="filters-content-title">Wind Direction</h3>
+          <p className="direction-selector-help">
+            Click a direction, then click another to select a range
+          </p>
+          <div className="filters-content-options">
+            <DirectionSelector
+              selected={selectedFilters.windDirection}
+              onChange={(directions) =>
+                setSelectedFilters((prev) => ({
+                  ...prev,
+                  windDirection: directions,
+                }))
+              }
+            />
           </div>
         </div>
 

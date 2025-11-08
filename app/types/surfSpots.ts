@@ -176,6 +176,8 @@ export interface SurfSpotFilters {
   beachBottom: string[]
   tide: string[]
   waveDirection: string[]
+  swellDirection: string[]
+  windDirection: string[]
   rating: number
   parking: Option[]
   foodOptions: Option[]
@@ -191,6 +193,8 @@ export const defaultSurfSpotFilters: SurfSpotFilters = {
   beachBottom: [],
   tide: [],
   waveDirection: [],
+  swellDirection: [],
+  windDirection: [],
   rating: 0,
   parking: [],
   foodOptions: [],

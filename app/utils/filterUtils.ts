@@ -22,8 +22,8 @@ export interface BackendFilterFormat {
   maxSurfHeight?: number
   minRating?: number
   maxRating?: number
-  swellDirection?: string
-  windDirection?: string
+  swellDirection?: string[]
+  windDirection?: string[]
   seasonStart?: string
   seasonEnd?: string
   parking?: string[]
@@ -70,6 +70,16 @@ export const convertFiltersToBackendFormat = (
     backendFilters.waveDirection = filters.waveDirection
   }
 
+  // Swell direction - send array, backend will handle OR logic with substring matching
+  if (filters.swellDirection?.length > 0) {
+    backendFilters.swellDirection = filters.swellDirection
+  }
+
+  // Wind direction - send array, backend will handle OR logic with substring matching
+  if (filters.windDirection?.length > 0) {
+    backendFilters.windDirection = filters.windDirection
+  }
+
   if (filters.rating && filters.rating > 0) {
     backendFilters.minRating = filters.rating
   }
@@ -80,7 +90,9 @@ export const convertFiltersToBackendFormat = (
   }
 
   if (filters.foodOptions?.length > 0) {
-    backendFilters.foodOptions = filters.foodOptions.map((opt: Option) => opt.value)
+    backendFilters.foodOptions = filters.foodOptions.map(
+      (opt: Option) => opt.value,
+    )
   }
 
   if (filters.accommodationOptions?.length > 0) {
@@ -94,7 +106,9 @@ export const convertFiltersToBackendFormat = (
   }
 
   if (filters.facilities?.length > 0) {
-    backendFilters.facilities = filters.facilities.map((opt: Option) => opt.value)
+    backendFilters.facilities = filters.facilities.map(
+      (opt: Option) => opt.value,
+    )
   }
 
   // Handle seasons filter - convert to format expected by backend
@@ -104,4 +118,3 @@ export const convertFiltersToBackendFormat = (
 
   return backendFilters
 }
-

@@ -1,0 +1,62 @@
+.direction-selector {
+  @extend %flex-center;
+  padding: $spacing-large 0 $spacing-unit 0;
+}
+
+.direction-selector-help {
+  font-size: $font-size-x-small;
+  color: $text-secondary;
+  text-align: center;
+  margin: 0 0 $spacing-small 0;
+  font-style: italic;
+}
+
+.direction-selector-compass {
+  @extend %flex-center;
+  position: relative;
+  width: 60px;
+  height: 60px;
+}
+
+.direction-selector-svg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  pointer-events: none;
+}
+
+.direction-selector-button {
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  border: 1.5px solid $outline-color;
+  border-radius: $circle-border-radius;
+  background: $background-color;
+  color: $text-color;
+  font-size: 9px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  @extend %flex-center;
+  z-index: 2;
+
+  &:hover {
+    background: $text-hover-background;
+    border-color: $primary-color;
+    transform: translate(-50%, -50%) scale(1.2);
+  }
+
+  &.start,
+  &.end,
+  &.in-range {
+    background: $primary-color;
+    color: $white;
+    border-color: $primary-color;
+    box-shadow: 0 2px 6px rgba(4, 99, 128, 0.4);
+    z-index: 3;
+  }
+
+  &:active {
+    transform: translate(-50%, -50%) scale(0.9);
+  }
+}
