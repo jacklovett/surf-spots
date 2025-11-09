@@ -82,6 +82,24 @@ export default function App() {
   // Scroll to top when pathname changes (on navigation)
   useEffect(() => window.scrollTo(0, 0), [location.pathname])
 
+  // Set CSS custom property for accurate mobile viewport height
+  // This fixes the issue where 100vh includes browser UI on mobile
+  useEffect(() => {
+    function setViewportHeight() {
+      const vh = window.innerHeight * 0.01
+      document.documentElement.style.setProperty('--vh', `${vh}px`)
+    }
+
+    setViewportHeight()
+    window.addEventListener('resize', setViewportHeight)
+    window.addEventListener('orientationchange', setViewportHeight)
+
+    return () => {
+      window.removeEventListener('resize', setViewportHeight)
+      window.removeEventListener('orientationchange', setViewportHeight)
+    }
+  }, [])
+
   return (
     <ErrorBoundary message="Application error - please refresh the page">
       <UserProvider {...{ user }}>
