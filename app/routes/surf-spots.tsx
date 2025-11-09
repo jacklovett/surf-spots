@@ -86,7 +86,11 @@ export default function SurfSpots() {
   const { filters } = useSurfSpotsContext()
 
   const handleOpenFilters = () => {
-    const filtersContent = <Filters />
+    const filtersContent = (
+      <ErrorBoundary message="Unable to display filters">
+        <Filters />
+      </ErrorBoundary>
+    )
     openDrawer(filtersContent, 'left', 'Filters')
   }
 

@@ -17,6 +17,7 @@ import {
   LayoutProvider,
   SurfSpotsProvider,
 } from './contexts'
+import { ErrorBoundary } from './components'
 
 import { getSession } from './services/session.server'
 import { User } from './types/user'
@@ -82,14 +83,16 @@ export default function App() {
   useEffect(() => window.scrollTo(0, 0), [location.pathname])
 
   return (
-    <UserProvider {...{ user }}>
-      <LayoutProvider>
-        <SettingsProvider>
-          <SurfSpotsProvider>
-            <Outlet />
-          </SurfSpotsProvider>
-        </SettingsProvider>
-      </LayoutProvider>
-    </UserProvider>
+    <ErrorBoundary message="Application error - please refresh the page">
+      <UserProvider {...{ user }}>
+        <LayoutProvider>
+          <SettingsProvider>
+            <SurfSpotsProvider>
+              <Outlet />
+            </SurfSpotsProvider>
+          </SettingsProvider>
+        </LayoutProvider>
+      </UserProvider>
+    </ErrorBoundary>
   )
 }

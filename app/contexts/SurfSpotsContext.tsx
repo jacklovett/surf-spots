@@ -37,6 +37,11 @@ export const SurfSpotsProvider = ({ children }: SurfSpotsProviderProps) => {
   }
 
   const mergeSurfSpots = (newSurfSpots: SurfSpot[]) => {
+    // Guard against null or undefined
+    if (!newSurfSpots || !Array.isArray(newSurfSpots)) {
+      return
+    }
+
     setSurfSpots((prev) => {
       // Create a map of existing surf spots by ID for quick lookup
       const existingMap = new Map(prev.map((spot) => [spot.id, spot]))
