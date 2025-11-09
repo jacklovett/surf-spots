@@ -14,7 +14,7 @@
     gap: $spacing-unit;
 
     button.text-button {
-      padding: 0;
+      padding: $spacing-small $spacing-unit;
       width: auto; // Allow buttons to shrink on mobile
       min-width: auto;
     }
