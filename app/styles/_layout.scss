@@ -135,9 +135,13 @@
   ); // Full width on mobile, 640px on tablet, 960px on desktop
 
   // When containing a full-page map (map-wrapper with h-full), ensure proper height constraint
+  // Use svh (small viewport height) for mobile - represents viewport when browser UI is visible
   &:has(.map-wrapper.h-full) {
-    height: calc(100vh - $header-height - $toolbar-height);
-    // Fallback for browsers that don't support dvh
+    height: calc(100svh - $header-height - $toolbar-height);
+    // Fallback for browsers that don't support svh
+    @supports not (height: 100svh) {
+      height: calc(100vh - $header-height - $toolbar-height);
+    }
     margin-bottom: 0;
   }
 }
