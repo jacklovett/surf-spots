@@ -13,7 +13,7 @@
   @media (max-width: 420px) {
     display: block;
     position: fixed;
-    bottom: calc(140px + $spacing-unit); // Above TripPlannerButton with spacing
+    bottom: calc(80px + $spacing-unit); // Above TripPlannerButton with spacing
     right: $spacing-unit;
     z-index: 10;
 

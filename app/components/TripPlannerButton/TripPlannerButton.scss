@@ -1,6 +1,6 @@
 .floating-trip-planner-button {
   position: fixed;
-  bottom: calc(64px + $spacing-unit);
+  bottom: $spacing-unit;
   right: $spacing-unit;
   z-index: 10;
 
