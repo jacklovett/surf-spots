@@ -1,6 +1,13 @@
 .page-wrapper {
   @extend %flex-column;
   min-height: 100vh;
+
+  // When containing a full-page map, constrain to viewport height
+  &:has(.map-wrapper.h-full) {
+    height: 100vh;
+    max-height: 100vh;
+    overflow: hidden;
+  }
 }
 
 .page {
