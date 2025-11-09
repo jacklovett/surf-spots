@@ -273,14 +273,14 @@ h2 {
 .hero-content {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 4rem;
-  align-items: center;
+  gap: $spacing-x-large;
   max-width: 1200px;
   margin: 0 auto;
   padding: 0 $spacing-large;
 
   @media (max-width: 768px) {
     grid-template-columns: 1fr;
+    align-items: center;
     text-align: center;
     gap: $spacing-large;
     padding: 0 $spacing-unit;
@@ -293,7 +293,7 @@ h2 {
   font-weight: 800;
   line-height: 1.1;
   margin-bottom: $spacing-large;
-  color: white;
+  color: $white;
 
   @media (max-width: 768px) {
     font-size: 2rem;
@@ -323,7 +323,7 @@ h2 {
   flex-wrap: wrap;
 
   @media (max-width: 768px) {
-    justify-content: center;
+    justify-content: flex-start;
     margin-top: $spacing-unit;
   }
 }

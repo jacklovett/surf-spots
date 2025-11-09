@@ -92,7 +92,7 @@ ellipse {
   left: 0;
   right: 0;
   width: fit-content;
-  z-index: 1000;
+  z-index: 10;
   background: $white;
   font-size: $font-size-x-small;
   padding: $spacing-small $spacing-unit;
@@ -100,7 +100,7 @@ ellipse {
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 
   @media (max-width: 640px) {
-    max-width: 320px;
+    max-width: 340px;
   }
 }
 

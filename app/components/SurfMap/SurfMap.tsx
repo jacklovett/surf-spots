@@ -245,6 +245,12 @@ export const SurfMap = memo((props: IProps) => {
         })}
       />
       {loading && <SkeletonLoader />}
+      {/* Instructions overlay - only show for interactive maps */}
+      {!loading && !disableInteractions && (
+        <div className="map-instructions-overlay">
+          Explore the map or switch to list view to browse surf spots
+        </div>
+      )}
     </div>
   )
 })
