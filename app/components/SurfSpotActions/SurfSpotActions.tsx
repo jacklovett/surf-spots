@@ -113,39 +113,21 @@ export const SurfSpotActions = memo((props: IProps) => {
   }
 
   return (
-    <div className="actions">
-      {!isWatched && (
-        <TextButton
-          text="Add to watch list"
-          onClick={() => handleAction('add', 'watch')}
-          iconKey="heart"
-          filled
-        />
-      )}
-      {isWatched && (
-        <TextButton
-          text="Remove from watch list"
-          onClick={() => handleAction('remove', 'watch')}
-          iconKey="bin"
-          filled
-        />
-      )}
-      {!isSurfedSpot && (
-        <TextButton
-          text="Add to surfed spots"
-          onClick={() => handleAction('add', 'user-spots')}
-          iconKey="plus"
-          filled
-        />
-      )}
-      {isSurfedSpot && (
-        <TextButton
-          text="Remove from surfed spots"
-          onClick={() => handleAction('remove', 'user-spots')}
-          iconKey="bin"
-          filled
-        />
-      )}
+    <div className="actions gap">
+      <TextButton
+        text={isWatched ? 'Remove from watch list' : 'Add to watch list'}
+        onClick={() => handleAction(isWatched ? 'remove' : 'add', 'watch')}
+        iconKey={isWatched ? 'bin' : 'heart'}
+        filled
+      />
+      <TextButton
+        text={isSurfedSpot ? 'Remove from surfed spots' : 'Add to surfed spots'}
+        onClick={() =>
+          handleAction(isSurfedSpot ? 'remove' : 'add', 'user-spots')
+        }
+        iconKey={isSurfedSpot ? 'bin' : 'plus'}
+        filled
+      />
       {canEdit && (
         <TextButton
           text="Edit surf spot"

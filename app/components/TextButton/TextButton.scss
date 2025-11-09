@@ -7,6 +7,8 @@ button.text-button {
   cursor: pointer;
   padding: $spacing-small $spacing-unit;
   border-radius: $button-border-radius;
+  transition: all 0.2s ease;
+  white-space: nowrap; // Prevent text wrapping
 
   .text-button-icon {
     @extend %flex-center;

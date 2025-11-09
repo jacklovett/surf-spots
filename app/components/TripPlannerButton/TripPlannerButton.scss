@@ -1,6 +1,6 @@
 .floating-trip-planner-button {
   position: fixed;
-  bottom: 64px;
+  bottom: calc(64px + $spacing-unit);
   right: $spacing-unit;
   z-index: 10;
 
@@ -33,7 +33,3 @@
     }
   }
 }
-
-
-
-
