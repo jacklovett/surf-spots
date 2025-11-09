@@ -32,12 +32,15 @@
     min-height: 0;
     max-height: 100%;
     overflow: hidden;
+    align-items: stretch; // Override center class to fill width
+    justify-content: flex-start; // Override center class
 
     .map-container {
       width: 100%;
-      aspect-ratio: 16/9;
+      height: 100%;
+      flex: 1;
+      min-height: 0;
       max-height: 100%;
-      height: auto;
       overflow: hidden;
     }
   }
