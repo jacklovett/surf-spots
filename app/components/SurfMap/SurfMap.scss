@@ -30,12 +30,15 @@
     @extend %flex-column;
     flex: 1;
     min-height: 0;
+    max-height: 100%;
     overflow: hidden;
 
     .map-container {
       width: 100%;
       aspect-ratio: 16/9;
       max-height: 100%;
+      height: auto;
+      overflow: hidden;
     }
   }
 }

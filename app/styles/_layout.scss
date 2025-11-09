@@ -138,9 +138,12 @@
   // Use svh (small viewport height) for mobile - represents viewport when browser UI is visible
   &:has(.map-wrapper.h-full) {
     height: calc(100svh - $header-height - $toolbar-height);
+    max-height: calc(100svh - $header-height - $toolbar-height);
+    overflow: hidden;
     // Fallback for browsers that don't support svh
     @supports not (height: 100svh) {
       height: calc(100vh - $header-height - $toolbar-height);
+      max-height: calc(100vh - $header-height - $toolbar-height);
     }
     margin-bottom: 0;
   }
