@@ -29,10 +29,22 @@ export const Drawer = () => {
     }
 
     if (isOpen) {
-      setShouldRender(true)
-      // Reset translateX to ensure clean animation
-      setTranslateX(0)
-      translateXRef.current = 0
+      // Only set shouldRender if not already rendered to prevent re-animation
+      if (!shouldRender) {
+        setShouldRender(true)
+        // Reset translateX to ensure clean animation
+        setTranslateX(0)
+        translateXRef.current = 0
+        // Start with drawer off-screen, then animate in
+        setIsAnimating(false)
+        // Use double RAF to ensure the drawer renders off-screen first
+        requestAnimationFrame(() => {
+          requestAnimationFrame(() => {
+            // Then trigger the open animation
+            setIsAnimating(true)
+          })
+        })
+      }
       document.addEventListener('keydown', handleEscape)
       // Prevent body scroll when drawer is open while maintaining scrollbar space
       const scrollbarWidth =
@@ -41,15 +53,6 @@ export const Drawer = () => {
       document.body.style.paddingRight = `${scrollbarWidth}px`
       // Add class to body to disable pointer events on floating buttons
       document.body.classList.add('drawer-open')
-      // Start with drawer off-screen, then animate in
-      setIsAnimating(false)
-      // Use double RAF to ensure the drawer renders off-screen first
-      requestAnimationFrame(() => {
-        requestAnimationFrame(() => {
-          // Then trigger the open animation
-          setIsAnimating(true)
-        })
-      })
     } else {
       // Start close animation
       setIsAnimating(false)
@@ -69,7 +72,7 @@ export const Drawer = () => {
       document.body.style.paddingRight = 'unset'
       setTranslateX(0)
     }
-  }, [isOpen, closeDrawer])
+  }, [isOpen, closeDrawer, shouldRender])
 
   // Handle touch events for swipe-to-close
   useEffect(() => {
