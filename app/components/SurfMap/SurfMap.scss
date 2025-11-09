@@ -24,6 +24,21 @@
     margin-left: -$spacing-unit;
     margin-right: -$spacing-unit;
   }
+
+  // Full-page map view (for surf-spots page)
+  &.h-full {
+    @extend %flex-column;
+    flex: 1;
+    padding-bottom: 0;
+    min-height: 0;
+    overflow: hidden;
+
+    .map-container {
+      width: 100%;
+      aspect-ratio: 16/9;
+      max-height: 100%;
+    }
+  }
 }
 
 .map-container {
