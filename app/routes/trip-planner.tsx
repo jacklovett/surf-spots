@@ -73,16 +73,16 @@ export default function TripPlanner() {
               list now. The more data you add, the better your trip planner
               recommendations will be when it launches!
             </p>
-            <div className="mb">
+            <div className="mb column center-vertical gap">
               <Button
                 label="Create an Account"
                 onClick={() => navigate('/auth/sign-up')}
                 variant="primary"
               />
+              <Link to="/auth" prefetch="intent" className="font-small">
+                Already have an account? Sign in
+              </Link>
             </div>
-            <Link to="/auth" prefetch="intent" className="font-small">
-              Already have an account? Sign in
-            </Link>
           </div>
         )}
 

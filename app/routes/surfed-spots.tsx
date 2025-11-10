@@ -7,7 +7,6 @@ import {
   useNavigate,
 } from 'react-router'
 import {
-  Chip,
   ContentStatus,
   ErrorBoundary,
   TripPlannerButton,
@@ -21,7 +20,7 @@ import { useScrollReveal } from '~/hooks'
 import { cacheControlHeader, get } from '~/services/networkService'
 import { requireSessionCookie } from '~/services/session.server'
 import { SurfedSpotsSummary } from '~/types/surfedSpotsSummary'
-import { SkillLevel, SurfSpot } from '~/types/surfSpots'
+import { SurfSpot } from '~/types/surfSpots'
 
 interface LoaderData {
   surfedSpotsSummary?: SurfedSpotsSummary
@@ -66,48 +65,6 @@ const getSurfExplorerLevel = (countryCount: number) => {
   if (countryCount <= 10) return 'Regional Explorer'
   if (countryCount <= 15) return 'Globe Trotter'
   return 'World Nomad'
-}
-
-// Helper function to get skill level display based on surfed spots
-const getSkillLevelDisplay = (surfedSpots: SurfSpot[]) => {
-  if (!surfedSpots || surfedSpots.length === 0) return 'Not assessed'
-
-  // Count spots by skill level
-  const skillLevelCounts = surfedSpots.reduce(
-    (acc, spot) => {
-      const level =
-        spot.skillLevel && spot.skillLevel !== SkillLevel.ALL_LEVELS
-          ? spot.skillLevel
-          : SkillLevel.BEGINNER
-      acc[level] = (acc[level] || 0) + 1
-      return acc
-    },
-    {} as Record<string, number>,
-  )
-
-  // Calculate percentages
-  const total = surfedSpots.length
-  const percentages = {
-    beginner:
-      (skillLevelCounts[
-        SkillLevel.BEGINNER || SkillLevel.BEGINNER_INTERMEDIATE
-      ] || 0) / total,
-    intermediate:
-      (skillLevelCounts[
-        SkillLevel.INTERMEDIATE || SkillLevel.INTERMEDIATE_ADVANCED
-      ] || 0) / total,
-    advanced: (skillLevelCounts.advanced || 0) / total,
-  }
-
-  // Determine skill level based on what they surf most
-  if (percentages.advanced >= 0.4) return 'Advanced'
-  if (percentages.intermediate >= 0.4) return 'Intermediate'
-  if (percentages.beginner >= 0.6) return 'Beginner'
-
-  // If no clear majority, use the highest level they've surfed
-  if (skillLevelCounts.advanced > 0) return 'Advanced'
-  if (skillLevelCounts.intermediate > 0) return 'Intermediate'
-  return 'Beginner'
 }
 
 // Helper function to get favorite wave direction based on surfed spots
@@ -185,7 +142,6 @@ export default function SurfedSpots() {
   const surfSpots = surfedSpots.map((item) => item.surfSpot)
 
   // TODO: Refine and move calculation to backend
-  const displaySkillLevel = getSkillLevelDisplay(surfSpots)
   const favoriteWaveDirection = getFavoriteWaveDirection(surfSpots)
 
   // Get most recent surf spots (last 5)
@@ -244,12 +200,6 @@ export default function SurfedSpots() {
                 {favoriteWaveDirection || '-'}
               </span>
             </div>
-            <div className="preference-row animate-on-scroll">
-              <span className="preference-label">Assessed Skill Level</span>
-              <span className="preference-value">
-                {displaySkillLevel || '-'}
-              </span>
-            </div>
           </div>
         </div>
 
@@ -275,9 +225,6 @@ export default function SurfedSpots() {
                     <div className="spot-rating">
                       <Rating value={spot.rating} readOnly />
                     </div>
-                  </div>
-                  <div className="mh">
-                    <Chip label={spot.type} isFilled={true} />
                   </div>
                 </div>
               ))}
