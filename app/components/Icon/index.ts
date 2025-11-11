@@ -6,6 +6,7 @@ export type IconKey =
   | 'bin'
   | 'cog'
   | 'crosshair'
+  | 'edit'
   | 'error'
   | 'envelope'
   | 'facebook'

@@ -24,7 +24,7 @@ export const SurfSpotActions = memo((props: IProps) => {
 
   const { id: surfSpotId, isSurfedSpot, isWatched, createdBy } = surfSpotState
 
-  const canEdit = user && createdBy === user?.id
+  const canEdit = user && createdBy === user.id
 
   const handleAction = async (
     actionType: 'add' | 'remove',
@@ -132,7 +132,7 @@ export const SurfSpotActions = memo((props: IProps) => {
         <TextButton
           text="Edit surf spot"
           onClick={() => navigate(`/edit-surf-spot/${surfSpot.id}`)}
-          iconKey="plus" // TODO: Create edit icon
+          iconKey="edit"
           filled
         />
       )}
