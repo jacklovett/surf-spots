@@ -25,6 +25,8 @@ export const SurfSpotActions = memo((props: IProps) => {
   const { id: surfSpotId, isSurfedSpot, isWatched, createdBy } = surfSpotState
 
   const canEdit = user && createdBy === user.id
+  console.log('user', user);
+  console.log('createdBy', createdBy);
 
   const handleAction = async (
     actionType: 'add' | 'remove',
