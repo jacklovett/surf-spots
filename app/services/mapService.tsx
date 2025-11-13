@@ -153,6 +153,8 @@ export const getRegionAndCountryFromCoordinates = async (
     const apiUrl = `regions/by-coordinates?longitude=${longitude}&latitude=${latitude}&countryName=${encodeURIComponent(countryName)}`
 
     try {
+      // This endpoint is public according to backend config (/api/regions/**)
+      // Using get() with credentials since CORS allowCredentials(true) requires it
       const result = await get<RegionCountryLookupResponse>(apiUrl)
 
       // Backend returns both region and country (country is always present if result exists)
@@ -170,6 +172,16 @@ export const getRegionAndCountryFromCoordinates = async (
         errorMessage: networkError?.message || String(error),
         apiUrlConfigured: !!import.meta.env.VITE_API_URL,
       })
+
+      if (networkError?.status === 401) {
+        // 401 Unauthorized - likely a session cookie issue in production
+        // This endpoint should be public, so this indicates a backend configuration issue
+        console.error(
+          '[Region Lookup] 401 Unauthorized - This endpoint should be public. ' +
+            'Check backend SessionCookieFilter configuration and CORS settings.',
+        )
+        return { region: null, country: null }
+      }
 
       if (networkError?.status === 404) {
         // Country not found in database - this shouldn't happen, but handle gracefully

@@ -15,10 +15,22 @@ export interface NetworkError extends Error {
 
 // Handles the response, throwing an error if the response is not ok
 const handleResponse = async <T>(response: Response): Promise<T> => {
-  const data = await response.json().catch((e) => {
-    console.error('Error parsing response JSON:', e)
-    return null
-  })
+  // Handle empty responses (common with 401/403 errors)
+  let data = null
+  const contentType = response.headers.get('content-type')
+  if (contentType && contentType.includes('application/json')) {
+    try {
+      data = await response.json()
+    } catch (e) {
+      // If JSON parsing fails, try to get text
+      const text = await response.text().catch(() => '')
+      console.warn('[NetworkService] Failed to parse JSON response:', {
+        status: response.status,
+        contentType,
+        text: text.substring(0, 200), // Limit text length
+      })
+    }
+  }
 
   if (!response.ok) {
     const errorMessage =
@@ -83,6 +95,30 @@ export const get = async <T>(
   endpoint: string,
   options: RequestInit = {},
 ): Promise<T> => request<T>(endpoint, options)
+
+// Public GET request without credentials (for public endpoints that don't need auth)
+export const getPublic = async <T>(
+  endpoint: string,
+  options: RequestInit = {},
+): Promise<T> => {
+  const fullUrl = `${API_URL}/${endpoint}`
+  
+  const response = await fetch(fullUrl, {
+    ...options,
+    credentials: 'omit', // Don't send cookies for public endpoints
+    headers: options.headers as HeadersInit,
+  }).catch((fetchError) => {
+    console.error('[NetworkService] Public fetch error:', {
+      url: fullUrl,
+      endpoint,
+      apiUrl: API_URL,
+      error: fetchError,
+    })
+    throw fetchError
+  })
+
+  return handleResponse<T>(response)
+}
 
 export const post = async <T, R>(
   endpoint: string,
