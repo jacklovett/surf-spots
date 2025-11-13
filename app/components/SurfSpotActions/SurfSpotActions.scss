@@ -10,6 +10,7 @@
   }
 
   @media (max-width: 640px) {
+    gap: $spacing-small;
 
     button.text-button {
       padding: $spacing-small;

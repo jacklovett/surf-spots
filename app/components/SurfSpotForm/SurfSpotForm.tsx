@@ -60,7 +60,6 @@ import {
   InfoMessage,
   Page,
   Rating,
-  TextButton,
   ViewSwitch,
 } from '~/components'
 import { Option } from '~/components/FormInput'
@@ -206,34 +205,6 @@ export const SurfSpotForm = (props: SurfSpotFormProps) => {
     },
     [handleChange],
   )
-
-  // Handle getting user's current location
-  const handleUseMyLocation = useCallback(() => {
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          const coords: Coordinates = {
-            longitude: position.coords.longitude,
-            latitude: position.coords.latitude,
-          }
-          handleChange('longitude', coords.longitude)
-          handleChange('latitude', coords.latitude)
-
-          // Place pin on map and pan to location
-          if (mapRef.current) {
-            mapRef.current.addPinToMap(coords)
-          }
-        },
-        (error) => {
-          console.error('Error getting location:', error)
-          // TODO: implement toast notifications
-          alert('Could not get your location. Please enter manually.')
-        },
-      )
-    } else {
-      alert('Geolocation is not supported by your browser.')
-    }
-  }, [handleChange])
 
   const { continent, country } = formState
 
@@ -644,17 +615,6 @@ export const SurfSpotForm = (props: SurfSpotFormProps) => {
               primaryLabel="Use Map"
               secondaryLabel="Enter Manually"
             />
-            {findOnMap && (
-              <div className="find-by-location">
-                <TextButton
-                  text="Use my location"
-                  onClick={handleUseMyLocation}
-                  iconKey="crosshair"
-                  filled
-                  disabled={!isMapReady}
-                />
-              </div>
-            )}
           </div>
           {findOnMap && (
             <div className="find-spot-map">
