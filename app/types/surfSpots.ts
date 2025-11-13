@@ -34,6 +34,17 @@ export interface Country {
   slug: string
   description: string
   regions: []
+  continent?: Continent
+}
+
+export interface MapboxReverseGeocodeResult {
+  country: string
+  continent?: string
+}
+
+export interface RegionCountryLookupResponse {
+  region: Region | null
+  country: Country | null
 }
 
 export interface Region {
@@ -43,6 +54,7 @@ export interface Region {
   description: string
   surfSpots: []
   subRegions: SubRegion[]
+  country?: Country
 }
 
 export interface SubRegion {
