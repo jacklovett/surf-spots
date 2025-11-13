@@ -1,5 +1,10 @@
 const API_URL = import.meta.env.VITE_API_URL!
 
+// Log API URL in development to help debug production issues
+if (import.meta.env.DEV) {
+  console.log('[NetworkService] API_URL configured:', API_URL || 'NOT SET')
+}
+
 export const cacheControlHeader = {
   'Cache-Control': 'public, max-age=3600, stale-while-revalidate=86400',
 }
@@ -52,11 +57,22 @@ const request = async <T, B = undefined>(
     headers['Content-Type'] = 'application/json'
   }
 
-  const response = await fetch(`${API_URL}/${endpoint}`, {
+  const fullUrl = `${API_URL}/${endpoint}`
+  
+  // Log failed requests for debugging (especially in production)
+  const response = await fetch(fullUrl, {
     ...options,
     credentials: 'include',
     body: body ? JSON.stringify(body) : undefined,
     headers,
+  }).catch((fetchError) => {
+    console.error('[NetworkService] Fetch error:', {
+      url: fullUrl,
+      endpoint,
+      apiUrl: API_URL,
+      error: fetchError,
+    })
+    throw fetchError
   })
 
   return handleResponse<T>(response)

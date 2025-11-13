@@ -142,38 +142,48 @@ export const getRegionAndCountryFromCoordinates = async (
 
     if (!mapboxResult?.country) {
       // No country from Mapbox - return null for both
+      console.warn(
+        `[Region Lookup] Mapbox returned no country for ${longitude}, ${latitude}`,
+      )
       return { region: null, country: null }
     }
 
     // Step 2: Single backend call to get both country and region
     const countryName = mapboxResult.country.toLowerCase().trim()
+    const apiUrl = `regions/by-coordinates?longitude=${longitude}&latitude=${latitude}&countryName=${encodeURIComponent(countryName)}`
+
     try {
-      const result = await get<RegionCountryLookupResponse>(
-        `regions/by-coordinates?longitude=${longitude}&latitude=${latitude}&countryName=${encodeURIComponent(countryName)}`,
-      )
+      const result = await get<RegionCountryLookupResponse>(apiUrl)
 
       // Backend returns both region and country (country is always present if result exists)
       return result
     } catch (error) {
       // If country lookup fails, don't continue - country is required
       const networkError = error as NetworkError
+
+      // Enhanced error logging for production debugging
+      console.error('[Region Lookup] Backend API call failed:', {
+        url: apiUrl,
+        mapboxCountry: mapboxResult.country,
+        normalizedCountry: countryName,
+        errorStatus: networkError?.status,
+        errorMessage: networkError?.message || String(error),
+        apiUrlConfigured: !!import.meta.env.VITE_API_URL,
+      })
+
       if (networkError?.status === 404) {
         // Country not found in database - this shouldn't happen, but handle gracefully
         console.error(
-          `[Region Lookup] Country "${countryName}" not found in database`,
+          `[Region Lookup] Country "${countryName}" (from Mapbox: "${mapboxResult.country}") not found in database`,
         )
         return { region: null, country: null }
       }
       // For other errors, log and return null
-      console.error(
-        '[Region Lookup] Error getting region and country from coordinates:',
-        networkError?.message || error,
-      )
       return { region: null, country: null }
     }
   } catch (error) {
     console.error(
-      '[Region Lookup] Error in getRegionAndCountryFromCoordinates:',
+      '[Region Lookup] Unexpected error in getRegionAndCountryFromCoordinates:',
       error,
     )
     return { region: null, country: null }
