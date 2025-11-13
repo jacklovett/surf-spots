@@ -150,12 +150,22 @@ export const getRegionAndCountryFromCoordinates = async (
 
     // Step 2: Single backend call to get both country and region
     const countryName = mapboxResult.country.toLowerCase().trim()
-    const apiUrl = `regions/by-coordinates?longitude=${longitude}&latitude=${latitude}&countryName=${encodeURIComponent(countryName)}`
 
     try {
+      // Using POST to avoid route conflict with GET /{regionSlug}
       // This endpoint is public according to backend config (/api/regions/**)
-      // Using get() with credentials since CORS allowCredentials(true) requires it
-      const result = await get<RegionCountryLookupResponse>(apiUrl)
+      const result = await post<
+        {
+          longitude: number
+          latitude: number
+          countryName: string
+        },
+        RegionCountryLookupResponse
+      >('regions/by-coordinates', {
+        longitude,
+        latitude,
+        countryName,
+      })
 
       // Backend returns both region and country (country is always present if result exists)
       return result
@@ -165,7 +175,7 @@ export const getRegionAndCountryFromCoordinates = async (
 
       // Enhanced error logging for production debugging
       console.error('[Region Lookup] Backend API call failed:', {
-        url: apiUrl,
+        url: 'regions/by-coordinates',
         mapboxCountry: mapboxResult.country,
         normalizedCountry: countryName,
         errorStatus: networkError?.status,
