@@ -10,14 +10,23 @@ import {
   CONDITION_ICON_RADIUS,
   getCommonStyles,
 } from '~/components/ConditionIcons'
+import { directionArrayToString } from '~/utils/surfSpotUtils'
 
 interface DirectionSelectorProps {
   selected: string[]
   onChange: (directions: string[]) => void
+  formName?: string
 }
 
+/**
+ * DirectionSelector component
+ * @param selected - The selected directions
+ * @param onChange - The function to call when the selected directions change
+ * @param formName - The name of the form field to submit the selected directions to
+ * @returns The DirectionSelector component
+ */
 const DirectionSelector = memo(
-  ({ selected, onChange }: DirectionSelectorProps) => {
+  ({ selected, onChange, formName }: DirectionSelectorProps) => {
     const directions: Direction[] = Object.values(Direction) as Direction[]
     const [startDirection, setStartDirection] = useState<Direction | null>(null)
     const [endDirection, setEndDirection] = useState<Direction | null>(null)
@@ -134,8 +143,15 @@ const DirectionSelector = memo(
     }
     const maskId = `direction-mask-${startDirection}-${endDirection}`
 
+    // Convert selected array to string format for form submission (e.g., "N-E" or "N")
+    const directionValue = directionArrayToString(selected)
+
     return (
       <div className="direction-selector">
+        {/* Hidden input for form submission when formName is provided */}
+        {formName && (
+          <input type="hidden" name={formName} value={directionValue} />
+        )}
         <div className="direction-selector-compass">
           <svg {...commonIconStyles} className="direction-selector-svg">
             <defs>

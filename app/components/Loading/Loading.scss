@@ -1,13 +1,8 @@
 .loading-container {
   @extend %flex-center;
   width: 100%;
-  min-height: 60vh; // Use viewport height to center in the middle of the screen
-  padding: $spacing-large 0;
-  
-  // On mobile, use a bit less height to account for smaller screens
-  @media (max-width: 640px) {
-    min-height: 50vh;
-  }
+  height: 100%;
+  min-height: 120px;
 }
 
 .animated-tide-loader {

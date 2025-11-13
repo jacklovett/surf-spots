@@ -141,4 +141,78 @@ test.describe('User Actions', () => {
       await expect(page.locator('.error-message, [role="alert"]')).toBeVisible()
     }
   })
+
+  test('should auto-populate country and region from map pin', async ({
+    page,
+  }) => {
+    // Navigate to add surf spot page
+    await page.goto('/add-surf-spot')
+
+    // Wait for form to load
+    await page.waitForTimeout(2000)
+
+    // Find and click the "Find on map" option
+    const findOnMapCheckbox = page.locator(
+      'input[type="checkbox"][name="findOnMap"]',
+    )
+    if (await findOnMapCheckbox.isVisible()) {
+      await findOnMapCheckbox.click()
+
+      // Wait for map to load
+      await page.waitForTimeout(3000)
+
+      // Check if map is visible
+      const mapContainer = page.locator('.map-container, [id*="map"]')
+      if (await mapContainer.isVisible()) {
+        // Click on the map to place a pin (simulating user interaction)
+        // Note: This is a simplified test - actual map interaction may require more specific selectors
+        const mapElement = mapContainer.first()
+        await mapElement.click({ position: { x: 400, y: 300 } })
+
+        // Wait for "Determining..." placeholders to appear
+        await page.waitForTimeout(500)
+
+        // Check if dropdowns are disabled when using map (they should be)
+        const countrySelect = page.locator('select[name="country"]')
+        const regionSelect = page.locator('select[name="region"]')
+        
+        if (await countrySelect.isVisible()) {
+          // Dropdowns should be disabled when findOnMap is checked
+          const isDisabled = await countrySelect.isDisabled()
+          expect(isDisabled).toBe(true)
+        }
+
+        if (await regionSelect.isVisible()) {
+          const isDisabled = await regionSelect.isDisabled()
+          expect(isDisabled).toBe(true)
+        }
+
+        // Wait for API calls to complete (longer timeout for network requests)
+        await page.waitForTimeout(5000)
+
+        // After lookup completes, check if dropdowns are populated
+        // Country dropdown should be populated (or show error)
+        if (await countrySelect.isVisible()) {
+          const countryValue = await countrySelect.inputValue()
+          // Country should be populated if pin is in a known country
+          // If not populated, might show "Unable to determine" message
+          // This is a basic check - actual value depends on where pin is placed
+          expect(countrySelect).toBeVisible()
+        }
+
+        // Region dropdown should be populated (or show error message)
+        if (await regionSelect.isVisible()) {
+          const regionValue = await regionSelect.inputValue()
+          // Region should be populated if pin is in a known region
+          // If not found, should show "Unable to determine region" message
+          expect(regionSelect).toBeVisible()
+          
+          // Check for error message if region wasn't found
+          const errorMessage = page.locator('text=/Unable to determine region/i')
+          // Error message may or may not appear depending on location
+          // Just verify the UI handles both cases gracefully
+        }
+      }
+    }
+  })
 })

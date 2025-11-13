@@ -3,14 +3,15 @@ import mapboxgl, {
   Map,
   MapMouseEvent,
 } from 'mapbox-gl'
-import {
+import type {
   BoundingBox,
   Coordinates,
-  Region,
   SurfSpot,
   SurfSpotFilters,
+  MapboxReverseGeocodeResult,
+  RegionCountryLookupResponse,
 } from '~/types/surfSpots'
-import { get, post } from './networkService'
+import { get, NetworkError, post } from './networkService'
 import { getCssVariable } from '~/utils'
 import {
   convertFiltersToBackendFormat,
@@ -26,21 +27,156 @@ export const defaultMapCenter = {
 }
 
 /**
- * Fetch Region from backend that the chosen location is contained withint
+ * Calculate distance between two coordinates using the Haversine formula
+ * @param lat1 - Latitude of first point
+ * @param lon1 - Longitude of first point
+ * @param lat2 - Latitude of second point
+ * @param lon2 - Longitude of second point
+ * @returns Distance in kilometers
  */
-export const getRegionFromLocationData = async (
-  country: string,
+export const calculateDistance = (
+  lat1: number,
+  lon1: number,
+  lat2: number,
+  lon2: number,
+): number => {
+  const R = 6371 // Earth's radius in km
+  const dLat = ((lat2 - lat1) * Math.PI) / 180
+  const dLon = ((lon2 - lon1) * Math.PI) / 180
+  const a =
+    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+    Math.cos((lat1 * Math.PI) / 180) *
+      Math.cos((lat2 * Math.PI) / 180) *
+      Math.sin(dLon / 2) *
+      Math.sin(dLon / 2)
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a))
+  return R * c
+}
+
+/**
+ * Reverse geocode coordinates using Mapbox API to get country information
+ * @param longitude - The longitude coordinate
+ * @param latitude - The latitude coordinate
+ * @returns Country name and continent, or null if not found
+ */
+export const reverseGeocodeWithMapbox = async (
   longitude: number,
   latitude: number,
-): Promise<Region | null> => {
-  try {
-    const region = await get<Region>(
-      `/regions?country=${country}&longitude=${longitude}&latitude=${latitude}`,
-    )
-    return region
-  } catch (e) {
-    console.error('Unable to get region from location data: ', e)
+): Promise<MapboxReverseGeocodeResult | null> => {
+  // Only run on client side (not during SSR)
+  if (typeof window === 'undefined') {
     return null
+  }
+
+  try {
+    const accessToken = MAP_ACCESS_TOKEN
+    if (!accessToken) {
+      console.error(
+        '[Mapbox Reverse Geocoding] Mapbox access token not configured',
+      )
+      return null
+    }
+
+    // Mapbox reverse geocoding API
+    const response = await fetch(
+      `https://api.mapbox.com/geocoding/v5/mapbox.places/${longitude},${latitude}.json?access_token=${accessToken}&types=country`,
+    )
+    if (!response.ok) {
+      console.error(
+        `[Mapbox Reverse Geocoding] API request failed: ${response.statusText}`,
+      )
+      return null
+    }
+
+    const data = await response.json()
+
+    // Find country in the results
+    const countryFeature = data.features?.find(
+      (feature: { place_type?: string[] }) =>
+        feature.place_type?.includes('country'),
+    )
+
+    if (!countryFeature) {
+      return null
+    }
+
+    // Extract country name from context or text
+    const countryName = countryFeature.text || countryFeature.properties?.name
+    // Try to find continent from context (Mapbox sometimes includes it)
+    const continentFeature = data.features?.find(
+      (feature: { place_type?: string[] }) =>
+        feature.place_type?.includes('continent'),
+    )
+    const continentName =
+      continentFeature?.text || continentFeature?.properties?.name
+
+    return {
+      country: countryName,
+      continent: continentName,
+    }
+  } catch (e) {
+    console.error('[Mapbox Reverse Geocoding] Error:', e)
+    return null
+  }
+}
+
+/**
+ * Fetch Region and Country from coordinates (longitude/latitude)
+ * Uses hybrid approach: Mapbox for country name, then single backend call for both country and region
+ *
+ * Strategy:
+ * 1. Use Mapbox reverse geocoding to get country name (fast, accurate, helps with country borders)
+ * 2. Single backend call that finds country by name and region by coordinates
+ *
+ * @param longitude - The longitude coordinate
+ * @param latitude - The latitude coordinate
+ * @returns Object with region and country, or null if country not found
+ */
+export const getRegionAndCountryFromCoordinates = async (
+  longitude: number,
+  latitude: number,
+): Promise<RegionCountryLookupResponse> => {
+  try {
+    // Step 1: Use Mapbox to get country name (fast, accurate, helps with country borders)
+    const mapboxResult = await reverseGeocodeWithMapbox(longitude, latitude)
+
+    if (!mapboxResult?.country) {
+      // No country from Mapbox - return null for both
+      return { region: null, country: null }
+    }
+
+    // Step 2: Single backend call to get both country and region
+    const countryName = mapboxResult.country.toLowerCase().trim()
+    try {
+      const result = await get<RegionCountryLookupResponse>(
+        `regions/by-coordinates?longitude=${longitude}&latitude=${latitude}&countryName=${encodeURIComponent(countryName)}`,
+      )
+
+      // Backend returns both region and country (country is always present if result exists)
+      return result
+    } catch (error) {
+      // If country lookup fails, don't continue - country is required
+      const networkError = error as NetworkError
+      if (networkError?.status === 404) {
+        // Country not found in database - this shouldn't happen, but handle gracefully
+        console.error(
+          `[Region Lookup] Country "${countryName}" not found in database`,
+        )
+        return { region: null, country: null }
+      }
+      // For other errors, log and return null
+      console.error(
+        '[Region Lookup] Error getting region and country from coordinates:',
+        networkError?.message || error,
+      )
+      return { region: null, country: null }
+    }
+  } catch (error) {
+    console.error(
+      '[Region Lookup] Error in getRegionAndCountryFromCoordinates:',
+      error,
+    )
+    return { region: null, country: null }
   }
 }
 

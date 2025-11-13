@@ -94,7 +94,18 @@ export const createSurfSpotFromFormData = async (request: Request) => {
   // Handle other fields
   const name = formData.get('name')?.toString() || ''
   const description = formData.get('description')?.toString() || ''
-  const regionId = formData.get('region')?.toString() || ''
+  const regionIdStr = formData.get('region')?.toString() || ''
+  // Convert to number - only if string is not empty and is a valid number
+  const regionId =
+    regionIdStr && regionIdStr.trim() !== '' && !isNaN(Number(regionIdStr))
+      ? Number(regionIdStr)
+      : undefined
+
+  // Region is required - validate before proceeding
+  if (!regionId || isNaN(regionId)) {
+    throw new Response('Region is required', { status: 400 })
+  }
+
   const longitude = parseFloat(formData.get('longitude')?.toString() || '0')
   const latitude = parseFloat(formData.get('latitude')?.toString() || '0')
   const type = formData.get('type')?.toString() || ''
@@ -123,6 +134,7 @@ export const createSurfSpotFromFormData = async (request: Request) => {
   const parking = formData.get('parking')?.toString() || ''
 
   // Construct the new surf spot object
+  // regionId is guaranteed to be valid at this point due to validation above
   const newSurfSpot = {
     name,
     description,

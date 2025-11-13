@@ -1,24 +1,24 @@
-import { ActionFunction, data, redirect } from 'react-router'
-
+import { ActionFunction, data, redirect, LoaderFunction } from 'react-router'
 import { cacheControlHeader, edit, get } from '~/services/networkService'
 import { requireSessionCookie } from '~/services/session.server'
 import { createSurfSpotFromFormData } from '~/services/surfSpot.server'
 
 import { Continent, SurfSpot } from '~/types/surfSpots'
-
 import SurfSpotForm, { LoaderData } from '~/components/SurfSpotForm'
 
-export const loader = async (
-  request: Request,
-  params: { surfSpotId: string },
-) => {
+export const loader: LoaderFunction = async ({ request, params }) => {
   try {
     const user = await requireSessionCookie(request)
 
-    const { surfSpotId } = params
+    const { id } = params
+
+    if (!id) {
+      console.error('No id parameter found in route')
+      throw new Error('Surf spot ID is required')
+    }
 
     const surfSpot = await get<SurfSpot>(
-      `surf-spots/${surfSpotId}?userId=${user.id}`,
+      `surf-spots/id/${id}?userId=${user.id}`,
     )
 
     if (!surfSpot) {
@@ -55,12 +55,24 @@ export const loader = async (
   }
 }
 
-export const action: ActionFunction = async ({ request }) => {
-  const updatedSurfSpot = await createSurfSpotFromFormData(request)
+export const action: ActionFunction = async ({ request, params }) => {
+  const { id } = params
 
+  if (!id) {
+    return data(
+      { submitStatus: 'Surf spot ID is required', hasError: true },
+      { status: 400 },
+    )
+  }
+
+  const updatedSurfSpot = await createSurfSpotFromFormData(request)
   try {
-    // Send the updated surf spot to the backend
-    await edit('surf-spots', updatedSurfSpot)
+    // Forward cookies for authentication
+    const cookie = request.headers.get('Cookie') || ''
+    // Send the updated surf spot to the backend management endpoint
+    await edit(`surf-spots/management/${id}`, updatedSurfSpot, {
+      headers: { Cookie: cookie },
+    })
 
     return data(
       { submitStatus: 'Surf spot edited successfully', hasError: false },

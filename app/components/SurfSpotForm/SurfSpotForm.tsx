@@ -1,7 +1,10 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { useNavigation, useLoaderData } from 'react-router'
 
-import { getRegionFromLocationData } from '~/services/mapService'
+import {
+  getRegionAndCountryFromCoordinates,
+  calculateDistance,
+} from '~/services/mapService'
 import { get } from '~/services/networkService'
 
 import { useSettingsContext } from '~/contexts'
@@ -39,12 +42,17 @@ import {
   WaveDirection,
   Coordinates,
 } from '~/types/surfSpots'
+import {
+  directionStringToArray,
+  directionArrayToString,
+} from '~/utils/surfSpotUtils'
 import { kmToMiles } from '~/utils'
 import { determineInitialOptions, LoaderData } from './index'
 import {
   AddSurfSpotMap,
   CheckboxOption,
   ChipSelector,
+  DirectionSelector,
   ErrorBoundary,
   ForecastLinks,
   FormComponent,
@@ -105,34 +113,60 @@ export const SurfSpotForm = (props: SurfSpotFormProps) => {
   )
   const [filteredCountries, setFilteredCountries] = useState<Country[]>([])
   const [filteredRegions, setFilteredRegions] = useState<Region[]>([])
+  const filteredCountriesRef = useRef<Country[]>([])
+  const filteredRegionsRef = useRef<Region[]>([])
   const mapRef = useRef<AddSurfSpotMapRef | null>(null)
   const [isMapReady, setIsMapReady] = useState(false)
+  const [isDeterminingLocation, setIsDeterminingLocation] = useState(false)
+  const [regionNotFoundMessage, setRegionNotFoundMessage] = useState<
+    string | null
+  >(null)
+  // Store country/region names for display in map mode (no dropdowns needed)
+  const [countryName, setCountryName] = useState<string>('')
+  const [regionName, setRegionName] = useState<string>('')
+  // Track if we cleared the country so we know to set it even if formState hasn't updated yet
+  const clearedCountryRef = useRef<string | null>(null)
 
   const isPrivateSpot = spotStatus === SurfSpotStatus.PRIVATE
 
+  // Convert direction strings to arrays for DirectionSelector
+  const initialSwellDirection = directionStringToArray(
+    surfSpot?.swellDirection || '',
+  )
+  const initialWindDirection = directionStringToArray(
+    surfSpot?.windDirection || '',
+  )
+
+  // Local state for direction arrays (used by DirectionSelector)
+  const [swellDirectionArray, setSwellDirectionArray] = useState<string[]>(
+    initialSwellDirection,
+  )
+  const [windDirectionArray, setWindDirectionArray] =
+    useState<string[]>(initialWindDirection)
+
   const { formState, errors, isFormValid, handleChange } = useFormValidation({
     initialFormState: {
-      continent: surfSpot?.continent || '',
-      country: surfSpot?.country || '',
-      region: surfSpot?.region || '',
+      continent: surfSpot?.continent?.slug || '',
+      country: surfSpot?.country?.id || '',
+      region: surfSpot?.region?.id || '',
       name: surfSpot?.name || '',
-      type: surfSpot?.type,
-      beachBottomType: surfSpot?.beachBottomType,
+      type: surfSpot?.type || '',
+      beachBottomType: surfSpot?.beachBottomType || '',
       description: surfSpot?.description || '',
       longitude: surfSpot?.longitude,
       latitude: surfSpot?.latitude,
-      swellDirection: surfSpot?.swellDirection || '',
-      windDirection: surfSpot?.windDirection || '',
-      rating: surfSpot?.rating,
-      tide: surfSpot?.tide,
-      waveDirection: surfSpot?.waveDirection,
-      minSurfHeight: surfSpot?.minSurfHeight,
-      maxSurfHeight: surfSpot?.maxSurfHeight,
+      swellDirection: directionArrayToString(initialSwellDirection),
+      windDirection: directionArrayToString(initialWindDirection),
+      rating: surfSpot?.rating ?? '',
+      tide: surfSpot?.tide || '',
+      waveDirection: surfSpot?.waveDirection || '',
+      minSurfHeight: surfSpot?.minSurfHeight ?? '',
+      maxSurfHeight: surfSpot?.maxSurfHeight ?? '',
       seasonStart: surfSpot?.seasonStart || '',
       seasonEnd: surfSpot?.seasonEnd || '',
       parking: surfSpot?.parking || '',
       foodNearby: !!surfSpot?.foodNearby,
-      skillLevel: surfSpot?.skillLevel,
+      skillLevel: surfSpot?.skillLevel || '',
       forecastLinks: (surfSpot?.forecasts as unknown as ForecastLink[]) || [],
     } as SurfSpotFormState,
     validationFunctions: {
@@ -203,6 +237,49 @@ export const SurfSpotForm = (props: SurfSpotFormProps) => {
 
   const { continent, country } = formState
 
+  // Track if we're auto-filling from coordinates to prevent clearing values
+  const isAutoFillingRef = useRef(false)
+
+  // Store pending country/region IDs to set after data loads
+  const pendingCountryIdRef = useRef<string | null>(null)
+  const pendingRegionIdRef = useRef<string | null>(null)
+
+  // When editing, ensure countries and regions are fetched if we have continent/country from surfSpot
+  // This ensures dropdowns show the correct values even in map mode
+  useEffect(() => {
+    const continentSlug = surfSpot?.continent?.slug
+    const countryId = surfSpot?.country?.id
+
+    if (continentSlug) {
+      // Fetch countries for the continent when editing
+      const fetchInitialCountries = async () => {
+        try {
+          const countries = await get<Country[]>(
+            `countries/continent/${continentSlug}`,
+          )
+          setFilteredCountries(countries)
+          filteredCountriesRef.current = countries
+
+          // If we have a country, fetch regions too
+          if (countryId) {
+            try {
+              const regions = await get<Region[]>(
+                `regions/country/${countryId}`,
+              )
+              setFilteredRegions(regions)
+              filteredRegionsRef.current = regions
+            } catch (error) {
+              console.error('Error fetching regions for edit:', error)
+            }
+          }
+        } catch (error) {
+          console.error('Error fetching countries for edit:', error)
+        }
+      }
+      fetchInitialCountries()
+    }
+  }, [surfSpot?.continent?.slug, surfSpot?.country?.id])
+
   // Fetch countries when continent changes
   useEffect(() => {
     const fetchCountries = async () => {
@@ -212,23 +289,35 @@ export const SurfSpotForm = (props: SurfSpotFormProps) => {
             `countries/continent/${continent}`,
           )
           setFilteredCountries(countries)
-          // Reset country and region
-          handleChange('country', '')
-          handleChange('region', '')
-          // Clear regions
-          setFilteredRegions([])
+          filteredCountriesRef.current = countries
+
+          // If we have a pending country ID, set it immediately
+          if (pendingCountryIdRef.current) {
+            handleChange('country', pendingCountryIdRef.current)
+            pendingCountryIdRef.current = null
+            // Determining state will be cleared by the useEffect that watches both values
+          }
         } catch (error) {
           console.error('Error fetching countries:', error)
+          // Only clear if we're auto-filling and hit an error
+          if (isAutoFillingRef.current) {
+            setIsDeterminingLocation(false)
+            isAutoFillingRef.current = false
+          }
         }
       } else {
-        // Clear countries if no continent is selected
-        setFilteredCountries([])
-        setFilteredRegions([])
+        // Clear countries if no continent is selected (only in manual mode)
+        // In map mode, location lookup manages country/region state
+        if (!findOnMap) {
+          setFilteredCountries([])
+          setFilteredRegions([])
+          setIsDeterminingLocation(false)
+        }
       }
     }
 
     fetchCountries()
-  }, [continent])
+  }, [continent, findOnMap])
 
   // Fetch regions when country changes
   useEffect(() => {
@@ -237,36 +326,271 @@ export const SurfSpotForm = (props: SurfSpotFormProps) => {
         try {
           const regions = await get<Region[]>(`regions/country/${country}`)
           setFilteredRegions(regions)
-          // Reset region
-          handleChange('region', '')
+          filteredRegionsRef.current = regions
+
+          // If we have a pending region ID, set it
+          if (pendingRegionIdRef.current) {
+            handleChange('region', pendingRegionIdRef.current)
+            pendingRegionIdRef.current = null
+            // Determining state will be cleared by the useEffect that watches both values
+          }
+          // Determining state will be cleared by the useEffect that watches both values
         } catch (error) {
           console.error('Error fetching regions:', error)
+          // Only clear if we're auto-filling - means we're done processing
+          if (isAutoFillingRef.current) {
+            setIsDeterminingLocation(false)
+            isAutoFillingRef.current = false
+          }
         }
       } else {
         // Clear regions if no country is selected
+        // Only clear determining state if we're not auto-filling (manual mode)
         setFilteredRegions([])
+        if (!isAutoFillingRef.current) {
+          setIsDeterminingLocation(false)
+        }
       }
     }
 
     fetchRegions()
   }, [country])
 
-  const { longitude, latitude } = formState
-
+  // Clear determining state ONLY when BOTH country and region are set (or we've confirmed we can't get them)
+  // This ensures we don't clear prematurely when one loads before the other
   useEffect(() => {
-    const updateRegion = async () => {
-      if (findOnMap && country && longitude && latitude) {
-        const region = await getRegionFromLocationData(
-          country,
-          longitude,
+    // Only process if we're auto-filling and determining location
+    if (!isAutoFillingRef.current || !isDeterminingLocation) {
+      return
+    }
+
+    // Don't clear if we're still waiting for pending values to be set
+    const stillWaiting =
+      pendingCountryIdRef.current || pendingRegionIdRef.current
+    if (stillWaiting) {
+      return
+    }
+
+    // Case 1: Both country and region are set - we're done!
+    const bothSet = formState.country && formState.region
+    if (bothSet) {
+      setIsDeterminingLocation(false)
+      isAutoFillingRef.current = false
+      return
+    }
+
+    // Case 2: Country is set but no region - only clear if we've confirmed there's no region
+    // (regionNotFoundMessage is set OR regions list has loaded and is empty)
+    const countrySetNoRegion =
+      formState.country &&
+      !formState.region &&
+      (regionNotFoundMessage ||
+        (filteredRegionsRef.current.length === 0 &&
+          country &&
+          !pendingRegionIdRef.current))
+    if (countrySetNoRegion) {
+      setIsDeterminingLocation(false)
+      isAutoFillingRef.current = false
+    }
+  }, [
+    formState.country,
+    formState.region,
+    isDeterminingLocation,
+    regionNotFoundMessage,
+    country,
+  ])
+
+  const { longitude, latitude } = formState
+  const previousCoordsRef = useRef<{
+    longitude: number
+    latitude: number
+  } | null>(null)
+
+  // When using map pin, get country and region from coordinates (with debouncing)
+  useEffect(() => {
+    if (!findOnMap || !longitude || !latitude) {
+      setIsDeterminingLocation(false)
+      return
+    }
+
+    // Check if pin has moved significantly
+    const distance = previousCoordsRef.current
+      ? calculateDistance(
+          previousCoordsRef.current.latitude,
+          previousCoordsRef.current.longitude,
           latitude,
+          longitude,
         )
-        handleChange('region', region?.name || '')
+      : 0
+    const hasMovedForRegion = distance > 30
+    const hasMovedForCountry = distance > 50
+
+    // Set auto-filling flag immediately when coordinates change
+    // This prevents the useEffect from clearing determining state prematurely
+    isAutoFillingRef.current = true
+
+    // Clear any pending refs when coordinates change - we're starting a new lookup
+    // This ensures the useEffect doesn't think we're still waiting for old pending values
+    pendingCountryIdRef.current = null
+    pendingRegionIdRef.current = null
+
+    // Clear country/region names when starting a new lookup
+    setCountryName('')
+    setRegionName('')
+
+    // Clear any previous error messages when starting a new lookup
+    setRegionNotFoundMessage(null)
+
+    // Set determining states immediately when coordinates change
+    setIsDeterminingLocation(true)
+
+    // Always clear region/country when coordinates change to prevent
+    // the useEffect from seeing old values and clearing determining state prematurely
+    // Only clear if we have previous coordinates (not initial load) and coordinates changed
+    if (previousCoordsRef.current && distance > 0) {
+      // Clear region if pin has moved >30km to show "Determining region..." immediately
+      if (hasMovedForRegion && formState.region) {
+        handleChange('region', '')
+      }
+
+      // Clear country if pin has moved >50km to show "Determining Country..." immediately
+      if (hasMovedForCountry && formState.country) {
+        clearedCountryRef.current = formState.country
+        handleChange('country', '')
+      } else if (formState.country) {
+        // If coordinates changed but <50km, still clear country to ensure fresh lookup
+        // This handles the case where pin moved to different country but <50km
+        clearedCountryRef.current = formState.country
+        handleChange('country', '')
+        // Also clear region since country changed
+        if (formState.region) {
+          handleChange('region', '')
+        }
       }
     }
 
-    updateRegion()
-  }, [findOnMap, country, longitude, latitude])
+    // Debounce the API call to avoid spamming when user drags the pin
+    const debounceTimer = setTimeout(async () => {
+      try {
+        const { region, country } = await getRegionAndCountryFromCoordinates(
+          longitude,
+          latitude,
+        )
+
+        // Update previous coordinates after api call completes successfully
+        // This ensures the distance check works correctly on subsequent moves
+        previousCoordsRef.current = { longitude, latitude }
+
+        // Use country from API response (prefer Mapbox country, fallback to region.country)
+        const targetCountryId = country?.id ? String(country.id) : ''
+        const targetRegionId = region?.id ? String(region.id) : ''
+
+        // Store names for display in map mode
+        if (country?.name) {
+          setCountryName(country.name)
+        }
+        if (region?.name) {
+          setRegionName(region.name)
+        } else {
+          setRegionName('')
+        }
+
+        // Clear the cleared country flag
+        clearedCountryRef.current = null
+
+        // If we have a region, set both region and country
+        if (region && country && targetCountryId) {
+          const continentSlug = country.continent?.slug || ''
+
+          // Update continent if needed
+          if (continentSlug && formState.continent !== continentSlug) {
+            // Set continent first, then set country and region immediately
+            pendingCountryIdRef.current = targetCountryId
+            pendingRegionIdRef.current = targetRegionId
+            handleChange('continent', continentSlug)
+            // Country and region will be set by useEffects, but we'll clear determining state there
+          } else {
+            // Continent matches or no continent - set country and region immediately
+            handleChange('country', targetCountryId)
+            if (targetRegionId) {
+              handleChange('region', targetRegionId)
+            }
+            // Determining state will be cleared by the useEffect that watches both values
+          }
+        } else if (country && targetCountryId) {
+          // No region found, but we have country - set country and show message
+          if (formState.region) {
+            handleChange('region', '')
+          }
+
+          const continentSlug = country.continent?.slug || ''
+
+          // Update continent if needed
+          if (continentSlug && formState.continent !== continentSlug) {
+            // Set continent first, then set country
+            pendingCountryIdRef.current = targetCountryId
+            handleChange('continent', continentSlug)
+            // Country will be set by countries useEffect
+            // Regions useEffect will clear determining state after confirming no region
+          } else {
+            // Continent matches or no continent - set country directly
+            handleChange('country', targetCountryId)
+            // Don't clear determining state here - let regions useEffect handle it
+            // It will clear after confirming there's no region
+          }
+
+          // Show message that region needs to be selected manually
+          setRegionNotFoundMessage(
+            'Unable to determine region for this location. Please try entering manually.',
+          )
+
+          previousCoordsRef.current = { longitude, latitude }
+        } else {
+          // No region and no country found
+          setCountryName('')
+          setRegionName('')
+          if (formState.region) {
+            handleChange('region', '')
+          }
+          if (formState.country) {
+            handleChange('country', '')
+          }
+
+          setRegionNotFoundMessage(
+            'Unable to determine region for this location. Please try entering manually.',
+          )
+
+          // Clear determining state immediately
+          setIsDeterminingLocation(false)
+          isAutoFillingRef.current = false
+
+          previousCoordsRef.current = { longitude, latitude }
+        }
+      } catch (error) {
+        console.error('Error fetching region from coordinates:', error)
+
+        setCountryName('')
+        setRegionName('')
+        if (formState.region) {
+          handleChange('region', '')
+        }
+        setRegionNotFoundMessage(
+          'Error determining region. Please try entering manually.',
+        )
+
+        // Update previous coordinates even on error
+        // This ensures the 50km check works correctly on subsequent moves
+        previousCoordsRef.current = { longitude, latitude }
+
+        // Clear determining states on error immediately
+        setIsDeterminingLocation(false)
+        isAutoFillingRef.current = false
+      }
+      // Don't clear in finally - let the regions useEffect handle it when region is set
+    }, 500) // 500ms debounce - wait for user to stop moving pin
+
+    return () => clearTimeout(debounceTimer)
+  }, [findOnMap, longitude, latitude])
 
   return (
     <Page showHeader>
@@ -277,6 +601,7 @@ export const SurfSpotForm = (props: SurfSpotFormProps) => {
           loading={loading}
           isDisabled={!isFormValid}
           submitStatus={submitStatus}
+          method={actionType === 'Edit' ? 'patch' : 'post'}
         >
           <CheckboxOption
             name="isPrivate"
@@ -372,55 +697,108 @@ export const SurfSpotForm = (props: SurfSpotFormProps) => {
             />
           )}
           <div className="form-inline">
-            <FormInput
-              field={{
-                label: 'Country',
-                name: 'country',
-                type: 'select',
-                options: [
-                  {
-                    key: '',
-                    value: '',
-                    label: findOnMap ? 'Country' : 'Select a country',
-                  },
-                  ...filteredCountries.map((c) => ({
-                    key: c.id,
-                    value: c.id,
-                    label: c.name,
-                  })),
-                ],
-              }}
-              value={formState.country}
-              onChange={(e) => handleChange('country', e.target.value)}
-              errorMessage={errors.country || ''}
-              showLabel={!!formState.country}
-              disabled={!continent || findOnMap}
-            />
-            <FormInput
-              field={{
-                label: 'Region',
-                name: 'region',
-                type: 'select',
-                options: [
-                  {
-                    key: '',
-                    value: '',
-                    label: findOnMap ? 'Region' : 'Select a region',
-                  },
-                  ...filteredRegions.map((r) => ({
-                    key: r.id,
-                    value: r.id,
-                    label: r.name,
-                  })),
-                ],
-              }}
-              value={formState.region}
-              onChange={(e) => handleChange('region', e.target.value)}
-              errorMessage={errors.region || ''}
-              showLabel={!!formState.region}
-              disabled={!country || findOnMap}
-            />
+            {findOnMap ? (
+              <>
+                <FormInput
+                  field={{
+                    label: 'Country',
+                    name: 'country',
+                    type: 'text',
+                  }}
+                  value={
+                    isDeterminingLocation
+                      ? 'Determining country...'
+                      : countryName || ''
+                  }
+                  onChange={() => {}} // Read-only in map mode
+                  errorMessage={!isDeterminingLocation ? errors.country : ''}
+                  showLabel={!!countryName}
+                  disabled={true}
+                  readOnly={true}
+                />
+                <FormInput
+                  field={{
+                    label: 'Region',
+                    name: 'region',
+                    type: 'text',
+                  }}
+                  value={
+                    isDeterminingLocation
+                      ? 'Determining region...'
+                      : regionName || ''
+                  }
+                  onChange={() => {}} // Read-only in map mode
+                  errorMessage={!isDeterminingLocation ? errors.region : ''}
+                  showLabel={!!regionName}
+                  disabled={true}
+                  readOnly={true}
+                />
+              </>
+            ) : (
+              <>
+                <FormInput
+                  field={{
+                    label: 'Country',
+                    name: 'country',
+                    type: 'select',
+                    options: [
+                      {
+                        key: '',
+                        value: '',
+                        label: 'Select a country',
+                      },
+                      ...filteredCountries.map((c) => ({
+                        key: c.id,
+                        value: c.id,
+                        label: c.name,
+                      })),
+                    ],
+                  }}
+                  value={formState.country || ''}
+                  onChange={(e) => handleChange('country', e.target.value)}
+                  errorMessage={errors.country || ''}
+                  showLabel={!!formState.country}
+                  disabled={!continent}
+                />
+                <FormInput
+                  field={{
+                    label: 'Region',
+                    name: 'region',
+                    type: 'select',
+                    options: [
+                      {
+                        key: '',
+                        value: '',
+                        label: 'Select a region',
+                      },
+                      ...filteredRegions.map((r) => ({
+                        key: r.id,
+                        value: r.id,
+                        label: r.name,
+                      })),
+                    ],
+                  }}
+                  value={formState.region || ''}
+                  onChange={(e) => handleChange('region', e.target.value)}
+                  errorMessage={errors.region || ''}
+                  showLabel={!!formState.region}
+                  disabled={!country}
+                />
+              </>
+            )}
           </div>
+          {/* Hidden inputs to ensure region, longitude, and latitude are always included in form submission */}
+          <input type="hidden" name="region" value={formState.region || ''} />
+          {/* Include longitude/latitude as hidden inputs when visible inputs are disabled */}
+          {findOnMap && formState.longitude !== undefined && (
+            <input type="hidden" name="longitude" value={formState.longitude} />
+          )}
+          {findOnMap && formState.latitude !== undefined && (
+            <input type="hidden" name="latitude" value={formState.latitude} />
+          )}
+          {regionNotFoundMessage && findOnMap && !formState.region && (
+            <InfoMessage message={regionNotFoundMessage} />
+          )}
           <div className="form-inline">
             <FormInput
               field={{
@@ -519,28 +897,46 @@ export const SurfSpotForm = (props: SurfSpotFormProps) => {
           <div className="pv">
             <h4 className="m-0 pt">Best Conditions</h4>
             <div className="form-inline">
-              <FormInput
-                field={{
-                  label: 'Swell Direction',
-                  name: 'swellDirection',
-                  type: 'text',
-                }}
-                value={formState.swellDirection}
-                onChange={(e) => handleChange('swellDirection', e.target.value)}
-                errorMessage={errors.swellDirection || ''}
-                showLabel={!!formState.swellDirection}
-              />
-              <FormInput
-                field={{
-                  label: 'Wind Direction',
-                  name: 'windDirection',
-                  type: 'text',
-                }}
-                value={formState.windDirection}
-                onChange={(e) => handleChange('windDirection', e.target.value)}
-                errorMessage={errors.windDirection || ''}
-                showLabel={!!formState.windDirection}
-              />
+              <div className="direction-selector-wrapper">
+                <label className="form-label">Swell Direction</label>
+                <p className="direction-selector-help">
+                  Click a direction, then click another to select a range
+                </p>
+                <DirectionSelector
+                  selected={swellDirectionArray}
+                  onChange={(directions) => {
+                    setSwellDirectionArray(directions)
+                    handleChange(
+                      'swellDirection',
+                      directionArrayToString(directions),
+                    )
+                  }}
+                  formName="swellDirection"
+                />
+                {errors.swellDirection && (
+                  <p className="form-error">{errors.swellDirection}</p>
+                )}
+              </div>
+              <div className="direction-selector-wrapper">
+                <label className="form-label">Wind Direction</label>
+                <p className="direction-selector-help">
+                  Click a direction, then click another to select a range
+                </p>
+                <DirectionSelector
+                  selected={windDirectionArray}
+                  onChange={(directions) => {
+                    setWindDirectionArray(directions)
+                    handleChange(
+                      'windDirection',
+                      directionArrayToString(directions),
+                    )
+                  }}
+                  formName="windDirection"
+                />
+                {errors.windDirection && (
+                  <p className="form-error">{errors.windDirection}</p>
+                )}
+              </div>
             </div>
             <FormInput
               field={{
@@ -564,9 +960,13 @@ export const SurfSpotForm = (props: SurfSpotFormProps) => {
                     type: 'number',
                   }}
                   value={formState.minSurfHeight}
-                  onChange={(e) =>
-                    handleChange('minSurfHeight', parseFloat(e.target.value))
-                  }
+                  onChange={(e) => {
+                    const value = e.target.value
+                    handleChange(
+                      'minSurfHeight',
+                      value === '' ? undefined : parseFloat(value),
+                    )
+                  }}
                   errorMessage={errors.minSurfHeight || ''}
                   showLabel={!!formState.minSurfHeight}
                 />
@@ -577,9 +977,13 @@ export const SurfSpotForm = (props: SurfSpotFormProps) => {
                     type: 'number',
                   }}
                   value={formState.maxSurfHeight}
-                  onChange={(e) =>
-                    handleChange('maxSurfHeight', parseFloat(e.target.value))
-                  }
+                  onChange={(e) => {
+                    const value = e.target.value
+                    handleChange(
+                      'maxSurfHeight',
+                      value === '' ? undefined : parseFloat(value),
+                    )
+                  }}
                   errorMessage={errors.maxSurfHeight || ''}
                   showLabel={!!formState.maxSurfHeight}
                 />
@@ -657,7 +1061,7 @@ export const SurfSpotForm = (props: SurfSpotFormProps) => {
               name="accommodationNearby"
               title="Accommodation Nearby?"
               description={`Is there bookable accommodation available within ~${
-                distanceUnits === 'mi' ? kmToMiles(10) : 10
+                distanceUnits === 'mi' ? Math.round(kmToMiles(10)) : 10
               }${distanceUnits}?`}
               checked={accommodation.nearby}
               onChange={() =>

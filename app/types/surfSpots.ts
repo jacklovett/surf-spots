@@ -54,7 +54,6 @@ export interface Region {
   description: string
   surfSpots: []
   subRegions: SubRegion[]
-  country?: Country
 }
 
 export interface SubRegion {

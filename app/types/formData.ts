@@ -1,5 +1,11 @@
 import { Option } from '~/components/FormInput'
-import { BeachBottomType, SkillLevel, SurfSpotType, Tide, WaveDirection } from './surfSpots'
+import {
+  BeachBottomType,
+  SkillLevel,
+  SurfSpotType,
+  Tide,
+  WaveDirection,
+} from './surfSpots'
 
 const SELECT_OPTION: Option = { key: '', value: '', label: 'Select an option' }
 
@@ -168,6 +174,11 @@ export const SKILL_LEVEL_OPTIONS: Option[] = [
     key: SkillLevel.ADVANCED,
     value: SkillLevel.ADVANCED,
     label: 'Advanced',
+  },
+  {
+    key: SkillLevel.ALL_LEVELS,
+    value: SkillLevel.ALL_LEVELS,
+    label: 'All Levels',
   },
 ]
 

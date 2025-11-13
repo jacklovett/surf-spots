@@ -22,7 +22,7 @@ import { debounce } from '~/utils'
 import { FetcherSubmitParams } from '../SurfSpotActions'
 
 interface IProps {
-  surfSpots?: SurfSpot[] // For static maps (with disableInteractions) OR pre-loaded spots for dynamic maps
+  surfSpots?: SurfSpot[]
   disableInteractions?: boolean
   onFetcherSubmit?: (params: FetcherSubmitParams) => void
 }

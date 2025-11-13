@@ -12,6 +12,8 @@ export const loader: LoaderFunction = async ({ request }) => {
 
   try {
     const continents = await get<Continent[]>('continents')
+    // Only load continents on initial page load
+    // Countries will be fetched on-demand via Mapbox + backend lookup by name
     return data(
       { continents },
       {
@@ -35,8 +37,12 @@ export const loader: LoaderFunction = async ({ request }) => {
 export const action: ActionFunction = async ({ request }) => {
   try {
     const newSurfSpot = await createSurfSpotFromFormData(request)
-    // Send the new surf spot to the backend
-    await post('surf-spots', newSurfSpot)
+    // Forward cookies for authentication
+    const cookie = request.headers.get('Cookie') || ''
+    // Send the new surf spot to the backend management endpoint
+    await post('surf-spots/management', newSurfSpot, {
+      headers: { Cookie: cookie },
+    })
 
     return data(
       { submitStatus: 'Surf spot added successfully', hasError: false },

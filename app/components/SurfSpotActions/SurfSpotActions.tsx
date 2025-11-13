@@ -113,7 +113,7 @@ export const SurfSpotActions = memo((props: IProps) => {
   }
 
   return (
-    <div className="actions gap">
+    <div className="actions">
       <TextButton
         text={isWatched ? 'Remove from watch list' : 'Add to watch list'}
         onClick={() => handleAction(isWatched ? 'remove' : 'add', 'watch')}

@@ -1,3 +1,6 @@
+import { Direction } from '~/types/surfSpots'
+import { DIRECTIONS } from '~/components/ConditionIcons/DirectionIcon'
+
 /**
  * Rounds a value to appropriate precision for surf height display
  * - Feet: Always rounded to whole numbers (e.g., 2ft, 3ft, 4-6ft)
@@ -74,4 +77,56 @@ export const formatSeason = (seasonStart?: string, seasonEnd?: string) => {
   if (!seasonStart && !seasonEnd) return '-'
   if (seasonStart && seasonEnd) return `${seasonStart} - ${seasonEnd}`
   return seasonStart || seasonEnd || '-'
+}
+
+/**
+ * Convert direction string (e.g., "N" or "N-E") to array format for DirectionSelector
+ * Generates all directions in the range, including intermediate ones
+ * Used when loading surf spot data from backend (which stores as string) into DirectionSelector (which uses arrays)
+ */
+export const directionStringToArray = (directionStr: string): string[] => {
+  if (!directionStr) return []
+  const parts = directionStr.split('-')
+  if (parts.length === 1) {
+    return [parts[0]]
+  }
+
+  // For ranges like "N-E", generate all directions in between
+  const directions: Direction[] = Object.keys(DIRECTIONS) as Direction[]
+  const startIdx = directions.indexOf(parts[0] as Direction)
+  const endIdx = directions.indexOf(parts[1] as Direction)
+
+  if (startIdx === -1 || endIdx === -1) {
+    // Invalid direction, return empty array
+    return []
+  }
+
+  const range: string[] = []
+  if (startIdx <= endIdx) {
+    // Normal range (e.g., N to E)
+    for (let i = startIdx; i <= endIdx; i++) {
+      range.push(directions[i])
+    }
+  } else {
+    // Wraps around (e.g., NW to NE)
+    for (let i = startIdx; i < directions.length; i++) {
+      range.push(directions[i])
+    }
+    for (let i = 0; i <= endIdx; i++) {
+      range.push(directions[i])
+    }
+  }
+
+  return range
+}
+
+/**
+ * Convert direction array to string format for backend (e.g., ["N", "NE", "E"] -> "N-E", ["N"] -> "N")
+ * Used when saving DirectionSelector array values (from form) to backend (which expects string)
+ */
+export const directionArrayToString = (directionArray: string[]): string => {
+  if (!directionArray || directionArray.length === 0) return ''
+  if (directionArray.length === 1) return directionArray[0]
+  // For ranges, join with hyphen (e.g., ["N", "NE", "E"] -> "N-E")
+  return `${directionArray[0]}-${directionArray[directionArray.length - 1]}`
 }

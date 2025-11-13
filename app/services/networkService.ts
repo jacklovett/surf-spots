@@ -4,7 +4,7 @@ export const cacheControlHeader = {
   'Cache-Control': 'public, max-age=3600, stale-while-revalidate=86400',
 }
 
-interface NetworkError extends Error {
+export interface NetworkError extends Error {
   status?: number
 }
 
@@ -42,14 +42,21 @@ const request = async <T, B = undefined>(
   options: RequestInit = {},
   body?: B,
 ): Promise<T> => {
+  // Build headers object, ensuring Content-Type is set correctly
+  const headers: HeadersInit = {
+    ...(options.headers as Record<string, string>),
+  }
+  
+  // Set Content-Type for requests with body, ensuring no charset is added
+  if (body) {
+    headers['Content-Type'] = 'application/json'
+  }
+
   const response = await fetch(`${API_URL}/${endpoint}`, {
     ...options,
     credentials: 'include',
     body: body ? JSON.stringify(body) : undefined,
-    headers: {
-      'Content-Type': 'application/json',
-      ...options.headers,
-    },
+    headers,
   })
 
   return handleResponse<T>(response)
@@ -72,7 +79,7 @@ export const edit = async <T>(
   body: T,
   options: RequestInit = {},
 ): Promise<void> =>
-  request<void, T>(endpoint, { ...options, method: 'PUT' }, body)
+  request<void, T>(endpoint, { ...options, method: 'PATCH' }, body)
 
 export const deleteData = async (
   endpoint: string,

@@ -4,17 +4,15 @@
   width: 100%;
 
   button.text-button {
-    min-width: 200px; // Minimum width to prevent too small buttons
     flex-shrink: 0;
     flex-grow: 0;
     justify-content: flex-start; // Align content to left
   }
 
   @media (max-width: 640px) {
-    gap: $spacing-unit;
 
     button.text-button {
-      padding: $spacing-small $spacing-unit;
+      padding: $spacing-small;
       width: auto; // Allow buttons to shrink on mobile
       min-width: auto;
     }

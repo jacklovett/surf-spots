@@ -102,6 +102,3 @@ export const useScrollReveal = <T extends HTMLElement = HTMLDivElement>(
 
   return containerRef
 }
-
-
-

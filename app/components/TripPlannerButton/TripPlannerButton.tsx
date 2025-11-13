@@ -20,6 +20,3 @@ export const TripPlannerButton = (props: TripPlannerButtonProps) => {
 }
 
 export default TripPlannerButton
-
-
-
