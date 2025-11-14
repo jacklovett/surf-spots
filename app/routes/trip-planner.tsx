@@ -1,6 +1,6 @@
 import { Link, MetaFunction, useNavigate } from 'react-router'
 import { useUserContext } from '~/contexts'
-import { Button, Chip, Icon, Page } from '~/components'
+import { Button, Chip, Page } from '~/components'
 
 export const meta: MetaFunction = () => {
   return [
@@ -67,17 +67,20 @@ export default function TripPlanner() {
 
         {!isLoggedIn && (
           <div className="mt">
-            <p className="mb bold">Stay notified when Trip Planner is ready!</p>
+            <p className="mb bold">Join the waitlist for Trip Planner</p>
             <p className="mb font-small">
-              Create an account and start building your surfed spots and watch
-              list now. The more data you add, the better your trip planner
-              recommendations will be when it launches!
+              Be among the first to experience AI-powered surf trip planning.
+              Create an account to join the waitlist and start building your
+              surfed spots and watch list now. The more data you add, the better
+              your personalized recommendations will be when Trip Planner
+              launches!
             </p>
             <div className="mb column center-vertical gap">
               <Button
                 label="Create an Account"
                 onClick={() => navigate('/auth/sign-up')}
                 variant="primary"
+                ariaLabel="Create an account to join the Trip Planner waitlist"
               />
               <Link to="/auth" prefetch="intent" className="font-small">
                 Already have an account? Sign in

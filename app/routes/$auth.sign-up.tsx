@@ -120,7 +120,7 @@ const SignUp = () => {
             </Link>
           </div>
           <Link className="font-small" to="/surf-spots" prefetch="intent">
-            Continue as Guest
+            Explore as Guest
           </Link>
         </div>
       </div>

@@ -19,6 +19,12 @@
       gap: $spacing-small;
       padding: $spacing-unit;
       max-height: $header-height;
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-family: inherit;
+      font-size: inherit;
+      color: inherit;
 
       &:hover {
         background: $text-hover-background;
@@ -79,6 +85,9 @@
     flex-direction: column;
     cursor: pointer;
     padding: $spacing-unit;
+    background: none;
+    border: none;
+    font-family: inherit;
 
     span {
       width: 24px;

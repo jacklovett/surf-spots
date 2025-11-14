@@ -11,16 +11,19 @@ export const Header = () => {
   return (
     <header className="header space-between">
       <div className="center logo" onClick={() => navigate('/')}>
-        <img src="/images/png/logo-with-text.png" alt="Logo" />
+        <img
+          src="/images/png/logo-with-text.png"
+          alt="Surf Spots logo - Return to home"
+        />
       </div>
       {isLoggedIn ? (
         <Menu />
       ) : (
-        <div className="sign-in-nav">
+        <nav className="sign-in-nav" aria-label="Authentication">
           <Link to="/auth" prefetch="intent">
             Sign in
           </Link>
-        </div>
+        </nav>
       )}
     </header>
   )

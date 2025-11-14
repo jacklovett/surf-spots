@@ -6,8 +6,10 @@ import { useMapDrawer } from './useMapDrawer'
 import { useScrollReveal } from './useScrollReveal'
 import { useStaticMap } from './useStaticMap'
 import { useSubmitStatus } from './useSubmitStatus'
+import { useAuthModal } from './useAuthModal'
 
 export {
+  useAuthModal,
   useDynamicMap,
   useFormValidation,
   useLocationPin,

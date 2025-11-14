@@ -251,7 +251,7 @@ h2 {
   @include hero-background;
   display: flex;
   align-items: center;
-  color: white;
+  color: $white;
   padding: $spacing-large 0;
 
   @media (max-width: 768px) {
@@ -288,42 +288,65 @@ h2 {
   }
 }
 
-.hero-text h1 {
-  font-size: 3.5rem;
-  font-weight: 800;
-  line-height: 1.1;
-  margin-bottom: $spacing-large;
-  color: $white;
+.hero-text {
+  @extend %flex-column;
+  align-items: flex-start;
 
   @media (max-width: 768px) {
-    font-size: 2rem;
-    margin-bottom: $spacing-unit;
+    align-items: center;
   }
 
-  @media (max-width: 480px) {
-    font-size: 1.75rem;
+  h1 {
+    font-size: 3rem;
+    font-weight: 800;
+    line-height: 1.1;
+    margin-bottom: $spacing-large;
+    color: $white;
+
+    @media (max-width: 768px) {
+      font-size: $font-size-xx-large;
+      margin-bottom: $spacing-unit;
+    }
+
+    @media (max-width: 480px) {
+      font-size: $font-size-x-large;
+    }
+  }
+
+  p {
+    font-size: $font-size-large;
+    line-height: 1.6;
+    margin-bottom: $spacing-x-large;
+    opacity: 0.95;
+
+    @media (max-width: 768px) {
+      font-size: $font-size-base;
+      margin-bottom: $spacing-large;
+    }
   }
 }
 
-.hero-text p {
-  font-size: 1.25rem;
-  line-height: 1.6;
-  margin-bottom: 2.5rem;
-  opacity: 0.95;
+.hero-subtext {
+  font-size: $font-size-base;
+  line-height: 1.5;
+  margin-bottom: $spacing-large;
+  opacity: 0.9;
 
   @media (max-width: 768px) {
-    font-size: 1rem;
-    margin-bottom: $spacing-large;
+    font-size: $font-size-small;
+    margin-bottom: $spacing-unit;
   }
 }
 
 .hero-cta {
-  display: flex;
+  @extend %flex-base;
   gap: $spacing-unit;
   flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: flex-start;
 
   @media (max-width: 768px) {
-    justify-content: flex-start;
+    justify-content: center;
     margin-top: $spacing-unit;
   }
 }
@@ -333,7 +356,7 @@ h2 {
 }
 
 .hero-logo {
-  width: 300px;
+  width: 320px;
   height: auto;
   filter: drop-shadow(0 10px 30px rgba(0, 0, 0, 0.3));
 

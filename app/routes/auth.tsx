@@ -135,7 +135,7 @@ export default function Auth() {
             </Link>
           </div>
           <Link className="guest-link" to="/surf-spots" prefetch="intent">
-            Continue as Guest
+            Explore as Guest
           </Link>
         </div>
       </div>
