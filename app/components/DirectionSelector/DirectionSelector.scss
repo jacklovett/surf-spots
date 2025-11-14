@@ -1,6 +1,11 @@
 .direction-selector {
   @extend %flex-center;
-  padding: $spacing-large 0 $spacing-unit 0;
+  padding: $spacing-large 0 $spacing-large 0;
+  margin: $spacing-unit 0;
+}
+
+.direction-selector-wrapper {
+  margin: $spacing-unit 0;
 }
 
 .direction-selector-help {
@@ -14,8 +19,8 @@
 .direction-selector-compass {
   @extend %flex-center;
   position: relative;
-  width: 60px;
-  height: 60px;
+  width: 80px;
+  height: 80px;
 }
 
 .direction-selector-svg {
@@ -27,13 +32,13 @@
 
 .direction-selector-button {
   position: absolute;
-  width: 20px;
-  height: 20px;
+  width: 26px;
+  height: 26px;
   border: 1.5px solid $outline-color;
   border-radius: $circle-border-radius;
   background: $background-color;
   color: $text-color;
-  font-size: 9px;
+  font-size: 11px;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.2s ease;

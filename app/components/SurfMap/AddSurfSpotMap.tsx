@@ -191,9 +191,21 @@ export const AddSurfSpotMap = memo(
       }
     }, []) // Empty dependency array - only run once on mount
 
+    // Track previous coordinates to avoid unnecessary re-renders
+    const previousCoordsRef = useRef<Coordinates | null>(null)
+
     // Add initial pin when map is ready and coordinates are provided
     useEffect(() => {
-      if (map && initialCoordinates) {
+      if (!map || !initialCoordinates) return
+
+      // Only update if coordinates have actually changed
+      const coordsChanged =
+        !previousCoordsRef.current ||
+        previousCoordsRef.current.longitude !== initialCoordinates.longitude ||
+        previousCoordsRef.current.latitude !== initialCoordinates.latitude
+
+      if (coordsChanged) {
+        previousCoordsRef.current = initialCoordinates
         addPinToMap(initialCoordinates)
       }
     }, [map, initialCoordinates, addPinToMap])

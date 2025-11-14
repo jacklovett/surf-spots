@@ -11,7 +11,7 @@ import type {
   MapboxReverseGeocodeResult,
   RegionCountryLookupResponse,
 } from '~/types/surfSpots'
-import { get, NetworkError, post } from './networkService'
+import { NetworkError, post } from './networkService'
 import { getCssVariable } from '~/utils'
 import {
   convertFiltersToBackendFormat,

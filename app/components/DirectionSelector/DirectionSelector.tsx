@@ -110,7 +110,7 @@ const DirectionSelector = memo(
         svgEndAngle += 360
       }
 
-      // Scale coordinates for the new size (60px instead of 42px)
+      // Scale coordinates for the new size (80px instead of 42px)
       const scaleFactor = size / 42
       const center = CONDITION_CIRC_COORD * scaleFactor
       const radius = CONDITION_ICON_RADIUS * scaleFactor
@@ -134,8 +134,8 @@ const DirectionSelector = memo(
       return maskPath
     }
 
-    // Make it bigger - use 60px instead of 42px
-    const size = 60
+    // Make it bigger - use 80px for better visibility
+    const size = 80
     const maskPath = getMaskPath(size)
     const commonIconStyles = {
       ...getCommonStyles('#046380', size),
@@ -212,7 +212,7 @@ const DirectionSelector = memo(
               )
             const angleRad = (angle * Math.PI) / 180
             // Position buttons further out from the icon border for better spacing
-            // Scale radius proportionally for larger size (60px instead of 42px)
+            // Scale radius proportionally for larger size (80px instead of 42px)
             const scaleFactor = size / 42
             const center = CONDITION_CIRC_COORD * scaleFactor
             const radius = (CONDITION_ICON_RADIUS + 12) * scaleFactor
