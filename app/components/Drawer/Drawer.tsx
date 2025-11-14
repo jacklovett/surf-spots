@@ -15,10 +15,14 @@ export const Drawer = () => {
   const drawerRef = useRef<HTMLDivElement>(null)
   const [isAnimating, setIsAnimating] = useState(false)
   const [shouldRender, setShouldRender] = useState(false)
-  const [touchState, setTouchState] = useState<TouchState | null>(null)
+
   const [translateX, setTranslateX] = useState(0)
-  const touchStateRef = useRef<TouchState | null>(null)
   const translateXRef = useRef(0)
+
+  const [isSwiping, setIsSwiping] = useState(false)
+  const isSwipingRef = useRef(false)
+
+  const touchStateRef = useRef<TouchState | null>(null)
 
   // Handle escape key to close drawer
   useEffect(() => {
@@ -32,9 +36,14 @@ export const Drawer = () => {
       // Only set shouldRender if not already rendered to prevent re-animation
       if (!shouldRender) {
         setShouldRender(true)
-        // Reset translateX to ensure clean animation
-        setTranslateX(0)
-        translateXRef.current = 0
+        // Reset swiping state to ensure clean animation
+        setIsSwiping(false)
+        isSwipingRef.current = false
+        // Reset translateX only if it's not already 0 to avoid unnecessary re-renders
+        if (translateX !== 0) {
+          setTranslateX(0)
+          translateXRef.current = 0
+        }
         // Start with drawer off-screen, then animate in
         setIsAnimating(false)
         // Use double RAF to ensure the drawer renders off-screen first
@@ -56,6 +65,9 @@ export const Drawer = () => {
     } else {
       // Start close animation
       setIsAnimating(false)
+      // Reset swiping state
+      setIsSwiping(false)
+      isSwipingRef.current = false
       // Remove drawer-open class from body
       document.body.classList.remove('drawer-open')
       // Remove from DOM after animation completes
@@ -77,20 +89,31 @@ export const Drawer = () => {
   // Handle touch events for swipe-to-close
   useEffect(() => {
     const drawerElement = drawerRef.current
-    if (!drawerElement || !isOpen) return
+    if (!drawerElement || !isOpen || !isAnimating) return
 
     const headerElement = drawerElement.querySelector(
       '.drawer-header',
     ) as HTMLElement
+    const contentElement = drawerElement.querySelector(
+      '.drawer-content',
+    ) as HTMLElement
     if (!headerElement) return
+
+    let touchTarget: HTMLElement | null = null
+    let initialScrollTop = 0
 
     const handleTouchStart = (event: TouchEvent) => {
       const touch = event.touches[0]
+      touchTarget = event.target as HTMLElement
+      initialScrollTop = contentElement?.scrollTop || 0
+
       touchStateRef.current = {
         startX: touch.clientX,
         startY: touch.clientY,
         startTime: Date.now(),
       }
+      isSwipingRef.current = false
+      setIsSwiping(false)
     }
 
     const handleTouchMove = (event: TouchEvent) => {
@@ -99,64 +122,102 @@ export const Drawer = () => {
       const touch = event.touches[0]
       const deltaX = touch.clientX - touchStateRef.current.startX
       const deltaY = touch.clientY - touchStateRef.current.startY
+      const absDeltaX = Math.abs(deltaX)
+      const absDeltaY = Math.abs(deltaY)
 
-      // Only handle if horizontal movement is greater than vertical
-      if (Math.abs(deltaX) > Math.abs(deltaY)) {
-        // For left drawer: swipe left (negative deltaX)
-        // For right drawer: swipe right (positive deltaX)
-        if (
+      // Check if touch started in header
+      const isHeaderTouch =
+        touchTarget &&
+        (headerElement.contains(touchTarget) || touchTarget === headerElement)
+
+      // Check if content is at top
+      const isContentAtTop = !contentElement || contentElement.scrollTop === 0
+
+      // Determine if this is a horizontal swipe gesture
+      const isHorizontalSwipe = absDeltaX > absDeltaY && absDeltaX > 10
+
+      // Allow swipe if:
+      // 1. Touch started in header, OR
+      // 2. Content is at top and this is a horizontal swipe
+      if ((isHeaderTouch || isContentAtTop) && isHorizontalSwipe) {
+        // For left drawer: swipe left (negative deltaX) to close
+        // For right drawer: swipe right (positive deltaX) to close
+        const isClosingDirection =
           (position === 'left' && deltaX < 0) ||
           (position === 'right' && deltaX > 0)
-        ) {
-          translateXRef.current = deltaX
-          setTranslateX(deltaX)
+
+        if (isClosingDirection) {
+          isSwipingRef.current = true
+          setIsSwiping(true)
+          // Clamp the translation
+          const maxTranslate =
+            position === 'left'
+              ? -drawerElement.offsetWidth
+              : drawerElement.offsetWidth
+          const clampedDeltaX =
+            position === 'left'
+              ? Math.max(deltaX, maxTranslate)
+              : Math.min(deltaX, maxTranslate)
+
+          translateXRef.current = clampedDeltaX
+          setTranslateX(clampedDeltaX)
           event.preventDefault()
-          event.stopPropagation()
         }
       }
     }
 
     const handleTouchEnd = () => {
-      if (!touchStateRef.current) return
+      if (!touchStateRef.current) {
+        return
+      }
 
-      const translateX = translateXRef.current
+      const currentTranslateX = translateXRef.current
+      const threshold = 100 // pixels
       const shouldClose =
-        (position === 'left' && translateX < -100) ||
-        (position === 'right' && translateX > 100)
+        isSwipingRef.current &&
+        ((position === 'left' && currentTranslateX < -threshold) ||
+          (position === 'right' && currentTranslateX > threshold))
 
       if (shouldClose) {
         closeDrawer()
       } else {
+        // Snap back to open position
         translateXRef.current = 0
         setTranslateX(0)
       }
 
       touchStateRef.current = null
+      touchTarget = null
+      isSwipingRef.current = false
+      setIsSwiping(false)
     }
 
-    // Attach listeners to header (non-scrollable) to ensure touches are captured
-    headerElement.addEventListener('touchstart', handleTouchStart)
-    headerElement.addEventListener('touchmove', handleTouchMove, {
-      passive: false,
+    // Attach listeners to entire drawer element
+    drawerElement.addEventListener('touchstart', handleTouchStart, {
+      passive: true,
     })
-    headerElement.addEventListener('touchend', handleTouchEnd)
-
-    // Also attach to drawer element itself
-    drawerElement.addEventListener('touchstart', handleTouchStart)
     drawerElement.addEventListener('touchmove', handleTouchMove, {
       passive: false,
     })
-    drawerElement.addEventListener('touchend', handleTouchEnd)
+    drawerElement.addEventListener('touchend', handleTouchEnd, {
+      passive: true,
+    })
+    drawerElement.addEventListener('touchcancel', handleTouchEnd, {
+      passive: true,
+    })
 
     return () => {
-      headerElement.removeEventListener('touchstart', handleTouchStart)
-      headerElement.removeEventListener('touchmove', handleTouchMove)
-      headerElement.removeEventListener('touchend', handleTouchEnd)
       drawerElement.removeEventListener('touchstart', handleTouchStart)
       drawerElement.removeEventListener('touchmove', handleTouchMove)
       drawerElement.removeEventListener('touchend', handleTouchEnd)
+      drawerElement.removeEventListener('touchcancel', handleTouchEnd)
+      // Reset on cleanup
+      translateXRef.current = 0
+      setTranslateX(0)
+      isSwipingRef.current = false
+      setIsSwiping(false)
     }
-  }, [isOpen, position, closeDrawer])
+  }, [isOpen, isAnimating, position, closeDrawer])
 
   // Handle click outside to close drawer
   const handleBackdropClick = (event: React.MouseEvent) => {
@@ -176,13 +237,15 @@ export const Drawer = () => {
         className={classNames('drawer', {
           [`drawer--${position}`]: true,
           'drawer--open': isAnimating,
+          'drawer--swiping': isSwiping && translateX !== 0,
         })}
-        style={{
-          transform:
-            translateX !== 0
-              ? `translateX(${position === 'left' ? translateX : translateX + (position === 'right' ? window.innerWidth : 0)}px)`
-              : undefined,
-        }}
+        {...(isSwiping && translateX !== 0 && isAnimating
+          ? {
+              style: {
+                transform: `translateX(${translateX}px)`,
+              },
+            }
+          : {})}
       >
         <div className="drawer-header">
           {title && <div className="drawer-title">{title}</div>}

@@ -36,6 +36,10 @@
     box-shadow: $box-shadow;
   }
 
+  &.drawer--swiping {
+    transition: none; /* Disable transition during swipe for smooth following */
+  }
+
   .drawer-content {
     height: 100%;
     overflow-y: auto;
