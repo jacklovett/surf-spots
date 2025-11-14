@@ -110,6 +110,20 @@ select:focus {
   @extend %flex-base;
   align-items: flex-start;
   gap: $spacing-unit;
+  flex-wrap: wrap;
+
+  @media (max-width: 768px) {
+    flex-direction: column;
+  }
+}
+
+.direction-selector-wrapper {
+  flex: 1;
+  min-width: 0;
+
+  @media (max-width: 768px) {
+    width: 100%;
+  }
 }
 
 .disclaimer {

@@ -27,6 +27,7 @@ export const Footer = ({ isAlternate }: IProps) => {
   const handleLinkClick = (e: MouseEvent<HTMLAnchorElement>, path: string) => {
     const routeKey = protectedRoutes[path]
     if (routeKey && !user) {
+      e.preventDefault()
       showAuthModal(routeKey)
       return
     }
