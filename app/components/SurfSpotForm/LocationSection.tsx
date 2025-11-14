@@ -34,6 +34,7 @@ interface LocationSectionProps {
   continents: Continent[]
   locationSelection: LocationSelection
   onLocationChange: FormChangeHandler
+  isAtUserLocation?: boolean
 }
 
 export const LocationSection = ({
@@ -44,6 +45,7 @@ export const LocationSection = ({
   continents,
   locationSelection,
   onLocationChange,
+  isAtUserLocation,
 }: LocationSectionProps) => {
   const {
     filteredCountries,
@@ -75,7 +77,7 @@ export const LocationSection = ({
               onClick={handleUseMyLocation}
               iconKey="crosshair"
               filled
-              disabled={!isMapReady}
+              disabled={!isMapReady || isAtUserLocation}
             />
           </div>
         )}

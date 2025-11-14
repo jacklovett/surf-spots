@@ -1,7 +1,9 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useNavigation, useLoaderData } from 'react-router'
 
 import { useSettingsContext } from '~/contexts'
+import { defaultMapCenter } from '~/services/mapService'
+import { Coordinates } from '~/types/surfSpots'
 import {
   useSubmitStatus,
   useFormValidation,
@@ -62,6 +64,37 @@ export const SurfSpotForm = (props: SurfSpotFormProps) => {
   const submitStatus = useSubmitStatus()
 
   const [findOnMap, setFindOnMap] = useState(true)
+  
+  // Fetch user's location immediately for "Add" mode
+  // Start with default, then update when user location is fetched
+  const [initialUserCoords, setInitialUserCoords] = useState<Coordinates>(
+    actionType === 'Add' && !surfSpot ? defaultMapCenter : { longitude: 0, latitude: 0 }
+  )
+
+  useEffect(() => {
+    if (actionType === 'Edit' || surfSpot) return
+
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const coords: Coordinates = {
+            longitude: position.coords.longitude,
+            latitude: position.coords.latitude,
+          }
+          setInitialUserCoords(coords)
+        },
+        (error) => {
+          console.error('Error getting user location:', error)
+          // Keep default location on error
+        },
+        {
+          enableHighAccuracy: true,
+          timeout: 10000,
+          maximumAge: 60000,
+        },
+      )
+    }
+  }, [actionType, surfSpot])
   const [spotStatus, setSpotStatus] = useState(
     surfSpot?.status || SurfSpotStatus.PENDING,
   )
@@ -102,7 +135,24 @@ export const SurfSpotForm = (props: SurfSpotFormProps) => {
   const [windDirectionArray, setWindDirectionArray] =
     useState<string[]>(initialWindDirection)
 
-  const { formState, errors, isFormValid, handleChange } = useFormValidation({
+  // Determine initial coordinates - use surfSpot if editing, otherwise use initialUserCoords
+  const getInitialCoordinates = () => {
+    if (surfSpot?.longitude && surfSpot?.latitude) {
+      return {
+        longitude: surfSpot.longitude,
+        latitude: surfSpot.latitude,
+      }
+    }
+    // For "Add" mode, use initialUserCoords (starts as default, updates to user location)
+    return {
+      longitude: initialUserCoords.longitude,
+      latitude: initialUserCoords.latitude,
+    }
+  }
+
+  const initialCoords = getInitialCoordinates()
+
+  const { formState, errors, isFormValid, handleChange, setFormState } = useFormValidation({
     initialFormState: {
       continent: surfSpot?.continent?.slug || '',
       country: surfSpot?.country?.id || '',
@@ -111,8 +161,8 @@ export const SurfSpotForm = (props: SurfSpotFormProps) => {
       type: surfSpot?.type || '',
       beachBottomType: surfSpot?.beachBottomType || '',
       description: surfSpot?.description || '',
-      longitude: surfSpot?.longitude,
-      latitude: surfSpot?.latitude,
+      longitude: initialCoords.longitude,
+      latitude: initialCoords.latitude,
       swellDirection: directionArrayToString(initialSwellDirection),
       windDirection: directionArrayToString(initialWindDirection),
       rating: surfSpot?.rating ?? '',
@@ -156,6 +206,30 @@ export const SurfSpotForm = (props: SurfSpotFormProps) => {
     },
   })
 
+  // Update form coordinates when user location is fetched (for "Add" mode)
+  useEffect(() => {
+    if (actionType === 'Edit' || surfSpot) return
+    
+    // Check if user location is different from default (meaning it was fetched)
+    const isUserLocation =
+      initialUserCoords.longitude !== defaultMapCenter.longitude ||
+      initialUserCoords.latitude !== defaultMapCenter.latitude
+    
+    // Only update if we have a user location and form still has default coordinates
+    if (isUserLocation) {
+      const isDefaultLocation =
+        Math.abs((formState.longitude || 0) - defaultMapCenter.longitude) < 0.0001 &&
+        Math.abs((formState.latitude || 0) - defaultMapCenter.latitude) < 0.0001
+      
+      if (isDefaultLocation) {
+        // Update both coordinates at once to ensure they're set together
+        // This will trigger the map to update via initialCoordinates prop
+        handleChange('longitude', initialUserCoords.longitude)
+        handleChange('latitude', initialUserCoords.latitude)
+      }
+    }
+  }, [actionType, surfSpot, initialUserCoords, formState.longitude, formState.latitude, handleChange])
+
   // Use location selection hook
   const locationSelection = useLocationSelection({
     findOnMap,
@@ -166,6 +240,10 @@ export const SurfSpotForm = (props: SurfSpotFormProps) => {
     region: formState.region,
     initialSurfSpot: surfSpot,
     onLocationChange: handleChange,
+    initialUserLocation: initialUserCoords.longitude !== defaultMapCenter.longitude ||
+      initialUserCoords.latitude !== defaultMapCenter.latitude
+      ? initialUserCoords
+      : null,
   })
 
   return (
@@ -232,6 +310,7 @@ export const SurfSpotForm = (props: SurfSpotFormProps) => {
             continents={continents}
             locationSelection={locationSelection}
             onLocationChange={handleChange}
+            isAtUserLocation={locationSelection.isAtUserLocation}
           />
           <SpotDetailsSection
             formState={{

@@ -4,7 +4,12 @@ import {
   calculateDistance,
 } from '~/services/mapService'
 import { get } from '~/services/networkService'
-import { Country, Region, Coordinates, SurfSpotFormState } from '~/types/surfSpots'
+import {
+  Country,
+  Region,
+  Coordinates,
+  SurfSpotFormState,
+} from '~/types/surfSpots'
 import type { AddSurfSpotMapRef } from '~/components/SurfMap/AddSurfSpotMap'
 
 type FormChangeHandler = <K extends keyof SurfSpotFormState>(
@@ -24,6 +29,7 @@ interface UseLocationSelectionProps {
     country?: { id: string }
   }
   onLocationChange: FormChangeHandler
+  initialUserLocation?: Coordinates | null
 }
 
 export const useLocationSelection = ({
@@ -35,6 +41,7 @@ export const useLocationSelection = ({
   region,
   initialSurfSpot,
   onLocationChange,
+  initialUserLocation,
 }: UseLocationSelectionProps) => {
   const [filteredCountries, setFilteredCountries] = useState<Country[]>([])
   const [filteredRegions, setFilteredRegions] = useState<Region[]>([])
@@ -48,6 +55,17 @@ export const useLocationSelection = ({
   >(null)
   const [countryName, setCountryName] = useState<string>('')
   const [regionName, setRegionName] = useState<string>('')
+  const [userLocation, setUserLocation] = useState<Coordinates | null>(
+    initialUserLocation || null,
+  )
+
+  // Update user location when initialUserLocation changes
+  useEffect(() => {
+    if (initialUserLocation) {
+      setUserLocation(initialUserLocation)
+    }
+  }, [initialUserLocation])
+
   const clearedCountryRef = useRef<string | null>(null)
   const isAutoFillingRef = useRef(false)
   const pendingCountryIdRef = useRef<string | null>(null)
@@ -342,13 +360,10 @@ export const useLocationSelection = ({
     return () => clearTimeout(debounceTimer)
   }, [findOnMap, longitude, latitude, continent, country, region])
 
-  const handleLocationUpdate = useCallback(
-    (coordinates: Coordinates) => {
-      onLocationChangeRef.current('longitude', coordinates.longitude)
-      onLocationChangeRef.current('latitude', coordinates.latitude)
-    },
-    [],
-  )
+  const handleLocationUpdate = useCallback((coordinates: Coordinates) => {
+    onLocationChangeRef.current('longitude', coordinates.longitude)
+    onLocationChangeRef.current('latitude', coordinates.latitude)
+  }, [])
 
   const handleUseMyLocation = useCallback(() => {
     if (navigator.geolocation) {
@@ -358,6 +373,7 @@ export const useLocationSelection = ({
             longitude: position.coords.longitude,
             latitude: position.coords.latitude,
           }
+          setUserLocation(coords)
           onLocationChangeRef.current('longitude', coords.longitude)
           onLocationChangeRef.current('latitude', coords.latitude)
 
@@ -375,6 +391,21 @@ export const useLocationSelection = ({
     }
   }, [])
 
+  // Check if current pin location matches user location (within ~200m tolerance)
+  const isAtUserLocation = useCallback(() => {
+    if (!userLocation || !longitude || !latitude) return false
+
+    const distance = calculateDistance(
+      userLocation.latitude,
+      userLocation.longitude,
+      latitude,
+      longitude,
+    )
+
+    // Consider it a match if within 200 meters
+    return distance < 0.2
+  }, [userLocation, longitude, latitude])
+
   return {
     filteredCountries,
     filteredRegions,
@@ -387,8 +418,8 @@ export const useLocationSelection = ({
     regionName,
     handleLocationUpdate,
     handleUseMyLocation,
+    isAtUserLocation: isAtUserLocation(),
   } as const
 }
 
 export type LocationSelection = ReturnType<typeof useLocationSelection>
-
