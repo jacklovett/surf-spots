@@ -64,11 +64,13 @@ export const SurfSpotForm = (props: SurfSpotFormProps) => {
   const submitStatus = useSubmitStatus()
 
   const [findOnMap, setFindOnMap] = useState(true)
-  
+
   // Fetch user's location immediately for "Add" mode
   // Start with default, then update when user location is fetched
   const [initialUserCoords, setInitialUserCoords] = useState<Coordinates>(
-    actionType === 'Add' && !surfSpot ? defaultMapCenter : { longitude: 0, latitude: 0 }
+    actionType === 'Add' && !surfSpot
+      ? defaultMapCenter
+      : { longitude: 0, latitude: 0 },
   )
 
   useEffect(() => {
@@ -99,6 +101,8 @@ export const SurfSpotForm = (props: SurfSpotFormProps) => {
     surfSpot?.status || SurfSpotStatus.PENDING,
   )
   const [isBoatRequired, setIsBoatRequired] = useState(!!surfSpot?.boatRequired)
+  const [isWavepool, setIsWavepool] = useState(!!surfSpot?.isWavepool)
+  const [wavepoolUrl, setWavepoolUrl] = useState(surfSpot?.wavepoolUrl || '')
 
   const [accommodation, setAccommodation] = useState<Availability>({
     nearby: !!surfSpot?.accommodationNearby,
@@ -152,75 +156,91 @@ export const SurfSpotForm = (props: SurfSpotFormProps) => {
 
   const initialCoords = getInitialCoordinates()
 
-  const { formState, errors, isFormValid, handleChange, setFormState } = useFormValidation({
-    initialFormState: {
-      continent: surfSpot?.continent?.slug || '',
-      country: surfSpot?.country?.id || '',
-      region: surfSpot?.region?.id || '',
-      name: surfSpot?.name || '',
-      type: surfSpot?.type || '',
-      beachBottomType: surfSpot?.beachBottomType || '',
-      description: surfSpot?.description || '',
-      longitude: initialCoords.longitude,
-      latitude: initialCoords.latitude,
-      swellDirection: directionArrayToString(initialSwellDirection),
-      windDirection: directionArrayToString(initialWindDirection),
-      rating: surfSpot?.rating ?? '',
-      tide: surfSpot?.tide || '',
-      waveDirection: surfSpot?.waveDirection || '',
-      minSurfHeight: surfSpot?.minSurfHeight ?? '',
-      maxSurfHeight: surfSpot?.maxSurfHeight ?? '',
-      seasonStart: surfSpot?.seasonStart || '',
-      seasonEnd: surfSpot?.seasonEnd || '',
-      parking: surfSpot?.parking || '',
-      foodNearby: !!surfSpot?.foodNearby,
-      skillLevel: surfSpot?.skillLevel || '',
-      forecastLinks: (surfSpot?.forecasts as unknown as ForecastLink[]) || [],
-    } as SurfSpotFormState,
-    validationFunctions: {
-      continent: validateRequired,
-      country: validateRequired,
-      region: validateRequired,
-      longitude: validateLongitude,
-      latitude: validateLatitude,
-      name: validateRequired,
-      description: validateRequired,
-      swellDirection: (value) => validateDirection(value, 'Swell Direction'),
-      windDirection: (value) => validateDirection(value, 'Wind Direction'),
-      forecastLinks: (links) => {
-        if (!Array.isArray(links)) return 'Invalid data format'
+  const { formState, errors, isFormValid, handleChange, handleBlur } =
+    useFormValidation({
+      initialFormState: {
+        continent: surfSpot?.continent?.slug || '',
+        country: surfSpot?.country?.id || '',
+        region: surfSpot?.region?.id || '',
+        name: surfSpot?.name || '',
+        type: surfSpot?.type || '',
+        beachBottomType: surfSpot?.beachBottomType || '',
+        description: surfSpot?.description || '',
+        longitude: initialCoords.longitude,
+        latitude: initialCoords.latitude,
+        swellDirection: directionArrayToString(initialSwellDirection),
+        windDirection: directionArrayToString(initialWindDirection),
+        rating: surfSpot?.rating ?? '',
+        tide: surfSpot?.tide || '',
+        waveDirection: surfSpot?.waveDirection || '',
+        minSurfHeight: surfSpot?.minSurfHeight ?? '',
+        maxSurfHeight: surfSpot?.maxSurfHeight ?? '',
+        seasonStart: surfSpot?.seasonStart || '',
+        seasonEnd: surfSpot?.seasonEnd || '',
+        parking: surfSpot?.parking || '',
+        foodNearby: !!surfSpot?.foodNearby,
+        skillLevel: surfSpot?.skillLevel || '',
+        forecastLinks: (surfSpot?.forecasts as unknown as ForecastLink[]) || [],
+        wavepoolUrl: surfSpot?.wavepoolUrl || '',
+      } as SurfSpotFormState,
+      validationFunctions: {
+        continent: validateRequired,
+        country: validateRequired,
+        region: validateRequired,
+        longitude: validateLongitude,
+        latitude: validateLatitude,
+        name: validateRequired,
+        description: validateRequired,
+        swellDirection: (value) => {
+          if (isWavepool) return '' // Not required for wavepools
+          return validateDirection(value, 'Swell Direction')
+        },
+        windDirection: (value) => {
+          if (isWavepool) return '' // Not required for wavepools
+          return validateDirection(value, 'Wind Direction')
+        },
+        forecastLinks: (links) => {
+          if (!Array.isArray(links)) return 'Invalid data format'
 
-        // Validate each link and update its errorMessage
-        const updatedLinks = links.map((link) => ({
-          ...link,
-          errorMessage: validateUrl(link.url, 'Forecast Link') || '',
-        }))
+          // Validate each link and update its errorMessage
+          const updatedLinks = links.map((link) => ({
+            ...link,
+            errorMessage: validateUrl(link.url, 'Forecast Link') || '',
+          }))
 
-        // Only update state if the validation errors have changed
-        if (JSON.stringify(links) !== JSON.stringify(updatedLinks)) {
-          handleChange('forecastLinks', updatedLinks)
-        }
+          // Only update state if the validation errors have changed
+          if (JSON.stringify(links) !== JSON.stringify(updatedLinks)) {
+            handleChange('forecastLinks', updatedLinks)
+          }
 
-        return ''
+          return ''
+        },
+        wavepoolUrl: (value) => {
+          if (!isWavepool) return '' // Not required if not a wavepool
+          if (!value || value.trim() === '') {
+            return 'Official website is required for wavepools'
+          }
+          return validateUrl(value, 'Official Website')
+        },
       },
-    },
-  })
+    })
 
   // Update form coordinates when user location is fetched (for "Add" mode)
   useEffect(() => {
     if (actionType === 'Edit' || surfSpot) return
-    
+
     // Check if user location is different from default (meaning it was fetched)
     const isUserLocation =
       initialUserCoords.longitude !== defaultMapCenter.longitude ||
       initialUserCoords.latitude !== defaultMapCenter.latitude
-    
+
     // Only update if we have a user location and form still has default coordinates
     if (isUserLocation) {
       const isDefaultLocation =
-        Math.abs((formState.longitude || 0) - defaultMapCenter.longitude) < 0.0001 &&
+        Math.abs((formState.longitude || 0) - defaultMapCenter.longitude) <
+          0.0001 &&
         Math.abs((formState.latitude || 0) - defaultMapCenter.latitude) < 0.0001
-      
+
       if (isDefaultLocation) {
         // Update both coordinates at once to ensure they're set together
         // This will trigger the map to update via initialCoordinates prop
@@ -228,7 +248,14 @@ export const SurfSpotForm = (props: SurfSpotFormProps) => {
         handleChange('latitude', initialUserCoords.latitude)
       }
     }
-  }, [actionType, surfSpot, initialUserCoords, formState.longitude, formState.latitude, handleChange])
+  }, [
+    actionType,
+    surfSpot,
+    initialUserCoords,
+    formState.longitude,
+    formState.latitude,
+    handleChange,
+  ])
 
   // Use location selection hook
   const locationSelection = useLocationSelection({
@@ -240,10 +267,11 @@ export const SurfSpotForm = (props: SurfSpotFormProps) => {
     region: formState.region,
     initialSurfSpot: surfSpot,
     onLocationChange: handleChange,
-    initialUserLocation: initialUserCoords.longitude !== defaultMapCenter.longitude ||
+    initialUserLocation:
+      initialUserCoords.longitude !== defaultMapCenter.longitude ||
       initialUserCoords.latitude !== defaultMapCenter.latitude
-      ? initialUserCoords
-      : null,
+        ? initialUserCoords
+        : null,
   })
 
   return (
@@ -312,47 +340,78 @@ export const SurfSpotForm = (props: SurfSpotFormProps) => {
             onLocationChange={handleChange}
             isAtUserLocation={locationSelection.isAtUserLocation}
           />
-          <SpotDetailsSection
-            formState={{
-              type: formState.type,
-              beachBottomType: formState.beachBottomType,
-              skillLevel: formState.skillLevel,
-              waveDirection: formState.waveDirection,
-            }}
-            errors={{
-              type: errors.type,
-              beachBottomType: errors.beachBottomType,
-              skillLevel: errors.skillLevel,
-              waveDirection: errors.waveDirection,
-            }}
-            onChange={handleChange}
-          />
-          <BestConditionsSection
-            formState={{
-              swellDirection: formState.swellDirection,
-              windDirection: formState.windDirection,
-              tide: formState.tide,
-              minSurfHeight: formState.minSurfHeight,
-              maxSurfHeight: formState.maxSurfHeight,
-              seasonStart: formState.seasonStart,
-              seasonEnd: formState.seasonEnd,
-            }}
-            errors={{
-              swellDirection: errors.swellDirection,
-              windDirection: errors.windDirection,
-              tide: errors.tide,
-              minSurfHeight: errors.minSurfHeight,
-              maxSurfHeight: errors.maxSurfHeight,
-              seasonStart: errors.seasonStart,
-              seasonEnd: errors.seasonEnd,
-            }}
-            swellDirectionArray={swellDirectionArray}
-            windDirectionArray={windDirectionArray}
-            waveUnits={waveUnits}
-            onSwellDirectionChange={setSwellDirectionArray}
-            onWindDirectionChange={setWindDirectionArray}
-            onChange={handleChange}
-          />
+          <div className="pv">
+            <CheckboxOption
+              name="isWavepool"
+              title="Wavepool?"
+              description="Is this a wavepool?"
+              checked={isWavepool}
+              onChange={() => setIsWavepool(!isWavepool)}
+            />
+            {isWavepool && (
+              <FormInput
+                field={{
+                  label: 'Official Website',
+                  name: 'wavepoolUrl',
+                  type: 'text',
+                }}
+                value={wavepoolUrl || ''}
+                onChange={(e) => {
+                  const value = e.target.value
+                  setWavepoolUrl(value)
+                  handleChange('wavepoolUrl', value)
+                }}
+                onBlur={() => handleBlur('wavepoolUrl')}
+                errorMessage={errors.wavepoolUrl || ''}
+                showLabel={!!wavepoolUrl}
+              />
+            )}
+          </div>
+          {!isWavepool && (
+            <>
+              <SpotDetailsSection
+                formState={{
+                  type: formState.type,
+                  beachBottomType: formState.beachBottomType,
+                  skillLevel: formState.skillLevel,
+                  waveDirection: formState.waveDirection,
+                }}
+                errors={{
+                  type: errors.type,
+                  beachBottomType: errors.beachBottomType,
+                  skillLevel: errors.skillLevel,
+                  waveDirection: errors.waveDirection,
+                }}
+                onChange={handleChange}
+              />
+              <BestConditionsSection
+                formState={{
+                  swellDirection: formState.swellDirection,
+                  windDirection: formState.windDirection,
+                  tide: formState.tide,
+                  minSurfHeight: formState.minSurfHeight,
+                  maxSurfHeight: formState.maxSurfHeight,
+                  seasonStart: formState.seasonStart,
+                  seasonEnd: formState.seasonEnd,
+                }}
+                errors={{
+                  swellDirection: errors.swellDirection,
+                  windDirection: errors.windDirection,
+                  tide: errors.tide,
+                  minSurfHeight: errors.minSurfHeight,
+                  maxSurfHeight: errors.maxSurfHeight,
+                  seasonStart: errors.seasonStart,
+                  seasonEnd: errors.seasonEnd,
+                }}
+                swellDirectionArray={swellDirectionArray}
+                windDirectionArray={windDirectionArray}
+                waveUnits={waveUnits}
+                onSwellDirectionChange={setSwellDirectionArray}
+                onWindDirectionChange={setWindDirectionArray}
+                onChange={handleChange}
+              />
+            </>
+          )}
           <AccessAmenitiesSection
             isBoatRequired={isBoatRequired}
             onBoatRequiredChange={setIsBoatRequired}

@@ -13,12 +13,18 @@ form {
   padding-top: $spacing-small;
   text-align: start;
 
+  &.no-top-padding {
+    padding-top: 0;
+  }
+
   & label {
     font-size: $font-size-small;
     margin-left: $spacing-small;
     opacity: 0;
     transform: translateY(-$spacing-small); // Starts slightly above
-    transition: opacity 0.3s ease-in-out, transform 0.3s ease-in-out;
+    transition:
+      opacity 0.3s ease-in-out,
+      transform 0.3s ease-in-out;
 
     &.visible {
       opacity: 1;
@@ -109,7 +115,7 @@ select:focus {
 .form-inline {
   @extend %flex-base;
   align-items: flex-start;
-  gap: $spacing-unit;
+  gap: $spacing-small;
   flex-wrap: wrap;
 
   @media (max-width: 768px) {

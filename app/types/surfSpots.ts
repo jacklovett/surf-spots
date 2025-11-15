@@ -145,6 +145,8 @@ export interface NewSurfSpot extends Coordinates {
   seasonEnd: string
   skillLevel: SkillLevel
   boatRequired: boolean
+  isWavepool: boolean
+  wavepoolUrl?: string
   parking: string
   foodNearby: boolean
   foodTypes: string[]
@@ -179,6 +181,7 @@ export interface SurfSpotFormState {
   foodNearby: boolean
   skillLevel?: SkillLevel
   forecastLinks: ForecastLink[]
+  wavepoolUrl?: string
 }
 
 export interface SurfSpotFilters {

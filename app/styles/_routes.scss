@@ -201,6 +201,18 @@ h2 {
   }
 }
 
+.closed-chip {
+  display: inline-block;
+  background: $error;
+  color: $white;
+  border-radius: $button-border-radius;
+  padding: $spacing-small $spacing-unit;
+  font-size: $font-size-small;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
 .spot-actions {
   margin-bottom: $spacing-unit;
   @media (max-width: 640px) {

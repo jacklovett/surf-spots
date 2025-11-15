@@ -108,6 +108,8 @@ export default function SurfSpotDetails() {
     seasonStart,
     seasonEnd,
     boatRequired,
+    isWavepool,
+    wavepoolUrl,
     parking,
     foodNearby,
     foodTypes,
@@ -135,12 +137,14 @@ export default function SurfSpotDetails() {
           </div>
         </div>
         <p className="description">{description}</p>
-        <div className="row spot-details gap mb pv">
-          <Details label="Break Type" value={type} />
-          <Details label="Beach Bottom" value={beachBottomType} />
-          <Details label="Wave Direction" value={waveDirection} />
-          <Details label="Skill Level" value={skillLevel} />
-        </div>
+        {!isWavepool && (
+          <div className="row spot-details gap mb pv">
+            <Details label="Break Type" value={type} />
+            <Details label="Beach Bottom" value={beachBottomType} />
+            <Details label="Wave Direction" value={waveDirection} />
+            <Details label="Skill Level" value={skillLevel} />
+          </div>
+        )}
       </div>
       <ErrorBoundary message="Uh-oh! Something went wrong displaying the map!">
         <div className="map-wrapper mv">
@@ -148,75 +152,98 @@ export default function SurfSpotDetails() {
         </div>
       </ErrorBoundary>
       <div className="content pt">
-        <section>
-          <h3>Best Conditions</h3>
-          <div className="best-conditions">
-            <div className="best-conditions-item">
-              <DirectionIcon type="swell" directionRange={swellDirection} />
-              <Details label="Swell Direction" value={swellDirection} />
-            </div>
-            <div className="best-conditions-item">
-              <DirectionIcon type="wind" directionRange={windDirection} />
-              <Details label="Wind Direction" value={windDirection} />
-            </div>
-            <div className="best-conditions-item">
-              <TideIcon tide={tide} />
-              <Details label="Tides" value={tide} />
-            </div>
-            <div className="best-conditions-item">
-              <SurfHeightIcon />
-              <Details
-                label="Surf Height"
-                value={formatSurfHeightRange(
-                  preferredUnits,
-                  minSurfHeight,
-                  maxSurfHeight,
-                )}
-              />
-            </div>
-            <div className="best-conditions-item">
-              <CalendarIcon />
-              <Details
-                label="Season"
-                value={formatSeason(seasonStart, seasonEnd)}
-              />
-            </div>
-          </div>
-        </section>
-        <section>
-          <h3>Surf Forecasts</h3>
-          {forecasts && forecasts.length > 0 ? (
-            <>
-              <p>
-                Looking for real time conditions? Below is a list of forecasts
-                to check out
-              </p>
-              <div className="column mv">
-                {/* TODO: add icons/logos for well known forecasting sites */}
-                {forecasts.map((forecast) => (
-                  <a
-                    key={forecast}
-                    href={forecast}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    {forecast}
-                  </a>
-                ))}
+        {!isWavepool && (
+          <>
+            <section>
+              <h3>Best Conditions</h3>
+              <div className="best-conditions">
+                <div className="best-conditions-item">
+                  <DirectionIcon type="swell" directionRange={swellDirection} />
+                  <Details label="Swell Direction" value={swellDirection} />
+                </div>
+                <div className="best-conditions-item">
+                  <DirectionIcon type="wind" directionRange={windDirection} />
+                  <Details label="Wind Direction" value={windDirection} />
+                </div>
+                <div className="best-conditions-item">
+                  <TideIcon tide={tide} />
+                  <Details label="Tides" value={tide} />
+                </div>
+                <div className="best-conditions-item">
+                  <SurfHeightIcon />
+                  <Details
+                    label="Surf Height"
+                    value={formatSurfHeightRange(
+                      preferredUnits,
+                      minSurfHeight,
+                      maxSurfHeight,
+                    )}
+                  />
+                </div>
+                <div className="best-conditions-item">
+                  <CalendarIcon />
+                  <Details
+                    label="Season"
+                    value={formatSeason(seasonStart, seasonEnd)}
+                  />
+                </div>
               </div>
-            </>
-          ) : (
+            </section>
+            <section>
+              <h3>Surf Forecasts</h3>
+              {forecasts && forecasts.length > 0 ? (
+                <>
+                  <p>
+                    Looking for real time conditions? Below is a list of
+                    forecasts to check out
+                  </p>
+                  <div className="column mv">
+                    {/* TODO: add icons/logos for well known forecasting sites */}
+                    {forecasts.map((forecast) => (
+                      <a
+                        key={forecast}
+                        href={forecast}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        {forecast}
+                      </a>
+                    ))}
+                  </div>
+                </>
+              ) : (
+                <p>
+                  Know a reliable forecast for this spot? Let us know and share
+                  the love!
+                </p>
+              )}
+            </section>
+          </>
+        )}
+        {isWavepool && wavepoolUrl && (
+          <section>
+            <h3>Official Website</h3>
             <p>
-              Know a reliable forecast for this spot? Let us know and share the
-              love!
+              For booking, pricing, and wave schedules, visit the official
+              website:
             </p>
-          )}
-        </section>
+            <div className="mv">
+              <a
+                href={wavepoolUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="wavepool-website-link"
+              >
+                {wavepoolUrl}
+              </a>
+            </div>
+          </section>
+        )}
         <section>
           <h3>Amenities</h3>
           <div className="amenities-content">
             <div className="amenities-section">
-              <h4>How to get there?</h4>
+              <h4>Access</h4>
               <div className="amenities-details">
                 {boatRequired && (
                   <div className="details">
