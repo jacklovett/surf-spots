@@ -199,6 +199,7 @@ export interface SurfSpotFilters {
   hazards: Option[]
   facilities: Option[]
   seasons: string[] // Array of month names (e.g., "January", "February", etc.)
+  isWavepool?: boolean
 }
 
 export const defaultSurfSpotFilters: SurfSpotFilters = {
@@ -216,4 +217,5 @@ export const defaultSurfSpotFilters: SurfSpotFilters = {
   hazards: [],
   facilities: [],
   seasons: [],
+  isWavepool: undefined,
 }

@@ -185,6 +185,11 @@ export const SKILL_LEVEL_OPTIONS: Option[] = [
 export const TIDE_OPTIONS = [
   SELECT_OPTION,
   {
+    key: Tide.ANY,
+    value: Tide.ANY,
+    label: 'Any',
+  },
+  {
     key: Tide.LOW,
     value: Tide.LOW,
     label: 'Low',

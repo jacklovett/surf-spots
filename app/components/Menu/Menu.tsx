@@ -3,8 +3,7 @@ import { useNavigate } from 'react-router'
 
 import { MenuItem, profileMenuItems, spotsMenuItems } from './index'
 import { ErrorBoundary, Icon } from '../index'
-import { useLayoutContext } from '~/contexts'
-import { useUserContext } from '~/contexts'
+import { useLayoutContext, useUserContext } from '~/contexts'
 import { useAuthModal } from '~/hooks/useAuthModal'
 
 const Menu = () => {
@@ -17,7 +16,10 @@ const Menu = () => {
   const toggleDropdown = () => setDropdownOpen((prev) => !prev)
 
   // Map of protected routes to their route identifiers
-  const protectedRoutes: Record<string, 'surfed-spots' | 'watch-list' | 'add-surf-spot'> = {
+  const protectedRoutes: Record<
+    string,
+    'surfed-spots' | 'watch-list' | 'add-surf-spot'
+  > = {
     '/surfed-spots': 'surfed-spots',
     '/watch-list': 'watch-list',
     '/add-surf-spot': 'add-surf-spot',

@@ -111,6 +111,13 @@ export const Filters = memo(() => {
       rating: rating || 0,
     }))
 
+  // Handle wavepool filter change (boolean)
+  const handleWavepoolChange = (checked: boolean) =>
+    setSelectedFilters((prev) => ({
+      ...prev,
+      isWavepool: checked ? true : undefined,
+    }))
+
   // Apply filters: update global context
   const handleApplyFilters = () => {
     setFilters(selectedFilters)
@@ -361,6 +368,19 @@ export const Filters = memo(() => {
                 onChange={() => handleOptionFilterChange('facilities', option)}
               />
             ))}
+          </div>
+        </div>
+
+        <div className="filters-content-section">
+          <h3 className="filters-content-title">Novelty Waves</h3>
+          <div className="filters-content-options">
+            <CheckboxOption
+              name="wavepool"
+              title="Wavepool"
+              description="Show only wavepools"
+              checked={selectedFilters.isWavepool === true}
+              onChange={handleWavepoolChange}
+            />
           </div>
         </div>
       </div>

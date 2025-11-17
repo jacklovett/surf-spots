@@ -66,13 +66,6 @@ export const AccessAmenitiesSection = ({
       <h4 className="mt pt">Access & Amenities</h4>
       {/* Access */}
       <div className="pv">
-        <CheckboxOption
-          name="boatRequired"
-          title="Boat Required?"
-          description="Is a boat required to access this surf spot?"
-          checked={isBoatRequired}
-          onChange={() => onBoatRequiredChange(!isBoatRequired)}
-        />
         {/* Parking */}
         {!isBoatRequired && (
           <FormInput
@@ -88,6 +81,15 @@ export const AccessAmenitiesSection = ({
             showLabel
           />
         )}
+        <div className={!isBoatRequired ? 'mt' : ''}>
+          <CheckboxOption
+            name="boatRequired"
+            title="Boat Required?"
+            description="Is a boat required to access this surf spot?"
+            checked={isBoatRequired}
+            onChange={() => onBoatRequiredChange(!isBoatRequired)}
+          />
+        </div>
       </div>
       {/* Forecast Links */}
       <div className="pv">

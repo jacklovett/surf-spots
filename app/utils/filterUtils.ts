@@ -29,6 +29,7 @@ export interface BackendFilterFormat {
   parking?: string[]
   status?: string
   boatRequired?: boolean
+  isWavepool?: boolean
   foodOptions?: string[]
   accommodationOptions?: string[]
   facilities?: string[]
@@ -82,6 +83,10 @@ export const convertFiltersToBackendFormat = (
 
   if (filters.rating && filters.rating > 0) {
     backendFilters.minRating = filters.rating
+  }
+
+  if (filters.isWavepool !== undefined) {
+    backendFilters.isWavepool = filters.isWavepool
   }
 
   // Convert Option arrays to string arrays
