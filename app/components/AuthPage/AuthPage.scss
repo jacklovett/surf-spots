@@ -1,11 +1,12 @@
 .auth-cta {
   @extend %flex-base;
   gap: $spacing-small;
+}
 
-  & p,
+.auth-options {
+  & .auth-cta p,
   a {
-    margin: 0;
-    font-size: $font-size-small;
+    margin-bottom: 0;
   }
 }
 
