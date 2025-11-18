@@ -9,6 +9,7 @@ import {
 } from './ConditionIcons'
 import Drawer from './Drawer'
 import ErrorBoundary from './ErrorBoundary'
+import FeedItem from './FeedItem'
 import Filters from './Filters'
 import Footer from './Footer'
 import FormComponent from './FormComponent'
@@ -58,6 +59,7 @@ export {
   DirectionSelector,
   Drawer,
   ErrorBoundary,
+  FeedItem,
   Filters,
   Footer,
   FormComponent,

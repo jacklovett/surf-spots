@@ -253,30 +253,34 @@
 
 /* Visible state - triggers animation */
 .animate-on-scroll.visible {
-  animation: bounceIn 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+  animation: bounceIn 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
 
   &:nth-child(1) {
-    animation-delay: 0.05s;
+    animation-delay: 0.02s;
   }
 
   &:nth-child(2) {
-    animation-delay: 0.1s;
+    animation-delay: 0.04s;
   }
 
   &:nth-child(3) {
-    animation-delay: 0.15s;
+    animation-delay: 0.06s;
   }
 
   &:nth-child(4) {
-    animation-delay: 0.2s;
+    animation-delay: 0.08s;
   }
 
   &:nth-child(5) {
-    animation-delay: 0.25s;
+    animation-delay: 0.1s;
   }
 
   &:nth-child(6) {
-    animation-delay: 0.3s;
+    animation-delay: 0.12s;
+  }
+
+  &:nth-child(n + 7) {
+    animation-delay: 0.14s;
   }
 }
 

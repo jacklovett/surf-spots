@@ -1123,12 +1123,12 @@ h2 {
 }
 
 .contact-form-section {
-  background: white;
+  background: $white;
   padding: 2.5rem;
-  border-radius: 12px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+  border-radius: $content-border-radius;
+  box-shadow: $box-shadow;
   border: 1px solid $border-light;
-  margin-bottom: 3rem;
+  margin-bottom: $spacing-large;
 }
 
 .contact-form {
@@ -1148,21 +1148,18 @@ h2 {
 
 .contact-form .form-item {
   @extend %flex-column;
-  gap: 0.5rem;
+  gap: $spacing-small;
 }
 
 .contact-form label {
   font-weight: 600;
-
-  font-size: 0.9rem;
 }
 
 .contact-form input,
 .contact-form textarea {
-  padding: 0.75rem;
+  padding: $spacing-small;
   border: 1px solid $border-medium;
   border-radius: 6px;
-  font-size: 1rem;
   transition: border-color 0.3s ease;
 
   &:focus {
@@ -1178,7 +1175,7 @@ h2 {
 }
 
 .contact-form .form-submit {
-  margin-top: 1rem;
+  margin-top: $spacing-unit;
 }
 
 .contact-info-section {
@@ -1192,10 +1189,10 @@ h2 {
 }
 
 .info-card {
-  background: white;
+  background: $white;
   padding: 1.5rem;
-  border-radius: 12px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+  border-radius: $content-border-radius;
+  box-shadow: $box-shadow;
   border: 1px solid $border-light;
 }
 
@@ -1207,4 +1204,63 @@ h2 {
 /* 404 Page Styles */
 .page-not-found-container {
   min-height: calc(100vh - 120px);
+}
+
+/* Watch List Page Styles */
+.watchlist-header-actions {
+  margin-bottom: $spacing-large;
+  text-align: right;
+}
+
+.watchlist-spots-link {
+  font-size: $font-size-small;
+}
+
+.watched-spots-title {
+  font-size: $font-size-x-large;
+  color: $text-heading;
+  margin: $spacing-x-large 0 $spacing-large 0;
+  padding-top: $spacing-large;
+  border-top: 2px solid $border-light;
+}
+
+.watchlist-feed {
+  margin: $spacing-large 0;
+}
+
+.feed-section-title {
+  font-size: $font-size-x-large;
+  color: $text-heading;
+  margin: 0 0 $spacing-large 0;
+  padding-bottom: $spacing-unit;
+  border-bottom: 2px solid $border-light;
+}
+
+.feed-container {
+  @extend %flex-column;
+  gap: $spacing-unit;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.watchlist-empty-state {
+  text-align: center;
+  padding: $spacing-x-large 0;
+  color: $text-secondary;
+
+  .text-secondary {
+    color: $text-secondary;
+    font-size: $font-size-small;
+    margin-top: $spacing-small;
+  }
+}
+
+@media (max-width: 768px) {
+  .feed-container {
+    max-width: 100%;
+  }
+
+  .feed-section-title {
+    font-size: $font-size-large;
+  }
 }

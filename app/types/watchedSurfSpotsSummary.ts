@@ -1,13 +1,17 @@
 import { SurfSpot } from './surfSpots'
 
-type NotificationType = 'promotion' | 'hazard' | 'swell' | 'event'
+export type NotificationType = 'promotion' | 'hazard' | 'swell' | 'event'
 
-interface WatchListNotification {
+export interface WatchListNotification {
   id: string
   title: string
   description: string
   type: NotificationType
   link?: string
+  imageUrl?: string
+  location?: string
+  surfSpotName?: string
+  createdAt?: string
 }
 
 export interface WatchListSpot {

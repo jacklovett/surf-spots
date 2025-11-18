@@ -1,0 +1,204 @@
+@use 'sass:color';
+
+.feed-item {
+  background: $white;
+  border-radius: $content-border-radius;
+  box-shadow: $box-shadow;
+  border: 1px solid $border-light;
+  margin-bottom: $spacing-large;
+  overflow: hidden;
+  transition:
+    transform 0.3s ease,
+    box-shadow 0.3s ease;
+
+  &:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
+  }
+
+  .feed-item-link-wrapper {
+    text-decoration: none;
+    color: inherit;
+    display: block;
+    cursor: pointer;
+  }
+}
+
+.feed-item-banner {
+  width: 100%;
+  height: 200px;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  position: relative;
+  overflow: hidden;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(
+      180deg,
+      rgba(0, 0, 0, 0) 0%,
+      rgba(0, 0, 0, 0.3) 100%
+    );
+    z-index: 1;
+  }
+}
+
+.feed-item-banner-overlay {
+  position: absolute;
+  top: $spacing-unit;
+  right: $spacing-unit;
+  z-index: 2;
+}
+
+.feed-item-badge {
+  background: rgba(255, 255, 255, 0.95);
+  padding: $spacing-small $spacing-unit;
+  border-radius: $button-border-radius;
+  font-size: $font-size-x-small;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.feed-item[data-type='event'] .feed-item-badge {
+  color: $accent-color;
+}
+
+.feed-item[data-type='swell'] .feed-item-badge {
+  color: $primary-color;
+}
+
+.feed-item[data-type='promotion'] .feed-item-badge {
+  color: $notification-color;
+}
+
+.feed-item[data-type='hazard'] .feed-item-badge {
+  color: $error;
+}
+
+.feed-item-body {
+  padding: $spacing-large;
+}
+
+.feed-item-header {
+  @extend %flex-base;
+  align-items: center;
+  gap: $spacing-unit;
+  margin-bottom: $spacing-unit;
+}
+
+.feed-item-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  @extend %flex-center;
+  flex-shrink: 0;
+
+  svg {
+    width: 24px;
+    height: 24px;
+  }
+}
+
+// Icon colors and backgrounds based on notification type
+.feed-item[data-type='event'] {
+  .feed-item-icon {
+    background-color: color.mix($accent-color, $white, 15%);
+
+    svg {
+      stroke: $accent-color;
+      fill: $accent-color;
+    }
+  }
+}
+
+.feed-item[data-type='swell'] {
+  .feed-item-icon {
+    background-color: color.mix($primary-color, $white, 15%);
+
+    svg {
+      stroke: $primary-color;
+    }
+  }
+}
+
+.feed-item[data-type='promotion'] {
+  .feed-item-icon {
+    background-color: color.mix($notification-color, $white, 15%);
+
+    svg {
+      stroke: $notification-color;
+      fill: $notification-color;
+    }
+  }
+}
+
+.feed-item[data-type='hazard'] {
+  .feed-item-icon {
+    background-color: color.mix($error, $white, 15%);
+
+    svg {
+      stroke: $error;
+      fill: $error;
+    }
+  }
+}
+
+.feed-item-meta {
+  @extend %flex-column;
+  gap: 4px;
+  flex: 1;
+}
+
+.feed-item-location {
+  font-size: $font-size-small;
+  font-weight: 600;
+  color: $text-heading;
+}
+
+.feed-item-time {
+  font-size: $font-size-x-small;
+  color: $text-secondary;
+}
+
+.feed-item-content {
+  margin-top: $spacing-small;
+}
+
+.feed-item-title {
+  font-size: $font-size-x-large;
+  font-weight: 700;
+  color: $text-heading;
+  margin: 0 0 $spacing-unit 0;
+  line-height: 1.3;
+}
+
+.feed-item-description {
+  font-size: $font-size-base;
+  color: $text-color;
+  line-height: 1.7;
+  margin: 0 0 $spacing-large 0;
+}
+
+.feed-item-cta {
+  display: inline-block;
+  font-size: $font-size-base;
+  color: $primary-color;
+  font-weight: 700;
+  margin-top: $spacing-small;
+  transition:
+    color 0.2s ease,
+    transform 0.2s ease;
+
+  .feed-item:hover & {
+    color: $accent-color;
+    transform: translateX(4px);
+  }
+}

@@ -8,7 +8,7 @@ interface UseScrollRevealOptions {
   rootMargin?: string
   /**
    * The threshold for triggering the animation.
-   * Default: 0.1 (10% of element must be visible)
+   * Default: 0.05 (5% of element must be visible)
    */
   threshold?: number
   /**
@@ -50,7 +50,7 @@ export const useScrollReveal = <T extends HTMLElement = HTMLDivElement>(
 ): RefObject<T> => {
   const {
     rootMargin = '0px 0px -50px 0px',
-    threshold = 0.1,
+    threshold = 0.05,
     once = true,
     selector = '.animate-on-scroll',
   } = options
