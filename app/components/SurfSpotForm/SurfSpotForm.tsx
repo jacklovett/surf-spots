@@ -83,16 +83,17 @@ export const SurfSpotForm = (props: SurfSpotFormProps) => {
             longitude: position.coords.longitude,
             latitude: position.coords.latitude,
           }
+
           setInitialUserCoords(coords)
         },
         (error) => {
-          console.error('Error getting user location:', error)
+          console.error('Error getting initial user location:', error)
           // Keep default location on error
         },
         {
-          enableHighAccuracy: true,
-          timeout: 10000,
-          maximumAge: 60000,
+          enableHighAccuracy: true, // Prefer GPS over IP-based location
+          timeout: 15000, // Increased timeout to allow GPS to get a fix
+          maximumAge: 0, // Don't use cached location, always get fresh location
         },
       )
     }
@@ -175,8 +176,6 @@ export const SurfSpotForm = (props: SurfSpotFormProps) => {
         waveDirection: surfSpot?.waveDirection || '',
         minSurfHeight: surfSpot?.minSurfHeight ?? '',
         maxSurfHeight: surfSpot?.maxSurfHeight ?? '',
-        seasonStart: surfSpot?.seasonStart || '',
-        seasonEnd: surfSpot?.seasonEnd || '',
         parking: surfSpot?.parking || '',
         foodNearby: !!surfSpot?.foodNearby,
         skillLevel: surfSpot?.skillLevel || '',
@@ -190,7 +189,11 @@ export const SurfSpotForm = (props: SurfSpotFormProps) => {
         longitude: validateLongitude,
         latitude: validateLatitude,
         name: validateRequired,
-        description: validateRequired,
+        description: (value) => {
+          // Description is only required for public spots (not private)
+          if (isPrivateSpot) return ''
+          return validateRequired(value, 'Description')
+        },
         swellDirection: (value) => {
           if (isWavepool) return '' // Not required for wavepools
           return validateDirection(value, 'Swell Direction')
@@ -338,8 +341,8 @@ export const SurfSpotForm = (props: SurfSpotFormProps) => {
             continents={continents}
             locationSelection={locationSelection}
             onLocationChange={handleChange}
-            isAtUserLocation={locationSelection.isAtUserLocation}
           />
+          <h3 className="mt pt">Tell us about the spot</h3>
           <div className="pv">
             <CheckboxOption
               name="isWavepool"
@@ -391,8 +394,6 @@ export const SurfSpotForm = (props: SurfSpotFormProps) => {
                   tide: formState.tide,
                   minSurfHeight: formState.minSurfHeight,
                   maxSurfHeight: formState.maxSurfHeight,
-                  seasonStart: formState.seasonStart,
-                  seasonEnd: formState.seasonEnd,
                 }}
                 errors={{
                   swellDirection: errors.swellDirection,
@@ -400,8 +401,6 @@ export const SurfSpotForm = (props: SurfSpotFormProps) => {
                   tide: errors.tide,
                   minSurfHeight: errors.minSurfHeight,
                   maxSurfHeight: errors.maxSurfHeight,
-                  seasonStart: errors.seasonStart,
-                  seasonEnd: errors.seasonEnd,
                 }}
                 swellDirectionArray={swellDirectionArray}
                 windDirectionArray={windDirectionArray}

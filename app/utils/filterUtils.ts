@@ -24,8 +24,6 @@ export interface BackendFilterFormat {
   maxRating?: number
   swellDirection?: string[]
   windDirection?: string[]
-  seasonStart?: string
-  seasonEnd?: string
   parking?: string[]
   status?: string
   boatRequired?: boolean

@@ -41,7 +41,6 @@ export const SpotDetailsSection = ({
 }: SpotDetailsSectionProps) => {
   return (
     <>
-      <h3 className="mt pt">Tell us about the spot</h3>
       <div className="form-inline">
         <FormInput
           field={{
@@ -99,4 +98,3 @@ export const SpotDetailsSection = ({
     </>
   )
 }
-

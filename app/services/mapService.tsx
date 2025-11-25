@@ -140,13 +140,13 @@ export const getRegionAndCountryFromCoordinates = async (
     // Step 1: Use Mapbox to get country name (fast, accurate, helps with country borders)
     const mapboxResult = await reverseGeocodeWithMapbox(longitude, latitude)
 
-    if (!mapboxResult?.country) {
-      // No country from Mapbox - return null for both
-      console.warn(
-        `[Region Lookup] Mapbox returned no country for ${longitude}, ${latitude}`,
-      )
-      return { region: null, country: null }
-    }
+      if (!mapboxResult?.country) {
+        // No country from Mapbox - return null for both
+        console.warn(
+          `[Region Lookup] Mapbox returned no country for ${longitude}, ${latitude}`,
+        )
+        return { region: null, country: null, continent: null }
+      }
 
     // Step 2: Single backend call to get both country and region
     const countryName = mapboxResult.country.toLowerCase().trim()
@@ -190,7 +190,7 @@ export const getRegionAndCountryFromCoordinates = async (
           '[Region Lookup] 401 Unauthorized - This endpoint should be public. ' +
             'Check backend SessionCookieFilter configuration and CORS settings.',
         )
-        return { region: null, country: null }
+        return { region: null, country: null, continent: null }
       }
 
       if (networkError?.status === 404) {
@@ -198,17 +198,17 @@ export const getRegionAndCountryFromCoordinates = async (
         console.error(
           `[Region Lookup] Country "${countryName}" (from Mapbox: "${mapboxResult.country}") not found in database`,
         )
-        return { region: null, country: null }
+        return { region: null, country: null, continent: null }
       }
       // For other errors, log and return null
-      return { region: null, country: null }
+      return { region: null, country: null, continent: null }
     }
   } catch (error) {
     console.error(
       '[Region Lookup] Unexpected error in getRegionAndCountryFromCoordinates:',
       error,
     )
-    return { region: null, country: null }
+    return { region: null, country: null, continent: null }
   }
 }
 

@@ -266,8 +266,20 @@ export const useLocationSelection = ({
 
     const debounceTimer = setTimeout(async () => {
       try {
-        const { region: fetchedRegion, country: fetchedCountry } =
-          await getRegionAndCountryFromCoordinates(longitude, latitude)
+        const response = await getRegionAndCountryFromCoordinates(
+          longitude,
+          latitude,
+        )
+
+        const {
+          region: fetchedRegion,
+          country: fetchedCountry,
+          continent: fetchedContinentFromResponse,
+        } = response
+
+        // Get continent from top-level response, or from country object
+        const fetchedContinent =
+          fetchedContinentFromResponse || fetchedCountry?.continent
 
         previousCoordsRef.current = { longitude, latitude }
 
@@ -275,6 +287,13 @@ export const useLocationSelection = ({
           ? String(fetchedCountry.id)
           : ''
         const targetRegionId = fetchedRegion?.id ? String(fetchedRegion.id) : ''
+
+        console.log('[LocationSelection] Extracted IDs:', {
+          targetCountryId,
+          targetRegionId,
+          countryName: fetchedCountry?.name,
+          regionName: fetchedRegion?.name,
+        })
 
         if (fetchedCountry?.name) {
           setCountryName(fetchedCountry.name)
@@ -287,14 +306,17 @@ export const useLocationSelection = ({
 
         clearedCountryRef.current = null
 
-        if (fetchedRegion && fetchedCountry && targetCountryId) {
-          const continentSlug = fetchedCountry.continent?.slug || ''
+        // Get continent from the result (it's now included directly in the response)
+        const continentSlug = fetchedContinent?.slug || ''
 
-          if (continentSlug && continent !== continentSlug) {
+        if (fetchedRegion && fetchedCountry && targetCountryId) {
+          // Always set continent if we have it (either it's different or currently empty)
+          if (continentSlug && (!continent || continent !== continentSlug)) {
             pendingCountryIdRef.current = targetCountryId
             pendingRegionIdRef.current = targetRegionId
             onLocationChangeRef.current('continent', continentSlug)
           } else {
+            // Continent is already set correctly, now set country and region
             onLocationChangeRef.current('country', targetCountryId)
             if (targetRegionId) {
               onLocationChangeRef.current('region', targetRegionId)
@@ -305,12 +327,24 @@ export const useLocationSelection = ({
             onLocationChangeRef.current('region', '')
           }
 
-          const continentSlug = fetchedCountry.continent?.slug || ''
+          const continentSlug = fetchedContinent?.slug || ''
+          console.log(
+            '[LocationSelection] Country found but no region. Continent slug:',
+            continentSlug,
+          )
 
-          if (continentSlug && continent !== continentSlug) {
+          // Always set continent if we have it (either it's different or currently empty)
+          if (continentSlug && (!continent || continent !== continentSlug)) {
+            console.log(
+              '[LocationSelection] Setting continent (country only):',
+              continentSlug,
+            )
             pendingCountryIdRef.current = targetCountryId
             onLocationChangeRef.current('continent', continentSlug)
           } else {
+            console.log(
+              '[LocationSelection] No continent slug or already set, setting country only',
+            )
             onLocationChangeRef.current('country', targetCountryId)
           }
 
@@ -341,19 +375,25 @@ export const useLocationSelection = ({
       } catch (error) {
         console.error('Error fetching region from coordinates:', error)
 
-        setCountryName('')
-        setRegionName('')
-        if (region) {
-          onLocationChangeRef.current('region', '')
+        // Safely handle errors without crashing the app
+        try {
+          setCountryName('')
+          setRegionName('')
+          if (region) {
+            onLocationChangeRef.current('region', '')
+          }
+          setRegionNotFoundMessage(
+            'Error determining region. Please try entering manually.',
+          )
+
+          previousCoordsRef.current = { longitude, latitude }
+
+          setIsDeterminingLocation(false)
+          isAutoFillingRef.current = false
+        } catch (innerError) {
+          // If even error handling fails, just log it
+          console.error('Error in error handler:', innerError)
         }
-        setRegionNotFoundMessage(
-          'Error determining region. Please try entering manually.',
-        )
-
-        previousCoordsRef.current = { longitude, latitude }
-
-        setIsDeterminingLocation(false)
-        isAutoFillingRef.current = false
       }
     }, 500)
 
@@ -367,12 +407,25 @@ export const useLocationSelection = ({
 
   const handleUseMyLocation = useCallback(() => {
     if (navigator.geolocation) {
+      // Use high accuracy options to prefer GPS over IP-based location
+      // This helps avoid VPN interference on devices with GPS
       navigator.geolocation.getCurrentPosition(
         (position) => {
           const coords: Coordinates = {
             longitude: position.coords.longitude,
             latitude: position.coords.latitude,
           }
+
+          // Log accuracy info for debugging
+          console.log('Location obtained:', {
+            coords,
+            accuracy: position.coords.accuracy, // in meters
+            source:
+              position.coords.accuracy < 100
+                ? 'GPS'
+                : 'Network/IP (may be affected by VPN)',
+          })
+
           setUserLocation(coords)
           onLocationChangeRef.current('longitude', coords.longitude)
           onLocationChangeRef.current('latitude', coords.latitude)
@@ -383,7 +436,30 @@ export const useLocationSelection = ({
         },
         (error) => {
           console.error('Error getting location:', error)
-          alert('Could not get your location. Please enter manually.')
+          let errorMessage = 'Could not get your location. '
+
+          switch (error.code) {
+            case error.PERMISSION_DENIED:
+              errorMessage +=
+                'Please allow location access in your browser settings.'
+              break
+            case error.POSITION_UNAVAILABLE:
+              errorMessage +=
+                'Location information is unavailable. This may be affected by your VPN. Please enter manually or disable VPN.'
+              break
+            case error.TIMEOUT:
+              errorMessage += 'Location request timed out. Please try again.'
+              break
+            default:
+              errorMessage += 'Please enter manually.'
+          }
+
+          alert(errorMessage)
+        },
+        {
+          enableHighAccuracy: true, // Prefer GPS over IP-based location
+          timeout: 15000, // Increased timeout to allow GPS to get a fix
+          maximumAge: 0, // Don't use cached location, always get fresh location
         },
       )
     } else {

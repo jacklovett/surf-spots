@@ -126,8 +126,6 @@ export const createSurfSpotFromFormData = async (request: Request) => {
     ? parseFloat(maxSurfHeightFormValue)
     : undefined
 
-  const seasonStart = formData.get('seasonStart')?.toString() || ''
-  const seasonEnd = formData.get('seasonEnd')?.toString() || ''
   const skillLevel = formData.get('skillLevel')?.toString() || ''
 
   const ratingFormValue = formData.get('rating')?.toString()
@@ -151,8 +149,6 @@ export const createSurfSpotFromFormData = async (request: Request) => {
     waveDirection,
     minSurfHeight,
     maxSurfHeight,
-    seasonStart,
-    seasonEnd,
     skillLevel,
     forecasts,
     boatRequired,

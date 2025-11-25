@@ -73,10 +73,14 @@ export const formatSurfHeightRange = (
   return `${heightRange}${unit}`
 }
 
-export const formatSeason = (seasonStart?: string, seasonEnd?: string) => {
-  if (!seasonStart && !seasonEnd) return '-'
-  if (seasonStart && seasonEnd) return `${seasonStart} - ${seasonEnd}`
-  return seasonStart || seasonEnd || '-'
+import { SwellSeason } from '~/types/surfSpots'
+
+export const formatSeason = (swellSeason?: SwellSeason | null) => {
+  if (!swellSeason) return '-'
+  if (swellSeason.start && swellSeason.end) {
+    return `${swellSeason.start} - ${swellSeason.end}`
+  }
+  return swellSeason.start || swellSeason.end || '-'
 }
 
 /**

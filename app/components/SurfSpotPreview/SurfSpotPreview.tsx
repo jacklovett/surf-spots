@@ -37,8 +37,7 @@ export const SurfSpotPreview = memo((props: IProps) => {
     tide,
     minSurfHeight,
     maxSurfHeight,
-    seasonStart,
-    seasonEnd,
+    swellSeason,
     rating,
   } = surfSpot
 
@@ -96,7 +95,7 @@ export const SurfSpotPreview = memo((props: IProps) => {
               <CalendarIcon size={20} />
               <Details
                 label="Season"
-                value={formatSeason(seasonStart, seasonEnd)}
+                value={formatSeason(swellSeason)}
               />
             </div>
           </div>

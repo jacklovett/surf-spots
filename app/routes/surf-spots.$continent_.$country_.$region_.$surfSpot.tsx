@@ -27,7 +27,6 @@ import { submitFetcher } from '~/components/SurfSpotActions'
 import { FetcherSubmitParams } from '~/components/SurfSpotActions'
 
 import { useUserContext, useSettingsContext } from '~/contexts'
-import { units } from '~/contexts/SettingsContext'
 
 import { surfSpotAction } from '~/services/surfSpot.server'
 import { getSession } from '~/services/session.server'
@@ -105,8 +104,7 @@ export default function SurfSpotDetails() {
     windDirection,
     minSurfHeight,
     maxSurfHeight,
-    seasonStart,
-    seasonEnd,
+    swellSeason,
     boatRequired,
     isWavepool,
     wavepoolUrl,
@@ -182,10 +180,7 @@ export default function SurfSpotDetails() {
                 </div>
                 <div className="best-conditions-item">
                   <CalendarIcon />
-                  <Details
-                    label="Season"
-                    value={formatSeason(seasonStart, seasonEnd)}
-                  />
+                  <Details label="Season" value={formatSeason(swellSeason)} />
                 </div>
               </div>
             </section>

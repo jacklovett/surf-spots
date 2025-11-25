@@ -15,8 +15,6 @@ interface BestConditionsSectionProps {
     tide?: Tide
     minSurfHeight?: number
     maxSurfHeight?: number
-    seasonStart: string
-    seasonEnd: string
   }
   errors: {
     swellDirection?: string
@@ -24,8 +22,6 @@ interface BestConditionsSectionProps {
     tide?: string
     minSurfHeight?: string
     maxSurfHeight?: string
-    seasonStart?: string
-    seasonEnd?: string
   }
   swellDirectionArray: string[]
   windDirectionArray: string[]
@@ -108,7 +104,10 @@ export const BestConditionsSection = ({
             value={formState.minSurfHeight}
             onChange={(e) => {
               const value = e.target.value
-              onChange('minSurfHeight', value === '' ? undefined : parseFloat(value))
+              onChange(
+                'minSurfHeight',
+                value === '' ? undefined : parseFloat(value),
+              )
             }}
             errorMessage={errors.minSurfHeight || ''}
             showLabel={!!formState.minSurfHeight}
@@ -122,41 +121,16 @@ export const BestConditionsSection = ({
             value={formState.maxSurfHeight}
             onChange={(e) => {
               const value = e.target.value
-              onChange('maxSurfHeight', value === '' ? undefined : parseFloat(value))
+              onChange(
+                'maxSurfHeight',
+                value === '' ? undefined : parseFloat(value),
+              )
             }}
             errorMessage={errors.maxSurfHeight || ''}
             showLabel={!!formState.maxSurfHeight}
           />
         </div>
       </div>
-      <p className="m-0 pt bold">When is the best time to go?</p>
-      <div className="form-inline">
-        <FormInput
-          field={{
-            label: 'Season Starts',
-            name: 'seasonStart',
-            type: 'select',
-            options: MONTH_LIST,
-          }}
-          onChange={(e) => onChange('seasonStart', e.target.value)}
-          errorMessage={errors.seasonStart || ''}
-          value={formState.seasonStart}
-          showLabel
-        />
-        <FormInput
-          field={{
-            label: 'Season Ends',
-            name: 'seasonEnd',
-            type: 'select',
-            options: MONTH_LIST,
-          }}
-          onChange={(e) => onChange('seasonEnd', e.target.value)}
-          errorMessage={errors.seasonEnd || ''}
-          value={formState.seasonEnd}
-          showLabel
-        />
-      </div>
     </div>
   )
 }
-

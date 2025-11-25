@@ -45,6 +45,7 @@ export interface MapboxReverseGeocodeResult {
 export interface RegionCountryLookupResponse {
   region: Region | null
   country: Country | null
+  continent?: Continent | null
 }
 
 export interface Region {
@@ -125,6 +126,13 @@ export interface SurfSpot extends NewSurfSpot {
   createdBy: string
 }
 
+export interface SwellSeason {
+  id?: number
+  name: string
+  start: string
+  end: string
+}
+
 export interface NewSurfSpot extends Coordinates {
   name: string
   description: string
@@ -141,8 +149,7 @@ export interface NewSurfSpot extends Coordinates {
   waveDirection: WaveDirection
   minSurfHeight: number
   maxSurfHeight: number
-  seasonStart: string
-  seasonEnd: string
+  swellSeason?: SwellSeason
   skillLevel: SkillLevel
   boatRequired: boolean
   isWavepool: boolean
@@ -175,8 +182,6 @@ export interface SurfSpotFormState {
   waveDirection?: WaveDirection
   minSurfHeight?: number
   maxSurfHeight?: number
-  seasonStart: string
-  seasonEnd: string
   parking: string
   foodNearby: boolean
   skillLevel?: SkillLevel
