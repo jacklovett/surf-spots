@@ -77,10 +77,10 @@ import { SwellSeason } from '~/types/surfSpots'
 
 export const formatSeason = (swellSeason?: SwellSeason | null) => {
   if (!swellSeason) return '-'
-  if (swellSeason.start && swellSeason.end) {
-    return `${swellSeason.start} - ${swellSeason.end}`
+  if (swellSeason.startMonth && swellSeason.endMonth) {
+    return `${swellSeason.startMonth} - ${swellSeason.endMonth}`
   }
-  return swellSeason.start || swellSeason.end || '-'
+  return swellSeason.startMonth || swellSeason.endMonth || '-'
 }
 
 /**

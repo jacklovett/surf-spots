@@ -129,8 +129,8 @@ export interface SurfSpot extends NewSurfSpot {
 export interface SwellSeason {
   id?: number
   name: string
-  start: string
-  end: string
+  startMonth: string
+  endMonth: string
 }
 
 export interface NewSurfSpot extends Coordinates {
