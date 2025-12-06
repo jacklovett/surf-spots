@@ -23,11 +23,11 @@ import {
 } from '~/utils/surfSpotUtils'
 import { determineInitialOptions, LoaderData } from './index'
 import {
+  Button,
   CheckboxOption,
   FormComponent,
   FormInput,
   InfoMessage,
-  Page,
   Rating,
 } from '~/components'
 import { Option } from '~/components/FormInput'
@@ -46,10 +46,11 @@ import { AccessAmenitiesSection } from './AccessAmenitiesSection'
 
 interface SurfSpotFormProps {
   actionType: 'Add' | 'Edit'
+  onCancel?: () => void
 }
 
 export const SurfSpotForm = (props: SurfSpotFormProps) => {
-  const { actionType } = props
+  const { actionType, onCancel } = props
   const { state } = useNavigation()
   const loading = state === 'loading'
 
@@ -278,174 +279,177 @@ export const SurfSpotForm = (props: SurfSpotFormProps) => {
   })
 
   return (
-    <Page showHeader>
-      <div className="info-page-content mv map-content">
-        <h1>{`${actionType} Surf Spot`}</h1>
-        <InfoMessage message="Public surf spots are reviewed and, if approved, become visible to everyone." />
-        <FormComponent
-          loading={loading}
-          isDisabled={!isFormValid}
-          submitStatus={submitStatus}
-          method={actionType === 'Edit' ? 'patch' : 'post'}
-        >
+    <div className="info-page-content mv map-content">
+      <h1>{`${actionType} Surf Spot`}</h1>
+      <InfoMessage message="Public surf spots are reviewed and, if approved, become visible to everyone." />
+      <FormComponent
+        loading={loading}
+        isDisabled={!isFormValid}
+        submitStatus={submitStatus}
+        method={actionType === 'Edit' ? 'patch' : 'post'}
+      >
+        <CheckboxOption
+          name="isPrivate"
+          title="Keep Private"
+          description="Only you will be able to see this spot. Your secret is safe with us!"
+          checked={isPrivateSpot}
+          onChange={() =>
+            setSpotStatus(
+              isPrivateSpot ? SurfSpotStatus.PENDING : SurfSpotStatus.PRIVATE,
+            )
+          }
+        />
+        <FormInput
+          field={{
+            label: 'Name',
+            name: 'name',
+            type: 'text',
+          }}
+          value={formState.name}
+          onChange={(e) => handleChange('name', e.target.value)}
+          errorMessage={errors.name || ''}
+          showLabel={!!formState.name}
+        />
+        <FormInput
+          field={{
+            label: 'Description',
+            name: 'description',
+            type: 'textarea',
+          }}
+          onChange={(e) => handleChange('description', e.target.value)}
+          value={formState.description}
+          errorMessage={errors.description || ''}
+          showLabel={!!formState.description}
+        />
+        <LocationSection
+          findOnMap={findOnMap}
+          onToggleView={() => setFindOnMap(!findOnMap)}
+          formState={{
+            continent: formState.continent,
+            country: formState.country,
+            region: formState.region,
+            longitude: formState.longitude,
+            latitude: formState.latitude,
+          }}
+          errors={{
+            continent: errors.continent,
+            country: errors.country,
+            region: errors.region,
+            longitude: errors.longitude,
+            latitude: errors.latitude,
+          }}
+          continents={continents}
+          locationSelection={locationSelection}
+          onLocationChange={handleChange}
+        />
+        <h3 className="mt pt">Tell us about the spot</h3>
+        <div className="pv">
           <CheckboxOption
-            name="isPrivate"
-            title="Keep Private"
-            description="Only you will be able to see this spot. Your secret is safe with us!"
-            checked={isPrivateSpot}
-            onChange={() =>
-              setSpotStatus(
-                isPrivateSpot ? SurfSpotStatus.PENDING : SurfSpotStatus.PRIVATE,
-              )
-            }
+            name="isWavepool"
+            title="Wavepool?"
+            description="Is this a wavepool?"
+            checked={isWavepool}
+            onChange={() => setIsWavepool(!isWavepool)}
           />
-          <FormInput
-            field={{
-              label: 'Name',
-              name: 'name',
-              type: 'text',
-            }}
-            value={formState.name}
-            onChange={(e) => handleChange('name', e.target.value)}
-            errorMessage={errors.name || ''}
-            showLabel={!!formState.name}
-          />
-          <FormInput
-            field={{
-              label: 'Description',
-              name: 'description',
-              type: 'textarea',
-            }}
-            onChange={(e) => handleChange('description', e.target.value)}
-            value={formState.description}
-            errorMessage={errors.description || ''}
-            showLabel={!!formState.description}
-          />
-          <LocationSection
-            findOnMap={findOnMap}
-            onToggleView={() => setFindOnMap(!findOnMap)}
-            formState={{
-              continent: formState.continent,
-              country: formState.country,
-              region: formState.region,
-              longitude: formState.longitude,
-              latitude: formState.latitude,
-            }}
-            errors={{
-              continent: errors.continent,
-              country: errors.country,
-              region: errors.region,
-              longitude: errors.longitude,
-              latitude: errors.latitude,
-            }}
-            continents={continents}
-            locationSelection={locationSelection}
-            onLocationChange={handleChange}
-          />
-          <h3 className="mt pt">Tell us about the spot</h3>
-          <div className="pv">
-            <CheckboxOption
-              name="isWavepool"
-              title="Wavepool?"
-              description="Is this a wavepool?"
-              checked={isWavepool}
-              onChange={() => setIsWavepool(!isWavepool)}
+          {isWavepool && (
+            <FormInput
+              field={{
+                label: 'Official Website',
+                name: 'wavepoolUrl',
+                type: 'text',
+              }}
+              value={wavepoolUrl || ''}
+              onChange={(e) => {
+                const value = e.target.value
+                setWavepoolUrl(value)
+                handleChange('wavepoolUrl', value)
+              }}
+              onBlur={() => handleBlur('wavepoolUrl')}
+              errorMessage={errors.wavepoolUrl || ''}
+              showLabel={!!wavepoolUrl}
             />
-            {isWavepool && (
-              <FormInput
-                field={{
-                  label: 'Official Website',
-                  name: 'wavepoolUrl',
-                  type: 'text',
-                }}
-                value={wavepoolUrl || ''}
-                onChange={(e) => {
-                  const value = e.target.value
-                  setWavepoolUrl(value)
-                  handleChange('wavepoolUrl', value)
-                }}
-                onBlur={() => handleBlur('wavepoolUrl')}
-                errorMessage={errors.wavepoolUrl || ''}
-                showLabel={!!wavepoolUrl}
-              />
-            )}
-          </div>
-          {!isWavepool && (
-            <>
-              <SpotDetailsSection
-                formState={{
-                  type: formState.type,
-                  beachBottomType: formState.beachBottomType,
-                  skillLevel: formState.skillLevel,
-                  waveDirection: formState.waveDirection,
-                }}
-                errors={{
-                  type: errors.type,
-                  beachBottomType: errors.beachBottomType,
-                  skillLevel: errors.skillLevel,
-                  waveDirection: errors.waveDirection,
-                }}
-                onChange={handleChange}
-              />
-              <BestConditionsSection
-                formState={{
-                  swellDirection: formState.swellDirection,
-                  windDirection: formState.windDirection,
-                  tide: formState.tide,
-                  minSurfHeight: formState.minSurfHeight,
-                  maxSurfHeight: formState.maxSurfHeight,
-                }}
-                errors={{
-                  swellDirection: errors.swellDirection,
-                  windDirection: errors.windDirection,
-                  tide: errors.tide,
-                  minSurfHeight: errors.minSurfHeight,
-                  maxSurfHeight: errors.maxSurfHeight,
-                }}
-                swellDirectionArray={swellDirectionArray}
-                windDirectionArray={windDirectionArray}
-                waveUnits={waveUnits}
-                onSwellDirectionChange={setSwellDirectionArray}
-                onWindDirectionChange={setWindDirectionArray}
-                onChange={handleChange}
-              />
-            </>
           )}
-          <AccessAmenitiesSection
-            isBoatRequired={isBoatRequired}
-            onBoatRequiredChange={setIsBoatRequired}
-            accommodation={accommodation}
-            onAccommodationChange={setAccommodation}
-            food={food}
-            onFoodChange={setFood}
-            facilities={facilities}
-            onFacilitiesChange={setFacilities}
-            hazards={hazards}
-            onHazardsChange={setHazards}
-            formState={{
-              parking: formState.parking,
-              forecastLinks: formState.forecastLinks,
-            }}
-            errors={{
-              parking: errors.parking,
-              forecastLinks: errors.forecastLinks,
-            }}
-            distanceUnits={distanceUnits}
-            onChange={handleChange}
-          />
-          <h4 className="mv">How would you rate this spot?</h4>
-          <div className="rating-container">
-            <Rating
-              value={formState.rating}
-              onChange={(value) => handleChange('rating', value)}
+        </div>
+        {!isWavepool && (
+          <>
+            <SpotDetailsSection
+              formState={{
+                type: formState.type,
+                beachBottomType: formState.beachBottomType,
+                skillLevel: formState.skillLevel,
+                waveDirection: formState.waveDirection,
+              }}
+              errors={{
+                type: errors.type,
+                beachBottomType: errors.beachBottomType,
+                skillLevel: errors.skillLevel,
+                waveDirection: errors.waveDirection,
+              }}
+              onChange={handleChange}
             />
-            <p className="rating-description">
-              Rate this spot based on wave quality, amenities, safety, and
-              overall vibe. Focus on the spot itself, not just a single session.
-            </p>
-          </div>
-        </FormComponent>
-      </div>
-    </Page>
+            <BestConditionsSection
+              formState={{
+                swellDirection: formState.swellDirection,
+                windDirection: formState.windDirection,
+                tide: formState.tide,
+                minSurfHeight: formState.minSurfHeight,
+                maxSurfHeight: formState.maxSurfHeight,
+              }}
+              errors={{
+                swellDirection: errors.swellDirection,
+                windDirection: errors.windDirection,
+                tide: errors.tide,
+                minSurfHeight: errors.minSurfHeight,
+                maxSurfHeight: errors.maxSurfHeight,
+              }}
+              swellDirectionArray={swellDirectionArray}
+              windDirectionArray={windDirectionArray}
+              waveUnits={waveUnits}
+              onSwellDirectionChange={setSwellDirectionArray}
+              onWindDirectionChange={setWindDirectionArray}
+              onChange={handleChange}
+            />
+          </>
+        )}
+        <AccessAmenitiesSection
+          isBoatRequired={isBoatRequired}
+          onBoatRequiredChange={setIsBoatRequired}
+          accommodation={accommodation}
+          onAccommodationChange={setAccommodation}
+          food={food}
+          onFoodChange={setFood}
+          facilities={facilities}
+          onFacilitiesChange={setFacilities}
+          hazards={hazards}
+          onHazardsChange={setHazards}
+          formState={{
+            parking: formState.parking,
+            forecastLinks: formState.forecastLinks,
+          }}
+          errors={{
+            parking: errors.parking,
+            forecastLinks: errors.forecastLinks,
+          }}
+          distanceUnits={distanceUnits}
+          onChange={handleChange}
+        />
+        <h4 className="mv">How would you rate this spot?</h4>
+        <div className="rating-container">
+          <Rating
+            value={formState.rating}
+            onChange={(value) => handleChange('rating', value)}
+          />
+          <p className="rating-description">
+            Rate this spot based on wave quality, amenities, safety, and overall
+            vibe. Focus on the spot itself, not just a single session.
+          </p>
+        </div>
+      </FormComponent>
+      {onCancel && (
+        <div className="mt">
+          <Button label="Cancel" onClick={() => onCancel()} variant="cancel" />
+        </div>
+      )}
+    </div>
   )
 }

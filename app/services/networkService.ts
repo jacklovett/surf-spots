@@ -63,14 +63,14 @@ const request = async <T, B = undefined>(
   const headers: HeadersInit = {
     ...(options.headers as Record<string, string>),
   }
-  
+
   // Set Content-Type for requests with body, ensuring no charset is added
   if (body) {
     headers['Content-Type'] = 'application/json'
   }
 
   const fullUrl = `${API_URL}/${endpoint}`
-  
+
   // Log failed requests for debugging (especially in production)
   const response = await fetch(fullUrl, {
     ...options,
@@ -102,7 +102,7 @@ export const getPublic = async <T>(
   options: RequestInit = {},
 ): Promise<T> => {
   const fullUrl = `${API_URL}/${endpoint}`
-  
+
   const response = await fetch(fullUrl, {
     ...options,
     credentials: 'omit', // Don't send cookies for public endpoints
@@ -126,12 +126,11 @@ export const post = async <T, R>(
   options: RequestInit = {},
 ): Promise<R> => request<R, T>(endpoint, { ...options, method: 'POST' }, body)
 
-export const edit = async <T>(
+export const edit = async <T, R = void>(
   endpoint: string,
   body: T,
   options: RequestInit = {},
-): Promise<void> =>
-  request<void, T>(endpoint, { ...options, method: 'PATCH' }, body)
+): Promise<R> => request<R, T>(endpoint, { ...options, method: 'PUT' }, body)
 
 export const deleteData = async (
   endpoint: string,

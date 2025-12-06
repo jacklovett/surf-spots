@@ -121,7 +121,7 @@ export default function SurfSpotDetails() {
   return (
     <div className="mb-l">
       <div className="content column">
-        <div className="row space-between">
+        <div className="row space-between mt">
           <h1>{name}</h1>
           <div className="spot-actions">
             <SurfSpotActions

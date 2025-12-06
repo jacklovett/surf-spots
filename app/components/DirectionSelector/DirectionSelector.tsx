@@ -1,4 +1,4 @@
-import { memo, useState, useEffect } from 'react'
+import { CSSProperties, memo, useState, useEffect } from 'react'
 import { Direction } from '~/types/surfSpots'
 import {
   DIRECTIONS,
@@ -226,11 +226,12 @@ const DirectionSelector = memo(
                 className={`direction-selector-button ${isStart ? 'start' : ''} ${
                   isEnd ? 'end' : ''
                 } ${isInRange ? 'in-range' : ''}`}
-                style={{
-                  left: `${x}px`,
-                  top: `${y}px`,
-                  transform: 'translate(-50%, -50%)',
-                }}
+                style={
+                  {
+                    '--button-left': `${x}px`,
+                    '--button-top': `${y}px`,
+                  } as CSSProperties
+                }
                 onClick={() => handleDirectionClick(direction)}
                 aria-label={`Select ${direction} direction`}
               >

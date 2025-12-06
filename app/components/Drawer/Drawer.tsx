@@ -11,7 +11,7 @@ interface TouchState {
 
 export const Drawer = () => {
   const { drawer, closeDrawer } = useLayoutContext()
-  const { isOpen, position, content, title } = drawer
+  const { isOpen, position, content, title, actions } = drawer
   const drawerRef = useRef<HTMLDivElement>(null)
   const [isAnimating, setIsAnimating] = useState(false)
   const [shouldRender, setShouldRender] = useState(false)
@@ -100,12 +100,10 @@ export const Drawer = () => {
     if (!headerElement) return
 
     let touchTarget: HTMLElement | null = null
-    let initialScrollTop = 0
 
     const handleTouchStart = (event: TouchEvent) => {
       const touch = event.touches[0]
       touchTarget = event.target as HTMLElement
-      initialScrollTop = contentElement?.scrollTop || 0
 
       touchStateRef.current = {
         startX: touch.clientX,
@@ -248,8 +246,11 @@ export const Drawer = () => {
           : {})}
       >
         <div className="drawer-header">
-          {title && <div className="drawer-title">{title}</div>}
-          <button onClick={closeDrawer}>✕</button>
+          {title && <div className="drawer-title bold">{title}</div>}
+          {actions && <div className="drawer-actions">{actions}</div>}
+          <button className="drawer-close-button" onClick={closeDrawer}>
+            ✕
+          </button>
         </div>
         <div className="drawer-content">{content}</div>
       </div>

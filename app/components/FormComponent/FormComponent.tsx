@@ -37,17 +37,22 @@ export const FormComponent = (props: IProps) => {
             )}
           </div>
         )}
-        {children}
-        <div className="center-horizontal form-submit">
-          {loading && <Loading />}
-          {!loading && (
-            <Button
-              label={submitLabel || 'Submit'}
-              type="submit"
-              disabled={isDisabled}
-            />
-          )}
-        </div>
+        {loading ? (
+          <div className="center-horizontal form-submit">
+            <Loading />
+          </div>
+        ) : (
+          <>
+            {children}
+            <div className="center-horizontal form-submit">
+              <Button
+                label={submitLabel || 'Submit'}
+                type="submit"
+                disabled={isDisabled}
+              />
+            </div>
+          </>
+        )}
       </Form>
     </ErrorBoundary>
   )

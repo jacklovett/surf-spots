@@ -1,0 +1,12 @@
+.info-modal-content {
+  @extend %flex-column;
+
+  h2 {
+    margin: 0 0 $spacing-small 0;
+  }
+
+  p {
+    margin: 0 0 $spacing-large 0;
+  }
+}
+

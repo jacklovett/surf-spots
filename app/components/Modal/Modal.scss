@@ -21,3 +21,15 @@
   gap: $spacing-unit;
   padding: $spacing-unit;
 }
+
+.modal-actions {
+  @extend %flex-column;
+  gap: $spacing-unit;
+  margin-top: $spacing-large;
+  padding-top: $spacing-unit;
+  width: 100%;
+
+  .button {
+    width: 100%;
+  }
+}

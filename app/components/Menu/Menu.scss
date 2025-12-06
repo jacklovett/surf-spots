@@ -44,40 +44,10 @@
     margin-bottom: -4px;
   }
 
-  .dropdown-menu {
-    position: absolute;
-    top: calc($header-height + $spacing-unit);
-    right: 0;
-    width: 280px;
-    text-align: left;
-    background: $white;
-    box-shadow: $box-shadow;
-    border: 1px solid $outline-color;
-    border-radius: $content-border-radius;
-    z-index: 10;
-
-    ul {
-      list-style: none;
-
-      li {
-        padding: $spacing-unit;
-        cursor: pointer;
-
-        &:hover {
-          background: $text-hover-background;
-
-          &:first-child {
-            border-top-left-radius: $content-border-radius;
-            border-top-right-radius: $content-border-radius;
-          }
-
-          &:last-child {
-            border-bottom-left-radius: $content-border-radius;
-            border-bottom-right-radius: $content-border-radius;
-          }
-        }
-      }
-    }
+  .profile-menu-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
   }
 
   .hamburger-icon {

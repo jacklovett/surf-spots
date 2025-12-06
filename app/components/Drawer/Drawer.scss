@@ -9,6 +9,7 @@
 }
 
 .drawer {
+  @extend %flex-column;
   position: fixed;
   top: 0;
   width: 100%;
@@ -41,7 +42,7 @@
   }
 
   .drawer-content {
-    height: 100%;
+    flex: 1;
     overflow-y: auto;
     -webkit-overflow-scrolling: touch;
   }
@@ -53,20 +54,19 @@
 }
 
 .drawer-header {
-  @extend %flex-end;
-  align-items: center;
+  @extend %flex-space-between;
   padding: $spacing-unit;
   height: $header-height;
   border-bottom: solid 1px $outline-color;
   flex-shrink: 0;
   background: $white;
+  gap: $spacing-unit;
 
   .drawer-title {
     flex: 1;
+    min-width: 0; // Allow flex item to shrink below content size
     font-size: $font-size-large;
-    font-weight: 600;
     color: $text-color;
-    padding-right: $spacing-small;
     margin: 0;
     text-align: left;
     overflow: hidden;
@@ -74,21 +74,42 @@
     white-space: nowrap;
   }
 
-  button {
-    background: none;
-    border: none;
-    cursor: pointer;
+  .drawer-actions {
+    @extend %flex-base;
+    align-items: center;
+    gap: 4px;
+    flex-shrink: 0;
+
+    // Make dropdown trigger more compact in drawer
+    .dropdown-menu-trigger {
+      padding: 4px;
+      color: $text-color;
+
+      &:focus {
+        outline: 1px solid $focus-color;
+        outline-offset: 1px;
+      }
+
+      svg {
+        width: 20px;
+        height: 20px;
+      }
+    }
   }
 
-  button {
+  .drawer-close-button {
     @extend %flex-center;
     background: none;
     border: none;
     color: $text-color;
     cursor: pointer;
-    padding: 0 $spacing-small;
+    padding: 4px;
     border-radius: 50%;
     transition: background 0.2s;
+    flex-shrink: 0;
+    font-size: $font-size-large;
+    width: 28px;
+    height: 28px;
 
     &:hover,
     &:focus {

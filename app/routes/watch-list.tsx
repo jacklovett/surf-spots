@@ -1,3 +1,4 @@
+import { RefObject } from 'react'
 import {
   data,
   LoaderFunction,
@@ -10,6 +11,7 @@ import { requireSessionCookie } from '~/services/session.server'
 
 import {
   ContentStatus,
+  EmptyState,
   ErrorBoundary,
   FeedItem,
   TripPlannerButton,
@@ -65,6 +67,7 @@ export default function Watchlist() {
 
   const { watchedSurfSpotsSummary, error } = useLoaderData<LoaderData>()
   const feedRef = useScrollReveal()
+  const emptyStateRef = useScrollReveal()
 
   if (error) {
     return (
@@ -76,7 +79,8 @@ export default function Watchlist() {
     )
   }
 
-  if (loading) {
+  // Don't render until we have data
+  if (loading || !watchedSurfSpotsSummary) {
     return (
       <Page showHeader>
         <ContentStatus>
@@ -87,12 +91,12 @@ export default function Watchlist() {
   }
 
   const { surfSpots: watchListSpots = [], notifications = [] } =
-    watchedSurfSpotsSummary || {}
+    watchedSurfSpotsSummary
 
   const hasNotifications = notifications.length > 0
   const surfSpotsFound = watchListSpots.length > 0
 
-  // Extract surfSpot from each WatchListSpot (backend returns wrapped objects)
+  // Extract surfSpot from each WatchListSpot - backend should already set flags
   const surfSpots = watchListSpots?.map((item) => item.surfSpot)
 
   return (
@@ -100,62 +104,62 @@ export default function Watchlist() {
       <TripPlannerButton onOpenTripPlanner={() => navigate('/trip-planner')} />
       <div className="info-page-content mv map-content">
         <h1>Watch List</h1>
-        <div className="watchlist-header-actions">
-          <a href="#watchlist-map" className="watchlist-spots-link">
-            {surfSpotsFound
-              ? `View Your Watched Spots (${surfSpots.length}) →`
-              : 'View Your Watched Spots →'}
-          </a>
-        </div>
-        <p>
-          Here, we keep you updated on swell seasons, local news, events, and
-          travel deals for all the surf spots you're interested in. Use these
-          updates to help plan your next surf trip
-        </p>
-        <ErrorBoundary message="Uh-oh! Something went wrong displaying the latest updates">
-          {!hasNotifications && (
-            <div className="watchlist-empty-state">
-              <p className="mv-l">
-                No updates found for your watched surf spots
-              </p>
-              <p className="text-secondary">
-                Add surf spots to your watch list to receive updates about
-                events, swell seasons, deals, and more!
-              </p>
+        {surfSpotsFound && (
+          <div className="watchlist-header-actions">
+            <a href="#watched-spots" className="watchlist-spots-link">
+              View Your Watched Spots ({surfSpots.length}) →
+            </a>
+          </div>
+        )}
+        {surfSpotsFound ? (
+          <>
+            <p>
+              Stay updated on swell seasons, local news, events, and travel deals 
+              for the spots you're following.
+            </p>
+            
+            <ErrorBoundary message="Uh-oh! Something went wrong displaying the latest updates">
+              {hasNotifications ? (
+                <div className="watchlist-feed">
+                  <h2 className="feed-section-title">Latest Updates</h2>
+                  <div ref={feedRef} className="feed-container">
+                    {notifications.map((notification) => (
+                      <FeedItem key={notification.id} notification={notification} />
+                    ))}
+                  </div>
+                </div>
+              ) : (
+                <p className="text-secondary mt-l">
+                  No updates yet. We'll notify you when there's news about your watched spots.
+                </p>
+              )}
+            </ErrorBoundary>
+
+            <div id="watchlist-map" className="map-wrapper center mt-l">
+              <ErrorBoundary message="Uh-oh! Something went wrong displaying the map!">
+                <SurfMap surfSpots={surfSpots} />
+              </ErrorBoundary>
             </div>
-          )}
-          {hasNotifications && (
-            <div className="watchlist-feed">
-              <h2 className="feed-section-title">Latest Updates</h2>
-              <div ref={feedRef} className="feed-container">
-                {notifications.map((notification) => (
-                  <FeedItem key={notification.id} notification={notification} />
-                ))}
-              </div>
-            </div>
-          )}
-        </ErrorBoundary>
-        <div id="watchlist-map" className="map-wrapper center">
-          <ErrorBoundary message="Uh-oh! Something went wrong displaying the map!">
-            <SurfMap surfSpots={surfSpots} />
-          </ErrorBoundary>
-        </div>
-        <div id="watched-spots">
-          <ErrorBoundary message="Unable to load surf spot list">
-            {!surfSpotsFound && (
-              <p className="mv-l">
-                No watched surf spots found. Add some spots to your watch list
-                so you can stay up to date.
-              </p>
-            )}
-            {surfSpotsFound && (
-              <>
-                <h2 className="watched-spots-title">Your Watched Surf Spots</h2>
+
+            <div id="watched-spots" className="mt-l">
+              <h2 className="watched-spots-title">Your Watched Surf Spots</h2>
+              <ErrorBoundary message="Unable to load surf spot list">
                 <SurfSpotList surfSpots={surfSpots} />
-              </>
-            )}
-          </ErrorBoundary>
-        </div>
+              </ErrorBoundary>
+            </div>
+          </>
+        ) : (
+          <div ref={emptyStateRef as RefObject<HTMLDivElement>}>
+            <div className="mt-l animate-on-scroll">
+              <EmptyState
+                title="Build Your Watch List"
+                description="Follow surf spots you're interested in to get alerts about swell seasons, events, and travel deals. Use the map below to find spots to watch."
+                ctaText="Explore Surf Spots"
+                ctaHref="/surf-spots"
+              />
+            </div>
+          </div>
+        )}
       </div>
     </Page>
   )

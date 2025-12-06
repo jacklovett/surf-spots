@@ -10,15 +10,13 @@ test.describe('Landing Page', () => {
     await expect(page).toHaveTitle(/Surf Spots/)
 
     // Check hero section elements
-    await expect(page.locator('h1')).toContainText(
-      'Track Your Surf Journey, Discover New Waves',
-    )
+    await expect(page.locator('h1')).toContainText('Never Forget a Wave')
     await expect(page.locator('.hero-logo')).toBeVisible()
 
     // Check if the CTA button is present in hero section
     const heroCtaButton = page.locator('.hero-cta .button')
     await expect(heroCtaButton).toBeVisible()
-    await expect(heroCtaButton).toContainText('Start Tracking')
+    await expect(heroCtaButton).toContainText('Start Browsing Spots')
   })
 
   test('should navigate to surf spots page when clicking CTA button', async ({
@@ -33,33 +31,43 @@ test.describe('Landing Page', () => {
     await expect(page).toHaveURL(/\/surf-spots/)
   })
 
-  test('should display features section', async ({ page }) => {
+  test('should display features sections', async ({ page }) => {
     await page.goto('/')
 
-    // Check features section header - use more specific selector
+    // Check "Track Your Journey" section header
     await expect(
-      page.locator('h2:has-text("Your Complete Surf Spot Companion")'),
+      page.locator('h2:has-text("Track Your Journey")'),
     ).toBeVisible()
 
-    // Check if feature cards are present (there are 5 feature cards)
+    // Check "Plan Your Adventures" section header
+    await expect(
+      page.locator('h2:has-text("Plan Your Adventures")'),
+    ).toBeVisible()
+
+    // Check if feature cards are present (6 total: 3 in each section)
     const featureCards = page.locator('.feature-card')
-    await expect(featureCards).toHaveCount(5)
+    await expect(featureCards).toHaveCount(6)
 
-    // Check specific feature titles - use more specific selectors
+    // Check specific feature titles from "Track Your Journey"
     await expect(
-      page.locator('.feature-card:has-text("Track Surfed Spots")'),
+      page.locator('.feature-card:has-text("Your Surf Map")'),
     ).toBeVisible()
     await expect(
-      page.locator('.feature-card:has-text("Discover & Plan")'),
+      page.locator('.feature-card:has-text("Your Stats")'),
     ).toBeVisible()
     await expect(
-      page.locator('.feature-card:has-text("Watch List")'),
+      page.locator('.feature-card:has-text("Your Discoveries")'),
+    ).toBeVisible()
+
+    // Check specific feature titles from "Plan Your Adventures"
+    await expect(
+      page.locator('.feature-card:has-text("Explore Worldwide")'),
     ).toBeVisible()
     await expect(
-      page.locator('.feature-card:has-text("Contribute & Share")'),
+      page.locator('.feature-card:has-text("Watch List Alerts")'),
     ).toBeVisible()
     await expect(
-      page.locator('.feature-card:has-text("Surf Statistics")'),
+      page.locator('.feature-card:has-text("Organize Trips")'),
     ).toBeVisible()
   })
 
@@ -77,20 +85,20 @@ test.describe('Landing Page', () => {
     await page.goto('/')
 
     // Check how it works section - use more specific selector
-    await expect(page.locator('h2:has-text("How It Works")')).toBeVisible()
+    await expect(page.locator('h2:has-text("Getting Started is Easy")')).toBeVisible()
 
     // Check if steps are present
     const steps = page.locator('.step')
     await expect(steps).toHaveCount(3)
 
-    // Check step titles - use more specific selectors to avoid duplicates
+    // Check step titles
     await expect(
-      page.locator('.step:has-text("Track Your Spots")'),
+      page.locator('.step:has-text("Explore")'),
     ).toBeVisible()
     await expect(
-      page.locator('.step:has-text("Plan Your Sessions")'),
-    ).toBeVisible() // Changed from "Discover & Plan" to avoid duplicate
-    await expect(page.locator('.step:has-text("Stay Updated")')).toBeVisible()
+      page.locator('.step:has-text("Track")'),
+    ).toBeVisible()
+    await expect(page.locator('.step:has-text("Organize")')).toBeVisible()
   })
 
   test('should have final CTA section', async ({ page }) => {
@@ -98,12 +106,13 @@ test.describe('Landing Page', () => {
 
     // Check final CTA section
     await expect(
-      page.locator('text=Ready to Track Your Surf Journey?'),
+      page.locator('text=Ready to Never Forget a Wave?'),
     ).toBeVisible()
 
     // Check if CTA button is present in the final CTA section
     const finalCtaButton = page.locator('.cta .button')
     await expect(finalCtaButton).toBeVisible()
-    await expect(finalCtaButton).toContainText('Start Tracking')
+    await expect(finalCtaButton).toContainText('Start Browsing Spots')
   })
 })
+

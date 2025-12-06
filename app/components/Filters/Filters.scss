@@ -1,6 +1,7 @@
 .filters-container {
   @extend %flex-column;
-  height: calc(100% - $header-height);
+  height: 100%;
+  min-height: 0;
 }
 
 .filters-content {

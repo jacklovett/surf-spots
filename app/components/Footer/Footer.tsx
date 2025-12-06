@@ -2,7 +2,7 @@ import { MouseEvent } from 'react'
 import classNames from 'classnames'
 import { SocialLinks } from '../index'
 import { useUserContext } from '~/contexts'
-import { useAuthModal } from '~/hooks/useAuthModal'
+import { useSignUpPrompt } from '~/hooks/useSignUpPrompt'
 
 export const COPYRIGHT_TEXT = `© ${new Date().getFullYear()} Surf Spots. All rights reserved.`
 
@@ -12,23 +12,24 @@ interface IProps {
 
 export const Footer = ({ isAlternate }: IProps) => {
   const { user } = useUserContext()
-  const { showAuthModal, AuthModal } = useAuthModal()
+  const { showSignUpPrompt, SignUpPromptModal } = useSignUpPrompt()
 
   // Map of protected routes to their route identifiers
   const protectedRoutes: Record<
     string,
-    'surfed-spots' | 'watch-list' | 'add-surf-spot'
+    'surfed-spots' | 'watch-list' | 'add-surf-spot' | 'trips'
   > = {
     '/surfed-spots': 'surfed-spots',
     '/watch-list': 'watch-list',
     '/add-surf-spot': 'add-surf-spot',
+    '/trips': 'trips',
   }
 
   const handleLinkClick = (e: MouseEvent<HTMLAnchorElement>, path: string) => {
     const routeKey = protectedRoutes[path]
     if (routeKey && !user) {
       e.preventDefault()
-      showAuthModal(routeKey)
+      showSignUpPrompt(routeKey)
       return
     }
     // Allow default navigation for non-protected routes or authenticated users
@@ -82,6 +83,14 @@ export const Footer = ({ isAlternate }: IProps) => {
                 </a>
               </li>
               <li>
+                <a
+                  href="/trips"
+                  onClick={(e) => handleLinkClick(e, '/trips')}
+                >
+                  Trips
+                </a>
+              </li>
+              <li>
                 <a href="/trip-planner">Trip Planner</a>
               </li>
             </ul>
@@ -124,7 +133,7 @@ export const Footer = ({ isAlternate }: IProps) => {
         <div className="footer-bottom">
           <p>{COPYRIGHT_TEXT}</p>
         </div>
-        <AuthModal />
+        <SignUpPromptModal />
       </div>
     </footer>
   )

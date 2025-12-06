@@ -5,12 +5,17 @@ interface IProps {
   iconKey: IconKey
   useAccentColor?: boolean
   useBrandColors?: boolean
+  useCurrentColor?: boolean
 }
 
 export const Icon = (props: IProps) => {
-  const { iconKey, useAccentColor, useBrandColors } = props
+  const { iconKey, useAccentColor, useBrandColors, useCurrentColor } = props
 
-  const color = useAccentColor ? '#3fc1c9' : '#046380'
+  const color = useCurrentColor
+    ? 'currentColor'
+    : useAccentColor
+      ? '#3fc1c9'
+      : '#046380'
 
   const commonIconStyles: SVGProps<SVGSVGElement> = {
     width: ICON_SIZE,
@@ -67,11 +72,10 @@ export const Icon = (props: IProps) => {
       case 'filters':
         return (
           <svg {...commonIconStyles}>
-            <rect width="24" height="24" fill="none" />
-            <line x1="2" y1="4" x2="22" y2="4" stroke="#046380" />
-            <line x1="4" y1="9" x2="20" y2="9" stroke="#046380" />
-            <line x1="6" y1="14" x2="18" y2="14" stroke="#046380" />
-            <line x1="8" y1="19" x2="16" y2="19" stroke="#046380" />
+            <line x1="2" y1="4" x2="22" y2="4" stroke={color} />
+            <line x1="4" y1="9" x2="20" y2="9" stroke={color} />
+            <line x1="6" y1="14" x2="18" y2="14" stroke={color} />
+            <line x1="8" y1="19" x2="16" y2="19" stroke={color} />
           </svg>
         )
       case 'heart':
@@ -106,6 +110,12 @@ export const Icon = (props: IProps) => {
             <path d="M12 2C8.5 2 7.5 4 7.5 6.5C7.5 9.5 12 17.5 12 17.5S16.5 9.5 16.5 6.5C16.5 4 14.5 2 12 2ZM12 9C10.8 9 9.8 8 9.8 6.8C9.8 5.6 10.8 4.6 12 4.6C13.2 4.6 14.2 5.6 14.2 6.8C14.2 8 13.2 9 12 9Z" />
             <path d="M2 21.5c1.5-1 3.5-1 5.2 0 1.7 1 3.7 1 5.2 0 1.5-1 3.5-1 5.2 0 1.7 1 3.7 1 5.2 0" />
             <path d="M2 18.5c1.5-1 3.5-1 5.2 0 1.7 1 3.7 1 5.2 0 1.5-1 3.5-1 5.2 0 1.7 1 3.7 1 5.2 0" />
+          </svg>
+        )
+      case 'plane':
+        return (
+          <svg {...commonIconStyles} viewBox="0 0 24 24">
+            <path d="M21 16v-2l-8-5V3.5c0-.83-.67-1.5-1.5-1.5S10 2.67 10 3.5V9l-8 5v2l8-2.5V18l-2 1.5v1l3.5-.5 3.5.5v-1L13 18v-4.5l8 2.5z" />
           </svg>
         )
       case 'plus':
@@ -292,6 +302,14 @@ export const Icon = (props: IProps) => {
             <polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6" />
             <line x1="8" y1="2" x2="8" y2="18" />
             <line x1="16" y1="6" x2="16" y2="22" />
+          </svg>
+        )
+      case 'more':
+        return (
+          <svg {...commonIconStyles} fill={color} stroke="none">
+            <circle cx="12" cy="5" r="2" />
+            <circle cx="12" cy="12" r="2" />
+            <circle cx="12" cy="19" r="2" />
           </svg>
         )
       default:

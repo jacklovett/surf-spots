@@ -1,0 +1,195 @@
+@use 'sass:color';
+
+.date-picker-wrapper {
+  position: relative;
+}
+
+.date-input-container {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.date-input {
+  width: 100%;
+  border: 1px solid $outline-color;
+  border-radius: $form-border-radius;
+  padding: $spacing-small;
+  padding-right: 40px;
+  font-size: $font-size-base;
+  line-height: 1.5;
+  box-sizing: border-box;
+  height: $form-input-height;
+  cursor: pointer;
+  background-color: $background-color;
+
+  &:focus {
+    border-color: $focus-color;
+    box-shadow: 0 0 4px rgba(0, 119, 182, 0.5);
+    outline: none;
+  }
+
+  &:disabled {
+    background: $disabled-color;
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+}
+
+.date-picker-toggle {
+  @extend %flex-center;
+  position: absolute;
+  right: $spacing-small;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: $spacing-small;
+  color: $text-secondary;
+  transition: color 0.2s ease;
+
+  &:hover:not(:disabled) {
+    color: $primary-color;
+  }
+
+  &:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+
+  svg {
+    width: 20px;
+    height: 20px;
+  }
+}
+
+.date-picker-calendar {
+  position: absolute;
+  top: calc(100% + $spacing-small);
+  left: 0;
+  z-index: 1000;
+  background: $white;
+  border: 1px solid $outline-color;
+  border-radius: $content-border-radius;
+  box-shadow: $box-shadow;
+  padding: $spacing-unit;
+  width: 300px;
+  box-sizing: border-box;
+}
+
+.date-picker-header {
+  @extend %flex-space-between;
+  margin-bottom: $spacing-unit;
+  padding-bottom: $spacing-small;
+  border-bottom: 1px solid $outline-color;
+}
+
+.date-picker-nav-group {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.date-picker-nav {
+  @extend %flex-center;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: $font-size-large;
+  color: $text-color;
+  padding: $spacing-small;
+  width: 28px;
+  height: 28px;
+  border-radius: $form-border-radius;
+  transition: background-color 0.2s ease;
+
+  &:hover {
+    background-color: $text-hover-background;
+  }
+
+  &:focus-visible {
+    outline: 2px solid $focus-color;
+    outline-offset: -2px;
+  }
+}
+
+.date-picker-month-year {
+  font-size: $font-size-base;
+  color: $text-color;
+}
+
+.date-picker-weekdays {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 4px;
+  margin-bottom: $spacing-small;
+}
+
+.date-picker-weekday {
+  text-align: center;
+  font-size: $font-size-small;
+  color: $text-secondary;
+  padding: 4px;
+  min-width: 32px;
+}
+
+.date-picker-days {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 4px;
+}
+
+.date-picker-day {
+  @extend %flex-center;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  font-size: $font-size-base;
+  color: $text-color;
+  border-radius: $form-border-radius;
+  transition: all 0.2s ease;
+  aspect-ratio: 1;
+  min-width: 32px;
+
+  &:hover:not(.disabled):not(.selected):not(.start-date) {
+    background-color: $text-hover-background;
+  }
+
+  &.selected,
+  &.start-date {
+    background-color: $primary-color;
+    color: $white;
+
+    &:hover {
+      background-color: color.adjust($primary-color, $lightness: -10%);
+    }
+  }
+
+  &.in-range {
+    background-color: rgba(4, 99, 128, 0.1);
+    color: $primary-color;
+  }
+
+  &.disabled {
+    color: $disabled-text-color;
+    cursor: not-allowed;
+    opacity: 0.4;
+  }
+
+  &.empty {
+    cursor: default;
+    pointer-events: none;
+  }
+
+  &:focus:not(.disabled) {
+    outline: 2px solid $focus-color;
+    outline-offset: 2px;
+  }
+}
+
+.form-item.error {
+  .date-input {
+    border-color: $outline-color;
+    box-shadow: 0 0 4px $error;
+  }
+}

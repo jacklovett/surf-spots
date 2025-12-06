@@ -1,4 +1,11 @@
-import { ActionFunction, data, redirect, LoaderFunction } from 'react-router'
+import {
+  ActionFunction,
+  data,
+  redirect,
+  LoaderFunction,
+  useLoaderData,
+  useNavigate,
+} from 'react-router'
 import { cacheControlHeader, edit, get } from '~/services/networkService'
 import { requireSessionCookie } from '~/services/session.server'
 import { createSurfSpotFromFormData } from '~/services/surfSpot.server'
@@ -29,7 +36,6 @@ export const loader: LoaderFunction = async ({ request, params }) => {
     const isOwner = user && surfSpot.createdBy === user.id
 
     if (!isOwner) {
-      // TODO: Does this need a dedicated page?
       throw redirect('/surf-spots')
     }
 
@@ -91,5 +97,16 @@ export const action: ActionFunction = async ({ request, params }) => {
 }
 
 export default function EditSurfSpot() {
-  return <SurfSpotForm actionType="Edit" />
+  const { surfSpot } = useLoaderData<LoaderData>()
+  const navigate = useNavigate()
+
+  const handleCancel = () => {
+    if (surfSpot?.id) {
+      navigate(`/surf-spots/id/${surfSpot.id}`)
+    } else {
+      navigate(-1)
+    }
+  }
+
+  return <SurfSpotForm actionType="Edit" onCancel={handleCancel} />
 }

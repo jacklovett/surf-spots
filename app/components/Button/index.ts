@@ -1,18 +1,9 @@
 import { Button } from './Button'
 import { IconKey } from '../Icon'
 
-export type ButtonType =
-  | 'primary'
-  | 'secondary'
-  | 'alternate'
-  | 'danger'
-  | 'warning'
-  | 'success'
-  | 'info'
-  | 'light'
-  | 'dark'
-  | 'link'
-  | 'icon'
+export type ButtonType = 'primary' | 'secondary' | 'cancel' | 'danger' | 'icon'
+
+export type Size = 'small' | 'medium' | 'large'
 
 export interface ButtonIcon {
   name: IconKey

@@ -7,6 +7,7 @@ interface DrawerState {
   position: DrawerPosition
   content: ReactNode | null
   title?: string
+  actions?: ReactNode
 }
 
 interface LayoutContextType {
@@ -15,6 +16,7 @@ interface LayoutContextType {
     content: ReactNode,
     position?: DrawerPosition,
     title?: string,
+    actions?: ReactNode,
   ) => void
   closeDrawer: () => void
 }
@@ -36,12 +38,14 @@ export const LayoutProvider = ({ children }: LayoutProviderProps) => {
     content: ReactNode,
     position: DrawerPosition = 'right',
     title?: string,
+    actions?: ReactNode,
   ) =>
     setDrawer({
       isOpen: true,
       position,
       content,
       title,
+      actions,
     })
 
   const closeDrawer = () =>

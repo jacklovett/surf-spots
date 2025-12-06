@@ -31,7 +31,7 @@ test.describe('Authentication', () => {
     if (isEnabled) {
       // If button is enabled, click it to trigger validation
       await submitButton.click()
- 
+
       // Should show validation error for invalid email
       await expect(
         page.locator('.error-message, [role="alert"], .submit-status'),
@@ -91,7 +91,7 @@ test.describe('Authentication', () => {
     // Check if continue as guest link exists
     const guestLink = page.locator('a[href="/surf-spots"]')
     await expect(guestLink).toBeVisible()
-    await expect(guestLink).toContainText('Continue as Guest')
+    await expect(guestLink).toContainText('Explore as Guest')
   })
 
   test('should have social login options', async ({ page }) => {

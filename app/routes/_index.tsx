@@ -10,7 +10,7 @@ export const meta: MetaFunction = () => {
     {
       name: 'description',
       content:
-        "Map every surf spot you've surfed, discover new waves, and plan epic trips. Build your surf collection, monitor conditions, and never miss the perfect session.",
+        "Map every surf spot you've surfed, discover new waves, plan epic trips with friends, and build your surf collection. Monitor conditions, track your journey, and never miss the perfect session.",
     },
   ]
 }
@@ -26,7 +26,8 @@ export const links: LinksFunction = () => [
 ]
 
 export default function Index() {
-  const featuresRef = useScrollReveal()
+  const trackFeaturesRef = useScrollReveal()
+  const planFeaturesRef = useScrollReveal()
   const stepsRef = useScrollReveal()
 
   return (
@@ -46,15 +47,15 @@ export default function Index() {
               <div className="hero-text">
                 <h1>Never Forget a Wave</h1>
                 <p>
-                  Remember every spot you've surfed. Get notified about deals
-                  and perfect conditions. Plan your next adventure. All your
-                  surf memories and future sessions in one place.
+                  Track every spot you've surfed, discover thousands of breaks
+                  worldwide, and plan trips with friends. Your complete surf
+                  companion from first paddle out to epic adventures.
                 </p>
                 <div className="hero-cta">
                   <NavButton
                     label="Start Browsing Spots"
                     to="/surf-spots"
-                    variant="alternate"
+                    variant="secondary"
                     ariaLabel="Start browsing surf spots, no account required"
                   />
                 </div>
@@ -63,65 +64,26 @@ export default function Index() {
           </div>
         </section>
 
-        {/* Features Section */}
+        {/* Track Your Journey Section */}
         <section className="features">
           <div className="container">
             <div className="section-header">
-              <h2>Your Complete Surf Spot Companion</h2>
-              <p>
-                Map your journey, discover new breaks, and plan epic adventures
-              </p>
+              <h2>Track Your Journey</h2>
+              <p>Build your personal collection of surfed spots</p>
             </div>
 
             <div
-              ref={featuresRef as RefObject<HTMLDivElement>}
+              ref={trackFeaturesRef as RefObject<HTMLDivElement>}
               className="features-grid flex-center"
             >
               <div className="feature-card animate-on-scroll">
                 <div className="feature-icon" aria-hidden="true">
                   <Icon iconKey="pin" useAccentColor />
                 </div>
-                <h3>Map Your Surf History</h3>
+                <h3>Your Surf Map</h3>
                 <p>
-                  Never lose track of where you've surfed. Add ratings, personal
-                  notes, and memories to each spot. Watch your journey unfold
-                  across countries and continents.
-                </p>
-              </div>
-
-              <div className="feature-card animate-on-scroll">
-                <div className="feature-icon" aria-hidden="true">
-                  <Icon iconKey="map" useAccentColor />
-                </div>
-                <h3>Discover & Plan</h3>
-                <p>
-                  Find your next perfect wave with powerful filters. Search by
-                  location, wave type, or difficulty. Research conditions,
-                  seasons, and local insights before you travel.
-                </p>
-              </div>
-
-              <div className="feature-card animate-on-scroll">
-                <div className="feature-icon" aria-hidden="true">
-                  <Icon iconKey="heart" useAccentColor />
-                </div>
-                <h3>Stay Updated</h3>
-                <p>
-                  Follow spots you're interested in and get notified about swell
-                  seasons, travel deals, local events, and important updates.
-                  Never miss the perfect conditions or a great opportunity.
-                </p>
-              </div>
-
-              <div className="feature-card animate-on-scroll">
-                <div className="feature-icon" aria-hidden="true">
-                  <Icon iconKey="plus" useAccentColor />
-                </div>
-                <h3>Add Your Own Spots</h3>
-                <p>
-                  Contribute new surf spots to help fellow surfers, or keep your
-                  secret spots private. Add personal notes about access,
-                  forecast preferences, and local knowledge only you know.
+                  Log every session with ratings and notes. Watch your
+                  collection grow across the globe.
                 </p>
               </div>
 
@@ -129,11 +91,70 @@ export default function Index() {
                 <div className="feature-icon" aria-hidden="true">
                   <Icon iconKey="surfboard" useAccentColor />
                 </div>
-                <h3>Track Your Progress</h3>
+                <h3>Your Stats</h3>
                 <p>
-                  See your surf journey come to life. Track countries visited,
-                  continents explored, favorite wave types, and watch your
-                  personal collection grow over time.
+                  How many spots? Which countries? What wave types? Track your
+                  surf journey.
+                </p>
+              </div>
+
+              <div className="feature-card animate-on-scroll">
+                <div className="feature-icon" aria-hidden="true">
+                  <Icon iconKey="plus" useAccentColor />
+                </div>
+                <h3>Your Discoveries</h3>
+                <p>
+                  Found a new break? Add it public or private. Keep your secret
+                  spots secret.
+                </p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Plan Adventures Section */}
+        <section className="features features-alt">
+          <div className="container">
+            <div className="section-header">
+              <h2>Plan Your Adventures</h2>
+              <p>Find your next wave and organize group trips</p>
+            </div>
+
+            <div
+              ref={planFeaturesRef as RefObject<HTMLDivElement>}
+              className="features-grid flex-center"
+            >
+              <div className="feature-card animate-on-scroll">
+                <div className="feature-icon" aria-hidden="true">
+                  <Icon iconKey="map" useAccentColor />
+                </div>
+                <h3>Explore Worldwide</h3>
+                <p>
+                  Search thousands of spots by location, wave type, and
+                  difficulty. Filter by best seasons to time your travels
+                  perfectly.
+                </p>
+              </div>
+
+              <div className="feature-card animate-on-scroll">
+                <div className="feature-icon" aria-hidden="true">
+                  <Icon iconKey="heart" useAccentColor />
+                </div>
+                <h3>Watch List Alerts</h3>
+                <p>
+                  Get notified when swell season starts, travel deals drop, or
+                  events happen at spots you're following.
+                </p>
+              </div>
+
+              <div className="feature-card animate-on-scroll">
+                <div className="feature-icon" aria-hidden="true">
+                  <Icon iconKey="plane" useAccentColor />
+                </div>
+                <h3>Organize Trips</h3>
+                <p>
+                  Create itineraries with multiple spots, invite friends to
+                  join, and document your journey with shared photos.
                 </p>
               </div>
             </div>
@@ -144,37 +165,35 @@ export default function Index() {
         <section className="how-it-works">
           <div className="container">
             <div className="section-header">
-              <h2>How It Works</h2>
-              <p>Start building your surf collection in minutes</p>
+              <h2>Getting Started is Easy</h2>
+              <p>Start tracking in under a minute</p>
             </div>
 
             <div ref={stepsRef as RefObject<HTMLDivElement>} className="steps">
               <div className="step animate-on-scroll">
                 <div className="step-number">1</div>
-                <h3>Log Your Sessions</h3>
+                <h3>Explore</h3>
                 <p>
-                  Mark spots you've surfed with ratings, reviews, and personal
-                  notes. Build your complete surf history and watch your
-                  collection grow.
+                  Browse spots worldwide—no signup required to discover new
+                  locations.
                 </p>
               </div>
 
               <div className="step animate-on-scroll">
                 <div className="step-number">2</div>
-                <h3>Plan Your Sessions</h3>
+                <h3>Track</h3>
                 <p>
-                  Browse new surf spots, filter by your preferences, and add
-                  interesting spots to your watch list for future trips and
-                  conditions.
+                  Sign up free to log sessions, rate spots, and build your
+                  personal collection.
                 </p>
               </div>
 
               <div className="step animate-on-scroll">
                 <div className="step-number">3</div>
-                <h3>Stay Updated</h3>
+                <h3>Organize</h3>
                 <p>
-                  Monitor your watch list for swell seasons, travel deals, local
-                  events, and conditions that affect your favorite spots.
+                  Create watch lists, plan group trips, and invite friends to
+                  share the stoke.
                 </p>
               </div>
             </div>
@@ -186,14 +205,14 @@ export default function Index() {
           <div className="container">
             <h2>Ready to Never Forget a Wave?</h2>
             <p>
-              Join thousands of surfers who are tracking their journey,
-              discovering new breaks, and planning their next perfect session.
+              Join surfers worldwide mapping their sessions and planning their
+              next adventure.
             </p>
             <div className="cta-buttons">
               <NavButton
                 label="Start Browsing Spots"
                 to="/surf-spots"
-                variant="alternate"
+                variant="secondary"
               />
             </div>
           </div>

@@ -388,7 +388,7 @@ export const Filters = memo(() => {
       <div className="row gap filters-content-actions">
         <Button
           onClick={handleClearFilters}
-          variant="secondary"
+          variant="cancel"
           label="Clear All"
         />
         <Button onClick={handleApplyFilters} label="Apply Filters" />

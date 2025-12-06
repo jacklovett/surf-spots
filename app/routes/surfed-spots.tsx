@@ -8,6 +8,7 @@ import {
 } from 'react-router'
 import {
   ContentStatus,
+  EmptyState,
   ErrorBoundary,
   TripPlannerButton,
   Loading,
@@ -117,7 +118,8 @@ export default function SurfedSpots() {
     )
   }
 
-  if (loading) {
+  // Don't render until we have data
+  if (loading || !surfedSpotsSummary) {
     return (
       <Page showHeader>
         <ContentStatus>
@@ -127,18 +129,18 @@ export default function SurfedSpots() {
     )
   }
 
-  // Destructure with default values
+  // Destructure - no need for defaults since we checked above
   const {
-    surfedSpots = [],
+    surfedSpots,
     totalCount = 0,
     countryCount = 0,
     continentCount = 0,
     mostSurfedSpotType = null,
     mostSurfedBeachBottomType = null,
-  } = surfedSpotsSummary || {}
+  } = surfedSpotsSummary
 
   const surfedSpotsFound = surfedSpots.length > 0
-  // Extract surfSpot from each SurfedSpotItem for calculations
+  // Extract surfSpot from each SurfedSpotItem - backend should already set flags
   const surfSpots = surfedSpots.map((item) => item.surfSpot)
 
   // TODO: Refine and move calculation to backend
@@ -244,18 +246,12 @@ export default function SurfedSpots() {
           <h2>All Surfed Spots</h2>
           <ErrorBoundary message="Unable to load surf spot list">
             {!surfedSpotsFound && (
-              <div className="empty-state">
-                <h3>Start Your Surf Journey</h3>
-                <p>
-                  You haven't surfed any spots yet. Start tracking your surf
-                  journey by adding your first surfed spot!
-                </p>
-                <div className="empty-actions">
-                  <a href="/surf-spots" className="btn-primary">
-                    Explore Surf Spots
-                  </a>
-                </div>
-              </div>
+              <EmptyState
+                title="Start Your Surf Journey"
+                description="You haven't surfed any spots yet. Start tracking your surf journey by adding your first surfed spot!"
+                ctaText="Explore Surf Spots"
+                ctaHref="/surf-spots"
+              />
             )}
             {surfedSpotsFound && <SurfSpotList surfSpots={surfSpots} />}
           </ErrorBoundary>

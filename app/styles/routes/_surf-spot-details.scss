@@ -1,0 +1,194 @@
+/* Surf Spot Details Page Styling */
+
+.content h1 {
+  font-size: 2.5rem;
+  font-weight: 700;
+  margin-bottom: $spacing-unit;
+}
+
+.content h3 {
+  font-size: $font-size-large;
+  margin: 0 0 $spacing-unit 0;
+  padding-bottom: $spacing-small;
+  border-bottom: 2px solid $primary-color;
+}
+
+.content section {
+  margin-bottom: $spacing-large;
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+}
+
+.content .description {
+  font-size: $font-size-base;
+  line-height: 1.6;
+  color: $text-color;
+  margin-bottom: $spacing-large;
+}
+
+.content .row.spot-details {
+  margin-bottom: $spacing-large;
+}
+
+/* Best Conditions Section */
+.best-conditions {
+  @extend %flex-column;
+  gap: $spacing-large;
+  border: solid 1px $outline-color;
+  border-radius: $content-border-radius;
+  padding: $spacing-large;
+  padding-right: 0;
+  margin-bottom: $spacing-large;
+
+  @media (min-width: 768px) {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: $spacing-unit;
+
+    // Center last item when odd number
+    &:has(> :nth-child(odd):last-child) {
+      > :last-child {
+        grid-column: 1 / -1;
+        justify-self: center;
+        max-width: fit-content;
+      }
+    }
+  }
+}
+
+.best-conditions-item {
+  display: flex;
+  align-items: center;
+  gap: $spacing-unit;
+
+  .details {
+    margin-bottom: 0;
+
+    p {
+      margin-bottom: 0;
+    }
+  }
+}
+
+// Override .content section p margin for best-conditions items
+.content section .best-conditions .details p {
+  margin-bottom: 0;
+}
+
+.content .map-wrapper {
+  margin-bottom: $spacing-large;
+}
+
+.content section p {
+  line-height: 1.6;
+  margin-bottom: $spacing-unit;
+}
+
+// Override for MediaUpload component
+.content section .media-upload-text,
+.content section .media-upload-hint {
+  margin: 0;
+}
+
+.content .row.gap {
+  gap: $spacing-unit;
+}
+
+.content .column.mv {
+  margin: $spacing-unit 0;
+}
+
+.content .column.mv a {
+  display: block;
+  padding: $spacing-small 0;
+  color: $primary-color;
+  text-decoration: none;
+  border-bottom: 1px solid $outline-color;
+
+  &:hover {
+    color: $accent-color;
+    text-decoration: underline;
+  }
+
+  &:last-child {
+    border-bottom: none;
+  }
+}
+
+/* Amenities Section Styling */
+.amenities-content {
+  @extend %flex-column;
+  gap: $spacing-large;
+}
+
+.amenities-section {
+  border: 1px solid $outline-color;
+  border-radius: $content-border-radius;
+  padding: $spacing-unit;
+
+  h4 {
+    font-size: $font-size-base;
+    color: $text-heading;
+    margin: 0 0 $spacing-small 0;
+    padding-bottom: $spacing-small;
+    border-bottom: 1px solid $border-light;
+  }
+}
+
+.amenities-details {
+  @extend %flex-column;
+  gap: $spacing-small;
+}
+
+.amenities-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $spacing-small;
+}
+
+.amenities-item {
+  background: $white;
+  border: 1px solid $outline-color;
+  border-radius: $button-border-radius;
+  padding: $spacing-small $spacing-unit;
+  font-size: $font-size-small;
+  color: $text-color;
+
+  &.empty {
+    background: $background-light;
+    border-color: $outline-color;
+    color: $text-secondary;
+    font-style: italic;
+  }
+}
+
+.closed-chip {
+  display: inline-block;
+  background: $error;
+  color: $white;
+  border-radius: $button-border-radius;
+  padding: $spacing-small $spacing-unit;
+  font-size: $font-size-small;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.content .row.space-between {
+  flex-wrap: nowrap;
+  gap: $spacing-unit;
+  align-items: center;
+
+  h1 {
+    flex: 1;
+    min-width: 0;
+    margin-right: $spacing-unit;
+  }
+}
+
+.spot-actions {
+  flex-shrink: 0;
+  margin-bottom: 0;
+}

@@ -22,7 +22,7 @@ export const TextButton = (props: IProps) => {
     >
       {iconKey && (
         <span className={classNames({ 'text-button-icon': true, filled })}>
-          <Icon iconKey={iconKey} useAccentColor />
+          <Icon iconKey={iconKey} />
         </span>
       )}
       <span className="text-button-text">{text}</span>

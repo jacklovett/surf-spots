@@ -1,12 +1,15 @@
 @use 'sass:color';
 
 .surf-spot-preview {
-  padding: $spacing-unit $spacing-large;
-  font-size: $font-size-small;
-  line-height: 1.5;
-  padding-bottom: $spacing-x-large;
   width: 100%;
   box-sizing: border-box;
+
+  .surf-spot-preview-content {
+    padding: $spacing-unit $spacing-large;
+    font-size: $font-size-small;
+    line-height: 1.5;
+    padding-bottom: $spacing-x-large;
+  }
 
   .preview-section {
     padding-bottom: $spacing-unit;
@@ -48,18 +51,5 @@
     cursor: pointer;
     font-size: $font-size-small;
     margin: 0 0 $spacing-large 0;
-  }
-
-  .surf-spot-preview-actions {
-    margin-top: $spacing-unit;
-    padding-top: $spacing-unit;
-    padding-bottom: $spacing-large;
-    border-top: 1px solid $outline-color;
-    width: 100%; // Full width to prevent container resize
-    box-sizing: border-box;
-
-    .actions {
-      width: 100%;
-    }
   }
 }

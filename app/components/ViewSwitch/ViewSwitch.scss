@@ -3,17 +3,19 @@
 .view-switch {
   cursor: pointer;
   border-radius: $button-border-radius;
-  border: solid 1px $outline-color;
+  border: solid 1px $border-medium;
+  background: $background-light;
   padding: $spacing-small $spacing-unit;
 
   &:hover {
-    border-color: color.adjust($outline-color, $lightness: -20%);
+    background: color.adjust($background-light, $lightness: -3%);
+    border-color: color.adjust($border-medium, $lightness: -10%);
     transform: scale(1.03);
     transition: transform 0.2s ease-in-out;
   }
 
   .view-switch-label {
-    color: $disabled-color;
+    color: $text-secondary;
     transition: color 0.3s;
 
     &.active {

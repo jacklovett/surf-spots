@@ -1,0 +1,77 @@
+.trip-selection-item {
+  @extend %flex-space-between;
+  width: 100%;
+  padding: $spacing-unit;
+  background: $background-light;
+  border: 1px solid $outline-color;
+  border-radius: $content-border-radius;
+  gap: $spacing-unit;
+
+  .trip-selection-item-info {
+    flex: 1;
+    min-width: 0;
+
+    .trip-selection-item-header {
+      @extend %flex-base;
+      align-items: center;
+      gap: $spacing-small;
+      margin-bottom: $spacing-small;
+
+      @media (max-width: 640px) {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: $spacing-small;
+      }
+
+      h3 {
+        margin: 0;
+        flex: 1;
+      }
+
+      .status-badge {
+        padding: $spacing-small $spacing-unit;
+        background: $background-light;
+        color: $primary-color;
+        font-size: $font-size-small;
+        border-radius: $button-border-radius;
+        white-space: nowrap;
+        flex-shrink: 0;
+
+        &.added {
+          background: $accent-color;
+        }
+
+        @media (max-width: 640px) {
+          margin-top: 0;
+        }
+      }
+    }
+
+    p {
+      margin: $spacing-small 0 0 0;
+    }
+
+    .trip-dates {
+      font-weight: 500;
+      color: $text-color;
+    }
+
+    .trip-selection-item-action {
+      margin-top: $spacing-small;
+      min-height: 40px; // Prevent content shift between buttons and status text
+      display: flex;
+      align-items: center;
+
+      .button {
+        width: auto;
+        min-width: 80px;
+      }
+
+      .status-text {
+        color: $primary-color;
+        font-size: $font-size-small;
+        padding-left: $spacing-unit;
+      }
+    }
+  }
+}

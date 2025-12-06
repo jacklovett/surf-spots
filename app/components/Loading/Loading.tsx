@@ -39,9 +39,7 @@ export const Loading = () => {
         stroke="#046380"
         strokeWidth="2"
         className="wave-line"
-        style={{
-          animationDelay: `${waveIndex * 0.1}s`,
-        }}
+        data-wave-index={waveIndex}
       />
     ))
   }

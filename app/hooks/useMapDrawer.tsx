@@ -4,7 +4,7 @@ import { MapMouseEvent } from 'mapbox-gl'
 
 import { useLayoutContext, useUserContext } from '~/contexts'
 import { SurfSpot } from '~/types/surfSpots'
-import { ErrorBoundary, SurfSpotPreview } from '~/components'
+import { ErrorBoundary, SurfSpotPreview, SurfSpotActions } from '~/components'
 import { FetcherSubmitParams } from '~/components/SurfSpotActions'
 export const useMapDrawer = (
   onFetcherSubmit?: (params: FetcherSubmitParams) => void,
@@ -38,7 +38,16 @@ export const useMapDrawer = (
           </ErrorBoundary>
         )
 
-        openDrawer(drawerContent, 'right', surfSpot.name)
+        const drawerActions = (
+          <SurfSpotActions
+            surfSpot={surfSpot}
+            user={user}
+            navigate={navigate}
+            onFetcherSubmit={onFetcherSubmit}
+          />
+        )
+
+        openDrawer(drawerContent, 'right', surfSpot.name, drawerActions)
       } catch (error) {
         console.error('Error handling marker click:', error)
       }

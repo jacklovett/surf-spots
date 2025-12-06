@@ -1,4 +1,4 @@
-import { ActionFunction, data, LoaderFunction } from 'react-router'
+import { ActionFunction, data, LoaderFunction, useNavigate } from 'react-router'
 
 import { requireSessionCookie } from '~/services/session.server'
 import { cacheControlHeader, get, post } from '~/services/networkService'
@@ -6,6 +6,7 @@ import { createSurfSpotFromFormData } from '~/services/surfSpot.server'
 
 import SurfSpotForm, { LoaderData } from '~/components/SurfSpotForm'
 import { Continent } from '~/types/surfSpots'
+import { Page, ErrorBoundary } from '~/components'
 
 export const loader: LoaderFunction = async ({ request }) => {
   await requireSessionCookie(request)
@@ -61,5 +62,15 @@ export const action: ActionFunction = async ({ request }) => {
 }
 
 export default function AddSurfSpot() {
-  return <SurfSpotForm actionType="Add" />
+  const navigate = useNavigate()
+
+  const handleCancel = () => navigate(-1)
+
+  return (
+    <Page showHeader>
+      <ErrorBoundary message="Something went wrong">
+        <SurfSpotForm actionType="Add" onCancel={handleCancel} />
+      </ErrorBoundary>
+    </Page>
+  )
 }

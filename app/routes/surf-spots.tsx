@@ -137,21 +137,30 @@ export default function SurfSpots() {
     return breadcrumbItems
   }
 
+  const params = useParams()
   const breadcrumbs = generateBreadcrumbItems()
+  // Hide Toolbar on detail pages (surfSpot param only exists on detail route)
+  const isDetailPage = !!params.surfSpot
 
   return (
     <Page showHeader overrideLoading={loading}>
-      <Toolbar
-        showAddButton={!!user}
-        onAddNewSpot={() => navigate('/add-surf-spot')}
-        onOpenFilters={handleOpenFilters}
-        filtersBadge={getAppliedFiltersCount(filters)}
-        isMapView={isMapView}
-        onToggleView={handleToggleView}
-        hideFilters={!!useParams().surfSpot} // Hide filters when on surf spot details page
-      />
-      <TripPlannerButton onOpenTripPlanner={() => navigate('/trip-planner')} />
-      {isMapView ? (
+      {!isDetailPage && (
+        <>
+          <Toolbar
+            showAddButton={!!user}
+            onAddNewSpot={() => navigate('/add-surf-spot')}
+            onOpenFilters={handleOpenFilters}
+            filtersBadge={getAppliedFiltersCount(filters)}
+            isMapView={isMapView}
+            onToggleView={handleToggleView}
+            hideFilters={!!params.surfSpot}
+          />
+          <TripPlannerButton
+            onOpenTripPlanner={() => navigate('/trip-planner')}
+          />
+        </>
+      )}
+      {isMapView && !isDetailPage ? (
         <div className="center column h-full map-wrapper">
           <ErrorBoundary message="Uh-oh! Something went wrong displaying the map!">
             <SurfMap onFetcherSubmit={onFetcherSubmit} />
@@ -159,7 +168,7 @@ export default function SurfSpots() {
         </div>
       ) : (
         <div className="column">
-          <Breadcrumb items={breadcrumbs} />
+          {!isDetailPage && <Breadcrumb items={breadcrumbs} />}
           {loading ? (
             <ContentStatus>
               <Loading />

@@ -3,21 +3,21 @@ import { useNavigate } from 'react-router'
 import { Modal, Button } from '~/components'
 import { IModalState, initialModalState } from '~/components/Modal'
 
-type ProtectedRoute = 'surfed-spots' | 'watch-list' | 'add-surf-spot'
+type FeatureType = 'surfed-spots' | 'watch-list' | 'add-surf-spot' | 'trips'
 
-interface UseAuthModalReturn {
-  showAuthModal: (route: ProtectedRoute) => void
+interface UseSignUpPromptReturn {
+  showSignUpPrompt: (feature: FeatureType) => void
   modalState: IModalState
   closeModal: () => void
-  AuthModal: () => JSX.Element | null
+  SignUpPromptModal: () => JSX.Element | null
 }
 
-export const useAuthModal = (): UseAuthModalReturn => {
+export const useSignUpPrompt = (): UseSignUpPromptReturn => {
   const navigate = useNavigate()
   const [modalState, setModalState] = useState<IModalState>(initialModalState)
 
-  const getModalContent = (route: ProtectedRoute) => {
-    switch (route) {
+  const getModalContent = (feature: FeatureType) => {
+    switch (feature) {
       case 'watch-list':
         return {
           title: 'Sign Up to Build Your Custom Watchlist',
@@ -69,11 +69,29 @@ export const useAuthModal = (): UseAuthModalReturn => {
             </>
           ),
         }
+      case 'trips':
+        return {
+          title: 'Sign Up to Plan Your Surf Trips',
+          content: (
+            <>
+              <p>
+                Create trip itineraries, plan your surf adventures, and share
+                them with friends.
+              </p>
+              <ul className="benefits-list mb">
+                <li>Plan epic surf trips with multiple spots</li>
+                <li>Invite friends to join your trips</li>
+                <li>Share photos and memories from your adventures</li>
+                <li>Organize everything for your next surf trip in one place</li>
+              </ul>
+            </>
+          ),
+        }
     }
   }
 
-  const showAuthModal = (route: ProtectedRoute) => {
-    const { title, content } = getModalContent(route)
+  const showSignUpPrompt = (feature: FeatureType) => {
+    const { title, content } = getModalContent(feature)
     setModalState({
       content: (
         <>
@@ -94,15 +112,15 @@ export const useAuthModal = (): UseAuthModalReturn => {
 
   const closeModal = () => setModalState(initialModalState)
 
-  const AuthModal = () => {
+  const SignUpPromptModal = () => {
     if (!modalState.isVisible) return null
     return <Modal onClose={closeModal}>{modalState.content}</Modal>
   }
 
   return {
-    showAuthModal,
+    showSignUpPrompt,
     modalState,
     closeModal,
-    AuthModal,
+    SignUpPromptModal,
   }
 }

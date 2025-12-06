@@ -9,7 +9,7 @@ export const KofiButton = () => (
       src="https://storage.ko-fi.com/cdn/kofi6.png?v=6"
       alt="Support me on Ko-fi"
       height="48"
-      style={{ border: 0, height: '48px' }}
+      className="kofi-button-image"
     />
   </a>
 )

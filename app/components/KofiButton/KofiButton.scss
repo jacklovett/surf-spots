@@ -2,6 +2,11 @@
   display: inline-block;
   transition: transform 0.3s ease-in-out;
 
+  .kofi-button-image {
+    border: 0;
+    height: 48px;
+  }
+
   &:hover {
     transform: scale(1.03);
   }

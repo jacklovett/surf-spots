@@ -1,19 +1,15 @@
-import { useState } from 'react'
 import { useNavigate } from 'react-router'
 
 import { MenuItem, profileMenuItems, spotsMenuItems } from './index'
-import { ErrorBoundary, Icon } from '../index'
+import { DropdownMenu, ErrorBoundary, Icon } from '../index'
 import { useLayoutContext, useUserContext } from '~/contexts'
-import { useAuthModal } from '~/hooks/useAuthModal'
+import { useSignUpPrompt } from '~/hooks'
 
 const Menu = () => {
   const navigate = useNavigate()
   const { user } = useUserContext()
   const { openDrawer, closeDrawer } = useLayoutContext()
-  const { showAuthModal, AuthModal } = useAuthModal()
-  const [isDropdownOpen, setDropdownOpen] = useState(false)
-
-  const toggleDropdown = () => setDropdownOpen((prev) => !prev)
+  const { showSignUpPrompt, SignUpPromptModal } = useSignUpPrompt()
 
   // Map of protected routes to their route identifiers
   const protectedRoutes: Record<
@@ -23,14 +19,13 @@ const Menu = () => {
     '/surfed-spots': 'surfed-spots',
     '/watch-list': 'watch-list',
     '/add-surf-spot': 'add-surf-spot',
-    '/add-surf-spots': 'add-surf-spot', // Handle plural variant
   }
 
   const handleMenuItemClick = (path: string) => {
     // Check if this is a protected route and user is not logged in
     const routeKey = protectedRoutes[path]
     if (routeKey && !user) {
-      showAuthModal(routeKey)
+      showSignUpPrompt(routeKey)
       closeDrawer()
       return
     }
@@ -78,24 +73,21 @@ const Menu = () => {
       {/* Desktop Menu */}
       <div className="desktop-menu">
         {createMenuList(spotsMenuItems, 'nav-item')}
-        <button
-          className="nav-item"
-          onClick={toggleDropdown}
-          aria-expanded={isDropdownOpen}
-          aria-label="Open profile menu"
-          type="button"
-        >
-          <Icon iconKey="profile" />
-        </button>
+        <ErrorBoundary message="Unable to display profile menu">
+          <div className="profile-menu-wrapper">
+            <DropdownMenu
+              items={profileMenuItems.map((item) => ({
+                label: item.label,
+                iconKey: item.icon,
+                onClick: () => handleMenuItemClick(item.path),
+              }))}
+              triggerIcon="profile"
+              triggerClassName="nav-item"
+              align="right"
+            />
+          </div>
+        </ErrorBoundary>
       </div>
-      {/* Dropdown Menu */}
-      {isDropdownOpen && (
-        <div className="dropdown-menu" role="menu">
-          <ErrorBoundary message="Unable to display profile menu">
-            {createMenuList(profileMenuItems, 'menu-item')}
-          </ErrorBoundary>
-        </div>
-      )}
       {/* Hamburger Icon (Mobile) */}
       <button
         className="hamburger-icon"
@@ -107,7 +99,7 @@ const Menu = () => {
         <span></span>
         <span></span>
       </button>
-      <AuthModal />
+      <SignUpPromptModal />
     </nav>
   )
 }

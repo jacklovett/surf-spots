@@ -3,51 +3,81 @@
 .button {
   @extend %flex-center;
   gap: $spacing-small;
-  background-color: $accent-color;
-  color: color.adjust($primary-color, $lightness: -10%);
+  background-color: $primary-color;
+  color: $white;
   padding: $spacing-unit;
   border: none;
   border-radius: $button-border-radius;
   font-family: $font-family-base;
   font-weight: bold;
   cursor: pointer;
-  transition: background-color 0.3s, transform 0.2s;
+  transition:
+    background-color 0.3s,
+    transform 0.2s,
+    border-color 0.3s;
   text-align: center;
   text-decoration: none;
   width: 100%;
+  min-height: $button-height;
+  box-sizing: border-box;
+
+  // Variant-specific styles
+  &.cancel {
+    background: $background-light;
+    color: $text-color;
+    border: 1px solid $border-medium;
+    min-height: $button-height;
+
+    &:hover:not(:disabled) {
+      background: color.adjust($background-light, $lightness: -3%);
+      border-color: color.adjust($border-medium, $lightness: -10%);
+    }
+
+    &:active:not(:disabled) {
+      background: color.adjust($background-light, $lightness: -5%);
+    }
+  }
 
   &.secondary {
-    background: $primary-color;
-    color: $accent-color;
-  }
-
-  &.alternate {
-    width: fit-content;
-    margin: 0 auto;
-    padding: $spacing-small $spacing-large;
     background: color.adjust($accent-color, $lightness: -10%);
     color: $white;
-  }
 
-  &:hover {
-    background: color.adjust($accent-color, $lightness: -5%);
-    transform: scale(1.03);
-    transition: background-color 0.3s, transform 0.3s ease-in-out;
-    text-decoration: none;
-
-    &.alternate {
+    &:hover:not(:disabled) {
       color: color.adjust($primary-color, $lightness: -10%);
     }
+  }
 
-    &.secondary {
-      background: color.adjust($primary-color, $lightness: -10%);
-      color: $accent-color;
+  &.danger {
+    background: $error;
+    color: $white;
+
+    &:hover:not(:disabled) {
+      background: color.adjust($error, $lightness: 5%);
+    }
+
+    &:active:not(:disabled) {
+      background: color.adjust($error, $lightness: -5%);
     }
   }
 
-  &:active {
-    background: color.adjust($primary-color, $lightness: -5%);
+  // Common hover and active states (applied to all variants, but not when disabled)
+  &:hover:not(:disabled) {
+    transform: scale(1.03);
+    text-decoration: none;
+
+    // Primary variant (default) background
+    &:not(.cancel):not(.secondary):not(.danger):not(.icon) {
+      background: color.adjust($primary-color, $lightness: 5%);
+    }
+  }
+
+  &:active:not(:disabled) {
     transform: scale(0.95);
+
+    // Primary variant (default) background
+    &:not(.cancel):not(.secondary):not(.danger):not(.icon) {
+      background: color.adjust($primary-color, $lightness: -5%);
+    }
   }
 
   &:disabled {
@@ -58,28 +88,37 @@
     opacity: 0.6;
     transform: none;
     translate: none;
+
+    // Prevent any hover/active effects when disabled
+    &:hover,
+    &:active {
+      transform: none;
+      background: $disabled-color;
+    }
   }
 }
 
 .icon {
   width: $spacing-large;
   height: $spacing-large;
+  min-height: unset;
+  padding: 0;
   color: $text-color;
   background: transparent;
   font-size: $font-size-x-large;
+  line-height: 1;
   border-radius: $circle-border-radius;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition:
+    color 0.3s,
+    background 0.3s,
+    transform 0.2s;
 
   &:hover {
     color: color.adjust($text-color, $lightness: -10%);
     background: $text-hover-background;
     transform: scale(1.03);
-    transition: transform 0.3s ease-in-out;
   }
-}
-
-/* Define button variants */
-
-.button--danger {
-  background-color: $error;
-  color: $text-color;
 }

@@ -32,6 +32,9 @@
 
 .direction-selector-button {
   position: absolute;
+  left: var(--button-left);
+  top: var(--button-top);
+  transform: translate(-50%, -50%);
   width: 26px;
   height: 26px;
   border: 1.5px solid $outline-color;

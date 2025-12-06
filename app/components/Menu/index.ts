@@ -27,6 +27,12 @@ export const spotsMenuItems: MenuItem[] = [
     label: 'Watch List',
     path: '/watch-list',
   },
+  {
+    key: 'trips',
+    icon: 'plane',
+    label: 'Trips',
+    path: '/trips',
+  },
 ]
 
 export const profileMenuItems: MenuItem[] = [

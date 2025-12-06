@@ -1,0 +1,65 @@
+/* Watch List Page Styles */
+.watchlist-header-actions {
+  margin-bottom: $spacing-large;
+  text-align: right;
+}
+
+.watchlist-spots-link {
+  font-size: $font-size-small;
+}
+
+.watched-spots-title {
+  font-size: $font-size-x-large;
+  color: $text-heading;
+  margin: $spacing-x-large 0 $spacing-large 0;
+  padding-top: $spacing-large;
+  border-top: 2px solid $border-light;
+}
+
+.watchlist-feed {
+  margin: $spacing-large 0;
+}
+
+.feed-section-title {
+  font-size: $font-size-x-large;
+  color: $text-heading;
+  margin: 0 0 $spacing-large 0;
+  padding-bottom: $spacing-unit;
+  border-bottom: 2px solid $border-light;
+}
+
+.feed-container {
+  @extend %flex-column;
+  gap: $spacing-unit;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.watchlist-empty-state {
+  text-align: center;
+  padding: $spacing-x-large 0;
+  color: $text-secondary;
+
+  .text-secondary {
+    color: $text-secondary;
+    font-size: $font-size-small;
+    margin-top: $spacing-small;
+  }
+}
+
+@media (max-width: 768px) {
+  .feed-container {
+    max-width: 100%;
+  }
+
+  .feed-section-title {
+    font-size: $font-size-large;
+  }
+}
+
+
+
+
+
+
+

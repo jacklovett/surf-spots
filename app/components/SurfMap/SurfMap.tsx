@@ -32,7 +32,14 @@ export const SurfMap = memo((props: IProps) => {
   const [loading, setLoading] = useState(true)
   const [userLocation, setUserLocation] = useState<Coordinates | null>(null)
   const [locationFetched, setLocationFetched] = useState(false)
+
   const mapRef = useRef<mapboxgl.Map | null>(null)
+  const mapContainerRef = useRef<HTMLDivElement | null>(null)
+
+  // surfSpots prop provided = use only those spots (even if empty array)
+  // surfSpots prop undefined = fetch spots dynamically based on map bounds
+  const isPreloadedMode = !disableInteractions && surfSpots !== undefined
+
   const { user } = useUserContext()
   const {
     filters,
@@ -41,53 +48,30 @@ export const SurfMap = memo((props: IProps) => {
     mergeSurfSpots,
   } = useSurfSpotsContext()
 
-  const mapContainerRef = useRef<HTMLDivElement | null>(null)
-
-  // Track pre-loaded spots for memoized callbacks (avoid stale closures)
-  const preloadedSpotsRef = useRef<SurfSpot[] | undefined>(
-    !disableInteractions && surfSpots?.length ? surfSpots : undefined,
-  )
-
-  useEffect(() => {
-    if (disableInteractions) return
-    preloadedSpotsRef.current = surfSpots?.length ? surfSpots : undefined
-
-    if (mapRef.current && surfSpots?.length) {
-      updateMapSourceData(mapRef.current, surfSpots)
-    }
-  }, [surfSpots, disableInteractions])
-
+  // Refs to avoid stale closures in callbacks
   const filtersRef = useRef(filters)
   const contextSurfSpotsRef = useRef(contextSurfSpots)
+
+  useEffect(() => {
+    filtersRef.current = filters
+  }, [filters])
 
   useEffect(() => {
     contextSurfSpotsRef.current = contextSurfSpots
   }, [contextSurfSpots])
 
+  const { handleMarkerClick } = useMapDrawer(onFetcherSubmit)
+
+  // Debounced fetch for dynamic mode
   const debouncedFetchSurfSpots = useCallback(
     debounce(async (map: mapboxgl.Map) => {
-      if (preloadedSpotsRef.current) return
-
       try {
         const newSurfSpots = await fetchSurfSpotsByBounds(
           map,
           user?.id,
           filtersRef.current,
         )
-
         mergeSurfSpots(newSurfSpots)
-
-        if (map && !map._removed && !preloadedSpotsRef.current) {
-          const currentSpots = contextSurfSpotsRef.current || []
-          const mergedSpots = [
-            ...currentSpots,
-            ...newSurfSpots.filter(
-              (spot) =>
-                !currentSpots.some((existing) => existing.id === spot.id),
-            ),
-          ]
-          updateMapSourceData(map, mergedSpots)
-        }
       } catch (error) {
         console.error('Error fetching surf spots:', error)
       }
@@ -95,34 +79,23 @@ export const SurfMap = memo((props: IProps) => {
     [user?.id, mergeSurfSpots],
   )
 
+  // Handle filter changes (dynamic mode only) - replace spots with filtered results
   useEffect(() => {
-    const hasPreloaded = !disableInteractions && surfSpots?.length
-    if (hasPreloaded) return
+    if (isPreloadedMode || disableInteractions || !mapRef.current) return
 
-    const prevFilters = filtersRef.current
-    const filtersChanged =
-      JSON.stringify(prevFilters) !== JSON.stringify(filters)
+    fetchSurfSpotsByBounds(mapRef.current, user?.id, filters)
+      .then((newSurfSpots) => {
+        setSurfSpots(newSurfSpots)
+        if (mapRef.current && !mapRef.current._removed) {
+          updateMapSourceData(mapRef.current, newSurfSpots)
+        }
+      })
+      .catch((error) =>
+        console.error('Error fetching surf spots on filter change:', error),
+      )
+  }, [filters, user?.id, setSurfSpots, disableInteractions, isPreloadedMode])
 
-    filtersRef.current = filters
-
-    if (filtersChanged && mapRef.current) {
-      setSurfSpots([])
-      fetchSurfSpotsByBounds(mapRef.current, user?.id, filters)
-        .then((newSurfSpots) => {
-          setSurfSpots(newSurfSpots)
-          if (mapRef.current && !mapRef.current._removed) {
-            updateMapSourceData(mapRef.current, newSurfSpots)
-          }
-        })
-        .catch((error) => {
-          console.error('Error fetching surf spots on filter change:', error)
-        })
-    }
-  }, [filters, user?.id, setSurfSpots, disableInteractions, surfSpots])
-
-  const { handleMarkerClick } = useMapDrawer(onFetcherSubmit)
-
-  // Fetch user's location on mount (only for interactive maps)
+  // Fetch user's location on mount (interactive maps only)
   useEffect(() => {
     if (disableInteractions || locationFetched) return
 
@@ -135,70 +108,58 @@ export const SurfMap = memo((props: IProps) => {
           })
           setLocationFetched(true)
         },
-        (error) => {
-          console.error('Error getting user location:', error)
-          // Fall back to default location
+        () => {
           setUserLocation(defaultMapCenter)
           setLocationFetched(true)
         },
-        {
-          enableHighAccuracy: true,
-          timeout: 10000,
-          maximumAge: 60000,
-        },
+        { enableHighAccuracy: true, timeout: 10000, maximumAge: 60000 },
       )
     } else {
-      // Geolocation not supported, use default location
       setUserLocation(defaultMapCenter)
       setLocationFetched(true)
     }
   }, [disableInteractions, locationFetched])
 
+  // Initialize map
   useEffect(() => {
-    if (!mapContainerRef.current || mapRef.current) {
-      return
-    }
-
-    // For interactive maps, wait for location to be fetched
-    if (!disableInteractions && !locationFetched) {
-      return
-    }
+    if (!mapContainerRef.current || mapRef.current) return
+    if (!disableInteractions && !locationFetched) return
 
     let mapInstance: mapboxgl.Map
 
+    // Static map mode (single marker, no interactions)
     if (disableInteractions && surfSpots && surfSpots.length > 0) {
       const { longitude, latitude } = surfSpots[0]
       mapInstance = initializeMap(mapContainerRef.current, false, {
         longitude,
         latitude,
       })
-
       mapInstance.on('load', () => {
         setLoading(false)
         addMarkerForCoordinate({ longitude, latitude }, mapInstance)
       })
     } else {
-      // Use user location if available, otherwise fall back to default
+      // Interactive map mode
       const initialCoords = userLocation || defaultMapCenter
       mapInstance = initializeMap(mapContainerRef.current, true, initialCoords)
       mapInstance.addControl(new mapboxgl.NavigationControl(), 'top-right')
 
       mapInstance.on('load', () => {
         setLoading(false)
-
-        const hasPreloaded = !disableInteractions && surfSpots?.length
-        const spotsToDisplay = hasPreloaded ? surfSpots : contextSurfSpots || []
-
-        addSourceData(mapInstance, spotsToDisplay)
+        const initialSpots = isPreloadedMode
+          ? surfSpots || []
+          : contextSurfSpots || []
+        addSourceData(mapInstance, initialSpots)
         addLayers(mapInstance, handleMarkerClick)
 
-        if (!hasPreloaded && !contextSurfSpots.length) {
+        // Only fetch on load if dynamic mode with no existing spots
+        if (!isPreloadedMode && !contextSurfSpots.length) {
           debouncedFetchSurfSpots(mapInstance)
         }
       })
 
-      const hasPreloaded = !disableInteractions && surfSpots?.length
-      if (!hasPreloaded) {
+      // Pan/zoom handlers for dynamic mode only
+      if (!isPreloadedMode) {
         const handleMapUpdate = () => {
           if (mapInstance && !mapInstance._removed) {
             debouncedFetchSurfSpots(mapInstance)
@@ -218,21 +179,18 @@ export const SurfMap = memo((props: IProps) => {
         mapRef.current = null
       }
     }
-  }, [disableInteractions, surfSpots, locationFetched, userLocation])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [disableInteractions, locationFetched, userLocation])
 
+  // Update map data when spots change
   useEffect(() => {
     if (disableInteractions || !mapRef.current) return
 
-    const hasPreloaded = surfSpots?.length
-    if (hasPreloaded) {
-      updateMapSourceData(mapRef.current, surfSpots)
-      return
+    const spotsToDisplay = isPreloadedMode ? surfSpots || [] : contextSurfSpots
+    if (spotsToDisplay.length || isPreloadedMode) {
+      updateMapSourceData(mapRef.current, spotsToDisplay)
     }
-
-    if (contextSurfSpots.length) {
-      updateMapSourceData(mapRef.current, contextSurfSpots)
-    }
-  }, [contextSurfSpots, disableInteractions, surfSpots])
+  }, [surfSpots, contextSurfSpots, disableInteractions, isPreloadedMode])
 
   return (
     <div className={classNames({ 'map-container': true, border: !loading })}>

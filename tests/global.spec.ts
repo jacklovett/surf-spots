@@ -45,9 +45,7 @@ test.describe('Global Functionality', () => {
       if (route.path === '/') {
         // For home page, check for the main hero heading specifically
         await expect(
-          page.locator(
-            'h1:has-text("Track Your Surf Journey, Discover New Waves")',
-          ),
+          page.locator('h1:has-text("Never Forget a Wave")'),
         ).toBeVisible()
       } else if (route.path === '/auth') {
         // For auth page, check for the main heading

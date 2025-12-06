@@ -1,0 +1,45 @@
+.trip-selection-modal {
+  h2 {
+    margin-bottom: $spacing-unit;
+  }
+
+  p {
+    margin-bottom: $spacing-unit;
+  }
+
+  .text-secondary {
+    color: $text-secondary;
+  }
+
+  .trip-selection-loading {
+    @extend %flex-column;
+    align-items: center;
+    padding: $spacing-x-large;
+    text-align: center;
+
+    p {
+      margin-top: $spacing-unit;
+      margin-bottom: 0;
+    }
+  }
+
+  .trip-selection-list {
+    @extend %flex-column;
+    gap: $spacing-small;
+    margin: $spacing-unit 0;
+    max-height: 400px;
+    overflow-y: auto;
+  }
+
+  .trip-selection-actions {
+    @extend %flex-column;
+    gap: $spacing-unit;
+    margin-top: $spacing-unit;
+    width: 100%;
+
+    .button {
+      width: 100%;
+    }
+  }
+}
+

@@ -16,6 +16,7 @@ import {
   UserProvider,
   LayoutProvider,
   SurfSpotsProvider,
+  TripProvider,
 } from './contexts'
 import { ErrorBoundary } from './components'
 
@@ -111,7 +112,9 @@ export default function App() {
         <LayoutProvider>
           <SettingsProvider>
             <SurfSpotsProvider>
-              <Outlet />
+              <TripProvider>
+                <Outlet />
+              </TripProvider>
             </SurfSpotsProvider>
           </SettingsProvider>
         </LayoutProvider>

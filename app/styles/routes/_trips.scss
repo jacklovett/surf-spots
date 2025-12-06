@@ -1,0 +1,397 @@
+/* Trips Page Styles */
+.trips-header {
+  @extend %flex-space-between;
+  margin-bottom: $spacing-large;
+
+  h1 {
+    margin: 0;
+  }
+}
+
+.trips-empty {
+  text-align: center;
+  padding: $spacing-x-large 0;
+  color: $text-secondary;
+}
+
+.trips-section {
+  margin-bottom: $spacing-x-large;
+
+  h2 {
+    margin-bottom: $spacing-unit;
+    color: $text-color;
+  }
+}
+
+.trips-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: $spacing-unit;
+
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.trip-card {
+  background: $white;
+  border: 1px solid $outline-color;
+  border-radius: $content-border-radius;
+  padding: $spacing-unit;
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  &:hover {
+    box-shadow: $box-shadow;
+    transform: translateY(-2px);
+  }
+
+  h3 {
+    margin: 0 0 $spacing-small 0;
+  }
+
+  p {
+    margin: $spacing-small 0;
+    color: $text-secondary;
+  }
+
+  .trip-owner {
+    font-size: 0.85rem;
+    color: $text-secondary;
+    font-style: italic;
+  }
+
+  .trip-spots {
+    margin-top: $spacing-small;
+  }
+}
+
+/* Trip Detail Page Styles */
+.trip-actions {
+  @extend %flex-base;
+  gap: $spacing-small;
+  flex-shrink: 0;
+}
+
+// Match surf spot details page styling
+.info-page-content {
+  h1 {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin-bottom: $spacing-unit;
+  }
+
+  h3 {
+    font-size: $font-size-large;
+    margin: $spacing-x-large 0 $spacing-unit 0;
+    padding-bottom: $spacing-small;
+    border-bottom: 2px solid $primary-color;
+  }
+
+  // Override h3 border for empty-state h3 (more specific selector)
+  section .empty-state h3 {
+    border-bottom: none !important;
+    padding-bottom: 0 !important;
+    margin-top: 0; // Reset top margin for empty state
+  }
+
+  section {
+    margin-bottom: $spacing-x-large;
+
+    &:last-child {
+      margin-bottom: 0;
+    }
+  }
+
+  .description {
+    font-size: $font-size-base;
+    line-height: 1.6;
+    color: $text-color;
+    margin-top: 0;
+    margin-bottom: $spacing-large;
+  }
+
+  .row.space-between {
+    margin-bottom: $spacing-unit;
+    flex-wrap: wrap;
+    gap: $spacing-unit;
+    align-items: flex-start;
+
+    h1 {
+      flex: 1;
+      min-width: 200px; // Ensure title takes reasonable space before wrapping
+      margin-right: $spacing-unit;
+    }
+
+    @media (max-width: 768px) {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: $spacing-unit;
+
+      h1 {
+        margin-right: 0;
+        width: 100%;
+      }
+    }
+  }
+
+  .spot-actions {
+    flex-shrink: 0;
+    display: flex;
+    gap: $spacing-small;
+
+    @media (max-width: 768px) {
+      width: 100%;
+      justify-content: flex-start;
+    }
+  }
+}
+
+.trip-edit-form {
+  max-width: 600px;
+
+  .form-actions {
+    @extend %flex-base;
+    gap: $spacing-small;
+    justify-content: flex-end;
+    margin-top: $spacing-unit;
+  }
+}
+
+.info-page-content p.text-secondary {
+  margin-top: $spacing-small;
+  margin-bottom: $spacing-large;
+}
+
+.trip-spots-list,
+.trip-members-list {
+  @extend %flex-column;
+  gap: 0;
+  border: solid 1px $outline-color;
+  border-radius: $content-border-radius;
+  padding: $spacing-unit;
+  margin-top: $spacing-unit;
+  margin-bottom: 0;
+}
+
+.trip-spot-item,
+.trip-member-item {
+  @extend %flex-space-between;
+  align-items: flex-start;
+  padding: $spacing-unit;
+  border-bottom: 1px solid $outline-color;
+  flex-wrap: wrap;
+  gap: $spacing-unit;
+
+  &:last-child {
+    border-bottom: none;
+  }
+
+  &:first-child {
+    padding-top: $spacing-unit;
+  }
+
+  & > div:first-child {
+    flex: 1;
+    min-width: 0;
+  }
+
+  @media (max-width: 768px) {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: $spacing-unit;
+  }
+
+  .member-email-row {
+    display: flex;
+    align-items: center;
+    gap: $spacing-small;
+    flex-wrap: wrap;
+
+    .chip {
+      flex-shrink: 0;
+    }
+  }
+
+  h4 {
+    margin: 0 0 $spacing-small 0;
+    font-size: $font-size-base;
+
+    a {
+      text-decoration: none;
+      color: inherit;
+
+      &:hover {
+        text-decoration: underline;
+      }
+    }
+  }
+
+  .spot-rating {
+    margin-top: $spacing-small;
+
+    .rating {
+      text-decoration: none;
+
+      .star {
+        text-decoration: none;
+      }
+    }
+  }
+
+  .member-name {
+    margin: 0 0 $spacing-small 0;
+    font-weight: 600;
+  }
+
+  p {
+    margin: 0;
+  }
+}
+
+.add-member-form {
+  margin-top: $spacing-large;
+
+  .form-inline {
+    margin-bottom: 0;
+  }
+}
+
+.trip-media-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: $spacing-unit;
+  margin-top: $spacing-unit;
+
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.trip-media-item {
+  position: relative;
+  background: $white;
+  border: 1px solid $outline-color;
+  border-radius: $content-border-radius;
+  overflow: hidden;
+  box-shadow: $box-shadow;
+  transition: all 0.2s ease;
+
+  &:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    transform: translateY(-2px);
+  }
+
+  img,
+  video {
+    width: 100%;
+    height: auto;
+    display: block;
+  }
+
+  button {
+    position: absolute;
+    top: $spacing-small;
+    right: $spacing-small;
+    z-index: 1;
+  }
+}
+
+.trip-media-upload {
+  margin-top: $spacing-unit;
+}
+
+// Date input styling
+input[type='date'] {
+  color-scheme: light;
+
+  &::-webkit-calendar-picker-indicator {
+    cursor: pointer;
+    opacity: 0.7;
+    filter: invert(0.4);
+    transition: opacity 0.2s ease;
+    padding: $spacing-small;
+    margin-left: $spacing-small;
+    background-size: 20px 20px;
+    width: 24px;
+    height: 24px;
+
+    &:hover {
+      opacity: 1;
+      filter: invert(0.6);
+    }
+  }
+
+  &::-webkit-datetime-edit {
+    padding: 0;
+  }
+
+  &::-webkit-datetime-edit-text {
+    padding: 0 $spacing-small;
+    color: $text-color;
+  }
+
+  &::-webkit-datetime-edit-month-field,
+  &::-webkit-datetime-edit-day-field,
+  &::-webkit-datetime-edit-year-field {
+    padding: 0 $spacing-small;
+    color: $text-color;
+
+    &:focus {
+      background-color: $text-hover-background;
+      border-radius: $form-border-radius;
+    }
+  }
+
+  &::-webkit-inner-spin-button,
+  &::-webkit-clear-button {
+    display: none;
+  }
+
+  // Firefox
+  &::-moz-calendar-picker-indicator {
+    cursor: pointer;
+    opacity: 0.7;
+    transition: opacity 0.2s ease;
+    padding: $spacing-small;
+    margin-left: $spacing-small;
+
+    &:hover {
+      opacity: 1;
+    }
+  }
+
+  // Style the calendar popup (limited browser support)
+  &::-webkit-calendar-picker-indicator:focus {
+    outline: 2px solid $focus-color;
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
+}
+
+// Global date picker calendar styling (limited - mostly browser controlled)
+// Note: Native date picker calendars are mostly controlled by the browser/OS
+// These styles attempt to influence appearance where possible
+input[type='date']:focus {
+  &::-webkit-calendar-picker-indicator {
+    background-color: $text-hover-background;
+    border-radius: 4px;
+  }
+}
+
+// Form inline helper
+.form-inline {
+  @extend %flex-base;
+  gap: $spacing-small;
+  align-items: flex-start;
+
+  .form-item {
+    flex: 1;
+    min-width: 0;
+    margin-bottom: 0;
+  }
+}
+
+.delete-error {
+  color: $error;
+}

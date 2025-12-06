@@ -1,0 +1,64 @@
+.media-upload-card {
+  @extend %flex-center;
+  border: 2px dashed $outline-color;
+  border-radius: $content-border-radius;
+  padding: $spacing-x-large;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  background: $white;
+  min-height: 200px;
+
+  &:hover:not(.disabled) {
+    border-color: $primary-color;
+    background: $background-light;
+  }
+
+  &.dragging {
+    border-color: $primary-color;
+    background: rgba($primary-color, 0.05);
+    border-style: solid;
+  }
+
+  &.disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+}
+
+.media-upload-input-hidden {
+  display: none;
+}
+
+.media-upload-content {
+  @extend %flex-column;
+  align-items: center;
+  gap: $spacing-unit;
+}
+
+.media-upload-icon {
+  @extend %flex-center;
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: $background-light;
+  color: $primary-color;
+
+  svg {
+    width: 32px;
+    height: 32px;
+  }
+}
+
+.media-upload-text {
+  font-size: $font-size-base;
+  font-weight: 600;
+  color: $text-heading;
+  margin: 0;
+}
+
+.media-upload-hint {
+  font-size: $font-size-small;
+  color: $text-secondary;
+  margin: 0;
+}

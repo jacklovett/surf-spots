@@ -5,7 +5,6 @@ import { SurfSpot } from '~/types/surfSpots'
 
 import Details from '../Details'
 import Rating from '../Rating'
-import SurfSpotActions from '../SurfSpotActions'
 import { useLayoutContext, useSettingsContext } from '~/contexts'
 import { FetcherSubmitParams } from '../SurfSpotActions'
 import {
@@ -24,7 +23,7 @@ interface IProps {
 }
 
 export const SurfSpotPreview = memo((props: IProps) => {
-  const { surfSpot, user, navigate, onFetcherSubmit } = props
+  const { surfSpot, navigate } = props
 
   const {
     beachBottomType,
@@ -93,10 +92,7 @@ export const SurfSpotPreview = memo((props: IProps) => {
             </div>
             <div className="condition-item">
               <CalendarIcon size={20} />
-              <Details
-                label="Season"
-                value={formatSeason(swellSeason)}
-              />
+              <Details label="Season" value={formatSeason(swellSeason)} />
             </div>
           </div>
 
@@ -116,9 +112,6 @@ export const SurfSpotPreview = memo((props: IProps) => {
         >
           Learn more
         </a>
-        <div className="surf-spot-preview-actions">
-          <SurfSpotActions {...{ surfSpot, navigate, user, onFetcherSubmit }} />
-        </div>
       </div>
     </div>
   )

@@ -275,6 +275,23 @@ export const FACILITIES = [
   },
 ]
 
+export const monthNames = [
+  'January',
+  'February',
+  'March',
+  'April',
+  'May',
+  'June',
+  'July',
+  'August',
+  'September',
+  'October',
+  'November',
+  'December',
+]
+
+export const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
+
 // Month options with 3-4 character abbreviations for filter chips
 export const MONTH_OPTIONS: Option[] = [
   { key: 'January', value: 'January', label: 'Jan' },

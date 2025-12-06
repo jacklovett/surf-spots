@@ -1,0 +1,113 @@
+.dropdown-menu-wrapper {
+  position: relative;
+  display: inline-block;
+}
+
+.dropdown-menu-trigger {
+  @extend %flex-center;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: $spacing-small;
+  color: $text-color;
+  transition: color 0.2s ease;
+  border-radius: $button-border-radius;
+
+  &:hover {
+    background: $text-hover-background;
+    color: $primary-color;
+  }
+
+  &:focus-visible {
+    outline: 2px solid $focus-color;
+    outline-offset: 2px;
+  }
+
+  &:focus:not(:focus-visible) {
+    outline: none;
+  }
+
+  svg {
+    width: 20px;
+    height: 20px;
+  }
+
+  // Allow override when used in navigation (Menu component)
+  &.nav-item {
+    padding: $spacing-unit;
+    max-height: $header-height;
+    font-family: inherit;
+    font-size: inherit;
+    color: inherit;
+    border-radius: 0; // Match other nav items (rectangular)
+
+    svg {
+      width: 24px;
+      height: 24px;
+    }
+  }
+}
+
+.dropdown-menu {
+  @extend %flex-column;
+  position: absolute;
+  top: calc(100% + $spacing-small);
+  z-index: 10000;
+  background: $white;
+  border: 1px solid $outline-color;
+  border-radius: $content-border-radius;
+  box-shadow: $box-shadow;
+  min-width: 280px;
+  padding: $spacing-small 0;
+
+  &.align-right {
+    right: 0;
+  }
+
+  &.align-left {
+    left: 0;
+  }
+}
+
+.dropdown-menu-item {
+  @extend %flex-base;
+  align-items: center;
+  gap: $spacing-unit;
+  width: 100%;
+  padding: $spacing-small $spacing-unit;
+  background: none;
+  border: none;
+  text-align: left;
+  cursor: pointer;
+  color: $text-color;
+  font-size: $font-size-base;
+  transition: background-color 0.2s ease;
+
+  &:hover:not(.disabled) {
+    background: $text-hover-background;
+  }
+
+  &:focus-visible {
+    outline: 2px solid $focus-color;
+    outline-offset: -2px;
+  }
+
+  &:focus:not(:focus-visible) {
+    outline: none;
+  }
+
+  &.disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  svg {
+    width: 18px;
+    height: 18px;
+    flex-shrink: 0;
+  }
+
+  span {
+    flex: 1;
+  }
+}
