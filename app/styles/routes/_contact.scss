@@ -16,59 +16,38 @@
 }
 
 .contact-form-section {
-  background: $white;
-  padding: 2.5rem;
-  border-radius: $content-border-radius;
-  box-shadow: $box-shadow;
-  border: 1px solid $border-light;
   margin-bottom: $spacing-large;
 }
 
 .contact-form {
   @extend %flex-column;
-  gap: 1.5rem;
+  gap: $spacing-small;
 }
 
 .contact-form .form-row {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 1.5rem;
+  @extend %flex-base;
+  gap: $spacing-small;
+  align-items: flex-start;
 
   @media (max-width: 768px) {
-    grid-template-columns: 1fr;
+    flex-direction: column;
+  }
+
+  .form-item {
+    flex: 1;
+    min-width: 0;
+    margin-bottom: 0;
   }
 }
 
 .contact-form .form-item {
-  @extend %flex-column;
-  gap: $spacing-small;
-}
-
-.contact-form label {
-  font-weight: 600;
-}
-
-.contact-form input,
-.contact-form textarea {
-  padding: $spacing-small;
-  border: 1px solid $border-medium;
-  border-radius: 6px;
-  transition: border-color 0.3s ease;
-
-  &:focus {
-    outline: none;
-    border-color: $primary-color;
-    box-shadow: 0 0 0 3px rgba($primary-color, 0.1);
+  // Uses shared .form-item styles from _form.scss
+  // Only override label visibility for contact form
+  label {
+    opacity: 1;
+    transform: translateY(0);
+    font-weight: 600;
   }
-}
-
-.contact-form textarea {
-  resize: vertical;
-  min-height: 120px;
-}
-
-.contact-form .form-submit {
-  margin-top: $spacing-unit;
 }
 
 .contact-info-section {

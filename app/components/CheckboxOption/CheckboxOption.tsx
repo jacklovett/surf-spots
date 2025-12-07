@@ -13,7 +13,7 @@ export const CheckboxOption = ({
   checked,
   onChange,
 }: IProps) => (
-  <label className="checkbox-option row space-between gap">
+  <label className="checkbox-option space-between gap mb">
     <span className="flex-1">
       <p className="bold">{title}</p>
       <p className="font-small">{description}</p>
