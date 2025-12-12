@@ -119,6 +119,10 @@
   align-items: flex-start;
   justify-content: flex-start;
 
+  .button {
+    padding: $spacing-unit $spacing-large;
+  }
+
   @media (max-width: 768px) {
     justify-content: center;
     margin-top: $spacing-unit;
