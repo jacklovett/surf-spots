@@ -100,11 +100,13 @@ export default function SurfSpots() {
     setIsMapView(newIsMapView)
   }, [pathname])
 
+  const params = useParams()
+  const { continent, country, region, subRegion, surfSpot } = params
+
   const generateBreadcrumbItems = (): BreadcrumbItem[] => {
     const breadcrumbItems: BreadcrumbItem[] = [
       { label: 'World', link: '/surf-spots/continents' },
     ]
-    const { continent, country, region, subRegion, surfSpot } = useParams()
 
     continent &&
       breadcrumbItems.push({
@@ -137,30 +139,32 @@ export default function SurfSpots() {
     return breadcrumbItems
   }
 
-  const params = useParams()
   const breadcrumbs = generateBreadcrumbItems()
-  // Hide Toolbar on detail pages (surfSpot param only exists on detail route)
-  const isDetailPage = !!params.surfSpot
+  // Detect detail pages - check if pathname matches detail page route patterns
+  // Pattern 1: /surf-spots/{continent}/{country}/{region}/{surfSpot} (excludes ending in 'sub-regions' or 'continents')
+  // Pattern 2: /surf-spots/{continent}/{country}/{region}/sub-regions/{subRegion}/{surfSpot}
+  const isDetailPage =
+    !!surfSpot ||
+    (/^\/surf-spots\/[^/]+\/[^/]+\/[^/]+\/[^/]+$/.test(pathname) &&
+      !pathname.endsWith('/sub-regions') &&
+      !pathname.endsWith('/continents')) ||
+    /^\/surf-spots\/[^/]+\/[^/]+\/[^/]+\/sub-regions\/[^/]+\/[^/]+$/.test(
+      pathname,
+    )
 
   return (
     <Page showHeader overrideLoading={loading}>
-      {!isDetailPage && (
-        <>
-          <Toolbar
-            showAddButton={!!user}
-            onAddNewSpot={() => navigate('/add-surf-spot')}
-            onOpenFilters={handleOpenFilters}
-            filtersBadge={getAppliedFiltersCount(filters)}
-            isMapView={isMapView}
-            onToggleView={handleToggleView}
-            hideFilters={!!params.surfSpot}
-          />
-          <TripPlannerButton
-            onOpenTripPlanner={() => navigate('/trip-planner')}
-          />
-        </>
-      )}
-      {isMapView && !isDetailPage ? (
+      <Toolbar
+        showAddButton={!!user}
+        onAddNewSpot={() => navigate('/add-surf-spot')}
+        onOpenFilters={handleOpenFilters}
+        filtersBadge={getAppliedFiltersCount(filters)}
+        isMapView={isMapView}
+        onToggleView={handleToggleView}
+        hideFilters={isDetailPage}
+      />
+      <TripPlannerButton onOpenTripPlanner={() => navigate('/trip-planner')} />
+      {isMapView ? (
         <div className="center column h-full map-wrapper">
           <ErrorBoundary message="Uh-oh! Something went wrong displaying the map!">
             <SurfMap onFetcherSubmit={onFetcherSubmit} />
@@ -168,7 +172,7 @@ export default function SurfSpots() {
         </div>
       ) : (
         <div className="column">
-          {!isDetailPage && <Breadcrumb items={breadcrumbs} />}
+          <Breadcrumb items={breadcrumbs} />
           {loading ? (
             <ContentStatus>
               <Loading />

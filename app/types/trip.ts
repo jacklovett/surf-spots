@@ -11,6 +11,7 @@ export interface Trip {
   spots?: TripSpot[]
   members?: TripMember[]
   media?: TripMedia[]
+  surfboards?: TripSurfboard[]
   isOwner?: boolean
 }
 
@@ -39,6 +40,13 @@ export interface TripMedia {
   ownerId: string
   ownerName: string
   uploadedAt: string
+}
+
+export interface TripSurfboard {
+  id: string
+  surfboardId: string
+  surfboardName: string
+  addedAt: string
 }
 
 export interface CreateTripRequest {

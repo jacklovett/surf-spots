@@ -23,7 +23,6 @@ import {
 } from '~/utils/surfSpotUtils'
 import { determineInitialOptions, LoaderData } from './index'
 import {
-  Button,
   CheckboxOption,
   FormComponent,
   FormInput,
@@ -32,17 +31,17 @@ import {
 } from '~/components'
 import { Option } from '~/components/FormInput'
 import { ForecastLink } from '../ForecastLinks'
+import { LocationSection } from './LocationSection'
+import { SpotDetailsSection } from './SpotDetailsSection'
+import { BestConditionsSection } from './BestConditionsSection'
+import { AccessAmenitiesSection } from './AccessAmenitiesSection'
 import {
   Availability,
   ACCOMMODATION_TYPES,
   FOOD_OPTIONS,
   FACILITIES,
   HAZARDS,
-} from '~/types/formData'
-import { LocationSection } from './LocationSection'
-import { SpotDetailsSection } from './SpotDetailsSection'
-import { BestConditionsSection } from './BestConditionsSection'
-import { AccessAmenitiesSection } from './AccessAmenitiesSection'
+} from '~/types/formData/surfSpots'
 
 interface SurfSpotFormProps {
   actionType: 'Add' | 'Edit'
@@ -287,6 +286,7 @@ export const SurfSpotForm = (props: SurfSpotFormProps) => {
         isDisabled={!isFormValid}
         submitStatus={submitStatus}
         method={actionType === 'Edit' ? 'patch' : 'post'}
+        onCancel={onCancel}
       >
         <CheckboxOption
           name="isPrivate"
@@ -445,11 +445,6 @@ export const SurfSpotForm = (props: SurfSpotFormProps) => {
           </p>
         </div>
       </FormComponent>
-      {onCancel && (
-        <div className="mt">
-          <Button label="Cancel" onClick={() => onCancel()} variant="cancel" />
-        </div>
-      )}
     </div>
   )
 }

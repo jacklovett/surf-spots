@@ -9,9 +9,9 @@ import {
 } from 'react'
 import classNames from 'classnames'
 import { CalendarIcon } from '../ConditionIcons'
-import { dayNames, monthNames } from '~/types/formData'
 import { useClickOutside } from '~/hooks'
 import { formatDateForInput, getDaysInMonth, getFirstDayOfMonth } from './index'
+import { monthNames, dayNames } from '~/types/formData/surfSpots'
 
 interface DatePickerProps {
   label: string

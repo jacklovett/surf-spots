@@ -1,0 +1,198 @@
+import {
+  data,
+  LoaderFunction,
+  ActionFunction,
+  useLoaderData,
+  useActionData,
+  useNavigate,
+  useNavigation,
+  redirect,
+} from 'react-router'
+import {
+  ErrorBoundary,
+  ContentStatus,
+  Loading,
+  Page,
+  SurfboardForm,
+} from '~/components'
+import { requireSessionCookie } from '~/services/session.server'
+import { updateSurfboard } from '~/services/surfboard'
+import { Surfboard, UpdateSurfboardRequest } from '~/types/surfboard'
+import { cacheControlHeader, get } from '~/services/networkService'
+import { parseLength, parseDimension } from '~/utils/surfboardUtils'
+import { useSubmitStatus } from '~/hooks'
+
+interface LoaderData {
+  surfboard: Surfboard
+  error?: string
+}
+
+interface ActionData {
+  success?: boolean
+  error?: string | null
+}
+
+export const loader: LoaderFunction = async ({ request, params }) => {
+  const user = await requireSessionCookie(request)
+  const userId = user?.id
+  const surfboardId = params.id
+
+  if (!surfboardId) {
+    return data<LoaderData>(
+      { error: 'Surfboard not found', surfboard: {} as Surfboard },
+      { status: 404 },
+    )
+  }
+
+  const cookie = request.headers.get('Cookie') ?? ''
+
+  try {
+    const surfboard = await get<Surfboard>(
+      `surfboards/${surfboardId}?userId=${userId}`,
+      {
+        headers: { Cookie: cookie },
+      },
+    )
+
+    return data<LoaderData>(
+      { surfboard },
+      {
+        headers: cacheControlHeader,
+      },
+    )
+  } catch (error) {
+    console.error('Error fetching surfboard:', error)
+    return data<LoaderData>(
+      {
+        error: `We couldn't load this surfboard right now. Please try again later.`,
+        surfboard: {} as Surfboard,
+      },
+      { status: 500 },
+    )
+  }
+}
+
+export const action: ActionFunction = async ({ params, request }) => {
+  // Only handle PUT requests for updates
+  if (request.method !== 'PUT') {
+    return data<ActionData>(
+      { error: 'Method not allowed', success: false },
+      { status: 405 },
+    )
+  }
+
+  const user = await requireSessionCookie(request)
+  const { id: surfboardId } = params
+
+  if (!surfboardId || !user?.id) {
+    return data<ActionData>(
+      { error: 'Surfboard not found', success: false },
+      { status: 404 },
+    )
+  }
+
+  const formData = await request.formData()
+  const name = (formData.get('name') as string)?.trim()
+
+  if (!name || name.length === 0) {
+    return data<ActionData>(
+      {
+        error: 'Name is required',
+        success: false,
+      },
+      { status: 400 },
+    )
+  }
+
+  const boardType = (formData.get('boardType') as string)?.trim() || undefined
+  // Parse dimensions using surfboard format utilities
+  const length = parseLength((formData.get('length') as string)?.trim() || '')
+  const width = parseDimension((formData.get('width') as string)?.trim() || '')
+  const thickness = parseDimension(
+    (formData.get('thickness') as string)?.trim() || '',
+  )
+
+  const surfboardData: UpdateSurfboardRequest = {
+    name,
+    boardType,
+    length,
+    width,
+    thickness,
+    volume: formData.get('volume')
+      ? parseFloat(formData.get('volume') as string)
+      : undefined,
+    finSetup: (formData.get('finSetup') as string)?.trim() || undefined,
+    description: (formData.get('description') as string)?.trim() || undefined,
+    modelUrl: (formData.get('modelUrl') as string)?.trim() || undefined,
+  }
+
+  try {
+    const cookie = request.headers.get('Cookie') || ''
+    await updateSurfboard(surfboardId, user.id, surfboardData, {
+      headers: { Cookie: cookie },
+    })
+
+    return redirect(`/surfboard/${surfboardId}`)
+  } catch (error) {
+    console.error('Failed to update surfboard:', error)
+    return data<ActionData>(
+      {
+        error: 'Failed to update surfboard. Please try again.',
+        success: false,
+      },
+      { status: 500 },
+    )
+  }
+}
+
+export default function EditSurfboard() {
+  const { surfboard, error } = useLoaderData<LoaderData>()
+  const actionData = useActionData<ActionData>()
+  const navigate = useNavigate()
+  const { state } = useNavigation()
+  const loading = state === 'loading' || state === 'submitting'
+  const submitStatus = useSubmitStatus()
+
+  if (error) {
+    return (
+      <Page showHeader>
+        <ContentStatus isError>
+          <p>{error}</p>
+        </ContentStatus>
+      </Page>
+    )
+  }
+
+  if (loading) {
+    return (
+      <Page showHeader>
+        <ContentStatus>
+          <Loading />
+        </ContentStatus>
+      </Page>
+    )
+  }
+
+  return (
+    <Page showHeader>
+      <ErrorBoundary message="Something went wrong loading the surfboard form">
+        <div className="info-page-content mv">
+          <h1>Edit Surfboard</h1>
+          <SurfboardForm
+            actionType="Edit"
+            surfboard={surfboard}
+            submitStatus={
+              actionData?.error
+                ? { message: actionData.error, isError: true }
+                : submitStatus
+            }
+            onCancel={() =>
+              navigate(`/surfboard/${surfboard.id}`, { replace: true })
+            }
+          />
+        </div>
+      </ErrorBoundary>
+    </Page>
+  )
+}
+

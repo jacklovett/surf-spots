@@ -2,6 +2,7 @@ import { useState, RefObject, useEffect } from 'react'
 import {
   data,
   LoaderFunction,
+  ActionFunction,
   useLoaderData,
   useNavigate,
   useNavigation,
@@ -12,7 +13,7 @@ import {
   ContentStatus,
   EmptyState,
   ErrorBoundary,
-  Loading,
+  MediaGallery,
   MediaUpload,
   Modal,
   Page,
@@ -21,21 +22,32 @@ import {
 } from '~/components'
 import { useUserContext } from '~/contexts'
 import { requireSessionCookie } from '~/services/session.server'
-import { cacheControlHeader, get } from '~/services/networkService'
+import { cacheControlHeader, get, post } from '~/services/networkService'
 import {
   deleteTrip,
   removeSpot,
   removeMember,
   cancelInvitation,
   deleteMedia,
+  addSurfboard,
+  removeSurfboard,
 } from '~/services/trip'
-import { Trip } from '~/types/trip'
-import { useScrollReveal } from '~/hooks'
+import { getSurfboards } from '~/services/surfboard'
+import { Surfboard } from '~/types/surfboard'
+import { RecordMediaRequest, Trip, TripMedia } from '~/types/trip'
+import { useScrollReveal, useFileUpload } from '~/hooks'
 import { InfoModal } from '~/components/Modal'
+import { fileToBase64 } from '~/utils/fileUtils.server'
 
 interface LoaderData {
   trip: Trip
   error?: string
+}
+
+interface ActionData {
+  error?: string
+  success?: boolean
+  media?: TripMedia
 }
 
 export const loader: LoaderFunction = async ({ request, params }) => {
@@ -74,6 +86,96 @@ export const loader: LoaderFunction = async ({ request, params }) => {
   }
 }
 
+export const action: ActionFunction = async ({ request, params }) => {
+  const user = await requireSessionCookie(request)
+  if (!user?.id) {
+    return data<ActionData>(
+      { error: 'You must be logged in to upload media' },
+      { status: 401 },
+    )
+  }
+
+  const tripId = params.id
+  if (!tripId) {
+    return data<ActionData>({ error: 'Trip ID is required' }, { status: 400 })
+  }
+
+  const formData = await request.formData()
+  const intent = formData.get('intent') as string
+
+  // Handle media upload
+  if (intent === 'add-media') {
+    const fileEntry = formData.get('image')
+    if (!fileEntry) {
+      return data<ActionData>(
+        { error: 'No media file provided' },
+        { status: 400 },
+      )
+    }
+
+    // FormData entries can be File or Blob in Node.js
+    const isFile = fileEntry instanceof File
+    const isBlob = fileEntry instanceof Blob
+
+    if (!isFile && !isBlob) {
+      return data<ActionData>(
+        { error: 'Invalid file format. Please select a valid media file.' },
+        { status: 400 },
+      )
+    }
+
+    try {
+      // Convert file to base64
+      const base64Data = await fileToBase64(fileEntry)
+
+      // Determine media type
+      const mimeType = isFile ? fileEntry.type : 'application/octet-stream'
+      const mediaType = mimeType.startsWith('image/') ? 'image' : 'video'
+
+      // Generate a media ID
+      const mediaId = `media-${Date.now()}-${Math.random().toString(36).substring(7)}`
+
+      // Call API to record media
+      const cookie = request.headers.get('Cookie') || ''
+      await post<RecordMediaRequest, void>(
+        `trips/${tripId}/media?userId=${user.id}`,
+        {
+          mediaId,
+          url: base64Data,
+          mediaType,
+        },
+        { headers: { Cookie: cookie } },
+      )
+
+      // Create TripMedia object for optimistic UI update
+      const newMedia: TripMedia = {
+        id: mediaId,
+        url: base64Data,
+        mediaType,
+        ownerId: user.id,
+        ownerName: user.name || 'Unknown',
+        uploadedAt: new Date().toISOString(),
+      }
+
+      // Return the new media so the UI can update optimistically
+      return data<ActionData>({ success: true, media: newMedia })
+    } catch (error) {
+      console.error('[trip.$id action] Error uploading media:', error)
+      return data<ActionData>(
+        {
+          error:
+            error instanceof Error
+              ? error.message
+              : 'Failed to upload media. Please try again.',
+        },
+        { status: 500 },
+      )
+    }
+  }
+
+  return data<ActionData>({ error: 'Invalid intent' }, { status: 400 })
+}
+
 export default function TripDetail() {
   const loaderData = useLoaderData<LoaderData>()
   const navigation = useNavigation()
@@ -91,8 +193,23 @@ export default function TripDetail() {
   const [showErrorModal, setShowErrorModal] = useState(false)
   const [errorMessage, setErrorMessage] = useState('')
   const [errorTitle, setErrorTitle] = useState<string | undefined>(undefined)
-
+  const [showAddSurfboardModal, setShowAddSurfboardModal] = useState(false)
+  const [allSurfboards, setAllSurfboards] = useState<Surfboard[]>([])
+  const [addingSurfboardId, setAddingSurfboardId] = useState<string | null>(
+    null,
+  )
+  const [removingSurfboardId, setRemovingSurfboardId] = useState<string | null>(
+    null,
+  )
+  const [uploadSuccess, setUploadSuccess] = useState(false)
   const sectionsRef = useScrollReveal()
+
+  const {
+    uploadFiles,
+    isUploading,
+    error: uploadError,
+    fetcherData,
+  } = useFileUpload()
 
   // Sync state with loader data when it changes (e.g., after navigation)
   useEffect(() => {
@@ -101,21 +218,29 @@ export default function TripDetail() {
     }
   }, [initialTrip])
 
+  // Handle successful media upload - optimistically update UI
+  useEffect(() => {
+    if (fetcherData?.success && fetcherData?.media) {
+      const newMedia = fetcherData.media as TripMedia
+      setTrip((prev) => {
+        if (!prev) return prev
+        return {
+          ...prev,
+          media: [...(prev.media || []), newMedia],
+        }
+      })
+      setUploadSuccess(true)
+      // Clear success message after 3 seconds
+      setTimeout(() => setUploadSuccess(false), 3000)
+    }
+  }, [fetcherData])
+
   // Helper to extract error message
   const getErrorMessage = (error: unknown, defaultMessage: string): string => {
     return error instanceof Error ? error.message : defaultMessage
   }
 
-  // Early returns for loading/error states
-  if (navigation.state === 'loading' && !loaderData) {
-    return (
-      <Page showHeader overrideLoading>
-        <ContentStatus>
-          <Loading />
-        </ContentStatus>
-      </Page>
-    )
-  }
+  // Early returns for error states
 
   if (error || !initialTrip?.id || !trip?.id) {
     return (
@@ -156,10 +281,154 @@ export default function TripDetail() {
     setShowErrorModal(true)
   }
 
+  const isSurfboardInTrip = (surfboardId: string): boolean => {
+    return (
+      currentTrip.surfboards?.some((sb) => sb.surfboardId === surfboardId) ??
+      false
+    )
+  }
+
+  const getTripSurfboardId = (surfboardId: string): string | null => {
+    const tripSurfboard = currentTrip.surfboards?.find(
+      (sb) => sb.surfboardId === surfboardId,
+    )
+    return tripSurfboard?.id || null
+  }
+
+  const handleAddSurfboardClick = async () => {
+    if (!user?.id) return
+    try {
+      const surfboards = await getSurfboards(user.id)
+      setAllSurfboards(surfboards)
+      setShowAddSurfboardModal(true)
+    } catch (error) {
+      console.error('Failed to fetch surfboards:', error)
+      showError(
+        getErrorMessage(error, 'Failed to load surfboards. Please try again.'),
+      )
+    }
+  }
+
+  const handleAddSurfboard = async (surfboardId: string) => {
+    if (!user?.id) return
+
+    setAddingSurfboardId(surfboardId)
+
+    // Optimistic update
+    const surfboard = allSurfboards.find((sb) => sb.id === surfboardId)
+    if (surfboard) {
+      setTrip((prev) =>
+        prev
+          ? {
+              ...prev,
+              surfboards: [
+                ...(prev.surfboards || []),
+                {
+                  id: 'temp',
+                  surfboardId: surfboard.id,
+                  surfboardName: surfboard.name,
+                  addedAt: new Date().toISOString(),
+                },
+              ],
+            }
+          : prev,
+      )
+    }
+
+    try {
+      await addSurfboard(currentTrip.id, surfboardId, user.id)
+      // Fetch updated trip data without reloading
+      const cookie = document.cookie
+      const updatedTrip = await get<Trip>(
+        `trips/${currentTrip.id}?userId=${user.id}`,
+        {
+          headers: { Cookie: cookie },
+        },
+      )
+      setTrip(updatedTrip)
+    } catch (error) {
+      console.error('Failed to add surfboard:', error)
+      // Rollback optimistic update
+      setTrip((prev) =>
+        prev
+          ? {
+              ...prev,
+              surfboards: prev.surfboards?.filter(
+                (sb) => sb.surfboardId !== surfboardId,
+              ),
+            }
+          : prev,
+      )
+      showError(
+        getErrorMessage(error, 'Failed to add surfboard. Please try again.'),
+      )
+    } finally {
+      setAddingSurfboardId(null)
+    }
+  }
+
+  const handleRemoveSurfboard = async (surfboardId: string) => {
+    if (!user?.id) return
+
+    const tripSurfboardId = getTripSurfboardId(surfboardId)
+    if (!tripSurfboardId) {
+      showError('Error', 'Could not find surfboard in trip.')
+      return
+    }
+
+    setRemovingSurfboardId(surfboardId)
+
+    // Optimistic update
+    setTrip((prev) =>
+      prev
+        ? {
+            ...prev,
+            surfboards: prev.surfboards?.filter(
+              (sb) => sb.id !== tripSurfboardId,
+            ),
+          }
+        : prev,
+    )
+
+    try {
+      await removeSurfboard(currentTrip.id, tripSurfboardId, user.id)
+      // Fetch updated trip data without reloading
+      const cookie = document.cookie
+      const updatedTrip = await get<Trip>(
+        `trips/${currentTrip.id}?userId=${user.id}`,
+        {
+          headers: { Cookie: cookie },
+        },
+      )
+      setTrip(updatedTrip)
+    } catch (error) {
+      console.error('Failed to remove surfboard:', error)
+      // Rollback optimistic update
+      const cookie = document.cookie
+      const updatedTrip = await get<Trip>(
+        `trips/${currentTrip.id}?userId=${user.id}`,
+        {
+          headers: { Cookie: cookie },
+        },
+      )
+      setTrip(updatedTrip)
+      showError(
+        getErrorMessage(error, 'Failed to remove surfboard. Please try again.'),
+      )
+    } finally {
+      setRemovingSurfboardId(null)
+    }
+  }
+
   return (
     <Page showHeader>
       <div className="info-page-content mv">
         <div ref={sectionsRef as RefObject<HTMLDivElement>}>
+          <TextButton
+            text="Back to Trips"
+            onClick={() => navigate('/trips')}
+            iconKey="chevron-left"
+          />
           <div className="row space-between">
             <h1>{currentTrip.title}</h1>
             {currentTrip.isOwner && (
@@ -175,6 +444,7 @@ export default function TripDetail() {
                   onClick={handleDeleteClick}
                   iconKey="bin"
                   filled
+                  danger
                 />
               </div>
             )}
@@ -251,6 +521,7 @@ export default function TripDetail() {
                           }}
                           iconKey="bin"
                           filled
+                          danger
                         />
                       )}
                     </div>
@@ -261,7 +532,7 @@ export default function TripDetail() {
                   title="No Members"
                   description="No members have been added to this trip yet."
                   ctaText="Add Members"
-                  ctaHref={`/edit-trip/${currentTrip.id}`}
+                  onCtaClick={() => navigate(`/edit-trip/${currentTrip.id}`)}
                 />
               )}
             </section>
@@ -316,6 +587,7 @@ export default function TripDetail() {
                           }}
                           iconKey="bin"
                           filled
+                          danger
                         />
                       )}
                     </div>
@@ -326,8 +598,82 @@ export default function TripDetail() {
                   title="No Surf Spots"
                   description="No surf spots have been added to this trip yet."
                   ctaText="Explore Surf Spots"
-                  ctaHref="/surf-spots"
+                  onCtaClick={() => navigate('/surf-spots')}
                 />
+              )}
+            </section>
+          </ErrorBoundary>
+
+          <ErrorBoundary message="Unable to load surfboards">
+            <section className="animate-on-scroll">
+              <h3>Surfboards</h3>
+              {currentTrip.isOwner && (
+                <TextButton
+                  text="Add Surfboard"
+                  onClick={handleAddSurfboardClick}
+                  iconKey="plus"
+                  filled
+                />
+              )}
+              {currentTrip.surfboards && currentTrip.surfboards.length > 0 ? (
+                <div className="trip-spots-list">
+                  {currentTrip.surfboards.map((surfboard) => (
+                    <div key={surfboard.id} className="trip-spot-item">
+                      <div>
+                        <a
+                          href={`/surfboard/${surfboard.surfboardId}`}
+                          style={{ textDecoration: 'none', color: 'inherit' }}
+                        >
+                          <h4>{surfboard.surfboardName}</h4>
+                        </a>
+                      </div>
+                      {currentTrip.isOwner && (
+                        <TextButton
+                          text="Remove"
+                          onClick={async () => {
+                            if (!user?.id) return
+                            try {
+                              await removeSurfboard(
+                                currentTrip.id,
+                                surfboard.id,
+                                user.id,
+                              )
+                              setTrip((prev) =>
+                                prev
+                                  ? {
+                                      ...prev,
+                                      surfboards: prev.surfboards?.filter(
+                                        (sb) => sb.id !== surfboard.id,
+                                      ),
+                                    }
+                                  : prev,
+                              )
+                            } catch (error) {
+                              console.error(
+                                'Failed to remove surfboard:',
+                                error,
+                              )
+                              showError(
+                                getErrorMessage(
+                                  error,
+                                  'Failed to remove surfboard. Please try again.',
+                                ),
+                              )
+                            }
+                          }}
+                          iconKey="bin"
+                          filled
+                        />
+                      )}
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="trip-spots-list empty">
+                  <p className="text-secondary">
+                    No surfboards have been added to this trip yet.
+                  </p>
+                </div>
               )}
             </section>
           </ErrorBoundary>
@@ -335,66 +681,67 @@ export default function TripDetail() {
           <ErrorBoundary message="Unable to load media">
             <section className="animate-on-scroll">
               <h3>Media</h3>
-              {currentTrip.media && currentTrip.media.length > 0 && (
-                <div className="trip-media">
-                  {currentTrip.media.map((media) => (
-                    <div key={media.id} className="trip-media-item">
-                      {media.mediaType === 'image' ? (
-                        <img src={media.url} alt="Trip media" />
-                      ) : (
-                        <video src={media.url} controls>
-                          Your browser does not support the video tag.
-                        </video>
-                      )}
-                      {trip.isOwner && (
-                        <TextButton
-                          text="Delete"
-                          iconKey="bin"
-                          onClick={async () => {
-                            if (!user?.id) return
-                            try {
-                              await deleteMedia(trip.id, media.id, user.id)
-                              setTrip((prev) =>
-                                prev
-                                  ? {
-                                      ...prev,
-                                      media: prev.media?.filter(
-                                        (m) => m.id !== media.id,
-                                      ),
-                                    }
-                                  : prev,
-                              )
-                            } catch (error) {
-                              console.error('Failed to delete media:', error)
-                              showError(
-                                getErrorMessage(
-                                  error,
-                                  'Failed to delete media. Please try again.',
-                                ),
-                              )
+              <MediaGallery
+                items={
+                  currentTrip.media?.map((media) => ({
+                    id: media.id,
+                    url: media.url,
+                    mediaType:
+                      media.mediaType === 'image' || media.mediaType === 'video'
+                        ? media.mediaType
+                        : ('image' as const),
+                    alt: 'Trip media',
+                  })) || []
+                }
+                canDelete={currentTrip.isOwner && !!user?.id}
+                onDelete={async (item) => {
+                  if (user?.id) {
+                    try {
+                      await deleteMedia(currentTrip.id, item.id, user.id)
+                      setTrip((prev) =>
+                        prev
+                          ? {
+                              ...prev,
+                              media: prev.media?.filter(
+                                (m) => m.id !== item.id,
+                              ),
                             }
-                          }}
-                          filled
-                        />
-                      )}
-                    </div>
-                  ))}
-                </div>
-              )}
+                          : prev,
+                      )
+                    } catch (error) {
+                      console.error('Error deleting media:', error)
+                      showError(
+                        getErrorMessage(
+                          error,
+                          'Failed to delete media. Please try again.',
+                        ),
+                      )
+                      throw error
+                    }
+                  }
+                }}
+                altText="Trip media"
+              />
 
               {currentTrip.isOwner && (
                 <div className="trip-media-upload">
+                  {uploadError && (
+                    <p className="text-error mb">{uploadError}</p>
+                  )}
+                  {uploadSuccess && (
+                    <p className="mb" style={{ color: 'green' }}>
+                      Media uploaded successfully!
+                    </p>
+                  )}
+                  {isUploading && <p className="mb">Uploading media...</p>}
                   <MediaUpload
                     onFilesSelected={(files) => {
-                      // TODO: Implement file upload
-                      console.log('Files selected:', files)
-                      showError(
-                        'Media upload feature coming soon!',
-                        'Coming Soon',
-                      )
+                      if (!user?.id || !currentTrip?.id) return
+                      uploadFiles(files, 'add-media', 'image')
                     }}
                     accept="image/*,video/*"
                     multiple
+                    disabled={isUploading}
                   />
                 </div>
               )}
@@ -438,6 +785,88 @@ export default function TripDetail() {
           title={errorTitle}
           message={errorMessage}
         />
+      )}
+
+      {showAddSurfboardModal && (
+        <Modal onClose={() => setShowAddSurfboardModal(false)}>
+          <div className="surfboard-selection-modal">
+            <h2>Add Surfboard</h2>
+            {allSurfboards.length > 0 ? (
+              <div>
+                <p>Select a surfboard to add or remove from this trip:</p>
+                <div className="surfboard-selection-list">
+                  {allSurfboards.map((surfboard) => {
+                    const isInTrip = isSurfboardInTrip(surfboard.id)
+                    const isAdding = addingSurfboardId === surfboard.id
+                    const isRemoving = removingSurfboardId === surfboard.id
+
+                    return (
+                      <div
+                        key={surfboard.id}
+                        className="surfboard-selection-item"
+                      >
+                        <div>
+                          <span className="surfboard-name bold">
+                            {surfboard.name}
+                          </span>
+                        </div>
+                        {isAdding ? (
+                          <span className="status-text bold">Adding...</span>
+                        ) : isRemoving ? (
+                          <span className="status-text bold">Removing...</span>
+                        ) : isInTrip ? (
+                          <TextButton
+                            text="Remove"
+                            onClick={() => handleRemoveSurfboard(surfboard.id)}
+                            iconKey="bin"
+                            filled
+                            danger
+                            disabled={
+                              addingSurfboardId !== null ||
+                              removingSurfboardId !== null
+                            }
+                          />
+                        ) : (
+                          <TextButton
+                            text="Add"
+                            onClick={() => handleAddSurfboard(surfboard.id)}
+                            iconKey="plus"
+                            filled
+                            disabled={
+                              addingSurfboardId !== null ||
+                              removingSurfboardId !== null
+                            }
+                          />
+                        )}
+                      </div>
+                    )
+                  })}
+                </div>
+                <div className="surfboard-selection-actions">
+                  <Button
+                    label="Cancel"
+                    variant="cancel"
+                    onClick={() => setShowAddSurfboardModal(false)}
+                  />
+                </div>
+              </div>
+            ) : (
+              <div>
+                <p>No available surfboards to add.</p>
+                <p className="text-secondary">
+                  Create a surfboard first to add it to this trip.
+                </p>
+                <div className="surfboard-selection-actions">
+                  <Button
+                    label="Cancel"
+                    variant="cancel"
+                    onClick={() => setShowAddSurfboardModal(false)}
+                  />
+                </div>
+              </div>
+            )}
+          </div>
+        </Modal>
       )}
     </Page>
   )

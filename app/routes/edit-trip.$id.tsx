@@ -15,14 +15,14 @@ import {
   Page,
   TripForm,
 } from '~/components'
-import { requireSessionCookie } from '~/services/session.server'
-import { updateTrip } from '~/services/trip'
-import { Trip, UpdateTripRequest } from '~/types/trip'
-import { cacheControlHeader, get } from '~/services/networkService'
 import {
   extractAndValidateMemberEmails,
   addMembersToTrip,
 } from '~/components/TripForm'
+import { requireSessionCookie } from '~/services/session.server'
+import { updateTrip } from '~/services/trip'
+import { Trip, UpdateTripRequest } from '~/types/trip'
+import { cacheControlHeader, get } from '~/services/networkService'
 
 interface LoaderData {
   trip: Trip

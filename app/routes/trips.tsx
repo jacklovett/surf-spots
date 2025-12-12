@@ -6,7 +6,7 @@ import {
   useNavigate,
   useNavigation,
 } from 'react-router'
-import { Page, TextButton, ContentStatus, Loading } from '~/components'
+import { Page, TextButton, ContentStatus } from '~/components'
 import { requireSessionCookie } from '~/services/session.server'
 import { cacheControlHeader, get } from '~/services/networkService'
 import { Trip } from '~/types/trip'
@@ -64,16 +64,6 @@ export default function Trips() {
 
   const handleCreateTrip = () => navigate('/add-trip')
   const handleTripClick = (tripId: string) => navigate(`/trip/${tripId}`)
-
-  if (isLoading) {
-    return (
-      <Page showHeader overrideLoading>
-        <ContentStatus>
-          <Loading />
-        </ContentStatus>
-      </Page>
-    )
-  }
 
   if (error) {
     return (

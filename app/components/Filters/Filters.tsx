@@ -13,20 +13,19 @@ import {
   BeachBottomType,
   Tide,
   WaveDirection,
-  Direction,
   SurfSpotFilters,
   defaultSurfSpotFilters,
 } from '~/types/surfSpots'
-import {
-  ACCOMMODATION_TYPES,
-  FOOD_OPTIONS,
-  HAZARDS,
-  PARKING_OPTIONS,
-  FACILITIES,
-  MONTH_OPTIONS,
-} from '~/types/formData'
 import { Option } from '../FormInput'
 import { useLayoutContext, useSurfSpotsContext } from '~/contexts'
+import {
+  PARKING_OPTIONS,
+  MONTH_OPTIONS,
+  FOOD_OPTIONS,
+  ACCOMMODATION_TYPES,
+  HAZARDS,
+  FACILITIES,
+} from '~/types/formData/surfSpots'
 
 export const Filters = memo(() => {
   const { filters, setFilters } = useSurfSpotsContext()
@@ -40,7 +39,6 @@ export const Filters = memo(() => {
   const beachBottoms = Object.values(BeachBottomType)
   const tides = Object.values(Tide)
   const waveDirections = Object.values(WaveDirection)
-  const directions = Object.values(Direction)
 
   const parkingOptions = [
     ...PARKING_OPTIONS.slice(1, PARKING_OPTIONS.length - 1),

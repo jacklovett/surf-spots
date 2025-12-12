@@ -140,13 +140,13 @@ export const getRegionAndCountryFromCoordinates = async (
     // Step 1: Use Mapbox to get country name (fast, accurate, helps with country borders)
     const mapboxResult = await reverseGeocodeWithMapbox(longitude, latitude)
 
-      if (!mapboxResult?.country) {
-        // No country from Mapbox - return null for both
-        console.warn(
-          `[Region Lookup] Mapbox returned no country for ${longitude}, ${latitude}`,
-        )
-        return { region: null, country: null, continent: null }
-      }
+    if (!mapboxResult?.country) {
+      // No country from Mapbox - return null for both
+      console.warn(
+        `[Region Lookup] Mapbox returned no country for ${longitude}, ${latitude}`,
+      )
+      return { region: null, country: null, continent: null }
+    }
 
     // Step 2: Single backend call to get both country and region
     const countryName = mapboxResult.country.toLowerCase().trim()
@@ -483,7 +483,11 @@ const setupLayerInteractions = (
   onMarkerClick: (event: MapMouseEvent) => void,
 ) => {
   map.on('click', 'clusters', (event) => handleClusterClick(map, event))
-  map.on('click', 'marker', onMarkerClick)
+  map.on('click', 'marker', (event) => {
+    // Prevent any default behavior and ensure our handler runs
+    event.preventDefault?.()
+    onMarkerClick(event)
+  })
 
   const setCursorStyle = (cursor: string) => () =>
     (map.getCanvas().style.cursor = cursor)

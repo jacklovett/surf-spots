@@ -1,5 +1,5 @@
 import { FormInput, DirectionSelector } from '~/components'
-import { TIDE_OPTIONS, MONTH_LIST } from '~/types/formData'
+import { TIDE_OPTIONS } from '~/types/formData/surfSpots'
 import { Tide, SurfSpotFormState } from '~/types/surfSpots'
 import { directionArrayToString } from '~/utils/surfSpotUtils'
 

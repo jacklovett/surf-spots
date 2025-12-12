@@ -11,6 +11,7 @@ interface IProps {
   disabled?: boolean
   showLabel?: boolean
   readOnly?: boolean
+  placeholder?: string
 }
 
 export const FormInput = (props: IProps) => {
@@ -23,8 +24,11 @@ export const FormInput = (props: IProps) => {
     disabled,
     showLabel,
     readOnly,
+    placeholder,
   } = props
   const { label, name, type, options } = field
+
+  const inputPlaceholder = placeholder ?? label
 
   return (
     <div
@@ -41,7 +45,7 @@ export const FormInput = (props: IProps) => {
           value={value as string}
           onChange={onChange}
           onBlur={onBlur}
-          placeholder={label}
+          placeholder={inputPlaceholder}
           disabled={disabled}
           aria-disabled={disabled}
           readOnly={readOnly}
@@ -70,7 +74,7 @@ export const FormInput = (props: IProps) => {
           value={value as string | number}
           onChange={onChange}
           onBlur={onBlur}
-          placeholder={label}
+          placeholder={inputPlaceholder}
           disabled={disabled}
           aria-disabled={disabled}
           readOnly={readOnly}

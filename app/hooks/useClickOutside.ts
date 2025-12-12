@@ -26,7 +26,3 @@ export const useClickOutside = (
     }
   }, [ref, onClickOutside, enabled])
 }
-
-
-
-

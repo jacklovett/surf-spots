@@ -114,23 +114,27 @@ export default function Watchlist() {
         {surfSpotsFound ? (
           <>
             <p>
-              Stay updated on swell seasons, local news, events, and travel deals 
-              for the spots you're following.
+              Stay updated on swell seasons, local news, events, and travel
+              deals for the spots you're following.
             </p>
-            
+
             <ErrorBoundary message="Uh-oh! Something went wrong displaying the latest updates">
               {hasNotifications ? (
                 <div className="watchlist-feed">
                   <h2 className="feed-section-title">Latest Updates</h2>
                   <div ref={feedRef} className="feed-container">
                     {notifications.map((notification) => (
-                      <FeedItem key={notification.id} notification={notification} />
+                      <FeedItem
+                        key={notification.id}
+                        notification={notification}
+                      />
                     ))}
                   </div>
                 </div>
               ) : (
                 <p className="text-secondary mt-l">
-                  No updates yet. We'll notify you when there's news about your watched spots.
+                  No updates yet. We'll notify you when there's news about your
+                  watched spots.
                 </p>
               )}
             </ErrorBoundary>
@@ -155,7 +159,7 @@ export default function Watchlist() {
                 title="Build Your Watch List"
                 description="Follow surf spots you're interested in to get alerts about swell seasons, events, and travel deals. Use the map below to find spots to watch."
                 ctaText="Explore Surf Spots"
-                ctaHref="/surf-spots"
+                onCtaClick={() => navigate('/surf-spots')}
               />
             </div>
           </div>

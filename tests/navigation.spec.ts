@@ -73,28 +73,161 @@ test.describe('Navigation', () => {
       '/surfed-spots',
       '/watch-list',
       '/add-surf-spot',
+      '/surfboards',
+      '/trips',
       '/edit-surf-spot/123', // Use a real ID instead of placeholder
     ]
 
     for (const route of authGuardedRoutes) {
-      await page.goto(route)
+      await page.goto(route, { waitUntil: 'domcontentloaded' })
 
-      // Should redirect to auth page or show auth-related content
-      // Check if we're on auth page or if there's auth-related content
+      // Should redirect to auth page
+      await page.waitForURL(/\/auth/, { timeout: 5000 })
       const currentUrl = page.url()
-      const isOnAuthPage = currentUrl.includes('/auth')
-      const hasAuthContent = await page
-        .locator('text=Sign In, text=Login, .auth-page')
-        .isVisible()
+      expect(currentUrl).toContain('/auth')
 
-      // Either should be on auth page or show auth content
-      // If neither, the route might not exist (404), which is also acceptable
-      const isValidRedirect =
-        isOnAuthPage ||
-        hasAuthContent ||
-        currentUrl.includes('/404') ||
-        currentUrl.includes('/')
-      expect(isValidRedirect).toBe(true)
+      // Verify auth page content is visible
+      await expect(
+        page.locator('h1:has-text("Sign In"), h1:has-text("Login")'),
+      ).toBeVisible()
+    }
+  })
+
+  test('should show sign-up prompt modal when clicking protected links in menu', async ({
+    page,
+  }) => {
+    // Ensure user is not logged in (clear any existing session)
+    await page.goto('/')
+    await page.context().clearCookies()
+    await page.reload()
+
+    // Open menu drawer (check for hamburger menu or drawer trigger)
+    const menuTriggers = [
+      'button[aria-label*="menu"]',
+      '.menu-button',
+      '[data-testid="menu-button"]',
+      'button:has-text("Menu")',
+    ]
+
+    let menuOpened = false
+    for (const selector of menuTriggers) {
+      const trigger = page.locator(selector).first()
+      if (await trigger.isVisible().catch(() => false)) {
+        await trigger.click()
+        await page.waitForTimeout(500)
+        menuOpened = true
+        break
+      }
+    }
+
+    // Test protected routes that should show modal
+    const protectedRoutes = [
+      { link: 'Surfboards', feature: 'surfboards' },
+      { link: 'Trips', feature: 'trips' },
+    ]
+
+    for (const { link } of protectedRoutes) {
+      // Try to click the link in menu/drawer
+      const linkElement = page
+        .locator(`a:has-text("${link}"), button:has-text("${link}")`)
+        .first()
+      const linkExists = await linkElement.isVisible().catch(() => false)
+
+      if (linkExists) {
+        await linkElement.click()
+        await page.waitForTimeout(1000)
+
+        // Check if modal appears
+        const modal = page.locator('.modal-overlay')
+        const modalVisible = await modal
+          .isVisible({ timeout: 2000 })
+          .catch(() => false)
+
+        if (modalVisible) {
+          // Verify modal content
+          await expect(modal.locator('h2')).toBeVisible()
+
+          // Verify "Create an account" button exists
+          const ctaButton = modal.locator(
+            'button:has-text("Create an account")',
+          )
+          await expect(ctaButton).toBeVisible()
+
+          // Click the CTA button and verify navigation
+          await ctaButton.click()
+          await page.waitForURL(/\/auth\/sign-up/, { timeout: 5000 })
+          expect(page.url()).toContain('/auth/sign-up')
+
+          // Go back to test next route
+          await page.goto('/')
+          if (menuOpened) {
+            // Reopen menu if needed
+            for (const selector of menuTriggers) {
+              const trigger = page.locator(selector).first()
+              if (await trigger.isVisible().catch(() => false)) {
+                await trigger.click()
+                await page.waitForTimeout(500)
+                break
+              }
+            }
+          }
+        }
+      }
+    }
+  })
+
+  test('should show sign-up prompt modal when clicking protected links in footer', async ({
+    page,
+  }) => {
+    // Ensure user is not logged in
+    await page.goto('/')
+    await page.context().clearCookies()
+    await page.reload()
+
+    // Scroll to footer
+    await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight))
+    await page.waitForTimeout(500)
+
+    // Test protected routes in footer
+    const protectedLinks = [
+      { link: 'Surfboards', feature: 'surfboards' },
+      { link: 'Trips', feature: 'trips' },
+    ]
+
+    for (const { link } of protectedLinks) {
+      const linkElement = page.locator(`footer a:has-text("${link}")`).first()
+      const linkExists = await linkElement.isVisible().catch(() => false)
+
+      if (linkExists) {
+        await linkElement.click()
+        await page.waitForTimeout(1000)
+
+        // Check if modal appears
+        const modal = page.locator('.modal-overlay')
+        const modalVisible = await modal
+          .isVisible({ timeout: 2000 })
+          .catch(() => false)
+
+        if (modalVisible) {
+          // Verify modal content and CTA
+          await expect(modal.locator('h2')).toBeVisible()
+          await expect(
+            modal.locator('button:has-text("Create an account")'),
+          ).toBeVisible()
+
+          // Test CTA button navigation
+          await modal.locator('button:has-text("Create an account")').click()
+          await page.waitForURL(/\/auth\/sign-up/, { timeout: 5000 })
+          expect(page.url()).toContain('/auth/sign-up')
+
+          // Go back to test next route
+          await page.goto('/')
+          await page.evaluate(() =>
+            window.scrollTo(0, document.body.scrollHeight),
+          )
+          await page.waitForTimeout(500)
+        }
+      }
     }
   })
 

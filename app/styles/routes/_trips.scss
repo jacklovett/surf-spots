@@ -48,6 +48,10 @@
 
   h3 {
     margin: 0 0 $spacing-small 0;
+    font-size: $font-size-large;
+    padding-bottom: 0;
+    border-bottom: none;
+    color: $text-color;
   }
 
   p {
@@ -113,6 +117,7 @@
 
   .row.space-between {
     margin-bottom: $spacing-unit;
+    margin-top: $spacing-unit;
     flex-wrap: wrap;
     gap: $spacing-unit;
     align-items: flex-start;
@@ -172,12 +177,23 @@
   padding: $spacing-unit;
   margin-top: $spacing-unit;
   margin-bottom: 0;
+
+  &.empty {
+    @extend %flex-center;
+    min-height: 100px;
+    padding: $spacing-x-large;
+
+    p {
+      text-align: center;
+      margin: 0;
+    }
+  }
 }
 
 .trip-spot-item,
 .trip-member-item {
   @extend %flex-space-between;
-  align-items: flex-start;
+  align-items: center;
   padding: $spacing-unit;
   border-bottom: 1px solid $outline-color;
   flex-wrap: wrap;
@@ -194,6 +210,10 @@
   & > div:first-child {
     flex: 1;
     min-width: 0;
+  }
+
+  h4 {
+    margin: 0;
   }
 
   @media (max-width: 768px) {
@@ -268,37 +288,8 @@
   }
 }
 
-.trip-media-item {
-  position: relative;
-  background: $white;
-  border: 1px solid $outline-color;
-  border-radius: $content-border-radius;
-  overflow: hidden;
-  box-shadow: $box-shadow;
-  transition: all 0.2s ease;
-
-  &:hover {
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-    transform: translateY(-2px);
-  }
-
-  img,
-  video {
-    width: 100%;
-    height: auto;
-    display: block;
-  }
-
-  button {
-    position: absolute;
-    top: $spacing-small;
-    right: $spacing-small;
-    z-index: 1;
-  }
-}
-
 .trip-media-upload {
-  margin-top: $spacing-unit;
+  margin-top: $spacing-x-large;
 }
 
 // Date input styling

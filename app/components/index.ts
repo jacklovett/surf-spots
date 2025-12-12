@@ -21,6 +21,7 @@ import FormInput from './FormInput'
 import Icon from './Icon'
 import Loading from './Loading'
 import Page from './Page'
+import MediaGallery from './MediaGallery'
 import MediaUpload from './MediaUpload'
 import Menu from './Menu'
 import Modal from './Modal'
@@ -46,6 +47,7 @@ import ForecastLinks from './ForecastLinks'
 import KofiButton from './KofiButton'
 import SocialLinks from './SocialLinks'
 import SurfSpotForm from './SurfSpotForm'
+import SurfboardForm from './SurfboardForm'
 import Toolbar from './Toolbar'
 import TripForm from './TripForm'
 import TripPlannerButton from './TripPlannerButton'
@@ -79,6 +81,7 @@ export {
   KofiButton,
   Loading,
   LocationSelector,
+  MediaGallery,
   MediaUpload,
   Menu,
   Modal,
@@ -93,6 +96,7 @@ export {
   AddSurfSpotMap,
   SurfSpotActions,
   SurfSpotForm,
+  SurfboardForm,
   SurfSpotPreview,
   SurfSpotList,
   TextButton,

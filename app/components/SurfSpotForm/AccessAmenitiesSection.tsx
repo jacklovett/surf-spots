@@ -5,6 +5,9 @@ import {
   ForecastLinks,
 } from '~/components'
 import { Option } from '~/components/FormInput'
+import { SurfSpotFormState } from '~/types/surfSpots'
+import { ForecastLink } from '../ForecastLinks'
+import { kmToMiles } from '~/utils'
 import {
   Availability,
   PARKING_OPTIONS,
@@ -12,10 +15,7 @@ import {
   FOOD_OPTIONS,
   FACILITIES,
   HAZARDS,
-} from '~/types/formData'
-import { SurfSpotFormState } from '~/types/surfSpots'
-import { ForecastLink } from '../ForecastLinks'
-import { kmToMiles } from '~/utils'
+} from '~/types/formData/surfSpots'
 
 type FormChangeHandler = <K extends keyof SurfSpotFormState>(
   field: K,

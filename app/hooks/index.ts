@@ -1,5 +1,6 @@
 import { useClickOutside } from './useClickOutside'
 import { useDynamicMap } from './useDynamicMap'
+import { useFileUpload } from './useFileUpload'
 import { useFormValidation } from './useFormValidation/useFormValidation'
 import { useLocationPin } from './useLocationPin'
 import { useLocationSelection } from './useLocationSelection'
@@ -12,6 +13,7 @@ import { useSubmitStatus } from './useSubmitStatus'
 export {
   useClickOutside,
   useDynamicMap,
+  useFileUpload,
   useFormValidation,
   useLocationPin,
   useLocationSelection,

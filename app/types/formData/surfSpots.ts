@@ -5,7 +5,7 @@ import {
   SurfSpotType,
   Tide,
   WaveDirection,
-} from './surfSpots'
+} from '../surfSpots'
 
 const SELECT_OPTION: Option = { key: '', value: '', label: 'Select an option' }
 

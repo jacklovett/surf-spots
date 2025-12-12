@@ -4,7 +4,7 @@ import {
   BEACH_BOTTOM_OPTIONS,
   SKILL_LEVEL_OPTIONS,
   WAVE_DIRECTION_OPTIONS,
-} from '~/types/formData'
+} from '~/types/formData/surfSpots'
 import {
   SurfSpotType,
   BeachBottomType,

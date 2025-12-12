@@ -8,10 +8,19 @@ interface IProps {
   filled?: boolean
   disabled?: boolean
   badge?: number
+  danger?: boolean
 }
 
 export const TextButton = (props: IProps) => {
-  const { disabled, filled = false, iconKey, onClick, text, badge } = props
+  const {
+    disabled,
+    filled = false,
+    iconKey,
+    onClick,
+    text,
+    badge,
+    danger = false,
+  } = props
 
   return (
     <button
@@ -21,7 +30,14 @@ export const TextButton = (props: IProps) => {
       disabled={disabled}
     >
       {iconKey && (
-        <span className={classNames({ 'text-button-icon': true, filled })}>
+        <span
+          className={classNames({
+            'text-button-icon': true,
+            filled,
+            danger,
+            'icon-chevron-left': iconKey === 'chevron-left',
+          })}
+        >
           <Icon iconKey={iconKey} />
         </span>
       )}

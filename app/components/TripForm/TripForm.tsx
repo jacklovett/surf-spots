@@ -1,17 +1,10 @@
 import { useState, useEffect } from 'react'
 import { useNavigation } from 'react-router'
-import {
-  FormInput,
-  FormComponent,
-  DatePicker,
-  Button,
-  TextButton,
-} from '~/components'
+import { FormInput, FormComponent, DatePicker, TextButton } from '~/components'
 import { SubmitStatus } from '~/components/FormComponent'
-import {
+import useFormValidation, {
   validateEmail,
   validateRequired,
-  default as useFormValidation,
 } from '~/hooks/useFormValidation'
 import { Trip } from '~/types/trip'
 
@@ -98,6 +91,7 @@ export const TripForm = ({
         submitLabel={actionType === 'Add' ? 'Create Trip' : 'Save Changes'}
         submitStatus={submitStatus}
         method={actionType === 'Edit' ? 'put' : 'post'}
+        onCancel={onCancel}
       >
         <FormInput
           field={{
@@ -188,16 +182,6 @@ export const TripForm = ({
           </div>
         )}
       </FormComponent>
-
-      {onCancel && (
-        <div className="mt">
-            <Button
-              label="Cancel"
-              onClick={() => onCancel()}
-              variant="cancel"
-            />
-        </div>
-      )}
     </div>
   )
 }

@@ -137,3 +137,24 @@ export const deleteMedia = async (
     `${tripsEndpoint}/${tripId}/media/${mediaId}?userId=${userId}`,
   )
 }
+
+export const addSurfboard = async (
+  tripId: string,
+  surfboardId: string,
+  userId: string,
+): Promise<string> => {
+  return post<undefined, string>(
+    `${tripsEndpoint}/${tripId}/surfboards/${surfboardId}?userId=${userId}`,
+    undefined,
+  )
+}
+
+export const removeSurfboard = async (
+  tripId: string,
+  tripSurfboardId: string,
+  userId: string,
+): Promise<void> => {
+  return deleteData(
+    `${tripsEndpoint}/${tripId}/surfboards/${tripSurfboardId}?userId=${userId}`,
+  )
+}

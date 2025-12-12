@@ -1,5 +1,26 @@
 @use 'sass:color';
 
+// Shared mixin for menu section header styles
+@mixin menu-section-header-base {
+  @extend %flex-space-between;
+  width: 100%;
+  padding: $spacing-unit $spacing-large;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-family: inherit;
+
+  &:hover {
+    background: $text-hover-background;
+  }
+
+  .menu-section-title {
+    font-weight: 600;
+    font-size: $font-size-base;
+    color: $text-color;
+  }
+}
+
 .menu {
   @extend %flex-base;
   position: relative;
@@ -36,10 +57,6 @@
     }
   }
 
-  .menu-section {
-    border-top: solid 1px $outline-color;
-  }
-
   .menu-icon {
     margin-bottom: -4px;
   }
@@ -51,90 +68,147 @@
   }
 
   .hamburger-icon {
-    display: none;
+    @extend %flex-center;
     flex-direction: column;
     cursor: pointer;
     padding: $spacing-unit;
     background: none;
     border: none;
     font-family: inherit;
+    transition: transform 0.2s ease;
+
+    &:hover {
+      transform: scale(1.1);
+    }
 
     span {
       width: 24px;
       height: 2px;
       background: $primary-color;
       margin: 2px 0;
+      transition: all 0.3s ease;
     }
   }
 
-  .sidebar-menu {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: calc(100% - $spacing-large);
-    height: 100%;
-    background: $white;
-    z-index: 20;
-    transform: translateX(-100%); /* Initially off-screen */
-    transition: transform 0.3s ease; /* Smooth animation */
+  .menu-section {
+    border-bottom: 1px solid $outline-color;
 
-    &.active {
-      transform: translateX(0); /* Slide into view */
-      box-shadow: $box-shadow;
+    &:last-child {
+      border-bottom: none;
     }
 
-    .sidebar-header {
-      @extend %flex-end;
-      padding: $spacing-unit;
-      height: $header-height;
-      align-items: center;
-      border-bottom: solid 1px $outline-color;
+    .menu-section-header {
+      @include menu-section-header-base;
+      font-size: $font-size-base;
+      color: $text-color;
+      transition: background-color 0.2s ease;
 
-      button {
-        background: none;
-        border: none;
-        cursor: pointer;
-      }
-    }
+      .menu-section-icon {
+        @extend %flex-center;
+        width: 20px;
+        height: 20px;
+        transition: transform 0.2s ease;
+        color: $text-secondary;
 
-    .sidebar-content {
-      height: calc(100% - $header-height);
-      overflow-y: auto;
-
-      ul {
-        list-style: none;
-        padding: 0;
-
-        li {
-          padding: $spacing-unit;
-          cursor: pointer;
-
-          &:hover {
-            background: $text-hover-background;
-          }
+        &.open {
+          transform: rotate(180deg);
         }
       }
     }
+
+    .menu-section-content {
+      padding: 0 $spacing-small $spacing-unit;
+    }
   }
 
-  @media (max-width: 752px) {
-    .desktop-menu {
-      display: none;
-    }
-
-    .hamburger-icon {
-      display: flex;
-    }
-
-    .dropdown-menu {
-      display: none;
-    }
+  .menu-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
   }
 }
 
-.menu-item {
-  @extend %flex-base;
-  height: $header-height;
-  gap: $spacing-unit;
-  align-items: center;
+// Styles for menu when rendered inside drawer
+.menu-drawer-content {
+  .menu-section {
+    &:not(:first-child) {
+      border-top: 1px solid $border-light;
+    }
+
+    .menu-section-header {
+      @include menu-section-header-base;
+      transition: background-color 0.15s ease;
+
+      .menu-section-icon {
+        @extend %flex-center;
+        width: 18px;
+        height: 18px;
+        transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        color: $text-secondary;
+        flex-shrink: 0;
+
+        &.open {
+          transform: rotate(180deg);
+        }
+      }
+    }
+
+    .menu-section-content {
+      display: grid;
+      grid-template-rows: 0fr;
+      transition:
+        grid-template-rows 0.35s cubic-bezier(0.4, 0, 0.2, 1),
+        opacity 0.25s ease-out;
+      opacity: 0;
+
+      > div {
+        overflow: hidden;
+        min-height: 0;
+      }
+
+      &.open {
+        grid-template-rows: 1fr;
+        opacity: 1;
+        transition:
+          grid-template-rows 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+          opacity 0.3s ease-in;
+      }
+    }
+  }
+
+  .menu-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  .menu-item {
+    @extend %flex-base;
+    height: $header-height;
+    gap: $spacing-unit;
+    align-items: center;
+    padding: $spacing-unit $spacing-large;
+    padding-left: calc($spacing-large + $spacing-unit);
+    cursor: pointer;
+    transition: background-color 0.15s ease;
+    position: relative;
+
+    &::before {
+      content: '';
+      position: absolute;
+      left: $spacing-large;
+      right: $spacing-large;
+      bottom: 0;
+      height: 1px;
+      background: $border-light;
+    }
+
+    &:hover {
+      background: $text-hover-background;
+    }
+
+    &:last-child::before {
+      display: none;
+    }
+  }
 }

@@ -86,6 +86,10 @@ h2 {
   li {
     margin-bottom: $spacing-small;
   }
+
+  .row.space-between {
+    margin-top: $spacing-unit;
+  }
 }
 
 /* Hero Sections */
@@ -267,7 +271,6 @@ h2 {
 
 .page-content h3 {
   font-size: 1.25rem;
-
   margin: 1.5rem 0 0.75rem;
 }
 

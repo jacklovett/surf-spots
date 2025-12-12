@@ -2,7 +2,9 @@ import { test, expect } from '@playwright/test'
 
 test.describe('Watch List Page', () => {
   test.describe('Unauthenticated User', () => {
-    test('should redirect to auth page when not logged in', async ({ page }) => {
+    test('should redirect to auth page when not logged in', async ({
+      page,
+    }) => {
       await page.goto('/watch-list')
 
       // Should redirect to auth page
@@ -36,13 +38,13 @@ test.describe('Watch List Page', () => {
 
       // Look for empty state card
       const emptyState = page.locator('.empty-state')
-      
+
       if (await emptyState.isVisible()) {
         // Check empty state content
         await expect(
           page.locator('h3:has-text("Build Your Watch List")'),
         ).toBeVisible()
-        
+
         // Check CTA button
         await expect(
           page.locator('.empty-state a:has-text("Explore Surf Spots")'),
@@ -56,11 +58,13 @@ test.describe('Watch List Page', () => {
       await page.goto('/watch-list')
 
       const emptyState = page.locator('.empty-state')
-      
+
       if (await emptyState.isVisible()) {
-        const exploreLink = page.locator('.empty-state a:has-text("Explore Surf Spots")')
+        const exploreLink = page.locator(
+          '.empty-state a:has-text("Explore Surf Spots")',
+        )
         await expect(exploreLink).toBeVisible()
-        
+
         // Click and verify navigation
         await exploreLink.click()
         await expect(page).toHaveURL(/\/surf-spots/)
@@ -71,7 +75,9 @@ test.describe('Watch List Page', () => {
       await page.goto('/watch-list')
 
       // Check if there are watched spots by looking for the spots list
-      const spotsList = page.locator('.surf-spot-list, #watched-spots .surf-spot-item')
+      const spotsList = page.locator(
+        '.surf-spot-list, #watched-spots .surf-spot-item',
+      )
       const emptyState = page.locator('.empty-state')
 
       if (await spotsList.first().isVisible()) {
@@ -100,7 +106,7 @@ test.describe('Watch List Page', () => {
 
       // Check for map - only shows when user has watched spots
       const spotsList = page.locator('.surf-spot-list')
-      
+
       if (await spotsList.first().isVisible()) {
         const mapWrapper = page.locator('#watchlist-map, .map-wrapper')
         await expect(mapWrapper).toBeVisible()
@@ -113,12 +119,14 @@ test.describe('Watch List Page', () => {
       await page.goto('/watch-list')
 
       const spotsList = page.locator('.surf-spot-list')
-      
+
       if (await spotsList.first().isVisible()) {
         // Should show either feed items or "no updates" message
         const hasFeed = await page.locator('.watchlist-feed').isVisible()
-        const hasNoUpdates = await page.locator('text=No updates yet').isVisible()
-        
+        const hasNoUpdates = await page
+          .locator('text=No updates yet')
+          .isVisible()
+
         expect(hasFeed || hasNoUpdates).toBe(true)
       }
     })
@@ -129,10 +137,10 @@ test.describe('Watch List Page', () => {
       await page.goto('/watch-list')
 
       const jumpLink = page.locator('a:has-text("View Your Watched Spots")')
-      
+
       if (await jumpLink.isVisible()) {
         await jumpLink.click()
-        
+
         // Should scroll to watched spots section
         const watchedSection = page.locator('#watched-spots')
         await expect(watchedSection).toBeInViewport()
@@ -143,8 +151,10 @@ test.describe('Watch List Page', () => {
       await page.goto('/watch-list')
 
       // Check for trip planner button
-      const tripPlannerBtn = page.locator('.trip-planner-button, [aria-label*="trip"]')
-      
+      const tripPlannerBtn = page.locator(
+        '.trip-planner-button, [aria-label*="trip"]',
+      )
+
       if (await tripPlannerBtn.isVisible()) {
         await expect(tripPlannerBtn).toBeVisible()
       }
@@ -161,7 +171,3 @@ test.describe('Watch List Page', () => {
     })
   })
 })
-
-
-
-

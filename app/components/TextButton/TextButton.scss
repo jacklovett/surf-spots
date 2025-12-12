@@ -22,6 +22,12 @@ button.text-button {
       height: $spacing-unit;
     }
 
+    // Make chevron-left icon bigger
+    &.icon-chevron-left svg {
+      width: 20px;
+      height: 20px;
+    }
+
     &.filled {
       background: $primary-color;
       color: $white;
@@ -29,6 +35,21 @@ button.text-button {
 
       & svg {
         stroke: $white;
+      }
+    }
+
+    &.danger {
+      & svg {
+        stroke: $error;
+      }
+
+      &.filled {
+        background: $error;
+        color: $white;
+
+        & svg {
+          stroke: $white;
+        }
       }
     }
   }

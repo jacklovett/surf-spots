@@ -3,7 +3,12 @@ import { useNavigate } from 'react-router'
 import { Modal, Button } from '~/components'
 import { IModalState, initialModalState } from '~/components/Modal'
 
-type FeatureType = 'surfed-spots' | 'watch-list' | 'add-surf-spot' | 'trips'
+type FeatureType =
+  | 'surfed-spots'
+  | 'watch-list'
+  | 'add-surf-spot'
+  | 'trips'
+  | 'surfboards'
 
 interface UseSignUpPromptReturn {
   showSignUpPrompt: (feature: FeatureType) => void
@@ -82,10 +87,33 @@ export const useSignUpPrompt = (): UseSignUpPromptReturn => {
                 <li>Plan epic surf trips with multiple spots</li>
                 <li>Invite friends to join your trips</li>
                 <li>Share photos and memories from your adventures</li>
-                <li>Organize everything for your next surf trip in one place</li>
+                <li>
+                  Organize everything for your next surf trip in one place
+                </li>
               </ul>
             </>
           ),
+        }
+      case 'surfboards':
+        return {
+          title: 'Sign Up to Track Your Surfboards',
+          content: (
+            <>
+              <p>Track your surfboard collection and manage all your boards.</p>
+              <ul className="benefits-list mb">
+                <li>Catalog all your surfboards in one place</li>
+                <li>Track dimensions, volume, and specifications</li>
+                <li>Add photos of your boards</li>
+                <li>Link to shaper and shop model pages</li>
+                <li>Plan which boards to bring on trips</li>
+              </ul>
+            </>
+          ),
+        }
+      default:
+        return {
+          title: 'Sign Up to Get Started',
+          content: <p>Create an account to access this feature.</p>,
         }
     }
   }

@@ -64,12 +64,10 @@ export const action: ActionFunction = async ({ request }) => {
 export default function AddSurfSpot() {
   const navigate = useNavigate()
 
-  const handleCancel = () => navigate(-1)
-
   return (
     <Page showHeader>
       <ErrorBoundary message="Something went wrong">
-        <SurfSpotForm actionType="Add" onCancel={handleCancel} />
+        <SurfSpotForm actionType="Add" onCancel={() => navigate(-1)} />
       </ErrorBoundary>
     </Page>
   )

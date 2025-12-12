@@ -12,6 +12,8 @@ interface IProps {
   method?: FormMethod
   submitLabel?: string
   submitStatus: SubmitStatus | null
+  onCancel?: () => void
+  cancelLabel?: string
 }
 
 export const FormComponent = (props: IProps) => {
@@ -22,6 +24,8 @@ export const FormComponent = (props: IProps) => {
     method = 'post' as FormMethod,
     submitLabel,
     submitStatus,
+    onCancel,
+    cancelLabel,
   } = props
 
   return (
@@ -51,6 +55,15 @@ export const FormComponent = (props: IProps) => {
                 disabled={isDisabled}
               />
             </div>
+            {onCancel && (
+              <div className="mt">
+                <Button
+                  label={cancelLabel ?? 'Cancel'}
+                  onClick={() => onCancel()}
+                  variant="cancel"
+                />
+              </div>
+            )}
           </>
         )}
       </Form>

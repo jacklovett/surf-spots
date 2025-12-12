@@ -8,16 +8,25 @@ export interface MenuItem {
   path: string
 }
 
+export interface MenuSection {
+  id: string
+  title: string
+  items: MenuItem[]
+  isOpen: boolean
+  onToggle: () => void
+}
+
+// Spots category - surf spots, surfed spots, and watch list
 export const spotsMenuItems: MenuItem[] = [
   {
     key: 'surf-spots',
-    icon: 'surfboard',
+    icon: 'pin',
     label: 'Surf Spots',
     path: '/surf-spots',
   },
   {
     key: 'surfed-spots',
-    icon: 'pin',
+    icon: 'clipboard',
     label: 'Surfed Spots',
     path: '/surfed-spots',
   },
@@ -27,11 +36,21 @@ export const spotsMenuItems: MenuItem[] = [
     label: 'Watch List',
     path: '/watch-list',
   },
+]
+
+// Collections category - trips and surfboards
+export const collectionMenuItems: MenuItem[] = [
   {
     key: 'trips',
     icon: 'plane',
     label: 'Trips',
     path: '/trips',
+  },
+  {
+    key: 'surfboards',
+    icon: 'surfboard',
+    label: 'Surfboards',
+    path: '/surfboards',
   },
 ]
 

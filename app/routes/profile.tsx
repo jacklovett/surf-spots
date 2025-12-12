@@ -28,8 +28,11 @@ import {
   NavButton,
 } from '~/components'
 import { Location } from '~/components/LocationSelector'
-import { useFormValidation, useSubmitStatus } from '~/hooks'
-import { validateEmail, validateRequired } from '~/hooks/useFormValidation'
+import { useSubmitStatus } from '~/hooks'
+import useFormValidation, {
+  validateEmail,
+  validateRequired,
+} from '~/hooks/useFormValidation'
 
 interface LoaderData {
   locationData?: Location[]

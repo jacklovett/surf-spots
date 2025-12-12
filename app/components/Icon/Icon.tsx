@@ -69,6 +69,18 @@ export const Icon = (props: IProps) => {
             <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
           </svg>
         )
+      case 'chevron-left':
+        return (
+          <svg {...commonIconStyles}>
+            <polyline points="15 18 9 12 15 6" />
+          </svg>
+        )
+      case 'chevron-down':
+        return (
+          <svg {...commonIconStyles}>
+            <polyline points="6 9 12 15 18 9" />
+          </svg>
+        )
       case 'filters':
         return (
           <svg {...commonIconStyles}>
@@ -310,6 +322,15 @@ export const Icon = (props: IProps) => {
             <circle cx="12" cy="5" r="2" />
             <circle cx="12" cy="12" r="2" />
             <circle cx="12" cy="19" r="2" />
+          </svg>
+        )
+      case 'clipboard':
+        return (
+          <svg {...commonIconStyles}>
+            <path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2" />
+            <rect x="9" y="3" width="6" height="4" rx="1" />
+            <line x1="9" y1="12" x2="15" y2="12" />
+            <line x1="9" y1="16" x2="15" y2="16" />
           </svg>
         )
       default:
