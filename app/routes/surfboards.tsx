@@ -6,7 +6,7 @@ import {
   useNavigate,
   useNavigation,
 } from 'react-router'
-import { Page, TextButton, ContentStatus, Loading } from '~/components'
+import { Page, TextButton, ContentStatus, Card } from '~/components'
 import { requireSessionCookie } from '~/services/session.server'
 import { cacheControlHeader, get } from '~/services/networkService'
 import { Surfboard } from '~/types/surfboard'
@@ -102,23 +102,16 @@ export default function Surfboards() {
               className="surfboards-grid"
             >
               {surfboardsList.map((surfboard) => (
-                <div
+                <Card
                   key={surfboard.id}
-                  className="surfboard-card animate-on-scroll"
+                  title={surfboard.name}
+                  imageUrl={
+                    surfboard.images?.[0]?.thumbUrl ||
+                    surfboard.images?.[0]?.originalUrl
+                  }
+                  imageAlt={surfboard.name}
                   onClick={() => handleSurfboardClick(surfboard.id)}
                 >
-                  {surfboard.images && surfboard.images.length > 0 && (
-                    <div className="surfboard-image">
-                      <img
-                        src={
-                          surfboard.images[0].thumbUrl ||
-                          surfboard.images[0].originalUrl
-                        }
-                        alt={surfboard.name}
-                      />
-                    </div>
-                  )}
-                  <h3>{surfboard.name}</h3>
                   {surfboard.boardType && (
                     <p className="surfboard-type">{surfboard.boardType}</p>
                   )}
@@ -134,7 +127,7 @@ export default function Surfboards() {
                   {surfboard.volume && (
                     <p className="surfboard-volume">{surfboard.volume}L</p>
                   )}
-                </div>
+                </Card>
               ))}
             </div>
           </div>

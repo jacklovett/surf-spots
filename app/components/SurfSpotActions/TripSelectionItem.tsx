@@ -1,5 +1,6 @@
 import { Trip } from '~/types/trip'
 import { TextButton } from '~/components'
+import { formatDate } from '~/utils/dateUtils'
 
 interface TripSelectionItemProps {
   trip: Trip
@@ -29,8 +30,7 @@ export const TripSelectionItem = ({
         </div>
         {trip.startDate && trip.endDate && (
           <p className="trip-dates">
-            {new Date(trip.startDate).toLocaleDateString()} -{' '}
-            {new Date(trip.endDate).toLocaleDateString()}
+            {formatDate(trip.startDate)} - {formatDate(trip.endDate)}
           </p>
         )}
         {trip.description && (

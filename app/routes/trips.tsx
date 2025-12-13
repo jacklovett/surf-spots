@@ -6,11 +6,12 @@ import {
   useNavigate,
   useNavigation,
 } from 'react-router'
-import { Page, TextButton, ContentStatus } from '~/components'
+import { Page, TextButton, ContentStatus, Card } from '~/components'
 import { requireSessionCookie } from '~/services/session.server'
 import { cacheControlHeader, get } from '~/services/networkService'
 import { Trip } from '~/types/trip'
 import { useScrollReveal } from '~/hooks'
+import { formatDate } from '~/utils/dateUtils'
 
 interface LoaderData {
   trips: Trip[]
@@ -108,28 +109,33 @@ export default function Trips() {
                   ref={ownedTripsRef as RefObject<HTMLDivElement>}
                   className="trips-grid"
                 >
-                  {ownedTrips.map((trip) => (
-                    <div
-                      key={trip.id}
-                      className="trip-card animate-on-scroll"
-                      onClick={() => handleTripClick(trip.id)}
-                    >
-                      <h3>{trip.title}</h3>
-                      {trip.startDate && trip.endDate && (
-                        <p className="trip-dates">
-                          {new Date(trip.startDate).toLocaleDateString()} -{' '}
-                          {new Date(trip.endDate).toLocaleDateString()}
-                        </p>
-                      )}
-                      {trip.description && <p>{trip.description}</p>}
-                      {trip.spots && trip.spots.length > 0 && (
-                        <p className="trip-spots">
-                          {trip.spots.length} spot
-                          {trip.spots.length !== 1 ? 's' : ''}
-                        </p>
-                      )}
-                    </div>
-                  ))}
+                  {ownedTrips.map((trip) => {
+                    const firstImage = trip.media?.find(
+                      (m) => m.mediaType === 'image',
+                    )
+                    return (
+                      <Card
+                        key={trip.id}
+                        title={trip.title}
+                        imageUrl={firstImage?.url}
+                        imageAlt={trip.title}
+                        onClick={() => handleTripClick(trip.id)}
+                      >
+                        {trip.startDate && trip.endDate && (
+                          <p className="trip-dates">
+                            {formatDate(trip.startDate)} - {formatDate(trip.endDate)}
+                          </p>
+                        )}
+                        {trip.description && <p>{trip.description}</p>}
+                        {trip.spots && trip.spots.length > 0 && (
+                          <p className="trip-spots">
+                            {trip.spots.length} spot
+                            {trip.spots.length !== 1 ? 's' : ''}
+                          </p>
+                        )}
+                      </Card>
+                    )
+                  })}
                 </div>
               </div>
             )}
@@ -141,29 +147,34 @@ export default function Trips() {
                   ref={memberTripsRef as RefObject<HTMLDivElement>}
                   className="trips-grid"
                 >
-                  {memberTrips.map((trip) => (
-                    <div
-                      key={trip.id}
-                      className="trip-card animate-on-scroll"
-                      onClick={() => handleTripClick(trip.id)}
-                    >
-                      <h3>{trip.title}</h3>
-                      <p className="trip-owner">by {trip.ownerName}</p>
-                      {trip.startDate && trip.endDate && (
-                        <p className="trip-dates">
-                          {new Date(trip.startDate).toLocaleDateString()} -{' '}
-                          {new Date(trip.endDate).toLocaleDateString()}
-                        </p>
-                      )}
-                      {trip.description && <p>{trip.description}</p>}
-                      {trip.spots && trip.spots.length > 0 && (
-                        <p className="trip-spots">
-                          {trip.spots.length} spot
-                          {trip.spots.length !== 1 ? 's' : ''}
-                        </p>
-                      )}
-                    </div>
-                  ))}
+                  {memberTrips.map((trip) => {
+                    const firstImage = trip.media?.find(
+                      (m) => m.mediaType === 'image',
+                    )
+                    return (
+                      <Card
+                        key={trip.id}
+                        title={trip.title}
+                        imageUrl={firstImage?.url}
+                        imageAlt={trip.title}
+                        onClick={() => handleTripClick(trip.id)}
+                      >
+                        <p className="trip-owner">by {trip.ownerName}</p>
+                        {trip.startDate && trip.endDate && (
+                          <p className="trip-dates">
+                            {formatDate(trip.startDate)} - {formatDate(trip.endDate)}
+                          </p>
+                        )}
+                        {trip.description && <p>{trip.description}</p>}
+                        {trip.spots && trip.spots.length > 0 && (
+                          <p className="trip-spots">
+                            {trip.spots.length} spot
+                            {trip.spots.length !== 1 ? 's' : ''}
+                          </p>
+                        )}
+                      </Card>
+                    )
+                  })}
                 </div>
               </div>
             )}

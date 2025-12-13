@@ -38,6 +38,7 @@ import { RecordMediaRequest, Trip, TripMedia } from '~/types/trip'
 import { useScrollReveal, useFileUpload } from '~/hooks'
 import { InfoModal } from '~/components/Modal'
 import { fileToBase64 } from '~/utils/fileUtils.server'
+import { formatDate } from '~/utils/dateUtils'
 
 interface LoaderData {
   trip: Trip
@@ -454,8 +455,7 @@ export default function TripDetail() {
           )}
           {currentTrip.startDate && currentTrip.endDate && (
             <p className="trip-dates">
-              {new Date(currentTrip.startDate).toLocaleDateString()} -{' '}
-              {new Date(currentTrip.endDate).toLocaleDateString()}
+              {formatDate(currentTrip.startDate)} - {formatDate(currentTrip.endDate)}
             </p>
           )}
           {currentTrip.description && (

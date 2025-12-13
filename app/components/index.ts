@@ -1,5 +1,6 @@
-import AuthPage from './AuthPage'
+import AuthPage from './AuthPage' 
 import Button from './Button'
+import Card from './Card'
 import ContentStatus from './ContentStatus'
 import {
   CalendarIcon,
@@ -60,6 +61,7 @@ export {
   CheckboxOption,
   Chip,
   ChipSelector,
+  Card,
   ContentStatus,
   DatePicker,
   Details,
