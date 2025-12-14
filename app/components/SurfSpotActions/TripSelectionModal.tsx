@@ -28,10 +28,10 @@ export const TripSelectionModal = ({
 }: TripSelectionModalProps) => {
   const navigate = useNavigate()
   const { trips: tripsFromContext, setTrips } = useTripContext()
-  const tripsFetcher = useFetcher<Trip[]>()
+  const tripsFetcher = useFetcher<{ trips: Trip[]; error?: string }>()
   
   // Use trips from props (loaded via loader) if available, otherwise use fetcher data, otherwise fall back to context
-  const trips = tripsFromProps || (tripsFetcher.data as Trip[]) || tripsFromContext
+  const trips = tripsFromProps || tripsFetcher.data?.trips || tripsFromContext
   const [isLoadingTrips, setIsLoadingTrips] = useState(false)
   const [addingToTripId, setAddingToTripId] = useState<string | null>(null)
   const [removingFromTripId, setRemovingFromTripId] = useState<string | null>(
@@ -46,29 +46,37 @@ export const TripSelectionModal = ({
 
   // Load trips via resource route when modal opens (if not provided as props)
   useEffect(() => {
-    if (isOpen && userId && !tripsFromProps) {
+    if (isOpen && userId && !tripsFromProps && tripsFetcher.state === 'idle' && !tripsFetcher.data) {
       setIsLoadingTrips(true)
       tripsFetcher.load('/resources/trips')
     }
-  }, [isOpen, userId, tripsFromProps, tripsFetcher])
+  }, [isOpen, userId, tripsFromProps, tripsFetcher.state, tripsFetcher.data])
 
-  // Update loading state based on fetcher
+  // Update loading state and trips based on fetcher
   useEffect(() => {
     if (tripsFetcher.state === 'idle' && tripsFetcher.data) {
       setIsLoadingTrips(false)
       // Update context with fetched trips
-      if (Array.isArray(tripsFetcher.data)) {
-        setTrips(tripsFetcher.data)
+      if (tripsFetcher.data.trips && Array.isArray(tripsFetcher.data.trips)) {
+        setTrips(tripsFetcher.data.trips)
+      }
+      // Show error if present
+      if (tripsFetcher.data.error) {
+        onError('Error', tripsFetcher.data.error)
       }
     } else if (tripsFetcher.state === 'loading') {
       setIsLoadingTrips(true)
+    } else if (tripsFetcher.state === 'idle' && !tripsFetcher.data) {
+      // No data and not loading - might be an error
+      setIsLoadingTrips(false)
     }
-  }, [tripsFetcher.state, tripsFetcher.data, setTrips])
+  }, [tripsFetcher.state, tripsFetcher.data, setTrips, onError])
 
   // Initialize trips from props into context when modal opens
   useEffect(() => {
     if (tripsFromProps && isOpen) {
       setTrips(tripsFromProps)
+      setIsLoadingTrips(false)
     }
   }, [tripsFromProps, isOpen, setTrips])
 

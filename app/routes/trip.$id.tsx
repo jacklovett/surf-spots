@@ -7,6 +7,7 @@ import {
   useNavigate,
   useNavigation,
   redirect,
+  useFetcher,
 } from 'react-router'
 import {
   Button,
@@ -14,6 +15,7 @@ import {
   ContentStatus,
   EmptyState,
   ErrorBoundary,
+  Loading,
   MediaGallery,
   MediaUpload,
   Modal,
@@ -24,7 +26,6 @@ import {
 import { useUserContext } from '~/contexts'
 import { requireSessionCookie } from '~/services/session.server'
 import { cacheControlHeader, get, post, deleteData } from '~/services/networkService'
-import { getSurfboards } from '~/services/surfboard'
 import { Surfboard } from '~/types/surfboard'
 import { RecordMediaRequest, Trip, TripMedia } from '~/types/trip'
 import { useScrollReveal, useFileUpload, useActionFetcher } from '~/hooks'
@@ -429,6 +430,7 @@ export default function TripDetail() {
   const { user } = useUserContext()
   const navigate = useNavigate()
   const { fetcher, submitAction } = useActionFetcher<ActionData>()
+  const surfboardsFetcher = useFetcher<{ surfboards: Surfboard[]; error?: string }>()
 
   // Use state for optimistic UI updates when removing members/spots/media
   const [trip, setTrip] = useState<Trip | undefined>(initialTrip)
@@ -439,6 +441,7 @@ export default function TripDetail() {
   const [errorTitle, setErrorTitle] = useState<string | undefined>(undefined)
   const [showAddSurfboardModal, setShowAddSurfboardModal] = useState(false)
   const [allSurfboards, setAllSurfboards] = useState<Surfboard[]>([])
+  const [isLoadingSurfboards, setIsLoadingSurfboards] = useState(false)
   const [addingSurfboardId, setAddingSurfboardId] = useState<string | null>(
     null,
   )
@@ -549,18 +552,33 @@ export default function TripDetail() {
     return tripSurfboard?.id || null
   }
 
-  const handleAddSurfboardClick = async () => {
-    if (!user?.id) return
-    try {
-      const surfboards = await getSurfboards(user.id)
-      setAllSurfboards(surfboards)
-      setShowAddSurfboardModal(true)
-    } catch (error) {
-      console.error('Failed to fetch surfboards:', error)
-      showError(
-        getErrorMessage(error, 'Failed to load surfboards. Please try again.'),
-      )
+  // Load surfboards when modal opens
+  useEffect(() => {
+    if (showAddSurfboardModal && user?.id && surfboardsFetcher.state === 'idle' && !surfboardsFetcher.data) {
+      setIsLoadingSurfboards(true)
+      surfboardsFetcher.load('/resources/surfboards')
     }
+  }, [showAddSurfboardModal, user?.id, surfboardsFetcher.state, surfboardsFetcher.data])
+
+  // Update surfboards state when fetcher data arrives
+  useEffect(() => {
+    if (surfboardsFetcher.state === 'idle' && surfboardsFetcher.data) {
+      setIsLoadingSurfboards(false)
+      if (surfboardsFetcher.data.surfboards && Array.isArray(surfboardsFetcher.data.surfboards)) {
+        setAllSurfboards(surfboardsFetcher.data.surfboards)
+      }
+      if (surfboardsFetcher.data.error) {
+        showError(surfboardsFetcher.data.error)
+        setShowAddSurfboardModal(false)
+      }
+    } else if (surfboardsFetcher.state === 'loading') {
+      setIsLoadingSurfboards(true)
+    }
+  }, [surfboardsFetcher.state, surfboardsFetcher.data])
+
+  const handleAddSurfboardClick = () => {
+    if (!user?.id) return
+    setShowAddSurfboardModal(true)
   }
 
   const handleAddSurfboard = (surfboardId: string) => {
@@ -975,7 +993,11 @@ export default function TripDetail() {
         <Modal onClose={() => setShowAddSurfboardModal(false)}>
           <div className="surfboard-selection-modal">
             <h2>Add Surfboard</h2>
-            {allSurfboards.length > 0 ? (
+            {isLoadingSurfboards ? (
+              <div className="surfboard-selection-loading">
+                <Loading />
+              </div>
+            ) : allSurfboards.length > 0 ? (
               <div>
                 <p>Select a surfboard to add or remove from this trip:</p>
                 <div className="surfboard-selection-list">
