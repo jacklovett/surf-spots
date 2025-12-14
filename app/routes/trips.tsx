@@ -105,7 +105,7 @@ export default function Trips() {
   return (
     <Page showHeader>
       <div className="info-page-content mv">
-        <div className="trips-header">
+        <div className="row space-between mb">
           <h1>My Trips</h1>
           <TextButton
             text="Create Trip"

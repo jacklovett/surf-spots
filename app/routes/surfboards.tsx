@@ -78,7 +78,7 @@ export default function Surfboards() {
   return (
     <Page showHeader>
       <div className="info-page-content mv">
-        <div className="surfboards-header">
+        <div className="row space-between mb">
           <h1>My Surfboards</h1>
           <TextButton
             text="Add Surfboard"
