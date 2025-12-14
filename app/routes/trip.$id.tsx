@@ -6,6 +6,8 @@ import {
   useLoaderData,
   useNavigate,
   useNavigation,
+  useFetcher,
+  redirect,
 } from 'react-router'
 import {
   Button,
@@ -22,16 +24,7 @@ import {
 } from '~/components'
 import { useUserContext } from '~/contexts'
 import { requireSessionCookie } from '~/services/session.server'
-import { cacheControlHeader, get, post } from '~/services/networkService'
-import {
-  deleteTrip,
-  removeSpot,
-  removeMember,
-  cancelInvitation,
-  deleteMedia,
-  addSurfboard,
-  removeSurfboard,
-} from '~/services/trip'
+import { cacheControlHeader, get, post, deleteData } from '~/services/networkService'
 import { getSurfboards } from '~/services/surfboard'
 import { Surfboard } from '~/types/surfboard'
 import { RecordMediaRequest, Trip, TripMedia } from '~/types/trip'
@@ -103,6 +96,203 @@ export const action: ActionFunction = async ({ request, params }) => {
 
   const formData = await request.formData()
   const intent = formData.get('intent') as string
+  const cookie = request.headers.get('Cookie') || ''
+
+  // Handle delete trip
+  if (intent === 'delete-trip') {
+    try {
+      await deleteData(`trips/${tripId}?userId=${user.id}`, {
+        headers: { Cookie: cookie },
+      })
+      return redirect('/trips')
+    } catch (error) {
+      console.error('[trip.$id action] Error deleting trip:', error)
+      return data<ActionData>(
+        {
+          error:
+            error instanceof Error
+              ? error.message
+              : 'Failed to delete trip. Please try again.',
+        },
+        { status: 500 },
+      )
+    }
+  }
+
+  // Handle add surfboard
+  if (intent === 'add-surfboard') {
+    const surfboardId = formData.get('surfboardId') as string
+    if (!surfboardId) {
+      return data<ActionData>(
+        { error: 'Surfboard ID is required' },
+        { status: 400 },
+      )
+    }
+    try {
+      await post<undefined, string>(
+        `trips/${tripId}/surfboards/${surfboardId}?userId=${user.id}`,
+        undefined,
+        { headers: { Cookie: cookie } },
+      )
+      return data<ActionData>({ success: true })
+    } catch (error) {
+      console.error('[trip.$id action] Error adding surfboard:', error)
+      return data<ActionData>(
+        {
+          error:
+            error instanceof Error
+              ? error.message
+              : 'Failed to add surfboard. Please try again.',
+        },
+        { status: 500 },
+      )
+    }
+  }
+
+  // Handle remove surfboard
+  if (intent === 'remove-surfboard') {
+    const tripSurfboardId = formData.get('tripSurfboardId') as string
+    if (!tripSurfboardId) {
+      return data<ActionData>(
+        { error: 'Trip surfboard ID is required' },
+        { status: 400 },
+      )
+    }
+    try {
+      await deleteData(
+        `trips/${tripId}/surfboards/${tripSurfboardId}?userId=${user.id}`,
+        { headers: { Cookie: cookie } },
+      )
+      return data<ActionData>({ success: true })
+    } catch (error) {
+      console.error('[trip.$id action] Error removing surfboard:', error)
+      return data<ActionData>(
+        {
+          error:
+            error instanceof Error
+              ? error.message
+              : 'Failed to remove surfboard. Please try again.',
+        },
+        { status: 500 },
+      )
+    }
+  }
+
+  // Handle remove spot
+  if (intent === 'remove-spot') {
+    const tripSpotId = formData.get('tripSpotId') as string
+    if (!tripSpotId) {
+      return data<ActionData>(
+        { error: 'Trip spot ID is required' },
+        { status: 400 },
+      )
+    }
+    try {
+      await deleteData(
+        `trips/${tripId}/spots/${tripSpotId}?userId=${user.id}`,
+        { headers: { Cookie: cookie } },
+      )
+      return data<ActionData>({ success: true })
+    } catch (error) {
+      console.error('[trip.$id action] Error removing spot:', error)
+      return data<ActionData>(
+        {
+          error:
+            error instanceof Error
+              ? error.message
+              : 'Failed to remove spot. Please try again.',
+        },
+        { status: 500 },
+      )
+    }
+  }
+
+  // Handle remove member
+  if (intent === 'remove-member') {
+    const memberUserId = formData.get('memberUserId') as string
+    if (!memberUserId) {
+      return data<ActionData>(
+        { error: 'Member user ID is required' },
+        { status: 400 },
+      )
+    }
+    try {
+      await deleteData(
+        `trips/${tripId}/members/${memberUserId}?currentUserId=${user.id}`,
+        { headers: { Cookie: cookie } },
+      )
+      return data<ActionData>({ success: true })
+    } catch (error) {
+      console.error('[trip.$id action] Error removing member:', error)
+      return data<ActionData>(
+        {
+          error:
+            error instanceof Error
+              ? error.message
+              : 'Failed to remove member. Please try again.',
+        },
+        { status: 500 },
+      )
+    }
+  }
+
+  // Handle cancel invitation
+  if (intent === 'cancel-invitation') {
+    const invitationId = formData.get('invitationId') as string
+    if (!invitationId) {
+      return data<ActionData>(
+        { error: 'Invitation ID is required' },
+        { status: 400 },
+      )
+    }
+    try {
+      await deleteData(
+        `trips/${tripId}/invitations/${invitationId}?userId=${user.id}`,
+        { headers: { Cookie: cookie } },
+      )
+      return data<ActionData>({ success: true })
+    } catch (error) {
+      console.error('[trip.$id action] Error canceling invitation:', error)
+      return data<ActionData>(
+        {
+          error:
+            error instanceof Error
+              ? error.message
+              : 'Failed to cancel invitation. Please try again.',
+        },
+        { status: 500 },
+      )
+    }
+  }
+
+  // Handle delete media
+  if (intent === 'delete-media') {
+    const mediaId = formData.get('mediaId') as string
+    if (!mediaId) {
+      return data<ActionData>(
+        { error: 'Media ID is required' },
+        { status: 400 },
+      )
+    }
+    try {
+      await deleteData(
+        `trips/${tripId}/media/${mediaId}?userId=${user.id}`,
+        { headers: { Cookie: cookie } },
+      )
+      return data<ActionData>({ success: true })
+    } catch (error) {
+      console.error('[trip.$id action] Error deleting media:', error)
+      return data<ActionData>(
+        {
+          error:
+            error instanceof Error
+              ? error.message
+              : 'Failed to delete media. Please try again.',
+        },
+        { status: 500 },
+      )
+    }
+  }
 
   // Handle media upload
   if (intent === 'add-media') {
@@ -137,7 +327,6 @@ export const action: ActionFunction = async ({ request, params }) => {
       const mediaId = `media-${Date.now()}-${Math.random().toString(36).substring(7)}`
 
       // Call API to record media
-      const cookie = request.headers.get('Cookie') || ''
       await post<RecordMediaRequest, void>(
         `trips/${tripId}/media?userId=${user.id}`,
         {
@@ -186,6 +375,7 @@ export default function TripDetail() {
   }
   const { user } = useUserContext()
   const navigate = useNavigate()
+  const fetcher = useFetcher<ActionData>()
 
   // Use state for optimistic UI updates when removing members/spots/media
   const [trip, setTrip] = useState<Trip | undefined>(initialTrip)
@@ -236,6 +426,18 @@ export default function TripDetail() {
     }
   }, [fetcherData])
 
+  // Handle action responses
+  useEffect(() => {
+    if (fetcher.data?.error) {
+      // Check if this is a delete trip error
+      if (fetcher.state === 'idle' && fetcher.data.error) {
+        setDeleteError(fetcher.data.error)
+      } else {
+        showError(fetcher.data.error)
+      }
+    }
+  }, [fetcher.data, fetcher.state])
+
   // Helper to extract error message
   const getErrorMessage = (error: unknown, defaultMessage: string): string => {
     return error instanceof Error ? error.message : defaultMessage
@@ -262,18 +464,12 @@ export default function TripDetail() {
     setDeleteError('')
   }
 
-  const handleDeleteConfirm = async () => {
+  const handleDeleteConfirm = () => {
     if (!user?.id) return
 
-    try {
-      await deleteTrip(currentTrip.id, user.id)
-      navigate('/trips')
-    } catch (error) {
-      console.error('Failed to delete trip:', error)
-      setDeleteError(
-        getErrorMessage(error, 'Failed to delete trip. Please try again.'),
-      )
-    }
+    const formData = new FormData()
+    formData.append('intent', 'delete-trip')
+    fetcher.submit(formData, { method: 'POST' })
   }
 
   const showError = (message: string, title?: string) => {
@@ -336,36 +532,42 @@ export default function TripDetail() {
       )
     }
 
-    try {
-      await addSurfboard(currentTrip.id, surfboardId, user.id)
-      // Fetch updated trip data without reloading
-      const cookie = document.cookie
-      const updatedTrip = await get<Trip>(
-        `trips/${currentTrip.id}?userId=${user.id}`,
-        {
-          headers: { Cookie: cookie },
-        },
-      )
-      setTrip(updatedTrip)
-    } catch (error) {
-      console.error('Failed to add surfboard:', error)
-      // Rollback optimistic update
-      setTrip((prev) =>
-        prev
-          ? {
-              ...prev,
-              surfboards: prev.surfboards?.filter(
-                (sb) => sb.surfboardId !== surfboardId,
-              ),
-            }
-          : prev,
-      )
-      showError(
-        getErrorMessage(error, 'Failed to add surfboard. Please try again.'),
-      )
-    } finally {
-      setAddingSurfboardId(null)
-    }
+    const formData = new FormData()
+    formData.append('intent', 'add-surfboard')
+    formData.append('surfboardId', surfboardId)
+    fetcher.submit(formData, { method: 'POST' })
+
+    // Fetch updated trip data after a short delay to allow action to complete
+    setTimeout(async () => {
+      try {
+        const cookie = document.cookie
+        const updatedTrip = await get<Trip>(
+          `trips/${currentTrip.id}?userId=${user.id}`,
+          {
+            headers: { Cookie: cookie },
+          },
+        )
+        setTrip(updatedTrip)
+      } catch (error) {
+        console.error('Failed to refresh trip data:', error)
+        // Rollback optimistic update
+        setTrip((prev) =>
+          prev
+            ? {
+                ...prev,
+                surfboards: prev.surfboards?.filter(
+                  (sb) => sb.surfboardId !== surfboardId,
+                ),
+              }
+            : prev,
+        )
+        showError(
+          getErrorMessage(error, 'Failed to add surfboard. Please try again.'),
+        )
+      } finally {
+        setAddingSurfboardId(null)
+      }
+    }, 500)
   }
 
   const handleRemoveSurfboard = async (surfboardId: string) => {
@@ -391,34 +593,43 @@ export default function TripDetail() {
         : prev,
     )
 
-    try {
-      await removeSurfboard(currentTrip.id, tripSurfboardId, user.id)
-      // Fetch updated trip data without reloading
-      const cookie = document.cookie
-      const updatedTrip = await get<Trip>(
-        `trips/${currentTrip.id}?userId=${user.id}`,
-        {
-          headers: { Cookie: cookie },
-        },
-      )
-      setTrip(updatedTrip)
-    } catch (error) {
-      console.error('Failed to remove surfboard:', error)
-      // Rollback optimistic update
-      const cookie = document.cookie
-      const updatedTrip = await get<Trip>(
-        `trips/${currentTrip.id}?userId=${user.id}`,
-        {
-          headers: { Cookie: cookie },
-        },
-      )
-      setTrip(updatedTrip)
-      showError(
-        getErrorMessage(error, 'Failed to remove surfboard. Please try again.'),
-      )
-    } finally {
-      setRemovingSurfboardId(null)
-    }
+    const formData = new FormData()
+    formData.append('intent', 'remove-surfboard')
+    formData.append('tripSurfboardId', tripSurfboardId)
+    fetcher.submit(formData, { method: 'POST' })
+
+    // Fetch updated trip data after a short delay
+    setTimeout(async () => {
+      try {
+        const cookie = document.cookie
+        const updatedTrip = await get<Trip>(
+          `trips/${currentTrip.id}?userId=${user.id}`,
+          {
+            headers: { Cookie: cookie },
+          },
+        )
+        setTrip(updatedTrip)
+      } catch (error) {
+        console.error('Failed to refresh trip data:', error)
+        // Rollback by refetching
+        const cookie = document.cookie
+        const updatedTrip = await get<Trip>(
+          `trips/${currentTrip.id}?userId=${user.id}`,
+          {
+            headers: { Cookie: cookie },
+          },
+        )
+        setTrip(updatedTrip)
+        showError(
+          getErrorMessage(
+            error,
+            'Failed to remove surfboard. Please try again.',
+          ),
+        )
+      } finally {
+        setRemovingSurfboardId(null)
+      }
+    }, 500)
   }
 
   return (
@@ -484,40 +695,53 @@ export default function TripDetail() {
                           text={
                             member.status === 'PENDING' ? 'Cancel' : 'Remove'
                           }
-                          onClick={async () => {
+                          onClick={() => {
                             if (!user?.id) return
-                            try {
-                              if (member.status === 'PENDING') {
-                                await cancelInvitation(
-                                  currentTrip.id,
-                                  member.id,
-                                  user.id,
+                            const formData = new FormData()
+                            if (member.status === 'PENDING') {
+                              formData.append('intent', 'cancel-invitation')
+                              formData.append('invitationId', member.id)
+                            } else {
+                              formData.append('intent', 'remove-member')
+                              formData.append('memberUserId', member.id)
+                            }
+                            fetcher.submit(formData, { method: 'POST' })
+
+                            // Optimistic update
+                            setTrip((prev) => {
+                              if (!prev) return prev
+                              return {
+                                ...prev,
+                                members: prev.members?.filter(
+                                  (m) => m.id !== member.id,
+                                ),
+                              }
+                            })
+
+                            // Refresh trip data after a delay
+                            setTimeout(async () => {
+                              try {
+                                const cookie = document.cookie
+                                const updatedTrip = await get<Trip>(
+                                  `trips/${currentTrip.id}?userId=${user.id}`,
+                                  {
+                                    headers: { Cookie: cookie },
+                                  },
                                 )
-                              } else {
-                                await removeMember(
-                                  currentTrip.id,
-                                  member.id,
-                                  user.id,
+                                setTrip(updatedTrip)
+                              } catch (error) {
+                                console.error(
+                                  'Failed to refresh trip data:',
+                                  error,
+                                )
+                                showError(
+                                  getErrorMessage(
+                                    error,
+                                    'Failed to remove member. Please try again.',
+                                  ),
                                 )
                               }
-                              setTrip((prev) => {
-                                if (!prev) return prev
-                                return {
-                                  ...prev,
-                                  members: prev.members?.filter(
-                                    (m) => m.id !== member.id,
-                                  ),
-                                }
-                              })
-                            } catch (error) {
-                              console.error('Failed to remove member:', error)
-                              showError(
-                                getErrorMessage(
-                                  error,
-                                  'Failed to remove member. Please try again.',
-                                ),
-                              )
-                            }
+                            }, 500)
                           }}
                           iconKey="bin"
                           filled
@@ -561,29 +785,49 @@ export default function TripDetail() {
                       {currentTrip.isOwner && (
                         <TextButton
                           text="Remove"
-                          onClick={async () => {
+                          onClick={() => {
                             if (!user?.id) return
-                            try {
-                              await removeSpot(currentTrip.id, spot.id, user.id)
-                              setTrip((prev) =>
-                                prev
-                                  ? {
-                                      ...prev,
-                                      spots: prev.spots?.filter(
-                                        (s) => s.id !== spot.id,
-                                      ),
-                                    }
-                                  : prev,
-                              )
-                            } catch (error) {
-                              console.error('Failed to remove spot:', error)
-                              showError(
-                                getErrorMessage(
+                            const formData = new FormData()
+                            formData.append('intent', 'remove-spot')
+                            formData.append('tripSpotId', spot.id)
+                            fetcher.submit(formData, { method: 'POST' })
+
+                            // Optimistic update
+                            setTrip((prev) =>
+                              prev
+                                ? {
+                                    ...prev,
+                                    spots: prev.spots?.filter(
+                                      (s) => s.id !== spot.id,
+                                    ),
+                                  }
+                                : prev,
+                            )
+
+                            // Refresh trip data after a delay
+                            setTimeout(async () => {
+                              try {
+                                const cookie = document.cookie
+                                const updatedTrip = await get<Trip>(
+                                  `trips/${currentTrip.id}?userId=${user.id}`,
+                                  {
+                                    headers: { Cookie: cookie },
+                                  },
+                                )
+                                setTrip(updatedTrip)
+                              } catch (error) {
+                                console.error(
+                                  'Failed to refresh trip data:',
                                   error,
-                                  'Failed to remove spot. Please try again.',
-                                ),
-                              )
-                            }
+                                )
+                                showError(
+                                  getErrorMessage(
+                                    error,
+                                    'Failed to remove spot. Please try again.',
+                                  ),
+                                )
+                              }
+                            }, 500)
                           }}
                           iconKey="bin"
                           filled
@@ -630,36 +874,49 @@ export default function TripDetail() {
                       {currentTrip.isOwner && (
                         <TextButton
                           text="Remove"
-                          onClick={async () => {
+                          onClick={() => {
                             if (!user?.id) return
-                            try {
-                              await removeSurfboard(
-                                currentTrip.id,
-                                surfboard.id,
-                                user.id,
-                              )
-                              setTrip((prev) =>
-                                prev
-                                  ? {
-                                      ...prev,
-                                      surfboards: prev.surfboards?.filter(
-                                        (sb) => sb.id !== surfboard.id,
-                                      ),
-                                    }
-                                  : prev,
-                              )
-                            } catch (error) {
-                              console.error(
-                                'Failed to remove surfboard:',
-                                error,
-                              )
-                              showError(
-                                getErrorMessage(
+                            const formData = new FormData()
+                            formData.append('intent', 'remove-surfboard')
+                            formData.append('tripSurfboardId', surfboard.id)
+                            fetcher.submit(formData, { method: 'POST' })
+
+                            // Optimistic update
+                            setTrip((prev) =>
+                              prev
+                                ? {
+                                    ...prev,
+                                    surfboards: prev.surfboards?.filter(
+                                      (sb) => sb.id !== surfboard.id,
+                                    ),
+                                  }
+                                : prev,
+                            )
+
+                            // Refresh trip data after a delay
+                            setTimeout(async () => {
+                              try {
+                                const cookie = document.cookie
+                                const updatedTrip = await get<Trip>(
+                                  `trips/${currentTrip.id}?userId=${user.id}`,
+                                  {
+                                    headers: { Cookie: cookie },
+                                  },
+                                )
+                                setTrip(updatedTrip)
+                              } catch (error) {
+                                console.error(
+                                  'Failed to refresh trip data:',
                                   error,
-                                  'Failed to remove surfboard. Please try again.',
-                                ),
-                              )
-                            }
+                                )
+                                showError(
+                                  getErrorMessage(
+                                    error,
+                                    'Failed to remove surfboard. Please try again.',
+                                  ),
+                                )
+                              }
+                            }, 500)
                           }}
                           iconKey="bin"
                           filled
@@ -694,30 +951,46 @@ export default function TripDetail() {
                   })) || []
                 }
                 canDelete={currentTrip.isOwner && !!user?.id}
-                onDelete={async (item) => {
+                onDelete={(item) => {
                   if (user?.id) {
-                    try {
-                      await deleteMedia(currentTrip.id, item.id, user.id)
-                      setTrip((prev) =>
-                        prev
-                          ? {
-                              ...prev,
-                              media: prev.media?.filter(
-                                (m) => m.id !== item.id,
-                              ),
-                            }
-                          : prev,
-                      )
-                    } catch (error) {
-                      console.error('Error deleting media:', error)
-                      showError(
-                        getErrorMessage(
-                          error,
-                          'Failed to delete media. Please try again.',
-                        ),
-                      )
-                      throw error
-                    }
+                    const formData = new FormData()
+                    formData.append('intent', 'delete-media')
+                    formData.append('mediaId', item.id)
+                    fetcher.submit(formData, { method: 'POST' })
+
+                    // Optimistic update
+                    setTrip((prev) =>
+                      prev
+                        ? {
+                            ...prev,
+                            media: prev.media?.filter(
+                              (m) => m.id !== item.id,
+                            ),
+                          }
+                        : prev,
+                    )
+
+                    // Refresh trip data after a delay
+                    setTimeout(async () => {
+                      try {
+                        const cookie = document.cookie
+                        const updatedTrip = await get<Trip>(
+                          `trips/${currentTrip.id}?userId=${user.id}`,
+                          {
+                            headers: { Cookie: cookie },
+                          },
+                        )
+                        setTrip(updatedTrip)
+                      } catch (error) {
+                        console.error('Failed to refresh trip data:', error)
+                        showError(
+                          getErrorMessage(
+                            error,
+                            'Failed to delete media. Please try again.',
+                          ),
+                        )
+                      }
+                    }, 500)
                   }
                 }}
                 altText="Trip media"

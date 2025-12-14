@@ -2,13 +2,14 @@ import { RefObject } from 'react'
 import {
   data,
   LoaderFunction,
+  ActionFunction,
   useLoaderData,
   useNavigate,
   useNavigation,
 } from 'react-router'
 import { Page, TextButton, ContentStatus, Card } from '~/components'
 import { requireSessionCookie } from '~/services/session.server'
-import { cacheControlHeader, get } from '~/services/networkService'
+import { cacheControlHeader, get, post, deleteData } from '~/services/networkService'
 import { Trip } from '~/types/trip'
 import { useScrollReveal } from '~/hooks'
 import { formatDate } from '~/utils/dateUtils'
@@ -44,6 +45,88 @@ export const loader: LoaderFunction = async ({ request }) => {
       { status: 500 },
     )
   }
+}
+
+interface ActionData {
+  error?: string
+  success?: boolean
+}
+
+export const action: ActionFunction = async ({ request }) => {
+  const user = await requireSessionCookie(request)
+  if (!user?.id) {
+    return data<ActionData>(
+      { error: 'You must be logged in' },
+      { status: 401 },
+    )
+  }
+
+  const formData = await request.formData()
+  const intent = formData.get('intent') as string
+  const cookie = request.headers.get('Cookie') || ''
+
+  // Handle add spot to trip
+  if (intent === 'add-spot') {
+    const tripId = formData.get('tripId') as string
+    const surfSpotId = formData.get('surfSpotId') as string
+    if (!tripId || !surfSpotId) {
+      return data<ActionData>(
+        { error: 'Trip ID and surf spot ID are required' },
+        { status: 400 },
+      )
+    }
+    try {
+      await post<undefined, string>(
+        `trips/${tripId}/spots/${surfSpotId}?userId=${user.id}`,
+        undefined,
+        { headers: { Cookie: cookie } },
+      )
+      return data<ActionData>({ success: true })
+    } catch (error) {
+      console.error('[trips action] Error adding spot:', error)
+      return data<ActionData>(
+        {
+          error:
+            error instanceof Error
+              ? error.message
+              : 'Failed to add spot. Please try again.',
+        },
+        { status: 500 },
+      )
+    }
+  }
+
+  // Handle remove spot from trip
+  if (intent === 'remove-spot') {
+    const tripId = formData.get('tripId') as string
+    const tripSpotId = formData.get('tripSpotId') as string
+    if (!tripId || !tripSpotId) {
+      return data<ActionData>(
+        { error: 'Trip ID and trip spot ID are required' },
+        { status: 400 },
+      )
+    }
+    try {
+      await deleteData(
+        `trips/${tripId}/spots/${tripSpotId}?userId=${user.id}`,
+        { headers: { Cookie: cookie } },
+      )
+      return data<ActionData>({ success: true })
+    } catch (error) {
+      console.error('[trips action] Error removing spot:', error)
+      return data<ActionData>(
+        {
+          error:
+            error instanceof Error
+              ? error.message
+              : 'Failed to remove spot. Please try again.',
+        },
+        { status: 500 },
+      )
+    }
+  }
+
+  return data<ActionData>({ error: 'Invalid intent' }, { status: 400 })
 }
 
 export default function Trips() {

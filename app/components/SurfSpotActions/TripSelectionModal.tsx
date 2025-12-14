@@ -1,8 +1,7 @@
 import { useState, useEffect, useCallback } from 'react'
-import { useNavigate } from 'react-router'
+import { useNavigate, useFetcher } from 'react-router'
 import { Modal, Button, Loading } from '~/components'
 import { useTripContext } from '~/contexts'
-import { addSpot, removeSpot } from '~/services/trip'
 import { Trip, TripSpot } from '~/types/trip'
 import { SurfSpot } from '~/types/surfSpots'
 import { TripSelectionItem } from './TripSelectionItem'
@@ -23,12 +22,29 @@ export const TripSelectionModal = ({
   userId,
 }: TripSelectionModalProps) => {
   const navigate = useNavigate()
+  const fetcher = useFetcher<{ error?: string; success?: boolean }>()
   const { trips, fetchTrips, setTrips } = useTripContext()
   const [isLoadingTrips, setIsLoadingTrips] = useState(false)
   const [addingToTripId, setAddingToTripId] = useState<string | null>(null)
   const [removingFromTripId, setRemovingFromTripId] = useState<string | null>(
     null,
   )
+
+  // Handle fetcher responses
+  useEffect(() => {
+    if (fetcher.data?.error) {
+      onError('Error', fetcher.data.error)
+      // Refetch trips to get accurate state
+      if (userId) {
+        fetchTrips(userId)
+      }
+    } else if (fetcher.data?.success && fetcher.state === 'idle') {
+      // Refetch trips to get updated data
+      if (userId) {
+        fetchTrips(userId)
+      }
+    }
+  }, [fetcher.data, fetcher.state, userId, fetchTrips, onError])
 
   const isSpotInTrip = useCallback(
     (trip: Trip) =>
@@ -80,22 +96,16 @@ export const TripSelectionModal = ({
         ),
       )
 
-      try {
-        await removeSpot(tripId, tripSpotId, userId)
-        // Refetch trips to get updated data
-        await fetchTrips(userId)
-      } catch (error: unknown) {
-        console.error('Failed to remove spot from trip:', error)
-        // Rollback optimistic update
-        await fetchTrips(userId)
-        const errorMessage =
-          error instanceof Error
-            ? error.message
-            : 'Failed to remove spot from trip. Please try again.'
-        onError('Error', errorMessage)
-      } finally {
+      const formData = new FormData()
+      formData.append('intent', 'remove-spot')
+      formData.append('tripId', tripId)
+      formData.append('tripSpotId', tripSpotId)
+      fetcher.submit(formData, { method: 'POST', action: '/trips' })
+      
+      // Reset state after a delay to allow action to complete
+      setTimeout(() => {
         setRemovingFromTripId(null)
-      }
+      }, 500)
       return
     }
 
@@ -123,33 +133,16 @@ export const TripSelectionModal = ({
       ),
     )
 
-    try {
-      await addSpot(tripId, userId, spotSurfSpotId)
-      // Refetch trips to get real data with proper IDs from backend
-      // This will update the trips context, causing "Adding..." to change to "✓ Added"
-      await fetchTrips(userId)
-    } catch (error: unknown) {
-      console.error('Failed to add spot to trip:', error)
-      // Rollback optimistic update on error - use surfSpotId since we don't have real ID
-      setTrips((prevTrips: Trip[]) =>
-        prevTrips.map((t: Trip) =>
-          t.id === tripId
-            ? {
-                ...t,
-                spots:
-                  t.spots?.filter((s) => s.surfSpotId !== spotSurfSpotId) || [],
-              }
-            : t,
-        ),
-      )
-      const errorMessage =
-        error instanceof Error && error.message?.includes('already in trip')
-          ? 'This surf spot is already in the selected trip.'
-          : 'Failed to add spot to trip. Please try again.'
-      onError('Error', errorMessage)
-    } finally {
+    const formData = new FormData()
+    formData.append('intent', 'add-spot')
+    formData.append('tripId', tripId)
+    formData.append('surfSpotId', spotSurfSpotId.toString())
+    fetcher.submit(formData, { method: 'POST', action: '/trips' })
+
+    // Reset state after a delay to allow action to complete
+    setTimeout(() => {
       setAddingToTripId(null)
-    }
+    }, 500)
   }
 
   const handleCreateTrip = () => {
