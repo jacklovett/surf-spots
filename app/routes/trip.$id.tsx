@@ -6,7 +6,6 @@ import {
   useLoaderData,
   useNavigate,
   useNavigation,
-  useFetcher,
   redirect,
 } from 'react-router'
 import {
@@ -28,7 +27,7 @@ import { cacheControlHeader, get, post, deleteData } from '~/services/networkSer
 import { getSurfboards } from '~/services/surfboard'
 import { Surfboard } from '~/types/surfboard'
 import { RecordMediaRequest, Trip, TripMedia } from '~/types/trip'
-import { useScrollReveal, useFileUpload } from '~/hooks'
+import { useScrollReveal, useFileUpload, useActionFetcher } from '~/hooks'
 import { InfoModal } from '~/components/Modal'
 import { fileToBase64 } from '~/utils/fileUtils.server'
 import { formatDate } from '~/utils/dateUtils'
@@ -106,7 +105,13 @@ export const action: ActionFunction = async ({ request, params }) => {
       })
       return redirect('/trips')
     } catch (error) {
-      console.error('[trip.$id action] Error deleting trip:', error)
+      console.error('[trip.$id action] Error deleting trip:', {
+        error,
+        message: error instanceof Error ? error.message : String(error),
+        status: error instanceof Response ? error.status : undefined,
+        tripId,
+        userId: user.id,
+      })
       return data<ActionData>(
         {
           error:
@@ -123,6 +128,7 @@ export const action: ActionFunction = async ({ request, params }) => {
   if (intent === 'add-surfboard') {
     const surfboardId = formData.get('surfboardId') as string
     if (!surfboardId) {
+      console.error('[trip.$id action] Missing surfboardId for add-surfboard')
       return data<ActionData>(
         { error: 'Surfboard ID is required' },
         { status: 400 },
@@ -136,7 +142,14 @@ export const action: ActionFunction = async ({ request, params }) => {
       )
       return data<ActionData>({ success: true })
     } catch (error) {
-      console.error('[trip.$id action] Error adding surfboard:', error)
+      console.error('[trip.$id action] Error adding surfboard:', {
+        error,
+        message: error instanceof Error ? error.message : String(error),
+        status: error instanceof Response ? error.status : undefined,
+        tripId,
+        surfboardId,
+        userId: user.id,
+      })
       return data<ActionData>(
         {
           error:
@@ -153,6 +166,7 @@ export const action: ActionFunction = async ({ request, params }) => {
   if (intent === 'remove-surfboard') {
     const tripSurfboardId = formData.get('tripSurfboardId') as string
     if (!tripSurfboardId) {
+      console.error('[trip.$id action] Missing tripSurfboardId for remove-surfboard')
       return data<ActionData>(
         { error: 'Trip surfboard ID is required' },
         { status: 400 },
@@ -165,7 +179,14 @@ export const action: ActionFunction = async ({ request, params }) => {
       )
       return data<ActionData>({ success: true })
     } catch (error) {
-      console.error('[trip.$id action] Error removing surfboard:', error)
+      console.error('[trip.$id action] Error removing surfboard:', {
+        error,
+        message: error instanceof Error ? error.message : String(error),
+        status: error instanceof Response ? error.status : undefined,
+        tripId,
+        tripSurfboardId,
+        userId: user.id,
+      })
       return data<ActionData>(
         {
           error:
@@ -182,6 +203,7 @@ export const action: ActionFunction = async ({ request, params }) => {
   if (intent === 'remove-spot') {
     const tripSpotId = formData.get('tripSpotId') as string
     if (!tripSpotId) {
+      console.error('[trip.$id action] Missing tripSpotId for remove-spot')
       return data<ActionData>(
         { error: 'Trip spot ID is required' },
         { status: 400 },
@@ -194,7 +216,14 @@ export const action: ActionFunction = async ({ request, params }) => {
       )
       return data<ActionData>({ success: true })
     } catch (error) {
-      console.error('[trip.$id action] Error removing spot:', error)
+      console.error('[trip.$id action] Error removing spot:', {
+        error,
+        message: error instanceof Error ? error.message : String(error),
+        status: error instanceof Response ? error.status : undefined,
+        tripId,
+        tripSpotId,
+        userId: user.id,
+      })
       return data<ActionData>(
         {
           error:
@@ -211,6 +240,7 @@ export const action: ActionFunction = async ({ request, params }) => {
   if (intent === 'remove-member') {
     const memberUserId = formData.get('memberUserId') as string
     if (!memberUserId) {
+      console.error('[trip.$id action] Missing memberUserId for remove-member')
       return data<ActionData>(
         { error: 'Member user ID is required' },
         { status: 400 },
@@ -223,7 +253,14 @@ export const action: ActionFunction = async ({ request, params }) => {
       )
       return data<ActionData>({ success: true })
     } catch (error) {
-      console.error('[trip.$id action] Error removing member:', error)
+      console.error('[trip.$id action] Error removing member:', {
+        error,
+        message: error instanceof Error ? error.message : String(error),
+        status: error instanceof Response ? error.status : undefined,
+        tripId,
+        memberUserId,
+        currentUserId: user.id,
+      })
       return data<ActionData>(
         {
           error:
@@ -240,6 +277,7 @@ export const action: ActionFunction = async ({ request, params }) => {
   if (intent === 'cancel-invitation') {
     const invitationId = formData.get('invitationId') as string
     if (!invitationId) {
+      console.error('[trip.$id action] Missing invitationId for cancel-invitation')
       return data<ActionData>(
         { error: 'Invitation ID is required' },
         { status: 400 },
@@ -252,7 +290,14 @@ export const action: ActionFunction = async ({ request, params }) => {
       )
       return data<ActionData>({ success: true })
     } catch (error) {
-      console.error('[trip.$id action] Error canceling invitation:', error)
+      console.error('[trip.$id action] Error canceling invitation:', {
+        error,
+        message: error instanceof Error ? error.message : String(error),
+        status: error instanceof Response ? error.status : undefined,
+        tripId,
+        invitationId,
+        userId: user.id,
+      })
       return data<ActionData>(
         {
           error:
@@ -269,6 +314,7 @@ export const action: ActionFunction = async ({ request, params }) => {
   if (intent === 'delete-media') {
     const mediaId = formData.get('mediaId') as string
     if (!mediaId) {
+      console.error('[trip.$id action] Missing mediaId for delete-media')
       return data<ActionData>(
         { error: 'Media ID is required' },
         { status: 400 },
@@ -281,7 +327,14 @@ export const action: ActionFunction = async ({ request, params }) => {
       )
       return data<ActionData>({ success: true })
     } catch (error) {
-      console.error('[trip.$id action] Error deleting media:', error)
+      console.error('[trip.$id action] Error deleting media:', {
+        error,
+        message: error instanceof Error ? error.message : String(error),
+        status: error instanceof Response ? error.status : undefined,
+        tripId,
+        mediaId,
+        userId: user.id,
+      })
       return data<ActionData>(
         {
           error:
@@ -375,7 +428,7 @@ export default function TripDetail() {
   }
   const { user } = useUserContext()
   const navigate = useNavigate()
-  const fetcher = useFetcher<ActionData>()
+  const { fetcher, submitAction } = useActionFetcher<ActionData>()
 
   // Use state for optimistic UI updates when removing members/spots/media
   const [trip, setTrip] = useState<Trip | undefined>(initialTrip)
@@ -435,6 +488,10 @@ export default function TripDetail() {
       } else {
         showError(fetcher.data.error)
       }
+    } else if (fetcher.data?.success && fetcher.state === 'idle') {
+      // Action succeeded - clear loading states
+      setAddingSurfboardId(null)
+      setRemovingSurfboardId(null)
     }
   }, [fetcher.data, fetcher.state])
 
@@ -506,7 +563,7 @@ export default function TripDetail() {
     }
   }
 
-  const handleAddSurfboard = async (surfboardId: string) => {
+  const handleAddSurfboard = (surfboardId: string) => {
     if (!user?.id) return
 
     setAddingSurfboardId(surfboardId)
@@ -532,45 +589,11 @@ export default function TripDetail() {
       )
     }
 
-    const formData = new FormData()
-    formData.append('intent', 'add-surfboard')
-    formData.append('surfboardId', surfboardId)
-    fetcher.submit(formData, { method: 'POST' })
-
-    // Fetch updated trip data after a short delay to allow action to complete
-    setTimeout(async () => {
-      try {
-        const cookie = document.cookie
-        const updatedTrip = await get<Trip>(
-          `trips/${currentTrip.id}?userId=${user.id}`,
-          {
-            headers: { Cookie: cookie },
-          },
-        )
-        setTrip(updatedTrip)
-      } catch (error) {
-        console.error('Failed to refresh trip data:', error)
-        // Rollback optimistic update
-        setTrip((prev) =>
-          prev
-            ? {
-                ...prev,
-                surfboards: prev.surfboards?.filter(
-                  (sb) => sb.surfboardId !== surfboardId,
-                ),
-              }
-            : prev,
-        )
-        showError(
-          getErrorMessage(error, 'Failed to add surfboard. Please try again.'),
-        )
-      } finally {
-        setAddingSurfboardId(null)
-      }
-    }, 500)
+    // Submit action via fetcher - Remix will handle revalidation
+    submitAction('add-surfboard', { surfboardId })
   }
 
-  const handleRemoveSurfboard = async (surfboardId: string) => {
+  const handleRemoveSurfboard = (surfboardId: string) => {
     if (!user?.id) return
 
     const tripSurfboardId = getTripSurfboardId(surfboardId)
@@ -593,43 +616,8 @@ export default function TripDetail() {
         : prev,
     )
 
-    const formData = new FormData()
-    formData.append('intent', 'remove-surfboard')
-    formData.append('tripSurfboardId', tripSurfboardId)
-    fetcher.submit(formData, { method: 'POST' })
-
-    // Fetch updated trip data after a short delay
-    setTimeout(async () => {
-      try {
-        const cookie = document.cookie
-        const updatedTrip = await get<Trip>(
-          `trips/${currentTrip.id}?userId=${user.id}`,
-          {
-            headers: { Cookie: cookie },
-          },
-        )
-        setTrip(updatedTrip)
-      } catch (error) {
-        console.error('Failed to refresh trip data:', error)
-        // Rollback by refetching
-        const cookie = document.cookie
-        const updatedTrip = await get<Trip>(
-          `trips/${currentTrip.id}?userId=${user.id}`,
-          {
-            headers: { Cookie: cookie },
-          },
-        )
-        setTrip(updatedTrip)
-        showError(
-          getErrorMessage(
-            error,
-            'Failed to remove surfboard. Please try again.',
-          ),
-        )
-      } finally {
-        setRemovingSurfboardId(null)
-      }
-    }, 500)
+    // Submit action via fetcher - Remix will handle revalidation
+    submitAction('remove-surfboard', { tripSurfboardId })
   }
 
   return (
@@ -697,16 +685,6 @@ export default function TripDetail() {
                           }
                           onClick={() => {
                             if (!user?.id) return
-                            const formData = new FormData()
-                            if (member.status === 'PENDING') {
-                              formData.append('intent', 'cancel-invitation')
-                              formData.append('invitationId', member.id)
-                            } else {
-                              formData.append('intent', 'remove-member')
-                              formData.append('memberUserId', member.id)
-                            }
-                            fetcher.submit(formData, { method: 'POST' })
-
                             // Optimistic update
                             setTrip((prev) => {
                               if (!prev) return prev
@@ -717,31 +695,16 @@ export default function TripDetail() {
                                 ),
                               }
                             })
-
-                            // Refresh trip data after a delay
-                            setTimeout(async () => {
-                              try {
-                                const cookie = document.cookie
-                                const updatedTrip = await get<Trip>(
-                                  `trips/${currentTrip.id}?userId=${user.id}`,
-                                  {
-                                    headers: { Cookie: cookie },
-                                  },
-                                )
-                                setTrip(updatedTrip)
-                              } catch (error) {
-                                console.error(
-                                  'Failed to refresh trip data:',
-                                  error,
-                                )
-                                showError(
-                                  getErrorMessage(
-                                    error,
-                                    'Failed to remove member. Please try again.',
-                                  ),
-                                )
-                              }
-                            }, 500)
+                            // Submit action via fetcher - Remix will handle revalidation
+                            if (member.status === 'PENDING') {
+                              submitAction('cancel-invitation', {
+                                invitationId: member.id,
+                              })
+                            } else {
+                              submitAction('remove-member', {
+                                memberUserId: member.id,
+                              })
+                            }
                           }}
                           iconKey="bin"
                           filled
@@ -787,11 +750,6 @@ export default function TripDetail() {
                           text="Remove"
                           onClick={() => {
                             if (!user?.id) return
-                            const formData = new FormData()
-                            formData.append('intent', 'remove-spot')
-                            formData.append('tripSpotId', spot.id)
-                            fetcher.submit(formData, { method: 'POST' })
-
                             // Optimistic update
                             setTrip((prev) =>
                               prev
@@ -803,31 +761,8 @@ export default function TripDetail() {
                                   }
                                 : prev,
                             )
-
-                            // Refresh trip data after a delay
-                            setTimeout(async () => {
-                              try {
-                                const cookie = document.cookie
-                                const updatedTrip = await get<Trip>(
-                                  `trips/${currentTrip.id}?userId=${user.id}`,
-                                  {
-                                    headers: { Cookie: cookie },
-                                  },
-                                )
-                                setTrip(updatedTrip)
-                              } catch (error) {
-                                console.error(
-                                  'Failed to refresh trip data:',
-                                  error,
-                                )
-                                showError(
-                                  getErrorMessage(
-                                    error,
-                                    'Failed to remove spot. Please try again.',
-                                  ),
-                                )
-                              }
-                            }, 500)
+                            // Submit action via fetcher - Remix will handle revalidation
+                            submitAction('remove-spot', { tripSpotId: spot.id })
                           }}
                           iconKey="bin"
                           filled
@@ -953,11 +888,6 @@ export default function TripDetail() {
                 canDelete={currentTrip.isOwner && !!user?.id}
                 onDelete={(item) => {
                   if (user?.id) {
-                    const formData = new FormData()
-                    formData.append('intent', 'delete-media')
-                    formData.append('mediaId', item.id)
-                    fetcher.submit(formData, { method: 'POST' })
-
                     // Optimistic update
                     setTrip((prev) =>
                       prev
@@ -970,27 +900,8 @@ export default function TripDetail() {
                         : prev,
                     )
 
-                    // Refresh trip data after a delay
-                    setTimeout(async () => {
-                      try {
-                        const cookie = document.cookie
-                        const updatedTrip = await get<Trip>(
-                          `trips/${currentTrip.id}?userId=${user.id}`,
-                          {
-                            headers: { Cookie: cookie },
-                          },
-                        )
-                        setTrip(updatedTrip)
-                      } catch (error) {
-                        console.error('Failed to refresh trip data:', error)
-                        showError(
-                          getErrorMessage(
-                            error,
-                            'Failed to delete media. Please try again.',
-                          ),
-                        )
-                      }
-                    }, 500)
+                    // Submit action via fetcher - Remix will handle revalidation
+                    submitAction('delete-media', { mediaId: item.id })
                   }
                 }}
                 altText="Trip media"

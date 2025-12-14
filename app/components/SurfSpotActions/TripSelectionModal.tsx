@@ -1,10 +1,11 @@
 import { useState, useEffect, useCallback } from 'react'
-import { useNavigate, useFetcher } from 'react-router'
+import { useNavigate } from 'react-router'
 import { Modal, Button, Loading } from '~/components'
 import { useTripContext } from '~/contexts'
 import { Trip, TripSpot } from '~/types/trip'
 import { SurfSpot } from '~/types/surfSpots'
 import { TripSelectionItem } from './TripSelectionItem'
+import { FetcherSubmitParams } from './index'
 
 interface TripSelectionModalProps {
   isOpen: boolean
@@ -12,6 +13,7 @@ interface TripSelectionModalProps {
   onError: (title: string, message: string) => void
   surfSpot: SurfSpot
   userId: string
+  onFetcherSubmit?: (params: FetcherSubmitParams) => void
 }
 
 export const TripSelectionModal = ({
@@ -20,31 +22,15 @@ export const TripSelectionModal = ({
   onError,
   surfSpot,
   userId,
+  onFetcherSubmit,
 }: TripSelectionModalProps) => {
   const navigate = useNavigate()
-  const fetcher = useFetcher<{ error?: string; success?: boolean }>()
   const { trips, fetchTrips, setTrips } = useTripContext()
   const [isLoadingTrips, setIsLoadingTrips] = useState(false)
   const [addingToTripId, setAddingToTripId] = useState<string | null>(null)
   const [removingFromTripId, setRemovingFromTripId] = useState<string | null>(
     null,
   )
-
-  // Handle fetcher responses
-  useEffect(() => {
-    if (fetcher.data?.error) {
-      onError('Error', fetcher.data.error)
-      // Refetch trips to get accurate state
-      if (userId) {
-        fetchTrips(userId)
-      }
-    } else if (fetcher.data?.success && fetcher.state === 'idle') {
-      // Refetch trips to get updated data
-      if (userId) {
-        fetchTrips(userId)
-      }
-    }
-  }, [fetcher.data, fetcher.state, userId, fetchTrips, onError])
 
   const isSpotInTrip = useCallback(
     (trip: Trip) =>
@@ -73,75 +59,112 @@ export const TripSelectionModal = ({
 
     const alreadyInTrip = isSpotInTrip(trip)
     const spotSurfSpotId = Number(surfSpot.id)
+    const intent = alreadyInTrip ? 'remove-spot' : 'add-spot'
 
-    // If already in trip, remove it
+    // Get tripSpotId BEFORE optimistic update (from current state)
+    let tripSpotId: string | null = null
     if (alreadyInTrip) {
-      const tripSpotId = getTripSpotId(trip)
-      if (!tripSpotId) {
-        onError('Error', 'Could not find spot in trip.')
-        return
-      }
-
-      setRemovingFromTripId(tripId)
-
-      // Optimistically remove from UI
-      setTrips((prevTrips: Trip[]) =>
-        prevTrips.map((t: Trip) =>
-          t.id === tripId
-            ? {
-                ...t,
-                spots: t.spots?.filter((s) => s.id !== tripSpotId) || [],
-              }
-            : t,
-        ),
-      )
-
-      const formData = new FormData()
-      formData.append('intent', 'remove-spot')
-      formData.append('tripId', tripId)
-      formData.append('tripSpotId', tripSpotId)
-      fetcher.submit(formData, { method: 'POST', action: '/trips' })
+      tripSpotId = getTripSpotId(trip)
       
-      // Reset state after a delay to allow action to complete
-      setTimeout(() => {
-        setRemovingFromTripId(null)
-      }, 500)
-      return
+      // If we can't find the ID, the spot might have been added optimistically
+      // Refresh trips to get the latest data with real IDs
+      if (!tripSpotId) {
+        try {
+          setIsLoadingTrips(true)
+          // Fetch fresh trips data directly
+          const { getTrips } = await import('~/services/trip')
+          const refreshedTrips = await getTrips(userId)
+          // Update context with fresh data
+          setTrips(refreshedTrips)
+          // Find the trip and spot from the fresh data
+          const refreshedTrip = refreshedTrips.find((t) => t.id === tripId)
+          if (refreshedTrip) {
+            const refreshedSpot = refreshedTrip.spots?.find(
+              (s) => s.surfSpotId === spotSurfSpotId,
+            )
+            tripSpotId = refreshedSpot?.id || null
+          }
+        } catch (error) {
+          console.error('Failed to refresh trips:', error)
+        } finally {
+          setIsLoadingTrips(false)
+        }
+
+        // If we still don't have it after refresh, show error
+        if (!tripSpotId) {
+          onError(
+            'Error',
+            'Could not find spot in trip. The spot may not have been saved properly.',
+          )
+          return
+        }
+      }
     }
 
-    // Otherwise, add it
-    setAddingToTripId(tripId)
-
-    // Optimistically update the trip in context
-    // Note: We use surfSpotId for rollback since IDs must come from backend
-    const spotToAdd: TripSpot = {
-      id: '', // Will be set by backend - using surfSpotId for identification
-      surfSpotId: spotSurfSpotId,
-      surfSpotName: surfSpot.name,
-      surfSpotRating: surfSpot.rating,
-      addedAt: new Date().toISOString(),
+    // Set loading state
+    if (alreadyInTrip) {
+      setRemovingFromTripId(tripId)
+    } else {
+      setAddingToTripId(tripId)
     }
 
+    // Optimistically update UI
     setTrips((prevTrips: Trip[]) =>
-      prevTrips.map((t: Trip) =>
-        t.id === tripId
-          ? {
-              ...t,
-              spots: [...(t.spots || []), spotToAdd],
-            }
-          : t,
-      ),
+      prevTrips.map((t: Trip) => {
+        if (t.id !== tripId) return t
+
+        if (alreadyInTrip) {
+          // Remove spot by matching surfSpotId (more reliable than ID)
+          return {
+            ...t,
+            spots: t.spots?.filter((s) => s.surfSpotId !== spotSurfSpotId) || [],
+          }
+        } else {
+          // Add spot optimistically
+          const spotToAdd: TripSpot = {
+            id: '', // Will be set by backend
+            surfSpotId: spotSurfSpotId,
+            surfSpotName: surfSpot.name,
+            surfSpotRating: surfSpot.rating,
+            addedAt: new Date().toISOString(),
+          }
+          return {
+            ...t,
+            spots: [...(t.spots || []), spotToAdd],
+          }
+        }
+      }),
     )
 
-    const formData = new FormData()
-    formData.append('intent', 'add-spot')
-    formData.append('tripId', tripId)
-    formData.append('surfSpotId', spotSurfSpotId.toString())
-    fetcher.submit(formData, { method: 'POST', action: '/trips' })
+    // Submit using the same fetcher pattern as other actions
+    if (onFetcherSubmit) {
+      const formData = new FormData()
+      formData.append('intent', intent)
+      formData.append('tripId', tripId)
+      formData.append('surfSpotId', spotSurfSpotId.toString())
+      if (alreadyInTrip && tripSpotId) {
+        formData.append('tripSpotId', tripSpotId)
+      }
+      onFetcherSubmit(formData)
 
-    // Reset state after a delay to allow action to complete
+      // After adding a spot, refresh trips to get the real ID from the server
+      // This ensures we have proper IDs for future operations
+      if (!alreadyInTrip) {
+        // Small delay to allow the action to complete
+        setTimeout(async () => {
+          try {
+            await fetchTrips(userId)
+          } catch (error) {
+            console.error('Failed to refresh trips after adding spot:', error)
+          }
+        }, 1000)
+      }
+    }
+
+    // Reset loading state after a delay
     setTimeout(() => {
       setAddingToTripId(null)
+      setRemovingFromTripId(null)
     }, 500)
   }
 

@@ -61,71 +61,9 @@ export const action: ActionFunction = async ({ request }) => {
     )
   }
 
-  const formData = await request.formData()
-  const intent = formData.get('intent') as string
-  const cookie = request.headers.get('Cookie') || ''
-
-  // Handle add spot to trip
-  if (intent === 'add-spot') {
-    const tripId = formData.get('tripId') as string
-    const surfSpotId = formData.get('surfSpotId') as string
-    if (!tripId || !surfSpotId) {
-      return data<ActionData>(
-        { error: 'Trip ID and surf spot ID are required' },
-        { status: 400 },
-      )
-    }
-    try {
-      await post<undefined, string>(
-        `trips/${tripId}/spots/${surfSpotId}?userId=${user.id}`,
-        undefined,
-        { headers: { Cookie: cookie } },
-      )
-      return data<ActionData>({ success: true })
-    } catch (error) {
-      console.error('[trips action] Error adding spot:', error)
-      return data<ActionData>(
-        {
-          error:
-            error instanceof Error
-              ? error.message
-              : 'Failed to add spot. Please try again.',
-        },
-        { status: 500 },
-      )
-    }
-  }
-
-  // Handle remove spot from trip
-  if (intent === 'remove-spot') {
-    const tripId = formData.get('tripId') as string
-    const tripSpotId = formData.get('tripSpotId') as string
-    if (!tripId || !tripSpotId) {
-      return data<ActionData>(
-        { error: 'Trip ID and trip spot ID are required' },
-        { status: 400 },
-      )
-    }
-    try {
-      await deleteData(
-        `trips/${tripId}/spots/${tripSpotId}?userId=${user.id}`,
-        { headers: { Cookie: cookie } },
-      )
-      return data<ActionData>({ success: true })
-    } catch (error) {
-      console.error('[trips action] Error removing spot:', error)
-      return data<ActionData>(
-        {
-          error:
-            error instanceof Error
-              ? error.message
-              : 'Failed to remove spot. Please try again.',
-        },
-        { status: 500 },
-      )
-    }
-  }
-
+  // Trip spot actions (add-spot, remove-spot) are handled by surfSpotAction
+  // to avoid duplication. They go through the surf spot route action when
+  // called from TripSelectionModal via onFetcherSubmit.
   return data<ActionData>({ error: 'Invalid intent' }, { status: 400 })
 }
 

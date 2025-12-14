@@ -1,9 +1,14 @@
-const API_URL = import.meta.env.VITE_API_URL!
+// Use process.env for server-side (Remix actions) and import.meta.env for client-side
+// In production builds, Vite env vars need to be available to server code
+const API_URL = 
+  (typeof process !== 'undefined' && process.env?.VITE_API_URL) ||
+  import.meta.env?.VITE_API_URL ||
+  ''
 
-// Log API URL in development to help debug production issues
-if (import.meta.env.DEV) {
-  console.log('[NetworkService] API_URL configured:', API_URL || 'NOT SET')
+if (!API_URL) {
+  console.error('[NetworkService] VITE_API_URL is not set! This will cause API calls to fail.')
 }
+
 
 export const cacheControlHeader = {
   'Cache-Control': 'public, max-age=3600, stale-while-revalidate=86400',
@@ -69,7 +74,20 @@ const request = async <T, B = undefined>(
     headers['Content-Type'] = 'application/json'
   }
 
+  if (!API_URL) {
+    const error = new Error(
+      'VITE_API_URL is not configured. Please set it in your environment variables.',
+    ) as NetworkError
+    error.status = 500
+    console.error('[NetworkService] API_URL is missing!', {
+      hasProcessEnv: typeof process !== 'undefined' && !!process.env?.VITE_API_URL,
+      hasImportMetaEnv: !!import.meta.env?.VITE_API_URL,
+    })
+    throw error
+  }
+
   const fullUrl = `${API_URL}/${endpoint}`
+
 
   // Log failed requests for debugging (especially in production)
   const response = await fetch(fullUrl, {
@@ -83,9 +101,20 @@ const request = async <T, B = undefined>(
       endpoint,
       apiUrl: API_URL,
       error: fetchError,
+      errorMessage: fetchError instanceof Error ? fetchError.message : String(fetchError),
     })
     throw fetchError
   })
+
+  // Log response status for debugging
+  if (!response.ok) {
+    console.error('[NetworkService] Request failed:', {
+      url: fullUrl,
+      status: response.status,
+      statusText: response.statusText,
+      headers: Object.fromEntries(response.headers.entries()),
+    })
+  }
 
   return handleResponse<T>(response)
 }

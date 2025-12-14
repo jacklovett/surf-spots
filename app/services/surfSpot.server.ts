@@ -8,10 +8,70 @@ export const surfSpotAction: ActionFunction = async ({ request }) => {
   const clonedRequest = request.clone()
   const formData = await clonedRequest.formData()
 
+  const intent = formData.get('intent') as string
   const actionType = formData.get('actionType') as string
   const target = formData.get('target') as string
   const surfSpotId = formData.get('surfSpotId') as string
 
+  // Handle trip actions (add-spot, remove-spot)
+  if (intent === 'add-spot' || intent === 'remove-spot') {
+    try {
+      const user = await requireSessionCookie(request)
+      if (!user?.id) {
+        return data({ error: 'You must be logged in' }, { status: 401 })
+      }
+
+      const cookie = request.headers.get('Cookie') || ''
+      const tripId = formData.get('tripId') as string
+      const tripSpotId = formData.get('tripSpotId') as string
+      const spotSurfSpotId = formData.get('surfSpotId') as string
+
+
+      if (intent === 'add-spot') {
+        if (!tripId || !spotSurfSpotId) {
+          return data(
+            { error: 'Trip ID and surf spot ID are required' },
+            { status: 400 },
+          )
+        }
+        const tripSpotId = await post<undefined, string>(
+          `trips/${tripId}/spots/${spotSurfSpotId}?userId=${user.id}`,
+          undefined,
+          { headers: { Cookie: cookie } },
+        )
+        return data({ success: true, tripSpotId })
+      } else if (intent === 'remove-spot') {
+        if (!tripId || !tripSpotId) {
+          return data(
+            { error: 'Trip ID and trip spot ID are required' },
+            { status: 400 },
+          )
+        }
+        await deleteData(
+          `trips/${tripId}/spots/${tripSpotId}?userId=${user.id}`,
+          { headers: { Cookie: cookie } },
+        )
+        return data({ success: true })
+      }
+    } catch (error) {
+      console.error('[surfSpotAction] Error in trip action:', {
+        error,
+        message: error instanceof Error ? error.message : String(error),
+        status: error instanceof Error && 'status' in error ? (error as { status?: number }).status : undefined,
+      })
+      return data(
+        {
+          error:
+            error instanceof Error
+              ? error.message
+              : 'Failed to update trip. Please try again.',
+        },
+        { status: 500 },
+      )
+    }
+  }
+
+  // Handle surf spot actions (add/remove from watch list or surfed spots)
   if (!actionType || !target || !surfSpotId) {
     console.error('Missing required fields:', {
       actionType,
@@ -37,7 +97,6 @@ export const surfSpotAction: ActionFunction = async ({ request }) => {
     const session = await getSession(request.headers.get('Cookie'))
     const cookie = request.headers.get('Cookie') || ''
 
-    console.log('Forwarding request to backend:', { endpoint, actionType })
     if (actionType === 'add') {
       await post(
         endpoint,

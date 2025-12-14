@@ -1,3 +1,4 @@
+import { useActionFetcher } from './useActionFetcher'
 import { useClickOutside } from './useClickOutside'
 import { useDynamicMap } from './useDynamicMap'
 import { useFileUpload } from './useFileUpload'
@@ -11,6 +12,7 @@ import { useStaticMap } from './useStaticMap'
 import { useSubmitStatus } from './useSubmitStatus'
 
 export {
+  useActionFetcher,
   useClickOutside,
   useDynamicMap,
   useFileUpload,
