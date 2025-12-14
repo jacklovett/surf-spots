@@ -6,17 +6,33 @@
 
 .footer-content {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: 2fr repeat(4, 1fr);
   gap: $spacing-large;
   margin-bottom: $spacing-large;
+
+  @media (max-width: 1024px) {
+    grid-template-columns: repeat(3, 1fr);
+    
+    .footer-section:first-child {
+      grid-column: 1 / -1;
+    }
+  }
 
   @media (max-width: 768px) {
     grid-template-columns: repeat(2, 1fr);
     text-align: center;
+    
+    .footer-section:first-child {
+      grid-column: 1 / -1;
+    }
   }
 
   @media (max-width: 480px) {
     grid-template-columns: 1fr;
+    
+    .footer-section:first-child {
+      grid-column: 1;
+    }
   }
 }
 

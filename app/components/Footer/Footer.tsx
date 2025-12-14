@@ -53,8 +53,8 @@ export const Footer = ({ isAlternate }: IProps) => {
             <SocialLinks />
           </div>
 
-          <nav className="footer-section" aria-label="App navigation">
-            <h4>App</h4>
+          <nav className="footer-section" aria-label="Spots navigation">
+            <h4>Spots</h4>
             <ul>
               <li>
                 <a href="/surf-spots">Surf Spots</a>
@@ -84,20 +84,26 @@ export const Footer = ({ isAlternate }: IProps) => {
                 </a>
               </li>
               <li>
-                <a
-                  href="/surfboards"
-                  onClick={(e) => handleLinkClick(e, '/surfboards')}
-                >
-                  Surfboards
-                </a>
+                <a href="/trip-planner">Trip Planner</a>
               </li>
+            </ul>
+          </nav>
+
+          <nav className="footer-section" aria-label="Collections navigation">
+            <h4>Collections</h4>
+            <ul>
               <li>
                 <a href="/trips" onClick={(e) => handleLinkClick(e, '/trips')}>
                   Trips
                 </a>
               </li>
               <li>
-                <a href="/trip-planner">Trip Planner</a>
+                <a
+                  href="/surfboards"
+                  onClick={(e) => handleLinkClick(e, '/surfboards')}
+                >
+                  Surfboards
+                </a>
               </li>
             </ul>
           </nav>

@@ -8,14 +8,6 @@ export interface MenuItem {
   path: string
 }
 
-export interface MenuSection {
-  id: string
-  title: string
-  items: MenuItem[]
-  isOpen: boolean
-  onToggle: () => void
-}
-
 // Spots category - surf spots, surfed spots, and watch list
 export const spotsMenuItems: MenuItem[] = [
   {
