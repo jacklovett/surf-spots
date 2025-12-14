@@ -2,6 +2,7 @@ import { useState, memo, useCallback } from 'react'
 
 import { SurfSpot } from '~/types/surfSpots'
 import { User } from '~/types/user'
+import { Trip } from '~/types/trip'
 import DropdownMenu from '../DropdownMenu'
 import { useSurfSpotsContext } from '~/contexts'
 import { useSignUpPrompt } from '~/hooks'

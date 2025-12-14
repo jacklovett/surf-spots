@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react'
-import { useNavigate } from 'react-router'
+import { useNavigate, useFetcher } from 'react-router'
 import { Modal, Button, Loading } from '~/components'
 import { useTripContext } from '~/contexts'
 import { Trip, TripSpot } from '~/types/trip'
@@ -14,6 +14,7 @@ interface TripSelectionModalProps {
   surfSpot: SurfSpot
   userId: string
   onFetcherSubmit?: (params: FetcherSubmitParams) => void
+  trips?: Trip[]
 }
 
 export const TripSelectionModal = ({
@@ -23,9 +24,14 @@ export const TripSelectionModal = ({
   surfSpot,
   userId,
   onFetcherSubmit,
+  trips: tripsFromProps,
 }: TripSelectionModalProps) => {
   const navigate = useNavigate()
-  const { trips, fetchTrips, setTrips } = useTripContext()
+  const { trips: tripsFromContext, setTrips } = useTripContext()
+  const tripsFetcher = useFetcher<Trip[]>()
+  
+  // Use trips from props (loaded via loader) if available, otherwise use fetcher data, otherwise fall back to context
+  const trips = tripsFromProps || (tripsFetcher.data as Trip[]) || tripsFromContext
   const [isLoadingTrips, setIsLoadingTrips] = useState(false)
   const [addingToTripId, setAddingToTripId] = useState<string | null>(null)
   const [removingFromTripId, setRemovingFromTripId] = useState<string | null>(
@@ -38,12 +44,33 @@ export const TripSelectionModal = ({
     [surfSpot.id],
   )
 
+  // Load trips via resource route when modal opens (if not provided as props)
   useEffect(() => {
-    if (userId && isOpen) {
+    if (isOpen && userId && !tripsFromProps) {
       setIsLoadingTrips(true)
-      fetchTrips(userId).finally(() => setIsLoadingTrips(false))
+      tripsFetcher.load('/resources/trips')
     }
-  }, [userId, isOpen, fetchTrips])
+  }, [isOpen, userId, tripsFromProps, tripsFetcher])
+
+  // Update loading state based on fetcher
+  useEffect(() => {
+    if (tripsFetcher.state === 'idle' && tripsFetcher.data) {
+      setIsLoadingTrips(false)
+      // Update context with fetched trips
+      if (Array.isArray(tripsFetcher.data)) {
+        setTrips(tripsFetcher.data)
+      }
+    } else if (tripsFetcher.state === 'loading') {
+      setIsLoadingTrips(true)
+    }
+  }, [tripsFetcher.state, tripsFetcher.data, setTrips])
+
+  // Initialize trips from props into context when modal opens
+  useEffect(() => {
+    if (tripsFromProps && isOpen) {
+      setTrips(tripsFromProps)
+    }
+  }, [tripsFromProps, isOpen, setTrips])
 
   const getTripSpotId = useCallback(
     (trip: Trip): string | null => {
@@ -66,38 +93,13 @@ export const TripSelectionModal = ({
     if (alreadyInTrip) {
       tripSpotId = getTripSpotId(trip)
       
-      // If we can't find the ID, the spot might have been added optimistically
-      // Refresh trips to get the latest data with real IDs
+      // If we can't find the ID, show error - trips should be loaded from server
       if (!tripSpotId) {
-        try {
-          setIsLoadingTrips(true)
-          // Fetch fresh trips data directly
-          const { getTrips } = await import('~/services/trip')
-          const refreshedTrips = await getTrips(userId)
-          // Update context with fresh data
-          setTrips(refreshedTrips)
-          // Find the trip and spot from the fresh data
-          const refreshedTrip = refreshedTrips.find((t) => t.id === tripId)
-          if (refreshedTrip) {
-            const refreshedSpot = refreshedTrip.spots?.find(
-              (s) => s.surfSpotId === spotSurfSpotId,
-            )
-            tripSpotId = refreshedSpot?.id || null
-          }
-        } catch (error) {
-          console.error('Failed to refresh trips:', error)
-        } finally {
-          setIsLoadingTrips(false)
-        }
-
-        // If we still don't have it after refresh, show error
-        if (!tripSpotId) {
-          onError(
-            'Error',
-            'Could not find spot in trip. The spot may not have been saved properly.',
-          )
-          return
-        }
+        onError(
+          'Error',
+          'Could not find spot in trip. Please try refreshing the page.',
+        )
+        return
       }
     }
 
@@ -146,19 +148,6 @@ export const TripSelectionModal = ({
         formData.append('tripSpotId', tripSpotId)
       }
       onFetcherSubmit(formData)
-
-      // After adding a spot, refresh trips to get the real ID from the server
-      // This ensures we have proper IDs for future operations
-      if (!alreadyInTrip) {
-        // Small delay to allow the action to complete
-        setTimeout(async () => {
-          try {
-            await fetchTrips(userId)
-          } catch (error) {
-            console.error('Failed to refresh trips after adding spot:', error)
-          }
-        }, 1000)
-      }
     }
 
     // Reset loading state after a delay

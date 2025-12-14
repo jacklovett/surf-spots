@@ -46,8 +46,12 @@ export const updateSurfboard = async (
 export const deleteSurfboard = async (
   surfboardId: string,
   userId: string,
+  options?: RequestInit,
 ): Promise<void> => {
-  return deleteData(`${surfboardsEndpoint}/${surfboardId}?userId=${userId}`)
+  return deleteData(
+    `${surfboardsEndpoint}/${surfboardId}?userId=${userId}`,
+    options,
+  )
 }
 
 export const addSurfboardImage = async (

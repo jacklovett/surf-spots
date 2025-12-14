@@ -1,6 +1,7 @@
 import { useState, useEffect, RefObject } from 'react'
 import {
   data,
+  redirect,
   LoaderFunction,
   ActionFunction,
   useLoaderData,
@@ -184,6 +185,27 @@ export const action: ActionFunction = async ({ request, params }) => {
     }
   }
 
+  // Handle delete surfboard
+  if (intent === 'delete-surfboard') {
+    try {
+      await deleteSurfboard(surfboardId, user.id, {
+        headers: { Cookie: cookie },
+      })
+      return redirect('/surfboards')
+    } catch (error) {
+      console.error('[surfboard.$id action] Error deleting surfboard:', error)
+      return data<ActionData>(
+        {
+          error:
+            error instanceof Error
+              ? error.message
+              : 'Failed to delete surfboard. Please try again.',
+        },
+        { status: 500 },
+      )
+    }
+  }
+
   return data<ActionData>({ error: 'Invalid intent' }, { status: 400 })
 }
 
@@ -215,6 +237,8 @@ export default function SurfboardDetail() {
   } = useFileUpload()
 
   const { submitAction: submitImageAction, fetcher: imageActionFetcher } =
+    useActionFetcher<ActionData>()
+  const { submitAction: submitDeleteAction, fetcher: deleteActionFetcher } =
     useActionFetcher<ActionData>()
 
   // Sync loader data to state when it changes
@@ -270,20 +294,20 @@ export default function SurfboardDetail() {
     )
   }
 
-  const handleDeleteConfirm = async () => {
-    if (!user?.id || !surfboard?.id) return
-
-    try {
-      await deleteSurfboard(surfboard.id, user.id)
+  // Handle delete surfboard response
+  useEffect(() => {
+    if (deleteActionFetcher.data?.error) {
+      setDeleteError(deleteActionFetcher.data.error)
+      setShowDeleteConfirm(false)
+    } else if (deleteActionFetcher.data?.success && deleteActionFetcher.state === 'idle') {
+      // Surfboard deleted successfully - redirect to surfboards page
       navigate('/surfboards')
-    } catch (error) {
-      console.error('Failed to delete surfboard:', error)
-      setDeleteError(
-        error instanceof Error
-          ? error.message
-          : 'Failed to delete surfboard. Please try again.',
-      )
     }
+  }, [deleteActionFetcher.data, deleteActionFetcher.state, navigate])
+
+  const handleDeleteConfirm = () => {
+    if (!user?.id || !surfboard?.id) return
+    submitDeleteAction('delete-surfboard', {})
   }
 
   return (
