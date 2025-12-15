@@ -1,4 +1,7 @@
-.trip-selection-modal {
+.trip-selection-modal {  
+  @extend %flex-column;
+  min-height: 200px; // Prevent content shift during loading
+
   h2 {
     margin-bottom: $spacing-unit;
   }
@@ -12,10 +15,10 @@
   }
 
   .trip-selection-loading {
-    @extend %flex-column;
-    align-items: center;
+    @extend %flex-center;
     padding: $spacing-x-large;
     text-align: center;
+    min-height: 200px; // Match minimum height to prevent shift
 
     p {
       margin-top: $spacing-unit;

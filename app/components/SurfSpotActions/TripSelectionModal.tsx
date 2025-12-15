@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import { useNavigate, useFetcher } from 'react-router'
 import { Modal, Button, Loading } from '~/components'
-import { useTripContext } from '~/contexts'
+import { useTripContext, useLayoutContext } from '~/contexts'
 import { Trip, TripSpot } from '~/types/trip'
 import { SurfSpot } from '~/types/surfSpots'
 import { TripSelectionItem } from './TripSelectionItem'
@@ -27,12 +27,20 @@ export const TripSelectionModal = ({
   trips: tripsFromProps,
 }: TripSelectionModalProps) => {
   const navigate = useNavigate()
+  const { closeDrawer } = useLayoutContext()
   const { trips: tripsFromContext, setTrips } = useTripContext()
   const tripsFetcher = useFetcher<{ trips: Trip[]; error?: string }>()
   
   // Use trips from props (loaded via loader) if available, otherwise use fetcher data, otherwise fall back to context
   const trips = tripsFromProps || tripsFetcher.data?.trips || tripsFromContext
-  const [isLoadingTrips, setIsLoadingTrips] = useState(false)
+  
+  // Determine if we have trips available from any source
+  const hasTrips = (tripsFromProps && tripsFromProps.length > 0) || 
+                   (tripsFromContext.length > 0) || 
+                   (tripsFetcher.data?.trips && tripsFetcher.data.trips.length > 0)
+  
+  // Loading state: only true when actively fetching AND we don't have trips yet
+  const isLoadingTrips = tripsFetcher.state === 'loading' && !hasTrips
   const [addingToTripId, setAddingToTripId] = useState<string | null>(null)
   const [removingFromTripId, setRemovingFromTripId] = useState<string | null>(
     null,
@@ -44,18 +52,16 @@ export const TripSelectionModal = ({
     [surfSpot.id],
   )
 
-  // Load trips via resource route when modal opens (if not provided as props)
+  // Load trips via resource route when modal opens (if not provided as props and we don't have trips)
   useEffect(() => {
-    if (isOpen && userId && !tripsFromProps && tripsFetcher.state === 'idle' && !tripsFetcher.data) {
-      setIsLoadingTrips(true)
+    if (isOpen && userId && !tripsFromProps && !hasTrips && tripsFetcher.state === 'idle' && !tripsFetcher.data) {
       tripsFetcher.load('/resources/trips')
     }
-  }, [isOpen, userId, tripsFromProps, tripsFetcher.state, tripsFetcher.data])
+  }, [isOpen, userId, tripsFromProps, hasTrips, tripsFetcher.state, tripsFetcher.data])
 
-  // Update loading state and trips based on fetcher
+  // Update context with fetched trips when they arrive
   useEffect(() => {
     if (tripsFetcher.state === 'idle' && tripsFetcher.data) {
-      setIsLoadingTrips(false)
       // Update context with fetched trips
       if (tripsFetcher.data.trips && Array.isArray(tripsFetcher.data.trips)) {
         setTrips(tripsFetcher.data.trips)
@@ -64,21 +70,15 @@ export const TripSelectionModal = ({
       if (tripsFetcher.data.error) {
         onError('Error', tripsFetcher.data.error)
       }
-    } else if (tripsFetcher.state === 'loading') {
-      setIsLoadingTrips(true)
-    } else if (tripsFetcher.state === 'idle' && !tripsFetcher.data) {
-      // No data and not loading - might be an error
-      setIsLoadingTrips(false)
     }
   }, [tripsFetcher.state, tripsFetcher.data, setTrips, onError])
 
   // Initialize trips from props into context when modal opens
   useEffect(() => {
-    if (tripsFromProps && isOpen) {
+    if (isOpen && tripsFromProps) {
       setTrips(tripsFromProps)
-      setIsLoadingTrips(false)
     }
-  }, [tripsFromProps, isOpen, setTrips])
+  }, [isOpen, tripsFromProps, setTrips])
 
   const getTripSpotId = useCallback(
     (trip: Trip): string | null => {
@@ -167,6 +167,7 @@ export const TripSelectionModal = ({
 
   const handleCreateTrip = () => {
     onClose()
+    closeDrawer() // Close the drawer if we're navigating away
     navigate('/add-trip')
   }
 
