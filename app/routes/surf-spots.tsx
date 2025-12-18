@@ -23,7 +23,7 @@ import {
   TripPlannerButton,
 } from '~/components'
 import { submitFetcher } from '~/components/SurfSpotActions'
-import { FetcherSubmitParams } from '~/components/SurfSpotActions'
+import { FetcherSubmitParams } from '~/types/api'
 import { BreadcrumbItem } from '~/components/Breadcrumb'
 import { getAppliedFiltersCount } from '~/components/Filters'
 
@@ -171,7 +171,7 @@ export default function SurfSpots() {
           </ErrorBoundary>
         </div>
       ) : (
-        <div className="column">
+        <div className="column surf-spots-list-view">
           <Breadcrumb items={breadcrumbs} />
           {loading ? (
             <ContentStatus>

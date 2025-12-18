@@ -1,3 +1,4 @@
+import FloatingButton from '../FloatingButton'
 import TextButton from '../TextButton'
 import ViewSwitch from '../ViewSwitch'
 
@@ -55,11 +56,11 @@ export const Toolbar = (props: ToolbarProps) => {
 
       <div className="floating-add-button">
         {showAddButton && (
-          <TextButton
-            text="Add new spot"
-            onClick={onAddNewSpot}
+          <FloatingButton
             iconKey="plus"
-            filled
+            onClick={onAddNewSpot}
+            ariaLabel="Add new spot"
+            size="medium"
           />
         )}
       </div>

@@ -17,7 +17,7 @@ import {
 } from '~/services/mapService'
 import { Coordinates, SurfSpot } from '~/types/surfSpots'
 import { debounce } from '~/utils'
-import { FetcherSubmitParams } from '~/components/SurfSpotActions'
+import { FetcherSubmitParams } from '~/types/api'
 import { useSurfSpotsContext, useUserContext } from '~/contexts'
 import { useMapDrawer } from './useMapDrawer'
 
@@ -55,7 +55,7 @@ export const useDynamicMap = (
   }, [])
 
   // Use the drawer hook for marker clicks
-  const { handleMarkerClick } = useMapDrawer(onFetcherSubmit, onSurfSpotUpdate)
+  const { handleMarkerClick } = useMapDrawer(onFetcherSubmit)
 
   /**
    * Checks if the given map bounds have already been loaded

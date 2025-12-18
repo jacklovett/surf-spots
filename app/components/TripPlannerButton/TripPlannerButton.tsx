@@ -1,4 +1,4 @@
-import TextButton from '../TextButton'
+import FloatingButton from '../FloatingButton'
 
 interface TripPlannerButtonProps {
   onOpenTripPlanner: () => void
@@ -9,11 +9,11 @@ export const TripPlannerButton = (props: TripPlannerButtonProps) => {
 
   return (
     <div className="floating-trip-planner-button">
-      <TextButton
-        text="Trip Planner"
-        onClick={onOpenTripPlanner}
+      <FloatingButton
         iconKey="ai"
-        filled
+        onClick={onOpenTripPlanner}
+        ariaLabel="Open Trip Planner"
+        size="large"
       />
     </div>
   )

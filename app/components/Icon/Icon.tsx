@@ -333,6 +333,12 @@ export const Icon = (props: IProps) => {
             <line x1="9" y1="16" x2="15" y2="16" />
           </svg>
         )
+      case 'success':
+        return (
+          <svg {...commonIconStyles} strokeWidth="3">
+            <polyline points="20 6 9 17 4 12" />
+          </svg>
+        )
       default:
         return null
     }

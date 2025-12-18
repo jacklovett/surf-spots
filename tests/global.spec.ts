@@ -178,8 +178,8 @@ test.describe('Global Functionality', () => {
     await emailInput.fill('invalid-email')
     await passwordInput.fill('')
 
-    // Check for validation errors
-    const errorElements = page.locator('.error-message, .submit-status')
+    // Check for validation errors (inline or toast)
+    const errorElements = page.locator('.error-message, .submit-status, .toast--error[role="alert"]')
     if (await errorElements.isVisible()) {
       await expect(errorElements).toBeVisible()
     }

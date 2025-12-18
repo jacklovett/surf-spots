@@ -5,9 +5,7 @@ import {
   ActionFunction,
   useLoaderData,
   useNavigate,
-  useNavigation,
   redirect,
-  useFetcher,
 } from 'react-router'
 import {
   Button,
@@ -15,18 +13,22 @@ import {
   ContentStatus,
   EmptyState,
   ErrorBoundary,
-  Loading,
   MediaGallery,
   MediaUpload,
   Modal,
   Page,
   Rating,
+  SurfboardSelectionModal,
   TextButton,
 } from '~/components'
-import { useUserContext } from '~/contexts'
+import { useUserContext, useToastContext } from '~/contexts'
 import { requireSessionCookie } from '~/services/session.server'
-import { cacheControlHeader, get, post, deleteData } from '~/services/networkService'
-import { Surfboard } from '~/types/surfboard'
+import {
+  cacheControlHeader,
+  get,
+  post,
+  deleteData,
+} from '~/services/networkService'
 import { RecordMediaRequest, Trip, TripMedia } from '~/types/trip'
 import { useScrollReveal, useFileUpload, useActionFetcher } from '~/hooks'
 import { InfoModal } from '~/components/Modal'
@@ -167,7 +169,9 @@ export const action: ActionFunction = async ({ request, params }) => {
   if (intent === 'remove-surfboard') {
     const tripSurfboardId = formData.get('tripSurfboardId') as string
     if (!tripSurfboardId) {
-      console.error('[trip.$id action] Missing tripSurfboardId for remove-surfboard')
+      console.error(
+        '[trip.$id action] Missing tripSurfboardId for remove-surfboard',
+      )
       return data<ActionData>(
         { error: 'Trip surfboard ID is required' },
         { status: 400 },
@@ -278,7 +282,9 @@ export const action: ActionFunction = async ({ request, params }) => {
   if (intent === 'cancel-invitation') {
     const invitationId = formData.get('invitationId') as string
     if (!invitationId) {
-      console.error('[trip.$id action] Missing invitationId for cancel-invitation')
+      console.error(
+        '[trip.$id action] Missing invitationId for cancel-invitation',
+      )
       return data<ActionData>(
         { error: 'Invitation ID is required' },
         { status: 400 },
@@ -322,10 +328,9 @@ export const action: ActionFunction = async ({ request, params }) => {
       )
     }
     try {
-      await deleteData(
-        `trips/${tripId}/media/${mediaId}?userId=${user.id}`,
-        { headers: { Cookie: cookie } },
-      )
+      await deleteData(`trips/${tripId}/media/${mediaId}?userId=${user.id}`, {
+        headers: { Cookie: cookie },
+      })
       return data<ActionData>({ success: true })
     } catch (error) {
       console.error('[trip.$id action] Error deleting media:', {
@@ -422,15 +427,14 @@ export const action: ActionFunction = async ({ request, params }) => {
 
 export default function TripDetail() {
   const loaderData = useLoaderData<LoaderData>()
-  const navigation = useNavigation()
   const { trip: initialTrip, error } = loaderData || {
     trip: undefined,
     error: undefined,
   }
   const { user } = useUserContext()
+  const { showSuccess, showError: showToastError } = useToastContext()
   const navigate = useNavigate()
   const { fetcher, submitAction } = useActionFetcher<ActionData>()
-  const surfboardsFetcher = useFetcher<{ surfboards: Surfboard[]; error?: string }>()
 
   // Use state for optimistic UI updates when removing members/spots/media
   const [trip, setTrip] = useState<Trip | undefined>(initialTrip)
@@ -440,15 +444,6 @@ export default function TripDetail() {
   const [errorMessage, setErrorMessage] = useState('')
   const [errorTitle, setErrorTitle] = useState<string | undefined>(undefined)
   const [showAddSurfboardModal, setShowAddSurfboardModal] = useState(false)
-  const [allSurfboards, setAllSurfboards] = useState<Surfboard[]>([])
-  const [isLoadingSurfboards, setIsLoadingSurfboards] = useState(false)
-  const [addingSurfboardId, setAddingSurfboardId] = useState<string | null>(
-    null,
-  )
-  const [removingSurfboardId, setRemovingSurfboardId] = useState<string | null>(
-    null,
-  )
-  const [uploadSuccess, setUploadSuccess] = useState(false)
   const sectionsRef = useScrollReveal()
 
   const {
@@ -458,12 +453,24 @@ export default function TripDetail() {
     fetcherData,
   } = useFileUpload()
 
-  // Sync state with loader data when it changes (e.g., after navigation)
+  // Sync state with loader data when it changes (e.g., after navigation or revalidation)
+  // Only sync if trip ID changed (navigation) or if we don't have local state
+  // After actions complete, React Router revalidates and initialTrip updates with server state
   useEffect(() => {
     if (initialTrip) {
-      setTrip(initialTrip)
+      // Only sync if:
+      // 1. We don't have local state yet, OR
+      // 2. The trip ID changed (navigation to different trip), OR
+      // 3. We're on the same trip and action is idle (revalidation completed)
+      if (
+        !trip ||
+        trip.id !== initialTrip.id ||
+        (trip.id === initialTrip.id && fetcher.state === 'idle')
+      ) {
+        setTrip(initialTrip)
+      }
     }
-  }, [initialTrip])
+  }, [initialTrip, trip, fetcher.state])
 
   // Handle successful media upload - optimistically update UI
   useEffect(() => {
@@ -476,11 +483,16 @@ export default function TripDetail() {
           media: [...(prev.media || []), newMedia],
         }
       })
-      setUploadSuccess(true)
-      // Clear success message after 3 seconds
-      setTimeout(() => setUploadSuccess(false), 3000)
+      showSuccess('Media uploaded successfully!')
     }
-  }, [fetcherData])
+  }, [fetcherData, showSuccess])
+
+  // Handle upload errors
+  useEffect(() => {
+    if (uploadError) {
+      showToastError(uploadError)
+    }
+  }, [uploadError, showToastError])
 
   // Handle action responses
   useEffect(() => {
@@ -491,10 +503,6 @@ export default function TripDetail() {
       } else {
         showError(fetcher.data.error)
       }
-    } else if (fetcher.data?.success && fetcher.state === 'idle') {
-      // Action succeeded - clear loading states
-      setAddingSurfboardId(null)
-      setRemovingSurfboardId(null)
     }
   }, [fetcher.data, fetcher.state])
 
@@ -538,105 +546,19 @@ export default function TripDetail() {
     setShowErrorModal(true)
   }
 
-  const isSurfboardInTrip = (surfboardId: string): boolean => {
-    return (
-      currentTrip.surfboards?.some((sb) => sb.surfboardId === surfboardId) ??
-      false
-    )
-  }
-
-  const getTripSurfboardId = (surfboardId: string): string | null => {
-    const tripSurfboard = currentTrip.surfboards?.find(
-      (sb) => sb.surfboardId === surfboardId,
-    )
-    return tripSurfboard?.id || null
-  }
-
-  // Load surfboards when modal opens
-  useEffect(() => {
-    if (showAddSurfboardModal && user?.id && surfboardsFetcher.state === 'idle' && !surfboardsFetcher.data) {
-      setIsLoadingSurfboards(true)
-      surfboardsFetcher.load('/resources/surfboards')
-    }
-  }, [showAddSurfboardModal, user?.id, surfboardsFetcher.state, surfboardsFetcher.data])
-
-  // Update surfboards state when fetcher data arrives
-  useEffect(() => {
-    if (surfboardsFetcher.state === 'idle' && surfboardsFetcher.data) {
-      setIsLoadingSurfboards(false)
-      if (surfboardsFetcher.data.surfboards && Array.isArray(surfboardsFetcher.data.surfboards)) {
-        setAllSurfboards(surfboardsFetcher.data.surfboards)
-      }
-      if (surfboardsFetcher.data.error) {
-        showError(surfboardsFetcher.data.error)
-        setShowAddSurfboardModal(false)
-      }
-    } else if (surfboardsFetcher.state === 'loading') {
-      setIsLoadingSurfboards(true)
-    }
-  }, [surfboardsFetcher.state, surfboardsFetcher.data])
-
   const handleAddSurfboardClick = () => {
     if (!user?.id) return
     setShowAddSurfboardModal(true)
   }
 
-  const handleAddSurfboard = (surfboardId: string) => {
-    if (!user?.id) return
+  const handleSubmitAction = (intent: string, data: Record<string, string>) =>
+    submitAction(intent, data)
 
-    setAddingSurfboardId(surfboardId)
-
-    // Optimistic update
-    const surfboard = allSurfboards.find((sb) => sb.id === surfboardId)
-    if (surfboard) {
-      setTrip((prev) =>
-        prev
-          ? {
-              ...prev,
-              surfboards: [
-                ...(prev.surfboards || []),
-                {
-                  id: 'temp',
-                  surfboardId: surfboard.id,
-                  surfboardName: surfboard.name,
-                  addedAt: new Date().toISOString(),
-                },
-              ],
-            }
-          : prev,
-      )
-    }
-
-    // Submit action via fetcher - Remix will handle revalidation
-    submitAction('add-surfboard', { surfboardId })
-  }
-
-  const handleRemoveSurfboard = (surfboardId: string) => {
-    if (!user?.id) return
-
-    const tripSurfboardId = getTripSurfboardId(surfboardId)
-    if (!tripSurfboardId) {
-      showError('Error', 'Could not find surfboard in trip.')
-      return
-    }
-
-    setRemovingSurfboardId(surfboardId)
-
-    // Optimistic update
-    setTrip((prev) =>
-      prev
-        ? {
-            ...prev,
-            surfboards: prev.surfboards?.filter(
-              (sb) => sb.id !== tripSurfboardId,
-            ),
-          }
-        : prev,
-    )
-
-    // Submit action via fetcher - Remix will handle revalidation
-    submitAction('remove-surfboard', { tripSurfboardId })
-  }
+  const handleTripUpdate = (updater: (prev: Trip) => Trip) =>
+    setTrip((prev) => {
+      if (!prev) return prev
+      return updater(prev)
+    })
 
   return (
     <Page showHeader>
@@ -672,7 +594,8 @@ export default function TripDetail() {
           )}
           {currentTrip.startDate && currentTrip.endDate && (
             <p className="trip-dates">
-              {formatDate(currentTrip.startDate)} - {formatDate(currentTrip.endDate)}
+              {formatDate(currentTrip.startDate)} -{' '}
+              {formatDate(currentTrip.endDate)}
             </p>
           )}
           {currentTrip.description && (
@@ -832,7 +755,9 @@ export default function TripDetail() {
                             const formData = new FormData()
                             formData.append('intent', 'remove-surfboard')
                             formData.append('tripSurfboardId', surfboard.id)
-                            fetcher.submit(formData, { method: 'POST' })
+                            submitAction('remove-surfboard', {
+                              tripSurfboardId: surfboard.id,
+                            })
 
                             // Optimistic update
                             setTrip((prev) =>
@@ -845,31 +770,6 @@ export default function TripDetail() {
                                   }
                                 : prev,
                             )
-
-                            // Refresh trip data after a delay
-                            setTimeout(async () => {
-                              try {
-                                const cookie = document.cookie
-                                const updatedTrip = await get<Trip>(
-                                  `trips/${currentTrip.id}?userId=${user.id}`,
-                                  {
-                                    headers: { Cookie: cookie },
-                                  },
-                                )
-                                setTrip(updatedTrip)
-                              } catch (error) {
-                                console.error(
-                                  'Failed to refresh trip data:',
-                                  error,
-                                )
-                                showError(
-                                  getErrorMessage(
-                                    error,
-                                    'Failed to remove surfboard. Please try again.',
-                                  ),
-                                )
-                              }
-                            }, 500)
                           }}
                           iconKey="bin"
                           filled
@@ -911,9 +811,7 @@ export default function TripDetail() {
                       prev
                         ? {
                             ...prev,
-                            media: prev.media?.filter(
-                              (m) => m.id !== item.id,
-                            ),
+                            media: prev.media?.filter((m) => m.id !== item.id),
                           }
                         : prev,
                     )
@@ -927,14 +825,6 @@ export default function TripDetail() {
 
               {currentTrip.isOwner && (
                 <div className="trip-media-upload">
-                  {uploadError && (
-                    <p className="text-error mb">{uploadError}</p>
-                  )}
-                  {uploadSuccess && (
-                    <p className="mb" style={{ color: 'green' }}>
-                      Media uploaded successfully!
-                    </p>
-                  )}
                   {isUploading && <p className="mb">Uploading media...</p>}
                   <MediaUpload
                     onFilesSelected={(files) => {
@@ -989,90 +879,17 @@ export default function TripDetail() {
         />
       )}
 
-      {showAddSurfboardModal && (
-        <Modal onClose={() => setShowAddSurfboardModal(false)}>
-          <div className="surfboard-selection-modal">
-            <h2>Add Surfboard</h2>
-            {isLoadingSurfboards ? (
-              <div className="surfboard-selection-loading">
-                <Loading />
-              </div>
-            ) : allSurfboards.length > 0 ? (
-              <div>
-                <p>Select a surfboard to add or remove from this trip:</p>
-                <div className="surfboard-selection-list">
-                  {allSurfboards.map((surfboard) => {
-                    const isInTrip = isSurfboardInTrip(surfboard.id)
-                    const isAdding = addingSurfboardId === surfboard.id
-                    const isRemoving = removingSurfboardId === surfboard.id
-
-                    return (
-                      <div
-                        key={surfboard.id}
-                        className="surfboard-selection-item"
-                      >
-                        <div>
-                          <span className="surfboard-name bold">
-                            {surfboard.name}
-                          </span>
-                        </div>
-                        {isAdding ? (
-                          <span className="status-text bold">Adding...</span>
-                        ) : isRemoving ? (
-                          <span className="status-text bold">Removing...</span>
-                        ) : isInTrip ? (
-                          <TextButton
-                            text="Remove"
-                            onClick={() => handleRemoveSurfboard(surfboard.id)}
-                            iconKey="bin"
-                            filled
-                            danger
-                            disabled={
-                              addingSurfboardId !== null ||
-                              removingSurfboardId !== null
-                            }
-                          />
-                        ) : (
-                          <TextButton
-                            text="Add"
-                            onClick={() => handleAddSurfboard(surfboard.id)}
-                            iconKey="plus"
-                            filled
-                            disabled={
-                              addingSurfboardId !== null ||
-                              removingSurfboardId !== null
-                            }
-                          />
-                        )}
-                      </div>
-                    )
-                  })}
-                </div>
-                <div className="surfboard-selection-actions">
-                  <Button
-                    label="Cancel"
-                    variant="cancel"
-                    onClick={() => setShowAddSurfboardModal(false)}
-                  />
-                </div>
-              </div>
-            ) : (
-              <div>
-                <p>No available surfboards to add.</p>
-                <p className="text-secondary">
-                  Create a surfboard first to add it to this trip.
-                </p>
-                <div className="surfboard-selection-actions">
-                  <Button
-                    label="Cancel"
-                    variant="cancel"
-                    onClick={() => setShowAddSurfboardModal(false)}
-                  />
-                </div>
-              </div>
-            )}
-          </div>
-        </Modal>
+      {showAddSurfboardModal && currentTrip && (
+        <SurfboardSelectionModal
+          isOpen={showAddSurfboardModal}
+          onClose={() => setShowAddSurfboardModal(false)}
+          trip={currentTrip}
+          userId={user?.id || ''}
+          onSubmitAction={handleSubmitAction}
+          onTripUpdate={handleTripUpdate}
+          actionState={fetcher.state}
+          actionData={fetcher.data}
+        />
       )}
     </Page>
   )

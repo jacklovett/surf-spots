@@ -91,7 +91,6 @@ const ForgotPassword = () => {
             Don't worry, enter your email address to receive reset instructions.
           </p>
           <FormComponent
-            loading={loading}
             isDisabled={!isFormValid}
             submitLabel="Send Reset Email"
             submitStatus={submitStatus}

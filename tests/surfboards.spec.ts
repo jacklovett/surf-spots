@@ -223,13 +223,13 @@ test.describe('Surfboards Feature', () => {
       // Wait for upload to complete
       await page.waitForTimeout(3000)
 
-      // Check for success message or image in gallery
-      const successMessage = page.locator('text=/uploaded successfully/i')
+      // Check for success toast or image in gallery
+      const successToast = page.locator('.toast--success, [role="status"]:has-text("uploaded successfully")')
       const imageGallery = page.locator('.image-gallery')
-      const hasSuccess = await successMessage.isVisible().catch(() => false)
+      const hasSuccess = await successToast.isVisible().catch(() => false)
       const hasGallery = await imageGallery.isVisible().catch(() => false)
 
-      // Either success message or gallery should appear
+      // Either success toast or gallery should appear
       expect(hasSuccess || hasGallery).toBe(true)
     } catch (error) {
       // If test image doesn't exist, skip this part but verify upload UI exists

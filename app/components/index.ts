@@ -16,6 +16,7 @@ import EmptyState from './EmptyState'
 import ErrorBoundary from './ErrorBoundary'
 import FeedItem from './FeedItem'
 import Filters from './Filters'
+import FloatingButton from './FloatingButton'
 import Footer from './Footer'
 import FormComponent from './FormComponent'
 import FormInput from './FormInput'
@@ -49,9 +50,13 @@ import KofiButton from './KofiButton'
 import SocialLinks from './SocialLinks'
 import SurfSpotForm from './SurfSpotForm'
 import SurfboardForm from './SurfboardForm'
+import ToastContainer from './ToastContainer'
 import Toolbar from './Toolbar'
 import TripForm from './TripForm'
 import TripPlannerButton from './TripPlannerButton'
+import SurfboardSelectionModal from './SurfboardSelectionModal'
+import TripSelectionModal from './TripSelectionModal'
+import SelectionModal from './SelectionModal'
 
 export {
   AuthPage,
@@ -73,6 +78,7 @@ export {
   ErrorBoundary,
   FeedItem,
   Filters,
+  FloatingButton,
   Footer,
   FormComponent,
   ForecastLinks,
@@ -103,8 +109,12 @@ export {
   SurfSpotList,
   TextButton,
   TideIcon,
+  ToastContainer,
   Toolbar,
   TripForm,
   TripPlannerButton,
+  SurfboardSelectionModal,
+  TripSelectionModal,
+  SelectionModal,
   ViewSwitch,
 }

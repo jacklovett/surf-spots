@@ -1,0 +1,107 @@
+.selection-modal {
+  @extend %flex-column;
+  min-height: 200px;
+
+  .selection-header {
+    @extend %flex-column;
+    margin-bottom: $spacing-unit;
+
+    h2 {
+      margin-bottom: $spacing-small;
+    }
+
+    .selection-description {
+      margin-bottom: 0;
+      color: $text-secondary;
+    }
+  }
+
+  p {
+    margin-bottom: $spacing-unit;
+  }
+
+  .text-secondary {
+    color: $text-secondary;
+  }
+
+  .selection-loading {
+    @extend %flex-center;
+    padding: $spacing-x-large;
+    text-align: center;
+    min-height: 200px; // Match minimum height to prevent shift
+  }
+
+  .selection-list {
+    @extend %flex-column;
+    gap: $spacing-small;
+    margin: $spacing-unit 0;
+    max-height: 400px;
+    overflow-y: auto;
+  }
+
+  .selection-item {
+    @extend %flex-column;
+    width: 100%;
+    padding: $spacing-unit;
+    background: $background-light;
+    border: 1px solid $outline-color;
+    border-radius: $content-border-radius;
+    gap: $spacing-small;
+
+    .selection-item-content {
+      @extend %flex-column;
+      width: 100%;
+      gap: $spacing-small;
+    }
+
+    .selection-item-header {
+      @extend %flex-space-between;
+      align-items: flex-start;
+      gap: $spacing-unit;
+      width: 100%;
+
+      .selection-item-info {
+        @extend %flex-column;
+        flex: 1;
+        min-width: 0;
+        gap: 4px;
+      }
+
+      .selection-item-name {
+        font-size: $font-size-base;
+        color: $text-color;
+        margin: 0;
+        word-break: break-word;
+      }
+
+      .selection-item-subtitle {
+        font-size: $font-size-small;
+      }
+
+      .selection-item-action {
+        flex-shrink: 0;
+      }
+    }
+
+    .selection-item-metadata {
+      font-size: $font-size-small;
+      margin: 0;
+    }
+
+    p {
+      margin: 0;
+    }
+  }
+
+  .selection-actions {
+    @extend %flex-column;
+    gap: $spacing-unit;
+    margin-top: $spacing-unit;
+    width: 100%;
+
+    .button {
+      width: 100%;
+    }
+  }
+}
+

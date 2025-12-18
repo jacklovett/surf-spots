@@ -1,5 +1,5 @@
 import { ReactNode } from 'react'
-import { useNavigation } from 'react-router'
+import { useNavigation, useLocation } from 'react-router'
 import classNames from 'classnames'
 
 import { Drawer, ErrorBoundary, Footer, Header } from '../index'
@@ -22,9 +22,14 @@ export const Page = (props: IProps) => {
     overrideLoading,
   } = props
 
-  const { state } = useNavigation()
-
-  const loading = state === 'loading' && !overrideLoading
+  const navigation = useNavigation()
+  const { pathname } = useLocation()
+  
+  // Show loading when navigating to a different route (or initial load)
+  const loading = 
+    navigation.state === 'loading' && 
+    (!navigation.location || navigation.location.pathname !== pathname) &&
+    !overrideLoading
 
   return (
     <div className="page-wrapper">

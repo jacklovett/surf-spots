@@ -1,0 +1,91 @@
+button.floating-button {
+  @extend %flex-center;
+  position: relative;
+  background: $white;
+  border: none;
+  cursor: pointer;
+  box-shadow: $box-shadow;
+  border-radius: 50%;
+  transition: all 0.2s ease;
+  padding: 0;
+
+  &.large {
+    width: 64px;
+    height: 64px;
+
+    .floating-button-icon {
+      width: 40px;
+      height: 40px;
+
+      svg {
+        width: 24px;
+        height: 24px;
+      }
+    }
+  }
+
+  &.medium {
+    width: 56px;
+    height: 56px;
+
+    .floating-button-icon {
+      width: 32px;
+      height: 32px;
+
+      svg {
+        width: 20px;
+        height: 20px;
+      }
+    }
+  }
+
+  .floating-button-icon {
+    @extend %flex-center;
+    background: $primary-color;
+    color: $white;
+    border-radius: 50%;
+    flex-shrink: 0;
+
+    svg {
+      stroke: $white;
+    }
+  }
+
+  .floating-button-badge {
+    position: absolute;
+    top: -4px;
+    right: -4px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 20px;
+    height: 20px;
+    padding: 0 6px;
+    background: $accent-color;
+    color: $primary-color;
+    font-weight: bold;
+    font-size: $font-size-small;
+    border-radius: 10px;
+    text-align: center;
+    line-height: 1;
+    box-shadow: $box-shadow;
+  }
+
+  &:hover {
+    transform: scale(1.05);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+  }
+
+  &:active {
+    transform: scale(0.98);
+  }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    
+    &:hover {
+      transform: none;
+    }
+  }
+}

@@ -96,7 +96,6 @@ const ChangePassword = () => {
       <div className="info-page-content mv">
         <h1 className="mt">Change Password</h1>
         <FormComponent
-          loading={loading}
           isDisabled={!isFormValid}
           submitStatus={submitStatus}
           method="put"

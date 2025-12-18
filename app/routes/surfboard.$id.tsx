@@ -5,7 +5,6 @@ import {
   LoaderFunction,
   ActionFunction,
   useLoaderData,
-  useNavigation,
   useNavigate,
 } from 'react-router'
 import {
@@ -27,7 +26,7 @@ import {
   deleteSurfboardImage,
   deleteSurfboard,
 } from '~/services/surfboard'
-import { useUserContext } from '~/contexts'
+import { useUserContext, useToastContext } from '~/contexts'
 import { useScrollReveal, useFileUpload, useActionFetcher } from '~/hooks'
 import { formatLength, formatDimension } from '~/utils/surfboardUtils'
 import { fileToBase64 } from '~/utils/fileUtils.server'
@@ -211,12 +210,12 @@ export const action: ActionFunction = async ({ request, params }) => {
 
 export default function SurfboardDetail() {
   const loaderData = useLoaderData<LoaderData>()
-  const navigation = useNavigation()
   const { surfboard: initialSurfboard, error } = loaderData || {
     surfboard: undefined,
     error: undefined,
   }
   const { user } = useUserContext()
+  const { showSuccess, showError } = useToastContext()
   const navigate = useNavigate()
 
   const [surfboard, setSurfboard] = useState<Surfboard | undefined>(
@@ -224,8 +223,6 @@ export default function SurfboardDetail() {
   )
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
   const [deleteError, setDeleteError] = useState('')
-  const [uploadSuccess, setUploadSuccess] = useState(false)
-  const [deleteSuccess, setDeleteSuccess] = useState(false)
 
   const sectionsRef = useScrollReveal()
 
@@ -259,25 +256,26 @@ export default function SurfboardDetail() {
           images: [...(prev.images || []), newImage],
         }
       })
-      setUploadSuccess(true)
-      // Clear success message after 3 seconds
-      setTimeout(() => setUploadSuccess(false), 3000)
+      showSuccess('Image uploaded successfully!')
     }
-  }, [fetcherData])
+  }, [fetcherData, showSuccess])
+
+  // Handle upload errors
+  useEffect(() => {
+    if (uploadError) {
+      showError(uploadError)
+    }
+  }, [uploadError, showError])
 
   // Handle image action responses (delete)
   useEffect(() => {
     if (imageActionFetcher.data?.error) {
-      setDeleteError(imageActionFetcher.data.error)
-      setDeleteSuccess(false)
+      showError(imageActionFetcher.data.error)
     } else if (imageActionFetcher.data?.success && imageActionFetcher.state === 'idle') {
       // Image deleted successfully - Remix will automatically revalidate and update loader data
-      setDeleteError('')
-      setDeleteSuccess(true)
-      // Clear success message after 3 seconds
-      setTimeout(() => setDeleteSuccess(false), 3000)
+      showSuccess('Image deleted successfully!')
     }
-  }, [imageActionFetcher.data, imageActionFetcher.state])
+  }, [imageActionFetcher.data, imageActionFetcher.state, showSuccess, showError])
 
   const handleFileUpload = (files: FileList) => {
     if (!user?.id || !surfboard?.id) return
@@ -297,13 +295,15 @@ export default function SurfboardDetail() {
   // Handle delete surfboard response
   useEffect(() => {
     if (deleteActionFetcher.data?.error) {
-      setDeleteError(deleteActionFetcher.data.error)
+      const errorMsg = deleteActionFetcher.data.error
+      setDeleteError(errorMsg)
+      showError(errorMsg)
       setShowDeleteConfirm(false)
     } else if (deleteActionFetcher.data?.success && deleteActionFetcher.state === 'idle') {
       // Surfboard deleted successfully - redirect to surfboards page
       navigate('/surfboards')
     }
-  }, [deleteActionFetcher.data, deleteActionFetcher.state, navigate])
+  }, [deleteActionFetcher.data, deleteActionFetcher.state, navigate, showError])
 
   const handleDeleteConfirm = () => {
     if (!user?.id || !surfboard?.id) return
@@ -406,19 +406,7 @@ export default function SurfboardDetail() {
               />
 
               <div className="surfboard-media-upload">
-                {uploadError && <p className="text-error mb">{uploadError}</p>}
-                {uploadSuccess && (
-                  <p className="mb" style={{ color: 'green' }}>
-                    Image uploaded successfully!
-                  </p>
-                )}
                 {isUploading && <p className="mb">Uploading image...</p>}
-                {deleteError && <p className="text-error mb">{deleteError}</p>}
-                {deleteSuccess && (
-                  <p className="mb" style={{ color: 'green' }}>
-                    Image deleted successfully!
-                  </p>
-                )}
                 {imageActionFetcher.state === 'submitting' && (
                   <p className="mb">Deleting image...</p>
                 )}

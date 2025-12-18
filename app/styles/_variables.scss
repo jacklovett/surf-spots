@@ -26,6 +26,20 @@ $success: green;
 $warn: #fdff00;
 $error: #b22222; // Firebrick - a muted burgundy-red for danger states
 
+/* Toast Colors - WCAG AA compliant (4.5:1+ contrast) */
+$toast-success-bg: #d4edda;
+$toast-success-text: #0f5132;
+$toast-success-border: #badbcc;
+$toast-error-bg: #f8d7da;
+$toast-error-text: #58151c;
+$toast-error-border: #f1aeb5;
+$toast-info-bg: #cff4fc;
+$toast-info-text: #055160;
+$toast-info-border: #b6effb;
+$toast-warning-bg: #fff3cd;
+$toast-warning-text: #664d03;
+$toast-warning-border: #ffecb5;
+
 /* White/Transparent Colors */
 $white-transparent-80: rgba(255, 255, 255, 0.8);
 $white-transparent-70: rgba(255, 255, 255, 0.7);
@@ -55,7 +69,7 @@ $spacing-x-large: 3rem;
 $header-height: 56px;
 $toolbar-height: 64px; // Approximate height: 32px padding (16px top + 16px bottom) + button content (~32px)
 $form-input-height: 40px;
-$button-height: 48px;
+$button-height: 56px;
 
 /* Borders & Shadows */
 $form-border-radius: $spacing-unit;
@@ -63,6 +77,15 @@ $content-border-radius: $spacing-unit;
 $circle-border-radius: 50%;
 $button-border-radius: 25px;
 $box-shadow: 1px 2px 8px rgba(0, 0, 0, 0.2);
+
+/* Z-Index Layers */
+$z-index-base: 1;
+$z-index-overlay: 2;
+$z-index-toolbar: 10;
+$z-index-drawer: 30;
+$z-index-modal: 1000;
+$z-index-toast: 9999;
+$z-index-dropdown: 10000;
 
 :root {
   --primary-color: #046380;

@@ -109,7 +109,6 @@ const ResetPassword = () => {
             </div>
             <div className="page-content">
               <FormComponent
-                loading={loading}
                 isDisabled={!isFormValid}
                 submitStatus={submitStatus}
                 method="put"

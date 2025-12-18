@@ -6,7 +6,7 @@ import { SurfSpot } from '~/types/surfSpots'
 import Details from '../Details'
 import Rating from '../Rating'
 import { useLayoutContext, useSettingsContext } from '~/contexts'
-import { FetcherSubmitParams } from '../SurfSpotActions'
+import { FetcherSubmitParams } from '~/types/api'
 import {
   DirectionIcon,
   TideIcon,

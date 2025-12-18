@@ -15,12 +15,15 @@ export interface Trip {
   isOwner?: boolean
 }
 
-export interface TripSpot {
-  id: string
+export interface NewTripSpot {
   surfSpotId: number
   surfSpotName: string
   surfSpotRating?: number
   addedAt: string
+}
+
+export interface TripSpot extends NewTripSpot {
+  id: string
 }
 
 export interface TripMember {

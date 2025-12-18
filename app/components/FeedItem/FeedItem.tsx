@@ -5,8 +5,8 @@ import {
   getNotificationIcon,
   getNotificationLabel,
   getDefaultImage,
-  formatTimeAgo,
 } from './index'
+import { formatTimeAgo } from '~/utils/dateUtils'
 
 interface FeedItemProps {
   notification: WatchListNotification

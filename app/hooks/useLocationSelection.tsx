@@ -11,6 +11,7 @@ import {
   SurfSpotFormState,
 } from '~/types/surfSpots'
 import type { AddSurfSpotMapRef } from '~/components/SurfMap/AddSurfSpotMap'
+import { useToastContext } from '~/contexts'
 
 type FormChangeHandler = <K extends keyof SurfSpotFormState>(
   field: K,
@@ -43,6 +44,7 @@ export const useLocationSelection = ({
   onLocationChange,
   initialUserLocation,
 }: UseLocationSelectionProps) => {
+  const { showError } = useToastContext()
   const [filteredCountries, setFilteredCountries] = useState<Country[]>([])
   const [filteredRegions, setFilteredRegions] = useState<Region[]>([])
   const filteredCountriesRef = useRef<Country[]>([])
@@ -454,7 +456,7 @@ export const useLocationSelection = ({
               errorMessage += 'Please enter manually.'
           }
 
-          alert(errorMessage)
+          showError(errorMessage)
         },
         {
           enableHighAccuracy: true, // Prefer GPS over IP-based location
@@ -463,7 +465,7 @@ export const useLocationSelection = ({
         },
       )
     } else {
-      alert('Geolocation is not supported by your browser.')
+      showError('Geolocation is not supported by your browser.')
     }
   }, [])
 

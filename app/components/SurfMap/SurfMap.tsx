@@ -19,7 +19,7 @@ import {
 import { useSurfSpotsContext, useUserContext } from '~/contexts'
 import { useMapDrawer } from '~/hooks/useMapDrawer'
 import { debounce } from '~/utils'
-import { FetcherSubmitParams } from '../SurfSpotActions'
+import { FetcherSubmitParams } from '~/types/api'
 
 interface IProps {
   surfSpots?: SurfSpot[]

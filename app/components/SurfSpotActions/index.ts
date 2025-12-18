@@ -1,11 +1,7 @@
 import { FetcherWithComponents } from 'react-router'
+import { FetcherSubmitParams } from '~/types/api'
 
 import { SurfSpotActions } from './SurfSpotActions'
-
-export type FetcherSubmitParams =
-  | FormData
-  | URLSearchParams
-  | Record<string, string>
 
 export const submitFetcher = (
   params: FetcherSubmitParams,

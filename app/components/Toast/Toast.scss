@@ -1,0 +1,112 @@
+.toast {
+  @extend %flex-base;
+  align-items: flex-start;
+  gap: $spacing-small;
+  border-radius: $content-border-radius;
+  box-shadow: $box-shadow;
+  padding: $spacing-unit;
+  min-width: 280px;
+  max-width: 400px;
+  animation: toastSlideIn 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+  position: relative;
+
+  &--success {
+    background: $toast-success-bg;
+    color: $toast-success-text;
+    border: 1px solid $toast-success-border;
+  }
+
+  &--error {
+    background: $toast-error-bg;
+    color: $toast-error-text;
+    border: 1px solid $toast-error-border;
+  }
+
+  &--info {
+    background: $toast-info-bg;
+    color: $toast-info-text;
+    border: 1px solid $toast-info-border;
+  }
+
+  &--warning {
+    background: $toast-warning-bg;
+    color: $toast-warning-text;
+    border: 1px solid $toast-warning-border;
+  }
+}
+
+.toast-icon {
+  @extend %flex-center;
+  flex-shrink: 0;
+  width: 24px;
+  height: 24px;
+  margin-top: 2px;
+}
+
+.toast-content {
+  @extend %flex-column;
+  flex: 1;
+  gap: $spacing-small;
+}
+
+.toast-message {
+  font-size: $font-size-base;
+  line-height: 1.5;
+  word-wrap: break-word;
+  color: inherit;
+}
+
+.toast-close {
+  @extend %flex-center;
+  background: transparent;
+  border: none;
+  color: inherit;
+  opacity: 0.7;
+  cursor: pointer;
+  font-size: $font-size-x-large;
+  line-height: 1;
+  padding: 0;
+  width: 24px;
+  height: 24px;
+  min-width: 24px;
+  flex-shrink: 0;
+  transition: opacity 0.2s ease;
+
+  &:hover {
+    opacity: 1;
+  }
+
+  &:focus {
+    outline: 2px solid currentColor;
+    outline-offset: 2px;
+    border-radius: 2px;
+    opacity: 1;
+  }
+}
+
+@keyframes toastSlideIn {
+  from {
+    opacity: 0;
+    transform: translateX(100%);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes toastSlideOut {
+  from {
+    opacity: 1;
+    transform: translateX(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateX(100%);
+  }
+}
+
+.toast.toast--removing {
+  animation: toastSlideOut 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+}
+

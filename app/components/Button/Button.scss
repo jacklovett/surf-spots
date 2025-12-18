@@ -18,7 +18,7 @@
   text-align: center;
   text-decoration: none;
   width: 100%;
-  min-height: $button-height;
+  height: $button-height;
   box-sizing: border-box;
 
   // Variant-specific styles
@@ -26,7 +26,7 @@
     background: $background-light;
     color: $text-color;
     border: 1px solid $border-medium;
-    min-height: $button-height;
+    height: $button-height;
 
     &:hover:not(:disabled) {
       background: color.adjust($background-light, $lightness: -3%);
@@ -95,6 +95,55 @@
       transform: none;
       background: $disabled-color;
     }
+  }
+
+  &.loading {
+    position: relative;
+    pointer-events: none;
+    min-height: $button-height;
+
+    .button-content {
+      visibility: hidden;
+    }
+
+    .button-loading-spinner {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      margin: 0;
+      margin-top: -12px; // Half of spinner height (24px)
+      margin-left: -12px; // Half of spinner width (24px)
+    }
+  }
+}
+
+.button-loading-spinner {
+  display: inline-block;
+  width: 24px;
+  height: 24px;
+  border: 2px solid currentColor;
+  border-top-color: transparent;
+  border-radius: 50%;
+  animation: buttonSpinner 0.6s linear infinite;
+  flex-shrink: 0;
+  vertical-align: middle;
+  line-height: 1;
+  opacity: 1;
+}
+
+.button-content {
+  display: inline-flex;
+  align-items: center;
+  gap: $spacing-small;
+  // Prevent layout shift when content appears
+  min-width: 0;
+  // Smooth transition when content appears
+  opacity: 1;
+}
+
+@keyframes buttonSpinner {
+  to {
+    transform: rotate(360deg);
   }
 }
 

@@ -6,7 +6,6 @@ import {
   LoaderFunction,
   MetaFunction,
   useLoaderData,
-  useNavigation,
 } from 'react-router'
 import fs from 'fs/promises'
 import path from 'path'
@@ -28,7 +27,7 @@ import {
   NavButton,
 } from '~/components'
 import { Location } from '~/components/LocationSelector'
-import { useSubmitStatus } from '~/hooks'
+import { useSubmitStatus, useFormSubmission } from '~/hooks'
 import useFormValidation, {
   validateEmail,
   validateRequired,
@@ -116,13 +115,11 @@ export const action: ActionFunction = async ({ request }) => {
 
 const Profile = () => {
   const { user } = useUserContext()
-  const { state } = useNavigation()
-  const loading = state === 'loading'
+  const { isFormSubmitting } = useFormSubmission()
 
   const { locationData = [], error } = useLoaderData<LoaderData>()
 
   const submitStatus = useSubmitStatus()
-
   const { formState, errors, isFormValid, handleChange, handleBlur } =
     useFormValidation({
       initialFormState: {
@@ -160,11 +157,16 @@ const Profile = () => {
   }
 
   return (
-    <Page showHeader>
+    <Page showHeader overrideLoading={isFormSubmitting}>
+      {/* Announce form submission state to screen readers */}
+      {isFormSubmitting && (
+        <div role="status" aria-live="polite" className="sr-only">
+          Saving profile changes...
+        </div>
+      )}
       <div className="info-page-content mv">
         <h1>Profile</h1>
         <FormComponent
-          loading={loading}
           isDisabled={!hasUnsavedChanges || !isFormValid}
           submitLabel="Save Changes"
           submitStatus={submitStatus}

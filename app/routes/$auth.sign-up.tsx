@@ -79,7 +79,6 @@ const SignUp = () => {
       </div>
       <div className="page-content">
         <FormComponent
-          loading={loading}
           isDisabled={!isFormValid}
           submitLabel="Sign up"
           submitStatus={submitStatus}

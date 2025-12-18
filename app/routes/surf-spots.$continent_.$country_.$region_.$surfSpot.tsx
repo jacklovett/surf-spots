@@ -25,7 +25,7 @@ import {
   TideIcon,
 } from '~/components'
 import { submitFetcher } from '~/components/SurfSpotActions'
-import { FetcherSubmitParams } from '~/components/SurfSpotActions'
+import { FetcherSubmitParams } from '~/types/api'
 
 import { useUserContext, useSettingsContext } from '~/contexts'
 

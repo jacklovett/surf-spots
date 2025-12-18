@@ -10,6 +10,7 @@ import { useScrollReveal } from './useScrollReveal'
 import { useSignUpPrompt } from './useSignUpPrompt'
 import { useStaticMap } from './useStaticMap'
 import { useSubmitStatus } from './useSubmitStatus'
+import { useFormSubmission } from './useFormSubmission'
 
 export {
   useActionFetcher,
@@ -17,6 +18,7 @@ export {
   useDynamicMap,
   useFileUpload,
   useFormValidation,
+  useFormSubmission,
   useLocationPin,
   useLocationSelection,
   useMapDrawer,

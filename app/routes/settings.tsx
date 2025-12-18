@@ -168,11 +168,10 @@ export default function Settings() {
       <div className="info-page-content mv">
         <h1>Settings</h1>
         <FormComponent
-          loading={loading}
           submitLabel="Save Changes"
           submitStatus={submitStatus}
           method="put"
-          isDisabled={!hasChanges || loading}
+          isDisabled={!hasChanges}
         >
           <div className="column h-full">
             <section>

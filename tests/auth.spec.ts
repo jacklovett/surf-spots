@@ -32,9 +32,9 @@ test.describe('Authentication', () => {
       // If button is enabled, click it to trigger validation
       await submitButton.click()
 
-      // Should show validation error for invalid email
+      // Should show validation error for invalid email (inline or toast)
       await expect(
-        page.locator('.error-message, [role="alert"], .submit-status'),
+        page.locator('.error-message, [role="alert"], .submit-status, .toast--error'),
       ).toBeVisible()
     } else {
       // If button is disabled, that's also valid - form validation prevents submission

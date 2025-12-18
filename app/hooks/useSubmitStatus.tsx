@@ -11,27 +11,44 @@ export const useSubmitStatus = () => {
   const actionData = useActionData<ActionData>()
   const loaderData = useLoaderData<ActionData>()
 
-  const data = actionData || loaderData
-
   const [submitStatus, setSubmitStatus] = useState<SubmitStatus | null>(null)
 
   useEffect(() => {
-    const status = data
-      ? {
-          message: data?.submitStatus,
-          isError: data?.hasError,
-        }
-      : null
-
-    if (status) {
+    // Prefer actionData - it persists until the next action
+    if (actionData?.submitStatus) {
+      const status = {
+        message: actionData.submitStatus,
+        isError: actionData.hasError,
+      }
       setSubmitStatus(status)
 
       if (!status.isError) {
+        // Clear after 10 seconds for success messages
         const timeout = setTimeout(() => setSubmitStatus(null), 10000)
         return () => clearTimeout(timeout)
       }
-    } else {
-      // Clear status if no data (e.g., after navigation)
+      return
+    }
+    
+    if (loaderData?.submitStatus) {
+      // Fallback to loaderData if actionData doesn't have submitStatus
+      const status = {
+        message: loaderData.submitStatus,
+        isError: loaderData.hasError,
+      }
+      setSubmitStatus(status)
+
+      if (!status.isError) {
+        // Clear after 10 seconds for success messages
+        const timeout = setTimeout(() => setSubmitStatus(null), 10000)
+        return () => clearTimeout(timeout)
+      }
+      return
+    }
+    
+    // Only clear if we have no actionData and no loaderData with submitStatus
+    // This prevents clearing when loader re-runs after staying on same page
+    if (!actionData && !loaderData?.submitStatus) {
       setSubmitStatus(null)
     }
   }, [actionData, loaderData])

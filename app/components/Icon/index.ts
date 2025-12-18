@@ -26,6 +26,7 @@ export type IconKey =
   | 'plus'
   | 'profile'
   | 'search'
+  | 'success'
   | 'surfboard'
   | 'twitter'
 

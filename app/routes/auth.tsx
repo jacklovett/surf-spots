@@ -93,7 +93,6 @@ export default function Auth() {
         <FormComponent
           isDisabled={!isFormValid}
           submitLabel="Sign in"
-          loading={loading}
           submitStatus={submitStatus}
         >
           <FormInput

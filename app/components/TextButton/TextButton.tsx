@@ -9,6 +9,7 @@ interface IProps {
   disabled?: boolean
   badge?: number
   danger?: boolean
+  loading?: boolean
 }
 
 export const TextButton = (props: IProps) => {
@@ -20,29 +21,39 @@ export const TextButton = (props: IProps) => {
     text,
     badge,
     danger = false,
+    loading = false,
   } = props
+
+  const isDisabled = disabled || loading
 
   return (
     <button
       type="button"
-      className="text-button"
+      className={classNames('text-button', { filled, loading })}
       onClick={onClick}
-      disabled={disabled}
+      disabled={isDisabled}
+      aria-busy={loading}
+      aria-label={loading ? `${text} - Processing` : text}
     >
-      {iconKey && (
-        <span
-          className={classNames({
-            'text-button-icon': true,
-            filled,
-            danger,
-            'icon-chevron-left': iconKey === 'chevron-left',
-          })}
-        >
-          <Icon iconKey={iconKey} />
-        </span>
+      <span className="text-button-content">
+        {iconKey && (
+          <span
+            className={classNames({
+              'text-button-icon': true,
+              filled,
+              danger,
+              'icon-chevron-left': iconKey === 'chevron-left',
+            })}
+          >
+            <Icon iconKey={iconKey} />
+          </span>
+        )}
+        <span className="text-button-text">{text}</span>
+        {badge && <span className="text-button-badge">{badge}</span>}
+      </span>
+      {loading && (
+        <span className="button-loading-spinner" aria-hidden="true" />
       )}
-      <span className="text-button-text">{text}</span>
-      {badge && <span className="text-button-badge">{badge}</span>}
     </button>
   )
 }

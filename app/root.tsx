@@ -17,8 +17,9 @@ import {
   LayoutProvider,
   SurfSpotsProvider,
   TripProvider,
+  ToastProvider,
 } from './contexts'
-import { ErrorBoundary } from './components'
+import { ErrorBoundary, ToastContainer } from './components'
 
 import { getSession } from './services/session.server'
 import { User } from './types/user'
@@ -113,7 +114,10 @@ export default function App() {
           <SettingsProvider>
             <SurfSpotsProvider>
               <TripProvider>
-                <Outlet />
+                <ToastProvider>
+                  <Outlet />
+                  <ToastContainer />
+                </ToastProvider>
               </TripProvider>
             </SurfSpotsProvider>
           </SettingsProvider>

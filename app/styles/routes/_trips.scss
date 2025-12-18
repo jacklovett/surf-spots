@@ -128,17 +128,16 @@
     margin-bottom: $spacing-large;
   }
 
+  
+.spot-actions {
+  @extend %flex-row;
+  gap: $spacing-small;
+  flex-wrap: wrap;
 
-  .spot-actions {
-    flex-shrink: 0;
-    display: flex;
-    gap: $spacing-small;
-
-    @media (max-width: 768px) {
-      width: 100%;
-      justify-content: flex-start;
-    }
+  @media (max-width: 768px) {
+    margin-bottom: $spacing-unit;
   }
+}
 }
 
 .trip-edit-form {

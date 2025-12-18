@@ -21,30 +21,6 @@
     body.drawer-open & {
       pointer-events: none;
     }
-
-    button.text-button {
-      box-shadow: $box-shadow;
-      background: $white;
-      border-radius: 50%;
-      width: 56px;
-      height: 56px;
-      padding: 0;
-
-      .text-button-icon {
-        margin-right: 0;
-        width: 32px;
-        height: 32px;
-
-        svg {
-          width: 20px;
-          height: 20px;
-        }
-      }
-
-      span:not(.text-button-icon):not(.text-button-badge) {
-        display: none; // Hide text on mobile
-      }
-    }
   }
 }
 

@@ -56,10 +56,11 @@ export async function waitForLoadingComplete(page: Page) {
 
 /**
  * Check for errors on the page
+ * Includes both inline error messages and toast notifications
  */
 export async function checkForErrors(page: Page) {
   const errorElements = page.locator(
-    '.error-message, .error-boundary, .submit-status',
+    '.error-message, .error-boundary, .submit-status, .toast--error[role="alert"]',
   )
   const errorCount = await errorElements.count()
 

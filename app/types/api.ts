@@ -4,3 +4,8 @@ export interface ApiResponse<T> {
   status: number
   success: boolean
 }
+
+export type FetcherSubmitParams =
+  | FormData
+  | URLSearchParams
+  | Record<string, string>

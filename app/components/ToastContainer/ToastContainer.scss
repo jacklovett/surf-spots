@@ -1,0 +1,24 @@
+.toast-container {
+  @extend %flex-column;
+  gap: $spacing-small;
+  position: fixed;
+  top: calc($header-height + $spacing-unit);
+  right: $spacing-unit;
+  z-index: $z-index-toast;
+  pointer-events: none;
+
+  .toast {
+    pointer-events: auto;
+  }
+
+  @media (max-width: 640px) {
+    left: $spacing-unit;
+    right: $spacing-unit;
+    top: calc($header-height + $spacing-small);
+
+    .toast {
+      max-width: 100%;
+    }
+  }
+}
+

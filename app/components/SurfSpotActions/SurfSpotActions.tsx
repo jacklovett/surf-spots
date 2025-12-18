@@ -5,9 +5,9 @@ import { User } from '~/types/user'
 import DropdownMenu from '../DropdownMenu'
 import { useSurfSpotsContext } from '~/contexts'
 import { useSignUpPrompt } from '~/hooks'
-import { FetcherSubmitParams } from './index'
-import { TripSelectionModal } from './TripSelectionModal'
+import { FetcherSubmitParams } from '~/types/api'
 import { InfoModal, InfoModalState } from '../Modal'
+import TripSelectionModal from '../TripSelectionModal'
 
 interface IProps {
   surfSpot: SurfSpot

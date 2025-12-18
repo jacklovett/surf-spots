@@ -5,7 +5,7 @@ import { MapMouseEvent } from 'mapbox-gl'
 import { useLayoutContext, useUserContext } from '~/contexts'
 import { SurfSpot } from '~/types/surfSpots'
 import { ErrorBoundary, SurfSpotPreview, SurfSpotActions } from '~/components'
-import { FetcherSubmitParams } from '~/components/SurfSpotActions'
+import { FetcherSubmitParams } from '~/types/api'
 export const useMapDrawer = (
   onFetcherSubmit?: (params: FetcherSubmitParams) => void,
 ) => {
