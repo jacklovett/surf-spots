@@ -3,15 +3,12 @@ import {
   LoaderFunction,
   ActionFunction,
   useLoaderData,
-  useActionData,
   useNavigate,
-  useNavigation,
   redirect,
 } from 'react-router'
 import {
   ErrorBoundary,
   ContentStatus,
-  Loading,
   Page,
   SurfboardForm,
 } from '~/components'
@@ -28,8 +25,8 @@ interface LoaderData {
 }
 
 interface ActionData {
-  success?: boolean
-  error?: string | null
+  submitStatus?: string
+  hasError?: boolean
 }
 
 export const loader: LoaderFunction = async ({ request, params }) => {
@@ -76,7 +73,7 @@ export const action: ActionFunction = async ({ params, request }) => {
   // Only handle PUT requests for updates
   if (request.method !== 'PUT') {
     return data<ActionData>(
-      { error: 'Method not allowed', success: false },
+      { submitStatus: 'Method not allowed', hasError: true },
       { status: 405 },
     )
   }
@@ -86,7 +83,7 @@ export const action: ActionFunction = async ({ params, request }) => {
 
   if (!surfboardId || !user?.id) {
     return data<ActionData>(
-      { error: 'Surfboard not found', success: false },
+      { submitStatus: 'Surfboard not found', hasError: true },
       { status: 404 },
     )
   }
@@ -97,8 +94,8 @@ export const action: ActionFunction = async ({ params, request }) => {
   if (!name || name.length === 0) {
     return data<ActionData>(
       {
-        error: 'Name is required',
-        success: false,
+        submitStatus: 'Name is required',
+        hasError: true,
       },
       { status: 400 },
     )
@@ -137,8 +134,8 @@ export const action: ActionFunction = async ({ params, request }) => {
     console.error('Failed to update surfboard:', error)
     return data<ActionData>(
       {
-        error: 'Failed to update surfboard. Please try again.',
-        success: false,
+        submitStatus: 'Failed to update surfboard. Please try again.',
+        hasError: true,
       },
       { status: 500 },
     )
@@ -147,10 +144,7 @@ export const action: ActionFunction = async ({ params, request }) => {
 
 export default function EditSurfboard() {
   const { surfboard, error } = useLoaderData<LoaderData>()
-  const actionData = useActionData<ActionData>()
   const navigate = useNavigate()
-  const { state } = useNavigation()
-  const loading = state === 'loading' || state === 'submitting'
   const submitStatus = useSubmitStatus()
 
   if (error) {
@@ -158,16 +152,6 @@ export default function EditSurfboard() {
       <Page showHeader>
         <ContentStatus isError>
           <p>{error}</p>
-        </ContentStatus>
-      </Page>
-    )
-  }
-
-  if (loading) {
-    return (
-      <Page showHeader>
-        <ContentStatus>
-          <Loading />
         </ContentStatus>
       </Page>
     )
@@ -181,11 +165,7 @@ export default function EditSurfboard() {
           <SurfboardForm
             actionType="Edit"
             surfboard={surfboard}
-            submitStatus={
-              actionData?.error
-                ? { message: actionData.error, isError: true }
-                : submitStatus
-            }
+            submitStatus={submitStatus}
             onCancel={() =>
               navigate(`/surfboard/${surfboard.id}`, { replace: true })
             }

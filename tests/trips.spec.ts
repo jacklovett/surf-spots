@@ -40,8 +40,10 @@ test.describe('Trips Feature', () => {
     await page.fill('input[name="startDate"]', startDate)
     await page.fill('input[name="endDate"]', endDate)
 
-    // Submit form
-    await page.click('button[type="submit"]')
+    // Wait for form validation and submit
+    const submitButton = page.locator('button[type="submit"]')
+    await expect(submitButton).toBeEnabled({ timeout: 5000 })
+    await submitButton.click()
 
     // Wait for navigation and check we're on trip detail page
     await page.waitForURL(/\/trips\/[a-f0-9-]+/)
@@ -55,7 +57,9 @@ test.describe('Trips Feature', () => {
     // First create a trip
     await page.goto('/add-trip')
     await page.fill('input[name="title"]', 'Map Test Trip')
-    await page.click('button[type="submit"]')
+    const submitButton1 = page.locator('button[type="submit"]')
+    await expect(submitButton1).toBeEnabled({ timeout: 5000 })
+    await submitButton1.click()
     await page.waitForURL(/\/trip\/[a-f0-9-]+/)
 
     // Navigate to surf spots map
@@ -118,7 +122,9 @@ test.describe('Trips Feature', () => {
     // Create trip and add spot
     await page.goto('/add-trip')
     await page.fill('input[name="title"]', 'Badge Test Trip')
-    await page.click('button[type="submit"]')
+    const submitButton2 = page.locator('button[type="submit"]')
+    await expect(submitButton2).toBeEnabled({ timeout: 5000 })
+    await submitButton2.click()
     await page.waitForURL(/\/trip\/[a-f0-9-]+/)
 
     // Add a spot
@@ -153,7 +159,9 @@ test.describe('Trips Feature', () => {
     // Create a trip to delete
     await page.goto('/add-trip')
     await page.fill('input[name="title"]', 'Trip To Delete')
-    await page.click('button[type="submit"]')
+    const submitButton3 = page.locator('button[type="submit"]')
+    await expect(submitButton3).toBeEnabled({ timeout: 5000 })
+    await submitButton3.click()
     await page.waitForURL(/\/trip\/[a-f0-9-]+/)
 
     // Click delete button
@@ -207,7 +215,9 @@ test.describe('Trips Feature', () => {
     // Create a trip
     await page.goto('/add-trip')
     await page.fill('input[name="title"]', 'Media Test Trip')
-    await page.click('button[type="submit"]')
+    const submitButton4 = page.locator('button[type="submit"]')
+    await expect(submitButton4).toBeEnabled({ timeout: 5000 })
+    await submitButton4.click()
     await page.waitForURL(/\/trip\/[a-f0-9-]+/)
 
     // Check for Media section

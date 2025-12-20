@@ -147,16 +147,14 @@ export async function fillFormField(page: Page, name: string, value: string) {
 }
 
 /**
- * Submit form safely
+ * Submit form safely - waits for button to be enabled before clicking
  */
 export async function submitForm(page: Page) {
   const submitButton = page.locator('button[type="submit"]')
-  if (await submitButton.isVisible()) {
-    await submitButton.click()
-    await page.waitForTimeout(2000) // Wait for form submission
-    return true
-  }
-  return false
+  await submitButton.waitFor({ state: 'visible' })
+  await expect(submitButton).toBeEnabled({ timeout: 5000 })
+  await submitButton.click()
+  return true
 }
 
 /**

@@ -1,5 +1,6 @@
 import {
   ActionFunctionArgs,
+  data,
   Link,
   LoaderFunctionArgs,
   MetaFunction,
@@ -26,7 +27,10 @@ export const action = async ({ request }: ActionFunctionArgs) => {
   const token = url.searchParams.get('token')
 
   if (!token) {
-    return { submitStatus: 'Invalid or missing token', hasError: true }
+    return data(
+      { submitStatus: 'Invalid or missing token', hasError: true },
+      { status: 400 },
+    )
   }
 
   const newPassword = formData.get('newPassword')?.toString() || ''
@@ -34,7 +38,10 @@ export const action = async ({ request }: ActionFunctionArgs) => {
     formData.get('repeatedNewPassword')?.toString() || ''
   // Validate input fields
   if (newPassword !== repeatedNewPassword) {
-    return { submitStatus: 'New passwords do not match!', hasError: true }
+    return data(
+      { submitStatus: 'New passwords do not match!', hasError: true },
+      { status: 400 },
+    )
   }
 
   const ResetPasswordRequest = { token, newPassword }
@@ -48,10 +55,10 @@ export const action = async ({ request }: ActionFunctionArgs) => {
         ? e.message
         : 'An unexpected error occurred. Please try again.'
 
-    return {
-      submitStatus: submitError,
-      hasError: true,
-    }
+    return data(
+      { submitStatus: submitError, hasError: true },
+      { status: 500 },
+    )
   }
 }
 

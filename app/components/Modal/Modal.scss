@@ -13,6 +13,9 @@
 .modal-container {
   background-color: $white;
   color: $text-color;
+  border: 1px solid $outline-color;
+  border-radius: $content-border-radius;
+  padding: $spacing-unit;
   max-width: 90%;
   width: 480px;
 }

@@ -39,8 +39,10 @@ test.describe('Surfboards Feature', () => {
     await page.selectOption('select[name="finSetup"]', 'thruster')
     await page.fill('textarea[name="description"]', 'My favorite board')
 
-    // Submit form
-    await page.click('button[type="submit"]')
+    // Wait for form validation and submit
+    const submitButton = page.locator('button[type="submit"]')
+    await expect(submitButton).toBeEnabled({ timeout: 5000 })
+    await submitButton.click()
 
     // Wait for navigation and check we're on surfboard detail page
     await page.waitForURL(/\/surfboard\/[a-f0-9-]+/)
@@ -52,7 +54,9 @@ test.describe('Surfboards Feature', () => {
   }) => {
     await page.goto('/add-surfboard')
     await page.fill('input[name="name"]', 'Minimal Board')
-    await page.click('button[type="submit"]')
+    const submitButton1 = page.locator('button[type="submit"]')
+    await expect(submitButton1).toBeEnabled({ timeout: 5000 })
+    await submitButton1.click()
 
     // Should navigate to detail page
     await page.waitForURL(/\/surfboard\/[a-f0-9-]+/)
@@ -93,7 +97,9 @@ test.describe('Surfboards Feature', () => {
     // Create a surfboard to delete
     await page.goto('/add-surfboard')
     await page.fill('input[name="name"]', 'Board To Delete')
-    await page.click('button[type="submit"]')
+    const submitButton2 = page.locator('button[type="submit"]')
+    await expect(submitButton2).toBeEnabled({ timeout: 5000 })
+    await submitButton2.click()
     await page.waitForURL(/\/surfboard\/[a-f0-9-]+/)
 
     // Click delete button
@@ -152,7 +158,9 @@ test.describe('Surfboards Feature', () => {
     await page.fill('input[name="width"]', '19.5')
     await page.fill('input[name="thickness"]', '2.5')
     await page.fill('input[name="volume"]', '28.5')
-    await page.click('button[type="submit"]')
+    const submitButton3 = page.locator('button[type="submit"]')
+    await expect(submitButton3).toBeEnabled({ timeout: 5000 })
+    await submitButton3.click()
     await page.waitForURL(/\/surfboard\/[a-f0-9-]+/)
 
     // Check that dimensions are displayed
@@ -174,8 +182,9 @@ test.describe('Surfboards Feature', () => {
   test('should validate required fields on create', async ({ page }) => {
     await page.goto('/add-surfboard')
 
-    // Try to submit without name
-    await page.click('button[type="submit"]')
+    // Try to submit without name - button should be disabled
+    const submitButton4 = page.locator('button[type="submit"]')
+    await expect(submitButton4).toBeDisabled()
 
     // Should show validation error or stay on page
     const nameInput = page.locator('input[name="name"]')
@@ -186,7 +195,9 @@ test.describe('Surfboards Feature', () => {
     // Create a surfboard
     await page.goto('/add-surfboard')
     await page.fill('input[name="name"]', 'Cancel Delete Test')
-    await page.click('button[type="submit"]')
+    const submitButton5 = page.locator('button[type="submit"]')
+    await expect(submitButton5).toBeEnabled({ timeout: 5000 })
+    await submitButton5.click()
     await page.waitForURL(/\/surfboard\/[a-f0-9-]+/)
 
     // Click delete button
@@ -205,7 +216,9 @@ test.describe('Surfboards Feature', () => {
     // Create a surfboard
     await page.goto('/add-surfboard')
     await page.fill('input[name="name"]', 'Image Test Board')
-    await page.click('button[type="submit"]')
+    const submitButton6 = page.locator('button[type="submit"]')
+    await expect(submitButton6).toBeEnabled({ timeout: 5000 })
+    await submitButton6.click()
     await page.waitForURL(/\/surfboard\/[a-f0-9-]+/)
 
     // Check for Images section

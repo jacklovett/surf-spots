@@ -18,34 +18,36 @@ export interface NetworkError extends Error {
   status?: number
 }
 
-// Handles the response, throwing an error if the response is not ok
+// Type guard for NetworkError
+export const isNetworkError = (err: unknown): err is NetworkError => {
+  return err instanceof Error && 'status' in err
+}
+
 const handleResponse = async <T>(response: Response): Promise<T> => {
-  // Handle empty responses (common with 401/403 errors)
   let data = null
   const contentType = response.headers.get('content-type')
-  if (contentType && contentType.includes('application/json')) {
+  const isJson = contentType?.includes('application/json')
+
+  if (isJson) {
     try {
       data = await response.json()
     } catch (e) {
-      // If JSON parsing fails, try to get text
-      const text = await response.text().catch(() => '')
       console.warn('[NetworkService] Failed to parse JSON response:', {
         status: response.status,
         contentType,
-        text: text.substring(0, 200), // Limit text length
       })
     }
   }
 
   if (!response.ok) {
     const errorMessage =
-      data?.message || `Request failed with status ${response.status}`
+      data?.message || 
+      `Request failed with status ${response.status}`
     const error = new Error(errorMessage) as NetworkError
     error.status = response.status
     throw error
   }
 
-  // If the response is an ApiResponse, return its data
   if (
     data &&
     'data' in data &&
@@ -103,7 +105,10 @@ const request = async <T, B = undefined>(
       error: fetchError,
       errorMessage: fetchError instanceof Error ? fetchError.message : String(fetchError),
     })
-    throw fetchError
+    // Convert network errors to user-friendly NetworkError
+    const error = new Error('Unable to sign in. Please try again.') as NetworkError
+    error.status = 0 // 0 indicates network error (not HTTP error)
+    throw error
   })
 
   // Log response status for debugging

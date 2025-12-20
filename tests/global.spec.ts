@@ -5,14 +5,22 @@ test.describe('Global Functionality', () => {
     await page.goto('/surf-spots')
 
     // Check if loading indicators are present during page load
-    const loadingIndicator = page.locator('.loading, .skeleton-loader')
-    if (await loadingIndicator.isVisible()) {
-      await expect(loadingIndicator).toBeVisible()
+    const loadingIndicator = page.locator('.loading-container, .skeleton-loader')
+    
+    // Wait a bit to see if loading indicators appear (they may load very quickly)
+    const hasLoadingIndicator = await loadingIndicator
+      .first()
+      .isVisible({ timeout: 1000 })
+      .catch(() => false)
+
+    if (hasLoadingIndicator) {
+      await expect(loadingIndicator.first()).toBeVisible()
 
       // Wait for loading to complete
       await page.waitForTimeout(2000)
-      await expect(loadingIndicator).not.toBeVisible()
+      await expect(loadingIndicator.first()).not.toBeVisible()
     }
+    // If no loading indicator appears, that's also fine - pages may load instantly
   })
 
   test('should handle error states', async ({ page }) => {

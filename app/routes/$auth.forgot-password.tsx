@@ -26,7 +26,10 @@ export const action = async ({ request }: ActionFunctionArgs) => {
   const emailError = validateEmail(email)
   // Early return if form validation error are present
   if (emailError) {
-    return { submitStatus: emailError, hasError: true }
+    return data(
+      { submitStatus: emailError, hasError: true },
+      { status: 400 },
+    )
   }
 
   const { origin } = new URL(request.url)
@@ -55,10 +58,10 @@ export const action = async ({ request }: ActionFunctionArgs) => {
         ? e.message
         : 'An unexpected error occurred. Please try again.'
 
-    return {
-      submitStatus: submitError,
-      hasError: true,
-    }
+    return data(
+      { submitStatus: submitError, hasError: true },
+      { status: 500 },
+    )
   }
 }
 

@@ -1,8 +1,7 @@
-import { ReactNode, useEffect, useRef } from 'react'
-import { Form, useNavigation } from 'react-router'
+import { ReactNode } from 'react'
+import { Form } from 'react-router'
 import { Button, ErrorBoundary } from '../index'
 import { SubmitStatus } from './index'
-import { useToastContext } from '~/contexts'
 import { useFormSubmission } from '~/hooks'
 
 type FormMethod = 'post' | 'patch' | 'put'
@@ -28,39 +27,21 @@ export const FormComponent = (props: IProps) => {
     cancelLabel,
   } = props
 
-  const { showSuccess, showError } = useToastContext()
   const { isFormSubmitting } = useFormSubmission()
-  const navigation = useNavigation()
-  const previousMessageRef = useRef<string | null>(null)
-
-  // Clear previous message when form starts submitting (new submission)
-  useEffect(() => {
-    if (isFormSubmitting) {
-      previousMessageRef.current = null
-    }
-  }, [isFormSubmitting])
-
-  // Show toast only when navigation is 'idle' (everything complete, button spinner stopped)
-  // This ensures users see the toast only after the button has finished spinning
-  useEffect(() => {
-    if (
-      navigation.state === 'idle' &&
-      submitStatus &&
-      submitStatus.message &&
-      previousMessageRef.current !== submitStatus.message
-    ) {
-      if (submitStatus.isError) {
-        showError(submitStatus.message)
-      } else {
-        showSuccess(submitStatus.message)
-      }
-      previousMessageRef.current = submitStatus.message
-    }
-  }, [navigation.state, submitStatus, showSuccess, showError])
 
   return (
     <ErrorBoundary>
-      <Form method={method} noValidate>
+      <Form method={method} noValidate>        
+        {!!submitStatus && (
+          <div className="form-status-container">
+            {!submitStatus?.isError && (
+              <span className="form-success">{submitStatus?.message}</span>
+            )}
+            {submitStatus?.isError && (
+              <span className="form-error">{submitStatus.message}</span>
+            )}
+          </div>
+        )}
         {children}
         <div className="center-horizontal form-submit">
           <Button

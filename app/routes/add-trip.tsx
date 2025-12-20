@@ -53,8 +53,8 @@ export const action: ActionFunction = async ({ request }) => {
   if (!title || title.length === 0) {
     return data(
       {
-        error: 'Title is required',
-        success: false,
+        submitStatus: 'Title is required',
+        hasError: true,
       },
       { status: 400 },
     )
@@ -74,8 +74,8 @@ export const action: ActionFunction = async ({ request }) => {
   if (emailErrors.length > 0) {
     return data(
       {
-        error: 'Please enter valid email addresses for all members.',
-        success: false,
+        submitStatus: 'Please enter valid email addresses for all members.',
+        hasError: true,
       },
       { status: 400 },
     )
@@ -113,8 +113,8 @@ export const action: ActionFunction = async ({ request }) => {
     console.error('Failed to create trip:', error)
     return data(
       {
-        error: 'Failed to create trip. Please try again.',
-        success: false,
+        submitStatus: 'Failed to create trip. Please try again.',
+        hasError: true,
       },
       { status: 500 },
     )
@@ -126,9 +126,8 @@ interface LoaderData {
 }
 
 interface ActionData {
-  trip?: Trip
-  success?: boolean
-  error?: string
+  submitStatus?: string
+  hasError?: boolean
 }
 
 export default function AddTrip() {
@@ -164,16 +163,16 @@ export default function AddTrip() {
     <Page showHeader>
       <ErrorBoundary message="Something went wrong loading the trip form">
         <div className="info-page-content mv">
-          <TripForm
-            actionType="Add"
-            submitStatus={
-              actionData?.error
-                ? { message: actionData.error, isError: true }
-                : null
-            }
-            onCancel={handleCancel}
-            allowMembers
-          />
+        <TripForm
+          actionType="Add"
+          submitStatus={
+            actionData?.submitStatus
+              ? { message: actionData.submitStatus, isError: actionData.hasError || false }
+              : null
+          }
+          onCancel={handleCancel}
+          allowMembers
+        />
         </div>
       </ErrorBoundary>
     </Page>

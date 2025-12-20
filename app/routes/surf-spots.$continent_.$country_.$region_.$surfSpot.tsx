@@ -9,7 +9,6 @@ import {
 
 import { cacheControlHeader, get } from '~/services/networkService'
 import { SurfSpot } from '~/types/surfSpots'
-import { Trip } from '~/types/trip'
 
 import {
   CalendarIcon,

@@ -1,7 +1,7 @@
 import { data, redirect } from 'react-router'
 import { AuthRequest, User } from '~/types/user'
 import { getSession, commitSession } from '~/services/session.server'
-import { post } from './networkService'
+import { post, isNetworkError } from './networkService'
 import { validateEmail, validatePassword } from '~/hooks/useFormValidation'
 import { ApiResponse } from '~/types/api'
 
@@ -28,7 +28,6 @@ export const authenticateWithCredentials = async (request: Request) => {
   const email = formData.get('email') as string
   const password = formData.get('password') as string
 
-  // Validate form inputs
   const errors = validate(email, password)
   if (errors) {
     return { errors }
@@ -36,11 +35,10 @@ export const authenticateWithCredentials = async (request: Request) => {
 
   try {
     const user = await verifyLogin(email, password)
-
     if (!user) {
       return data(
         {
-          submitStatus: 'Authentication failed',
+          submitStatus: 'Invalid login credentials',
           hasError: true,
         },
         { status: 401 },
@@ -50,8 +48,18 @@ export const authenticateWithCredentials = async (request: Request) => {
     return await setSessionCookieAndRedirect(request, user)
   } catch (error) {
     console.error('Login error:', error)
+    
+    if (isNetworkError(error) && error.status !== undefined) {
+      if (error.status === 401 || error.status === 403 || error.status === 404) {
+        return {
+          submitStatus: 'Invalid login credentials',
+          hasError: true,
+        }
+      }
+    }
+
     return {
-      submitStatus: 'Invalid login credentials',
+      submitStatus: 'Unable to sign in. Please try again.',
       hasError: true,
     }
   }
@@ -77,62 +85,36 @@ export const setSessionCookieAndRedirect = async (
 }
 
 export const verifyLogin = async (email: string, password: string) => {
-  try {
-    const response = await post<AuthRequest, ApiResponse<User>>('auth/login', {
-      email: formatEmail(email),
-      password,
-      provider: 'EMAIL',
-    })
+  const response = await post<AuthRequest, ApiResponse<User>>('auth/login', {
+    email: formatEmail(email),
+    password,
+    provider: 'EMAIL',
+  })
 
-    if (!response.data) {
-      throw new Error(response.message || 'Invalid login credentials')
-    }
-    return response.data
-  } catch (error) {
-    console.error('Login API error:', error)
-    if (error instanceof Error && error.message.includes('401')) {
-      throw new Error('Invalid login credentials')
-    }
-    throw error
+  if (!response.data) {
+    throw new Error(response.message || 'Invalid login credentials')
   }
+  return response.data
 }
 
 export const registerUser = async (
   authRequest: AuthRequest,
   request: Request,
 ) => {
-  try {
-    const user = await post<AuthRequest, User>('auth/register', authRequest)
-    if (!user) {
-      throw new Error('Failed to register user')
-    }
-    return await setSessionCookieAndRedirect(request, user)
-  } catch (error) {
-    if (error instanceof Response) {
-      const errorData = await error.json()
-      throw new Error(errorData.message || 'Failed to register user')
-    }
-    if (error instanceof Error) {
-      throw error
-    }
+  const user = await post<AuthRequest, User>('auth/register', authRequest)
+  if (!user) {
     throw new Error('Failed to register user')
   }
+  return await setSessionCookieAndRedirect(request, user)
 }
 
 export const validate = (email: string, password: string) => {
-  const emailErrors = validateEmail(email)
-  const passwordErrors = validatePassword(password)
-
-  // Only include errors in the result if they exist
   const errors: AuthErrors = {}
+  const emailError = validateEmail(email)
+  const passwordError = validatePassword(password)
 
-  if (emailErrors) {
-    errors.email = emailErrors
-  }
-
-  if (passwordErrors) {
-    errors.password = passwordErrors
-  }
+  if (emailError) errors.email = emailError
+  if (passwordError) errors.password = passwordError
 
   return Object.keys(errors).length ? errors : null
 }
@@ -143,25 +125,22 @@ export const handleOAuthError = (
 ) => {
   console.error(`${provider} OAuth error:`, error)
 
-  // Extract meaningful error message
-  let errorMessage = `${provider} authentication failed`
+  let errorMessage = 'Sign in failed. Please try again.'
+  
   if (error instanceof Error) {
-    if (
+    if (isNetworkError(error)) {
+      errorMessage = error.message
+    } else if (
       provider === 'facebook' &&
       error.message.includes('Email is required')
     ) {
       errorMessage =
         'Email access is required. Please allow email access in Facebook settings and try again.'
-    } else if (error.message.includes(`Failed to get ${provider} tokens`)) {
-      errorMessage = `${provider} authentication failed. Please try again.`
     } else if (error.message.includes(`Failed to get ${provider} profile`)) {
-      errorMessage = `Unable to retrieve your ${provider} profile. Please try again.`
-    } else {
-      errorMessage = error.message
+      errorMessage = 'Unable to retrieve your profile. Please try again.'
     }
   }
 
-  // Redirect to auth page with error message
   const searchParams = new URLSearchParams({
     error: provider,
     message: encodeURIComponent(errorMessage),

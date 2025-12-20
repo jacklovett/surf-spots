@@ -1,6 +1,7 @@
 import { useEffect } from 'react'
 import {
   ActionFunctionArgs,
+  data,
   Link,
   MetaFunction,
   useNavigation,
@@ -29,7 +30,11 @@ export const action = async ({ request }: ActionFunctionArgs) => {
   const fieldErrors = validate(email, password)
   // Early return if fieldErrors are present
   if (fieldErrors) {
-    return { submitStatus: fieldErrors, hasError: true }
+    const errorMessage = fieldErrors.email || fieldErrors.password || 'Please fix the errors above'
+    return data(
+      { submitStatus: errorMessage, hasError: true },
+      { status: 400 },
+    )
   }
 
   // Attempt user registration
@@ -46,7 +51,10 @@ export const action = async ({ request }: ActionFunctionArgs) => {
       e instanceof Error
         ? e.message
         : 'An unexpected error occurred. Please try again.'
-    return { submitStatus: submitError, hasError: true }
+    return data(
+      { submitStatus: submitError, hasError: true },
+      { status: 400 },
+    )
   }
 }
 

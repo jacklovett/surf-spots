@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test'
+import { login } from './utils/auth-helper'
 
 test.describe('Watch List Page', () => {
   test.describe('Unauthenticated User', () => {
@@ -14,14 +15,7 @@ test.describe('Watch List Page', () => {
 
   test.describe('Authenticated User', () => {
     test.beforeEach(async ({ page }) => {
-      // Login first
-      await page.goto('/auth')
-      await page.fill('input[name="email"]', 'test@example.com')
-      await page.fill('input[name="password"]', 'password123')
-      await page.click('button[type="submit"]')
-
-      // Wait for redirect after login
-      await page.waitForTimeout(2000)
+      await login(page)
     })
 
     test('should display watch list page title', async ({ page }) => {

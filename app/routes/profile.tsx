@@ -5,14 +5,17 @@ import {
   Link,
   LoaderFunction,
   MetaFunction,
+  redirect,
   useLoaderData,
+  useFetcher,
 } from 'react-router'
 import fs from 'fs/promises'
 import path from 'path'
 
-import { cacheControlHeader, edit } from '~/services/networkService'
+import { cacheControlHeader, deleteData, edit } from '~/services/networkService'
 import {
   commitSession,
+  destroySession,
   getSession,
   requireSessionCookie,
 } from '~/services/session.server'
@@ -25,6 +28,8 @@ import {
   FormComponent,
   LocationSelector,
   NavButton,
+  Modal,
+  Button,
 } from '~/components'
 import { Location } from '~/components/LocationSelector'
 import { useSubmitStatus, useFormSubmission } from '~/hooks'
@@ -65,7 +70,38 @@ export const loader: LoaderFunction = async ({ request }) => {
 
 export const action: ActionFunction = async ({ request }) => {
   const formData = await request.formData()
+  const intent = formData.get('intent')
 
+  // Handle account deletion
+  if (intent === 'delete-account') {
+    const user = await requireSessionCookie(request)
+    const cookie = request.headers.get('Cookie') ?? ''
+
+    try {
+      await deleteData(`user/${user.id}`, {
+        headers: { Cookie: cookie },
+      })
+
+      // Destroy session and redirect
+      const session = await getSession(cookie)
+      return redirect('/', {
+        headers: {
+          'Set-Cookie': await destroySession(session),
+        },
+      })
+    } catch (error) {
+      console.error('Unable to delete account: ', error)
+      return data(
+        {
+          submitStatus: 'Unable to delete account. Please try again later',
+          hasError: true,
+        },
+        { status: 500 },
+      )
+    }
+  }
+
+  // Handle profile update
   const name = formData.get('name')?.toString() || ''
   const country = formData.get('country')?.toString() || ''
   const city = formData.get('city')?.toString() || ''
@@ -120,6 +156,9 @@ const Profile = () => {
   const { locationData = [], error } = useLoaderData<LoaderData>()
 
   const submitStatus = useSubmitStatus()
+  const deleteFetcher = useFetcher()
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
+
   const { formState, errors, isFormValid, handleChange, handleBlur } =
     useFormValidation({
       initialFormState: {
@@ -135,6 +174,13 @@ const Profile = () => {
     })
 
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false)
+
+  const handleDeleteAccount = () => {
+    deleteFetcher.submit(
+      { intent: 'delete-account' },
+      { method: 'post' },
+    )
+  }
 
   useEffect(
     () =>
@@ -213,7 +259,58 @@ const Profile = () => {
             variant="secondary"
           />
         </div>
+        <div className="mv">
+          <div className="danger-zone">
+            <h3>Delete Account</h3>
+            <p className="font-small">
+              This will permanently delete all your data. This action cannot be
+              undone.
+            </p>
+            <Button
+              label="Delete Account"
+              variant="danger"
+              onClick={() => setShowDeleteConfirm(true)}
+            />
+          </div>
+        </div>
       </div>
+
+      {showDeleteConfirm && (
+        <Modal onClose={() => setShowDeleteConfirm(false)}>
+          <div className="delete-confirm-modal">
+            <h2>Delete Your Account?</h2>
+            <p>
+              This will permanently delete your account and all your data,
+              including trips, surfboards, watch lists, and profile information.
+            </p>
+            <p className="warning">
+              This action cannot be undone.
+            </p>
+            {deleteFetcher.data?.hasError && (
+              <p className="delete-error">
+                {deleteFetcher.data.submitStatus}
+              </p>
+            )}
+            <div className="modal-actions">
+              <Button
+                label="Delete Account"
+                variant="danger"
+                onClick={handleDeleteAccount}
+                disabled={deleteFetcher.state === 'submitting'}
+                loading={deleteFetcher.state === 'submitting'}
+              />
+              <Button
+                label="Cancel"
+                variant="cancel"
+                onClick={() => {
+                  setShowDeleteConfirm(false)
+                }}
+                disabled={deleteFetcher.state === 'submitting'}
+              />
+            </div>
+          </div>
+        </Modal>
+      )}
     </Page>
   )
 }

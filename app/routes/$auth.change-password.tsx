@@ -43,7 +43,10 @@ export const action = async ({ request }: ActionFunctionArgs) => {
 
   // Validate input fields
   if (newPassword !== repeatedNewPassword) {
-    return { submitStatus: 'New passwords do not match!', hasError: true }
+    return data(
+      { submitStatus: 'New passwords do not match!', hasError: true },
+      { status: 400 },
+    )
   }
 
   const changePasswordRequest = { userId, currentPassword, newPassword }
@@ -65,10 +68,10 @@ export const action = async ({ request }: ActionFunctionArgs) => {
         ? e.message
         : 'An unexpected error occurred. Please try again.'
 
-    return {
-      submitStatus: submitError,
-      hasError: true,
-    }
+    return data(
+      { submitStatus: submitError, hasError: true },
+      { status: 500 },
+    )
   }
 }
 

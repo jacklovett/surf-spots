@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react'
-import { useNavigation } from 'react-router'
 import { FormInput, FormComponent, DatePicker, TextButton } from '~/components'
 import { SubmitStatus } from '~/components/FormComponent'
 import useFormValidation, {
@@ -23,8 +22,6 @@ export const TripForm = ({
   onCancel,
   allowMembers = false,
 }: TripFormProps) => {
-  const { state } = useNavigation()
-  const loading = state === 'loading' || state === 'submitting'
 
   const { formState, errors, isFormValid, handleChange, handleBlur } =
     useFormValidation({
@@ -86,8 +83,7 @@ export const TripForm = ({
       <h1>{actionType === 'Add' ? 'Create New Trip' : 'Edit Trip'}</h1>
 
       <FormComponent
-        loading={loading}
-        isDisabled={loading || !isFormValid}
+        isDisabled={!isFormValid}
         submitLabel={actionType === 'Add' ? 'Create Trip' : 'Save Changes'}
         submitStatus={submitStatus}
         method={actionType === 'Edit' ? 'put' : 'post'}

@@ -24,22 +24,24 @@ Visit `http://localhost:5173` to see your app.
 
 ### Environment Variables
 
-Create a `.env` file in the `surf-spots` directory:
-```env
-VITE_API_URL=http://localhost:8080/api
-VITE_MAP_ACCESS_TOKEN=your_mapbox_token
-SESSION_SECRET=your-secret-key-min-32-chars
-BASE_URL=http://localhost:5173
+Create a `.env` file in the `surf-spots` directory. See `.env.example` for a template.
 
-# Optional OAuth
-GOOGLE_CLIENT_ID=your_google_client_id
-GOOGLE_CLIENT_SECRET=your_google_client_secret
-GOOGLE_CALLBACK_URL=http://localhost:5173/auth/google
+**Required for development:**
+- `VITE_API_URL` - Backend API URL (e.g., `http://localhost:8080/api`)
+- `SESSION_SECRET` - Secret key for session encryption (minimum 32 characters)
 
-FACEBOOK_CLIENT_ID=your_facebook_app_id
-FACEBOOK_CLIENT_SECRET=your_facebook_app_secret
-FACEBOOK_CALLBACK_URL=http://localhost:5173/auth/facebook
-```
+**Required for e2e tests:**
+- `TEST_USER_EMAIL` - Email for test account (tests will create this account automatically)
+- `TEST_USER_PASSWORD` - Password for test account
+- `TEST_USER_NAME` - Name for test account (optional, defaults to "Test User")
+
+**Optional:**
+- `VITE_MAP_ACCESS_TOKEN` - Mapbox access token for maps
+- `BASE_URL` - Base URL for the application
+- `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `GOOGLE_CALLBACK_URL` - Google OAuth
+- `FACEBOOK_CLIENT_ID`, `FACEBOOK_CLIENT_SECRET`, `FACEBOOK_CALLBACK_URL` - Facebook OAuth
+
+See .env.example
 
 ## Deployment
 

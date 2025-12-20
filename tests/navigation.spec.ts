@@ -67,6 +67,9 @@ test.describe('Navigation', () => {
   })
 
   test('should handle auth guard redirects', async ({ page }) => {
+    // Ensure user is not logged in
+    await page.context().clearCookies()
+
     // Test auth-guarded routes that should redirect to login
     const authGuardedRoutes = [
       '/profile',
@@ -79,17 +82,18 @@ test.describe('Navigation', () => {
     ]
 
     for (const route of authGuardedRoutes) {
-      await page.goto(route, { waitUntil: 'domcontentloaded' })
-
-      // Should redirect to auth page
-      await page.waitForURL(/\/auth/, { timeout: 5000 })
+      // In Remix, loader redirects happen server-side before the page is sent
+      // Wait for 'load' to ensure the full redirect cycle is complete
+      await page.goto(route, { waitUntil: 'load', timeout: 20000 })
+      
+      // The redirect should already be complete, but verify we're on auth page
       const currentUrl = page.url()
       expect(currentUrl).toContain('/auth')
 
       // Verify auth page content is visible
       await expect(
         page.locator('h1:has-text("Sign In"), h1:has-text("Login")'),
-      ).toBeVisible()
+      ).toBeVisible({ timeout: 5000 })
     }
   })
 

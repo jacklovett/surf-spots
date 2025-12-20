@@ -46,6 +46,11 @@
     left: 0;
     width: 100%;
   }
+
+ & .content-status {
+    margin-top: 0;
+    justify-content: center;
+  }
 }
 
 .auth-copyright {

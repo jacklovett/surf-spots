@@ -91,9 +91,8 @@ export default defineConfig({
     timeout: 180 * 1000,
   },
 
-  /* Global setup and teardown */
+  /* Global setup */
   globalSetup: join(__dirname, './tests/global-setup.ts'),
-  globalTeardown: join(__dirname, './tests/global-teardown.ts'),
 
   /* Test timeout */
   timeout: 90000,

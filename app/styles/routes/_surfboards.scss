@@ -256,6 +256,21 @@
   p {
     margin: $spacing-unit 0;
     color: $text-color;
+
+    &.warning {
+      margin-top: $spacing-unit;
+      font-weight: bold;
+    }
+  }
+
+  ul {
+    margin: $spacing-small 0 $spacing-unit $spacing-large;
+    padding-left: 0;
+    color: $text-color;
+
+    li {
+      margin: $spacing-small 0;
+    }
   }
 }
 

@@ -3,8 +3,8 @@ import {
   data,
   Link,
   LinksFunction,
+  LoaderFunction,
   MetaFunction,
-  useNavigation,
 } from 'react-router'
 import { authenticateWithCredentials, validate } from '~/services/auth.server'
 import { AuthPage, FormComponent, FormInput, SignInOptions } from '~/components'
@@ -26,6 +26,31 @@ export const links: LinksFunction = () => [
   },
 ]
 
+export const loader: LoaderFunction = async ({ request }) => {
+  const url = new URL(request.url)
+  const errorParam = url.searchParams.get('error')
+  const messageParam = url.searchParams.get('message')
+  const passwordReset = url.searchParams.get('passwordReset')
+
+  if (errorParam && messageParam) {
+    const errorMessage = decodeURIComponent(messageParam)
+    // Return error data - URL cleanup will happen in component
+    return data({
+      submitStatus: errorMessage,
+      hasError: true,
+    })
+  }
+
+  if (passwordReset === 'true') {
+    return data({
+      submitStatus: 'Password reset successful. Please sign in with your new password.',
+      hasError: false,
+    })
+  }
+
+  return data(null)
+}
+
 export const action: ActionFunction = async ({ request }) => {
   const clonedRequest = request.clone()
   const formData = await clonedRequest.formData()
@@ -35,7 +60,12 @@ export const action: ActionFunction = async ({ request }) => {
   const errors = validate(email, password)
 
   if (errors) {
-    return { errors }
+    // Return validation errors as submitStatus for inline form display
+    const errorMessage = errors.email || errors.password || 'Please fix the errors above'
+    return data(
+      { submitStatus: errorMessage, hasError: true },
+      { status: 400 },
+    )
   }
 
   try {
@@ -71,9 +101,7 @@ export const action: ActionFunction = async ({ request }) => {
 }
 
 export default function Auth() {
-  const { state } = useNavigation()
-  const loading = state === 'loading'
-
+  // useSubmitStatus already handles both actionData and loaderData
   const submitStatus = useSubmitStatus()
 
   const { formState, errors, isFormValid, handleChange } = useFormValidation({

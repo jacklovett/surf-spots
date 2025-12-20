@@ -9,6 +9,7 @@ import {
   ScrollRestoration,
   useLoaderData,
   useLocation,
+  useNavigation,
 } from 'react-router'
 
 import {
@@ -85,9 +86,18 @@ export function Layout({ children }: { children: React.ReactNode }) {
 export default function App() {
   const { user } = useLoaderData<LoaderData>()
   const location = useLocation()
+  const navigation = useNavigation()
 
-  // Scroll to top when pathname changes (on navigation)
-  useEffect(() => window.scrollTo(0, 0), [location.pathname])
+  // Scroll to top when navigation starts (loading state) to ensure loading animation is visible
+  useEffect(() => {
+    if (
+      navigation.state === 'loading' &&
+      navigation.location &&
+      navigation.location.pathname !== location.pathname
+    ) {
+      window.scrollTo(0, 0)
+    }
+  }, [navigation.state, navigation.location, location.pathname])
 
   // Set CSS custom property for accurate mobile viewport height
   // This fixes the issue where 100vh includes browser UI on mobile

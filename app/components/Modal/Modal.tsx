@@ -12,7 +12,7 @@ export const Modal = (props: IProps) => {
   // Use a portal to enforce rendering the modal in the body
   return createPortal(
     <div className="modal-overlay">
-      <div className="modal-container card">
+      <div className="modal-container">
         <div className="modal-header flex-end">
           <Button label="×" onClick={onClose} variant="icon" />
         </div>

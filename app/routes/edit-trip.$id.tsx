@@ -30,8 +30,8 @@ interface LoaderData {
 }
 
 interface ActionData {
-  success?: boolean
-  error?: string | null
+  submitStatus?: string
+  hasError?: boolean
 }
 
 export const loader: LoaderFunction = async ({ request, params }) => {
@@ -80,7 +80,7 @@ export const action: ActionFunction = async ({ params, request }) => {
   // Only handle PUT requests for updates
   if (request.method !== 'PUT') {
     return data<ActionData>(
-      { error: 'Method not allowed', success: false },
+      { submitStatus: 'Method not allowed', hasError: true },
       { status: 405 },
     )
   }
@@ -90,7 +90,7 @@ export const action: ActionFunction = async ({ params, request }) => {
 
   if (!tripId || !user?.id) {
     return data<ActionData>(
-      { error: 'Trip not found', success: false },
+      { submitStatus: 'Trip not found', hasError: true },
       { status: 404 },
     )
   }
@@ -104,8 +104,8 @@ export const action: ActionFunction = async ({ params, request }) => {
   if (!title || title.length === 0) {
     return data<ActionData>(
       {
-        error: 'Title is required',
-        success: false,
+        submitStatus: 'Title is required',
+        hasError: true,
       },
       { status: 400 },
     )
@@ -125,8 +125,8 @@ export const action: ActionFunction = async ({ params, request }) => {
   if (emailErrors.length > 0) {
     return data<ActionData>(
       {
-        error: 'Please enter valid email addresses for all members.',
-        success: false,
+        submitStatus: 'Please enter valid email addresses for all members.',
+        hasError: true,
       },
       { status: 400 },
     )
@@ -155,9 +155,9 @@ export const action: ActionFunction = async ({ params, request }) => {
         // Error message is already formatted by addMembersToTrip
         return data<ActionData>(
           {
-            error:
+            submitStatus:
               error instanceof Error ? error.message : 'Failed to add members',
-            success: false,
+            hasError: true,
           },
           { status: 400 },
         )
@@ -169,8 +169,8 @@ export const action: ActionFunction = async ({ params, request }) => {
     console.error('Failed to update trip:', error)
     return data<ActionData>(
       {
-        error: 'Failed to update trip. Please try again.',
-        success: false,
+        submitStatus: 'Failed to update trip. Please try again.',
+        hasError: true,
       },
       { status: 500 },
     )
@@ -212,8 +212,8 @@ export default function EditTrip() {
             actionType="Edit"
             trip={trip}
             submitStatus={
-              actionData?.error
-                ? { message: actionData.error, isError: true }
+              actionData?.submitStatus
+                ? { message: actionData.submitStatus, isError: actionData.hasError || false }
                 : null
             }
             onCancel={handleCancel}

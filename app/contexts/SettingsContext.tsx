@@ -31,22 +31,26 @@ const SettingsContext = createContext<{
 
 export const SettingsProvider = ({ children }: SettingsProviderProps) => {
   const [settings, setSettings] = useState<Settings>(defaultSettings)
-  const [isClient, setIsClient] = useState(false)
 
   useEffect(() => {
-    setIsClient(true)
-    const storedSettings = window.localStorage.getItem('settings')
+    const storedSettings = localStorage.getItem('settings')
 
     if (storedSettings) {
-      setSettings(JSON.parse(storedSettings))
+      try {
+        setSettings(JSON.parse(storedSettings))
+      } catch (error) {
+        console.error('Error parsing stored settings:', error)
+      }
     }
   }, [])
 
   useEffect(() => {
-    if (isClient) {
-      window.localStorage.setItem('settings', JSON.stringify(settings))
+    try {
+      localStorage.setItem('settings', JSON.stringify(settings))
+    } catch (error) {
+      console.error('Error saving settings to localStorage:', error)
     }
-  }, [settings, isClient])
+  }, [settings])
 
   const updateSetting = useCallback(
     (key: string, value: string | units) =>
