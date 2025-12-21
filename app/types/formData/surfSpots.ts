@@ -148,8 +148,8 @@ export const FOOD_OPTIONS: Option[] = [
   },
 ]
 
-export const SKILL_LEVEL_OPTIONS: Option[] = [
-  SELECT_OPTION,
+// Base skill level options (without placeholder or ALL_LEVELS)
+export const BASE_SKILL_LEVEL_OPTIONS: Option[] = [
   {
     key: SkillLevel.BEGINNER,
     value: SkillLevel.BEGINNER,
@@ -175,6 +175,12 @@ export const SKILL_LEVEL_OPTIONS: Option[] = [
     value: SkillLevel.ADVANCED,
     label: 'Advanced',
   },
+]
+
+// Skill level options for filters (includes ALL_LEVELS)
+export const SKILL_LEVEL_OPTIONS: Option[] = [
+  SELECT_OPTION,
+  ...BASE_SKILL_LEVEL_OPTIONS,
   {
     key: SkillLevel.ALL_LEVELS,
     value: SkillLevel.ALL_LEVELS,

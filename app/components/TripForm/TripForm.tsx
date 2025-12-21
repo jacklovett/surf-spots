@@ -100,7 +100,7 @@ export const TripForm = ({
           onChange={(e) => handleChange('title', e.target.value)}
           onBlur={() => handleBlur('title')}
           errorMessage={errors.title}
-          showLabel={actionType === 'Edit' ? !!formState.title : true}
+          showLabel={!!formState.title}
         />
         <FormInput
           field={{
@@ -110,7 +110,7 @@ export const TripForm = ({
           }}
           value={formState.description}
           onChange={(e) => handleChange('description', e.target.value)}
-          showLabel={actionType === 'Edit' ? !!formState.description : true}
+          showLabel={!!formState.description}
         />
         <DatePicker
           label="Start Date"
@@ -122,7 +122,7 @@ export const TripForm = ({
               ? new Date().toISOString().split('T')[0]
               : undefined
           }
-          showLabel={actionType === 'Edit' ? !!formState.startDate : true}
+          showLabel={!!formState.startDate}
         />
         <DatePicker
           label="End Date"
@@ -130,8 +130,8 @@ export const TripForm = ({
           value={formState.endDate}
           onChange={(e) => handleChange('endDate', e.target.value)}
           min={formState.startDate || new Date().toISOString().split('T')[0]}
-          showRangePreview={true}
-          showLabel={actionType === 'Edit' ? !!formState.endDate : true}
+          showRangePreview
+          showLabel={!!formState.endDate}
         />
 
         {allowMembers && (
@@ -155,7 +155,7 @@ export const TripForm = ({
                   value={email}
                   onChange={(e) => updateMemberEmail(index, e.target.value)}
                   errorMessage={memberEmailErrors[index]}
-                  showLabel
+                  showLabel={!!email}
                 />
                 {memberEmails.length > 1 && (
                   <TextButton

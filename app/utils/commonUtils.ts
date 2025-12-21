@@ -1,4 +1,8 @@
 /**
+ * Common utility functions used across the application
+ */
+
+/**
  * Debounce function to control excessive resize events
  * @param action - function to be performed
  * @param delay - length of time to delay function call
@@ -15,7 +19,11 @@ export const debounce = (action: (...args: any[]) => void, delay: number) => {
   }
 }
 
-// TODO: Does this work?
+/**
+ * Gets a CSS variable value from the document
+ * @param variable - CSS variable name (e.g., '--primary-color')
+ * @returns CSS variable value or default
+ */
 export const getCssVariable = (variable: string) => {
   if (typeof window === 'undefined' || !document.body) {
     // Return defaults during SSR
@@ -23,18 +31,3 @@ export const getCssVariable = (variable: string) => {
   }
   return getComputedStyle(document.body).getPropertyValue(variable)
 }
-
-/**
- * Converts meters to feet - 1m ≈ 3.28ft
- * @param meters - distance in meters
- * @returns number - distance in feet
- */
-export const metersToFeet = (meters: number): number =>
-  Math.round(meters * 3.28084 * 10) / 10
-
-/**
- * Converts km to miles - 1km ≈ 0.621371mi
- * @param km - distance in kilometers
- * @returns number - distance in miles
- */
-export const kmToMiles = (km: number): number => km * 0.621371

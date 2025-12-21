@@ -4,7 +4,6 @@ import {
   LoaderFunction,
   useLoaderData,
   useNavigate,
-  useNavigation,
 } from 'react-router'
 import { Page, TextButton, ContentStatus, Card } from '~/components'
 import { requireSessionCookie } from '~/services/session.server'
@@ -50,8 +49,6 @@ export const loader: LoaderFunction = async ({ request }) => {
 
 export default function Surfboards() {
   const navigate = useNavigate()
-  const navigation = useNavigation()
-  const { state } = navigation
 
   const loaderData = useLoaderData<LoaderData>()
   const { surfboards, error } = loaderData || {}
@@ -90,7 +87,7 @@ export default function Surfboards() {
 
         {surfboardsList.length === 0 ? (
           <div className="surfboards-empty">
-            <p className="mv-l">No surfboards yet</p>
+            <p className="mv bold">No surfboards yet</p>
             <p className="text-secondary">
               Add your first surfboard to start tracking your collection
             </p>

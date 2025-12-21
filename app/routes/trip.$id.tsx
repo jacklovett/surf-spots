@@ -506,13 +506,6 @@ export default function TripDetail() {
     }
   }, [fetcher.data, fetcher.state])
 
-  // Helper to extract error message
-  const getErrorMessage = (error: unknown, defaultMessage: string): string => {
-    return error instanceof Error ? error.message : defaultMessage
-  }
-
-  // Early returns for error states
-
   if (error || !initialTrip?.id || !trip?.id) {
     return (
       <Page showHeader>

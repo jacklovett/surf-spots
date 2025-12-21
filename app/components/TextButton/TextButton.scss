@@ -5,6 +5,7 @@ button.text-button {
   background: none;
   border: none;
   cursor: pointer;
+  margin-right: $spacing-small;
   padding: $spacing-small $spacing-unit;
   border-radius: $button-border-radius;
   transition: all 0.2s ease;

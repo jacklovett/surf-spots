@@ -151,11 +151,6 @@
   }
 }
 
-.info-page-content p.text-secondary {
-  margin-top: $spacing-small;
-  margin-bottom: $spacing-large;
-}
-
 .trip-spots-list,
 .trip-members-list {
   @extend %flex-column;

@@ -7,7 +7,7 @@ import {
 import { Option } from '~/components/FormInput'
 import { SurfSpotFormState } from '~/types/surfSpots'
 import { ForecastLink } from '../ForecastLinks'
-import { kmToMiles } from '~/utils'
+import { kmToMiles } from '~/utils/unitUtils'
 import {
   Availability,
   PARKING_OPTIONS,

@@ -16,7 +16,7 @@ import {
   removeSource,
 } from '~/services/mapService'
 import { Coordinates, SurfSpot } from '~/types/surfSpots'
-import { debounce } from '~/utils'
+import { debounce } from '~/utils/commonUtils'
 import { FetcherSubmitParams } from '~/types/api'
 import { useSurfSpotsContext, useUserContext } from '~/contexts'
 import { useMapDrawer } from './useMapDrawer'

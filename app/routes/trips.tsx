@@ -4,12 +4,11 @@ import {
   LoaderFunction,
   ActionFunction,
   useLoaderData,
-  useNavigate,
-  useNavigation,
+  useNavigate
 } from 'react-router'
 import { Page, TextButton, ContentStatus, Card } from '~/components'
 import { requireSessionCookie } from '~/services/session.server'
-import { cacheControlHeader, get, post, deleteData } from '~/services/networkService'
+import { cacheControlHeader, get} from '~/services/networkService'
 import { Trip } from '~/types/trip'
 import { useScrollReveal } from '~/hooks'
 import { formatDate } from '~/utils/dateUtils'
@@ -69,8 +68,6 @@ export const action: ActionFunction = async ({ request }) => {
 
 export default function Trips() {
   const navigate = useNavigate()
-  const navigation = useNavigation()
-  const { state } = navigation
 
   // Get loader data - must be called before any conditional returns
   const loaderData = useLoaderData<LoaderData>()
@@ -79,10 +76,6 @@ export default function Trips() {
   // Hooks to animate cards when they scroll into view - must be called before any conditional returns
   const ownedTripsRef = useScrollReveal()
   const memberTripsRef = useScrollReveal()
-
-  // Show loading state only if we don't have data yet
-  // Don't show loading during navigation if we already have data
-  const isLoading = (!loaderData || trips === undefined) && state === 'loading'
 
   const handleCreateTrip = () => navigate('/add-trip')
   const handleTripClick = (tripId: string) => navigate(`/trip/${tripId}`)
@@ -117,7 +110,7 @@ export default function Trips() {
 
         {tripsList.length === 0 ? (
           <div className="trips-empty">
-            <p className="mv-l">No trips yet</p>
+            <p className="mv bold">No trips yet</p>
             <p className="text-secondary">
               Create your first trip to start planning your surf adventures
             </p>

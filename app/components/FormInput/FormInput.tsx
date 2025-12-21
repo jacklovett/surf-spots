@@ -78,6 +78,8 @@ export const FormInput = (props: IProps) => {
           disabled={disabled}
           aria-disabled={disabled}
           readOnly={readOnly}
+          min={type === 'number' && field.validationRules?.min !== undefined ? field.validationRules.min : type === 'number' ? 0 : undefined}
+          max={type === 'number' && field.validationRules?.max !== undefined ? field.validationRules.max : undefined}
         />
       )}
       {errorMessage && <span className="form-error">{errorMessage}</span>}

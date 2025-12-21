@@ -10,12 +10,19 @@ export interface AuthRequest {
   providerId?: string
 }
 
+import { SkillLevel } from './surfSpots'
+
 export interface User {
   id: string
   name: string
   email: string
   country?: string
   city?: string
+  age?: number
+  gender?: string
+  height?: number
+  weight?: number
+  skillLevel?: SkillLevel
   settings?: UserSettings
 }
 
@@ -24,6 +31,11 @@ export interface ProfileState {
   email: string
   name: string
   city: string
+  age: string
+  gender: string
+  height: string
+  weight: string
+  skillLevel: string
 }
 
 export interface UserSettings {

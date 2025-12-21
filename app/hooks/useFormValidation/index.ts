@@ -1,4 +1,5 @@
 import { useFormValidation } from './useFormValidation'
+import { parseHeightImperial, parseWeightImperial } from '~/utils/unitUtils'
 
 // Validation helpers
 export const validateRequired = <T>(value: T, fieldName = 'This field') =>
@@ -78,6 +79,78 @@ export const validateLatitude: ValidationFn<number | undefined> = (
   }
 
   return ''
+}
+
+export const validateNumberRange = (
+  value: string | undefined,
+  min: number,
+  max: number,
+  fieldName: string
+): string => {
+  if (!value || value.trim() === '') {
+    return '' // Optional fields don't need validation if empty
+  }
+
+  const numValue = parseFloat(value)
+  if (isNaN(numValue)) {
+    return `Please enter a valid number for ${fieldName.toLowerCase()}`
+  }
+
+  if (numValue < min || numValue > max) {
+    return `Please enter a valid ${fieldName.toLowerCase()}`
+  }
+
+  return ''
+}
+
+export const validateAge = (value: string | undefined): string => {
+  return validateNumberRange(value, 13, 120, 'Age')
+}
+
+export const validateHeight = (
+  value: string | undefined,
+  units: 'metric' | 'imperial',
+): string => {
+  if (!value || value.trim() === '') {
+    return '' // Optional fields don't need validation if empty
+  }
+
+  if (units === 'metric') {
+    return validateNumberRange(value, 50, 300, 'Height')
+  } else {
+    // Validate imperial format (feet'inches - same as surfboard length format)
+    const totalInches = parseHeightImperial(value)
+    if (totalInches === undefined) {
+      return 'Please enter height in format like 5\'10 or total inches'
+    }
+    if (totalInches < 20 || totalInches > 120) {
+      return 'Please enter a valid height'
+    }
+    return ''
+  }
+}
+
+export const validateWeight = (
+  value: string | undefined,
+  units: 'metric' | 'imperial',
+): string => {
+  if (!value || value.trim() === '') {
+    return '' // Optional fields don't need validation if empty
+  }
+
+  if (units === 'metric') {
+    return validateNumberRange(value, 10, 500, 'Weight')
+  } else {
+    // Validate imperial format (stones'lbs or total lbs)
+    const totalLbs = parseWeightImperial(value)
+    if (totalLbs === undefined) {
+      return 'Please enter weight in format like 12st 5lbs, 12 5, or total lbs'
+    }
+    if (totalLbs < 20 || totalLbs > 1100) {
+      return 'Please enter a valid weight'
+    }
+    return ''
+  }
 }
 
 export const validateUrl = (value: string, fieldName = 'URL') => {

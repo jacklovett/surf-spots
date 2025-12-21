@@ -72,7 +72,6 @@ export const SurfboardForm = ({
 
   return (
     <FormComponent
-      loading={loading}
       isDisabled={loading || !isFormValid}
       submitLabel={actionType === 'Add' ? 'Add Surfboard' : 'Save Changes'}
       submitStatus={submitStatus}
@@ -90,7 +89,7 @@ export const SurfboardForm = ({
         onChange={(e) => handleChange('name', e.target.value)}
         onBlur={() => handleBlur('name')}
         errorMessage={errors.name || ''}
-        showLabel={actionType === 'Edit' ? !!formState.name : true}
+        showLabel={!!formState.name}
       />
       <FormInput
         field={{
@@ -101,18 +100,18 @@ export const SurfboardForm = ({
         }}
         value={formState.boardType}
         onChange={(e) => handleChange('boardType', e.target.value)}
-        showLabel={actionType === 'Edit' ? !!formState.boardType : true}
+        showLabel={!!formState.boardType}
       />
       <div className="form-row">
         <FormInput
           field={{
-            label: 'Length',
+            label: 'Length (ft & in)',
             name: 'length',
             type: 'text',
           }}
           value={formState.length}
           onChange={(e) => handleChange('length', e.target.value)}
-          showLabel={actionType === 'Edit' ? !!formState.length : true}
+          showLabel
           placeholder="e.g. 6'1"
         />
         <FormInput
@@ -123,7 +122,7 @@ export const SurfboardForm = ({
           }}
           value={formState.width}
           onChange={(e) => handleChange('width', e.target.value)}
-          showLabel={actionType === 'Edit' ? !!formState.width : true}
+          showLabel
           placeholder="e.g. 20 1/2"
         />
       </div>
@@ -136,7 +135,7 @@ export const SurfboardForm = ({
           }}
           value={formState.thickness}
           onChange={(e) => handleChange('thickness', e.target.value)}
-          showLabel={actionType === 'Edit' ? !!formState.thickness : true}
+          showLabel
           placeholder="e.g. 2 5/8"
         />
         <FormInput
@@ -147,7 +146,7 @@ export const SurfboardForm = ({
           }}
           value={formState.volume}
           onChange={(e) => handleChange('volume', e.target.value)}
-          showLabel={actionType === 'Edit' ? !!formState.volume : true}
+          showLabel={!!formState.volume}
         />
       </div>
       <FormInput
@@ -159,7 +158,7 @@ export const SurfboardForm = ({
         }}
         value={formState.finSetup}
         onChange={(e) => handleChange('finSetup', e.target.value)}
-        showLabel={actionType === 'Edit' ? !!formState.finSetup : true}
+        showLabel={!!formState.finSetup}
       />
       <FormInput
         field={{
@@ -169,20 +168,20 @@ export const SurfboardForm = ({
         }}
         value={formState.description}
         onChange={(e) => handleChange('description', e.target.value)}
-        showLabel={actionType === 'Edit' ? !!formState.description : true}
+        showLabel={!!formState.description}
       />
       <FormInput
         field={{
-          label: 'Model Link (Optional)',
+          label: 'Model Link',
           name: 'modelUrl',
           type: 'url',
         }}
         value={formState.modelUrl}
         onChange={(e) => handleChange('modelUrl', e.target.value)}
         onBlur={() => handleBlur('modelUrl')}
-        showLabel={actionType === 'Edit' ? !!formState.modelUrl : true}
+        showLabel
         errorMessage={errors.modelUrl || ''}
-        placeholder="Link to the model's product page or specs sheet"
+        placeholder="URL to model's product page or specs"
       />
     </FormComponent>
   )

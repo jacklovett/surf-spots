@@ -124,10 +124,10 @@ export function SelectionModal<T extends SelectionItem>({
             <Loading />
           </div>
         ) : items.length === 0 ? (
-          <div>
-            <p>{emptyStateTitle || 'No items available.'}</p>
+          <div className="selection-empty-state">
+            <p className="selection-empty-title bold">{emptyStateTitle || 'No items available.'}</p>
             {emptyStateDescription && (
-              <p className="text-secondary">{emptyStateDescription}</p>
+              <p className="selection-empty-description text-secondary">{emptyStateDescription}</p>
             )}
             {emptyStateCtaText && emptyStateCtaAction && (
               <div className="selection-actions">

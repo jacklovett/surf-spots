@@ -19,7 +19,7 @@ import {
   getSession,
   requireSessionCookie,
 } from '~/services/session.server'
-import { useUserContext } from '~/contexts'
+import { useUserContext, useSettingsContext } from '~/contexts'
 
 import {
   ContentStatus,
@@ -36,7 +36,21 @@ import { useSubmitStatus, useFormSubmission } from '~/hooks'
 import useFormValidation, {
   validateEmail,
   validateRequired,
+  validateAge,
+  validateHeight,
+  validateWeight,
 } from '~/hooks/useFormValidation'
+import { GENDER_OPTIONS, USER_SKILL_LEVEL_OPTIONS } from '~/types/formData/profile'
+import {
+  convertHeightToDisplay,
+  convertHeightFromDisplay,
+  convertWeightToDisplay,
+  convertWeightFromDisplay,
+  getHeightLabel,
+  getWeightLabel,
+  validateAndConvertHeight,
+  validateAndConvertWeight,
+} from '~/utils/unitUtils'
 
 interface LoaderData {
   locationData?: Location[]
@@ -102,9 +116,51 @@ export const action: ActionFunction = async ({ request }) => {
   }
 
   // Handle profile update
-  const name = formData.get('name')?.toString() || ''
-  const country = formData.get('country')?.toString() || ''
-  const city = formData.get('city')?.toString() || ''
+  const name = formData.get('name')?.toString().trim() || ''
+  const country = formData.get('country')?.toString().trim() || ''
+  const city = formData.get('city')?.toString().trim() || ''
+  
+  // Normalize and validate age
+  const ageStr = formData.get('age')?.toString().trim() || ''
+  const age = ageStr ? parseInt(ageStr, 10) : undefined
+  if (age !== undefined && (isNaN(age) || age < 13 || age > 120)) {
+    return data(
+      {
+        submitStatus: 'Age must be between 13 and 120 years',
+        hasError: true,
+      },
+      { status: 400 },
+    )
+  }
+  
+  const gender = formData.get('gender')?.toString().trim() || undefined
+  
+  // Get units preference and convert display values to stored values (cm/kg)
+  const preferredUnits = (formData.get('preferredUnits')?.toString() || 'metric') as 'metric' | 'imperial'
+  
+  // Validate and convert height
+  const heightDisplay = formData.get('height')?.toString().trim() || undefined
+  const heightResult = validateAndConvertHeight(heightDisplay, preferredUnits)
+  if (!heightResult.isValid) {
+    return data(
+      { submitStatus: heightResult.error || 'Please enter a valid height', hasError: true },
+      { status: 400 },
+    )
+  }
+  const height = heightResult.value
+  
+  // Validate and convert weight
+  const weightDisplay = formData.get('weight')?.toString().trim() || undefined
+  const weightResult = validateAndConvertWeight(weightDisplay, preferredUnits)
+  if (!weightResult.isValid) {
+    return data(
+      { submitStatus: weightResult.error || 'Please enter a valid weight', hasError: true },
+      { status: 400 },
+    )
+  }
+  const weight = weightResult.value
+  
+  const skillLevel = formData.get('skillLevel')?.toString() || undefined
 
   const user = await requireSessionCookie(request)
 
@@ -113,6 +169,11 @@ export const action: ActionFunction = async ({ request }) => {
     name,
     country,
     city,
+    age,
+    gender,
+    height,
+    weight,
+    skillLevel,
   }
 
   const cookie = request.headers.get('Cookie') ?? ''
@@ -151,6 +212,7 @@ export const action: ActionFunction = async ({ request }) => {
 
 const Profile = () => {
   const { user } = useUserContext()
+  const { settings } = useSettingsContext()
   const { isFormSubmitting } = useFormSubmission()
 
   const { locationData = [], error } = useLoaderData<LoaderData>()
@@ -159,6 +221,13 @@ const Profile = () => {
   const deleteFetcher = useFetcher()
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
 
+  // Convert stored values (cm/kg) to display units for form initialization
+  const getDisplayValue = (storedValue: number | undefined, converter: (val: number, units: 'metric' | 'imperial') => string | number | undefined) =>
+    storedValue ? converter(storedValue, settings.preferredUnits) : undefined
+  
+  const heightDisplay = getDisplayValue(user?.height, convertHeightToDisplay)
+  const weightDisplay = getDisplayValue(user?.weight, convertWeightToDisplay)
+
   const { formState, errors, isFormValid, handleChange, handleBlur } =
     useFormValidation({
       initialFormState: {
@@ -166,30 +235,52 @@ const Profile = () => {
         email: user?.email || '',
         name: user?.name || '',
         city: user?.city || '',
+        age: user?.age?.toString() || '',
+        gender: user?.gender || '',
+        height: heightDisplay?.toString() || '',
+        weight: weightDisplay?.toString() || '',
+        skillLevel: user?.skillLevel ? String(user.skillLevel) : '',
       },
       validationFunctions: {
         email: validateEmail,
         name: (value?: string) => validateRequired(value, 'Name'),
+        age: (value?: string) => validateAge(value),
+        height: (value?: string) => validateHeight(value, settings.preferredUnits),
+        weight: (value?: string) => validateWeight(value, settings.preferredUnits),
       },
     })
 
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false)
 
-  const handleDeleteAccount = () => {
+  const handleDeleteAccount = () => 
     deleteFetcher.submit(
       { intent: 'delete-account' },
       { method: 'post' },
     )
-  }
 
   useEffect(
-    () =>
+    () => {
+      // Convert form values back to stored units for comparison
+      const convertForComparison = (displayValue: string, converter: (val: string | number | undefined, units: 'metric' | 'imperial') => number | undefined) =>
+        displayValue ? converter(displayValue, settings.preferredUnits) : undefined
+      
+      const heightFormValue = convertForComparison(formState.height, convertHeightFromDisplay)
+      const weightFormValue = convertForComparison(formState.weight, convertWeightFromDisplay)
+      const userSkillLevel = user?.skillLevel ? String(user.skillLevel) : ''
+      const formSkillLevel = formState.skillLevel || ''
+      
       setHasUnsavedChanges(
-        formState.country !== (user?.country ?? '') ||
-          formState.city !== (user?.city ?? '') ||
-          formState.name !== (user?.name ?? ''),
-      ),
-    [formState, user],
+        (formState.country || '') !== (user?.country || '') ||
+          (formState.city || '') !== (user?.city || '') ||
+          (formState.name || '') !== (user?.name || '') ||
+          (formState.age || '') !== (user?.age?.toString() || '') ||
+          (formState.gender || '') !== (user?.gender || '') ||
+          heightFormValue !== (user?.height ?? undefined) ||
+          weightFormValue !== (user?.weight ?? undefined) ||
+          formSkillLevel !== userSkillLevel,
+      )
+    },
+    [formState, user, settings.preferredUnits],
   )
 
   if (error || !user) {
@@ -239,16 +330,100 @@ const Profile = () => {
             errorMessage={errors.name || ''}
             showLabel={!!formState.name}
           />
-          <LocationSelector
-            locationData={locationData || []}
-            selectedCountry={formState.country}
-            selectedCity={formState.city}
-            onCountryChange={(country) => handleChange('country', country)}
-            onCityChange={(city) => handleChange('city', city)}
-          />
-          <div className="row flex-end disclaimer">
-            <Link to="/data-policy" prefetch="intent">
-              Why do we want this information?
+          
+          <div className="profile-optional-section">
+            <h3>Optional</h3>
+            <p>
+              Help us tailor your profile and provide insights based on surfers like you.
+            </p>
+            <LocationSelector
+              locationData={locationData || []}
+              selectedCountry={formState.country}
+              selectedCity={formState.city}
+              onCountryChange={(country) => handleChange('country', country)}
+              onCityChange={(city) => handleChange('city', city)}
+            />
+            
+            <div className="form-inline">
+              <FormInput
+                field={{
+                  label: 'Age',
+                  name: 'age',
+                  type: 'number',
+                  validationRules: { min: 0 },
+                }}
+                value={formState.age}
+                onChange={(e) => handleChange('age', e.target.value.trim())}
+                onBlur={() => handleBlur('age')}
+                errorMessage={errors.age || ''}
+                showLabel={!!formState.age}
+                placeholder="Your age"
+              />
+              
+              <FormInput
+                field={{
+                  label: 'Gender',
+                  name: 'gender',
+                  type: 'select',
+                  options: GENDER_OPTIONS,
+                }}
+                value={formState.gender}
+                onChange={(e) => handleChange('gender', e.target.value)}
+                showLabel={!!formState.gender}
+              />
+            </div>
+            
+            <div className="form-inline">
+              <FormInput
+                field={{
+                  label: getHeightLabel(settings.preferredUnits),
+                  name: 'height',
+                  type: settings.preferredUnits === 'metric' ? 'number' : 'text',
+                  validationRules: settings.preferredUnits === 'metric' ? { min: 0 } : undefined,
+                }}
+                value={formState.height}
+                onChange={(e) => handleChange('height', e.target.value.trim())}
+                onBlur={() => handleBlur('height')}
+                errorMessage={errors.height || ''}
+                showLabel={!!formState.height}
+                placeholder={settings.preferredUnits === 'metric' ? 'Your height (cm)' : 'Your height (e.g. 5\'10)'}
+              />
+              <FormInput
+                field={{
+                  label: getWeightLabel(settings.preferredUnits),
+                  name: 'weight',
+                  type: settings.preferredUnits === 'metric' ? 'number' : 'text',
+                  validationRules: settings.preferredUnits === 'metric' ? { min: 0 } : undefined,
+                }}
+                value={formState.weight}
+                onChange={(e) => handleChange('weight', e.target.value.trim())}
+                onBlur={() => handleBlur('weight')}
+                errorMessage={errors.weight || ''}
+                showLabel={!!formState.weight}
+                placeholder={settings.preferredUnits === 'metric' ? 'Your weight (kg)' : 'Your weight (e.g. 12st 5lbs)'}
+              />
+            </div>
+            <input type="hidden" name="preferredUnits" value={settings.preferredUnits} />
+            
+            <FormInput
+              field={{
+                label: 'Skill Level',
+                name: 'skillLevel',
+                type: 'select',
+                options: USER_SKILL_LEVEL_OPTIONS,
+              }}
+              value={formState.skillLevel}
+              onChange={(e) => handleChange('skillLevel', e.target.value)}
+              showLabel={!!formState.skillLevel}
+            />
+          </div>
+          
+          <div className="profile-links">
+            <Link to="/skill-levels" prefetch="intent" className="text-link">
+              What do these skill levels mean?
+            </Link>
+            <Link to="/data-policy" prefetch="intent" className="text-link">
+              Learn more about our data policy
             </Link>
           </div>
         </FormComponent>
@@ -261,7 +436,7 @@ const Profile = () => {
         </div>
         <div className="mv">
           <div className="danger-zone">
-            <h3>Delete Account</h3>
+            <h3>Impact Zone</h3>
             <p className="font-small">
               This will permanently delete all your data. This action cannot be
               undone.

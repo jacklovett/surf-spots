@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router'
 import { BreadcrumbItem, formatSlug } from './index'
-import { debounce } from '~/utils'
+import { debounce } from '~/utils/commonUtils'
 
 interface IProps {
   items: BreadcrumbItem[]

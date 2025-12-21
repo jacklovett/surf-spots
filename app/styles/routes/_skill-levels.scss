@@ -1,0 +1,16 @@
+/* Skill Levels Page Styles */
+.info-page-content {
+  .skill-level-item {
+    margin-bottom: $spacing-large;
+
+    &:last-child {
+      margin-bottom: 0;
+    }
+
+    h2 {
+      margin-top: 0;
+      margin-bottom: $spacing-small;
+    }
+  }
+}
+

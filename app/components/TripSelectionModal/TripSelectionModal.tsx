@@ -38,12 +38,9 @@ export const TripSelectionModal = ({
   const trips = tripsFromProps || tripsFetcher.data?.trips || tripsFromContext
   
   // Determine if we have trips data available from any source (even if empty)
-  // tripsFromProps being defined means we have data from loader
-  // tripsFetcher.data?.trips being defined means we fetched data
-  // tripsFromContext.length > 0 means we have trips in context (context is always defined, but might be empty)
   const hasTripsData = tripsFromProps !== undefined || 
                        tripsFetcher.data?.trips !== undefined || 
-                       tripsFromContext.length > 0
+                       Array.isArray(tripsFromContext)
 
   const [isLoadingTrips, setIsLoadingTrips] = useState(true)
   const [addingToTripId, setAddingToTripId] = useState<string | null>(null)
@@ -60,20 +57,30 @@ export const TripSelectionModal = ({
   // Load trips via resource route when modal opens (if not provided as props and we don't have trips)
   useEffect(() => {
     if (isOpen) {
-      // If we have trips in context, we're done loading
-      if (tripsFromContext.length > 0 || tripsFromProps) {
+      // If we have trips from props, we're done loading
+      if (!!tripsFromProps) {
         setIsLoadingTrips(false)
+        return
       }
-      // Otherwise, load trips if we don't have them and haven't loaded yet
-      else if (userId && !tripsFromProps && tripsFetcher.state === 'idle' && !tripsFetcher.data) {
-        tripsFetcher.load('/resources/trips')
+      // If we have trips data from fetcher, we're done loading
+      if (!!tripsFetcher.data?.trips) {
+        setIsLoadingTrips(false)
+        return
+      }
+      // If we have trips in context (even if empty array), we're done loading
+      if (Array.isArray(tripsFromContext)) {
+        setIsLoadingTrips(false)
+        // Only load if context is empty and we haven't loaded yet
+        if (tripsFromContext.length === 0 && userId && tripsFetcher.state === 'idle' && !tripsFetcher.data) {
+          tripsFetcher.load('/resources/trips')
+        }
       }
     }
     // Reset loading state when modal closes
     if (!isOpen) {
       setIsLoadingTrips(true)
     }
-  }, [isOpen, userId, tripsFromProps, tripsFromContext.length, tripsFetcher])
+  }, [isOpen, userId, tripsFromProps, tripsFromContext, tripsFetcher])
 
   // Update context with fetched trips when they arrive
   useEffect(() => {
@@ -81,7 +88,6 @@ export const TripSelectionModal = ({
       setIsLoadingTrips(false)
       // Update context with fetched trips
       const trips = tripsFetcher.data.trips
-      setIsLoadingTrips(false)
       if (Array.isArray(trips)) {
         setTrips(trips)
       }
@@ -91,14 +97,7 @@ export const TripSelectionModal = ({
     } else if (tripsFetcher.state === 'loading' && !tripsFetcher.data) {
       setIsLoadingTrips(true)
     }
-  }, [tripsFetcher, setTrips, onError])
-
-  // If we have trips data from props, fetcher, or context with trips, we're not loading
-  useEffect(() => {
-    if (tripsFromProps !== undefined || tripsFetcher.data?.trips !== undefined || tripsFromContext.length > 0) {
-      setIsLoadingTrips(false)
-    }
-  }, [tripsFromProps, tripsFetcher.data, tripsFromContext])
+  }, [tripsFetcher.state, tripsFetcher.data, setTrips, onError])
 
   // Initialize trips from props into context when modal opens
   useEffect(() => {
@@ -232,8 +231,8 @@ export const TripSelectionModal = ({
       }}
       addingItemId={addingToTripId}
       removingItemId={removingFromTripId}
-      emptyStateTitle="You don't have any trips yet."
-      emptyStateDescription="Create a trip first to add surf spots."
+      emptyStateTitle="No trips yet"
+      emptyStateDescription="Create a trip to start planning your surf adventures and add spots like this one."
       emptyStateCtaText="Create Trip"
       emptyStateCtaAction={handleCreateTrip}
       error={tripsFetcher.data?.error}

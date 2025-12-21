@@ -282,7 +282,6 @@ export const SurfSpotForm = (props: SurfSpotFormProps) => {
       <h1>{`${actionType} Surf Spot`}</h1>
       <InfoMessage message="Public surf spots are reviewed and, if approved, become visible to everyone." />
       <FormComponent
-        loading={loading}
         isDisabled={!isFormValid}
         submitStatus={submitStatus}
         method={actionType === 'Edit' ? 'patch' : 'post'}

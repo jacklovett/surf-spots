@@ -18,7 +18,7 @@ import {
 } from '~/services/mapService'
 import { useSurfSpotsContext, useUserContext } from '~/contexts'
 import { useMapDrawer } from '~/hooks/useMapDrawer'
-import { debounce } from '~/utils'
+import { debounce } from '~/utils/commonUtils'
 import { FetcherSubmitParams } from '~/types/api'
 
 interface IProps {

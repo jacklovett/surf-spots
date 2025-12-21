@@ -12,7 +12,7 @@ import type {
   RegionCountryLookupResponse,
 } from '~/types/surfSpots'
 import { NetworkError, post } from './networkService'
-import { getCssVariable } from '~/utils'
+import { getCssVariable } from '~/utils/commonUtils'
 import {
   convertFiltersToBackendFormat,
   type BackendFilterFormat,
