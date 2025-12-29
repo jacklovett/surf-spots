@@ -3,11 +3,21 @@ import {
   Surfboard,
   CreateSurfboardRequest,
   UpdateSurfboardRequest,
-  CreateSurfboardImageRequest,
-  SurfboardImage,
+  CreateSurfboardMediaRequest,
+  SurfboardMedia,
 } from '~/types/surfboard'
 
 const surfboardsEndpoint = 'surfboards'
+
+// Types for upload URL requests
+export interface UploadSurfboardMediaRequest {
+  mediaType: string
+}
+
+export interface UploadUrlResponse {
+  uploadUrl: string
+  mediaId: string
+}
 
 export const getSurfboards = async (userId: string): Promise<Surfboard[]> => {
   return get<Surfboard[]>(`${surfboardsEndpoint}?userId=${userId}`)
@@ -47,36 +57,38 @@ export const deleteSurfboard = async (
   surfboardId: string,
   userId: string,
   options?: RequestInit,
-): Promise<void> => {
-  return deleteData(
+): Promise<void> => deleteData(
     `${surfboardsEndpoint}/${surfboardId}?userId=${userId}`,
     options,
   )
-}
 
-export const addSurfboardImage = async (
+export const addSurfboardMedia = async (
   surfboardId: string,
   userId: string,
-  request: CreateSurfboardImageRequest,
+  request: CreateSurfboardMediaRequest,
   options?: RequestInit,
-): Promise<SurfboardImage> => {
-  return post<CreateSurfboardImageRequest, SurfboardImage>(
-    `${surfboardsEndpoint}/${surfboardId}/images?userId=${userId}`,
+): Promise<SurfboardMedia> => post<CreateSurfboardMediaRequest, SurfboardMedia>(
+    `${surfboardsEndpoint}/${surfboardId}/media?userId=${userId}`,
     request,
     options,
   )
-}
 
-export const deleteSurfboardImage = async (
-  imageId: string,
+export const getSurfboardMediaUploadUrl = async (
+  surfboardId: string,
   userId: string,
+  request: UploadSurfboardMediaRequest,
   options?: RequestInit,
-): Promise<void> => {
-  return deleteData(
-    `${surfboardsEndpoint}/images/${imageId}?userId=${userId}`,
+): Promise<UploadUrlResponse> => post<UploadSurfboardMediaRequest, UploadUrlResponse>(
+    `${surfboardsEndpoint}/${surfboardId}/media/upload-url?userId=${userId}`,
+    request,
     options,
   )
-}
 
-
-
+export const deleteSurfboardMedia = async (
+  mediaId: string,
+  userId: string,
+  options?: RequestInit,
+): Promise<void> =>  deleteData(
+    `${surfboardsEndpoint}/media/${mediaId}?userId=${userId}`,
+    options,
+  )

@@ -20,26 +20,26 @@ import {
 } from '~/components'
 import { requireSessionCookie } from '~/services/session.server'
 import { cacheControlHeader, get } from '~/services/networkService'
-import { Surfboard, SurfboardImage } from '~/types/surfboard'
+import { Surfboard, SurfboardMedia } from '~/types/surfboard'
 import {
-  addSurfboardImage,
-  deleteSurfboardImage,
+  addSurfboardMedia,
+  deleteSurfboardMedia,
   deleteSurfboard,
+  getSurfboardMediaUploadUrl,
 } from '~/services/surfboard'
 import { useUserContext, useToastContext } from '~/contexts'
 import { useScrollReveal, useFileUpload, useActionFetcher } from '~/hooks'
 import { formatLength, formatDimension } from '~/utils/surfboardUtils'
-import { fileToBase64 } from '~/utils/fileUtils.server'
+import { handleMediaUpload } from '~/utils/uploadUtils.server'
+import { ActionData as BaseActionData } from '~/types/api'
 
 interface LoaderData {
   surfboard: Surfboard
   error?: string
 }
 
-interface ActionData {
-  error?: string
-  success?: boolean
-  image?: SurfboardImage
+interface ActionData extends BaseActionData {
+  media?: SurfboardMedia
 }
 
 export const loader: LoaderFunction = async ({ request, params }) => {
@@ -81,16 +81,65 @@ export const loader: LoaderFunction = async ({ request, params }) => {
   }
 }
 
-export const action: ActionFunction = async ({ request, params }) => {
-  const user = await requireSessionCookie(request)
-  if (!user?.id) {
+const handleDeleteMedia = async (
+  mediaId: string,
+  userId: string,
+  cookie: string,
+): Promise<ReturnType<typeof data<ActionData>>> => {
+  if (!mediaId) {
     return data<ActionData>(
-      { error: 'You must be logged in to upload images' },
-      { status: 401 },
+      { error: 'Media ID is required' },
+      { status: 400 },
     )
   }
 
+  try {
+    await deleteSurfboardMedia(mediaId, userId, {
+      headers: { Cookie: cookie },
+    })
+    return data<ActionData>({ success: true })
+  } catch (error) {
+    console.error('[surfboard.$id action] Error deleting media:', error)
+    return data<ActionData>(
+      {
+        error:
+          error instanceof Error
+            ? error.message
+            : 'Failed to delete media. Please try again.',
+      },
+      { status: 500 },
+    )
+  }
+}
+
+const handleDeleteSurfboard = async (
+  surfboardId: string,
+  userId: string,
+  cookie: string,
+): Promise<ReturnType<typeof data<ActionData>> | ReturnType<typeof redirect>> => {
+  try {
+    await deleteSurfboard(surfboardId, userId, {
+      headers: { Cookie: cookie },
+    })
+    return redirect('/surfboards')
+  } catch (error) {
+    console.error('[surfboard.$id action] Error deleting surfboard:', error)
+    return data<ActionData>(
+      {
+        error:
+          error instanceof Error
+            ? error.message
+            : 'Failed to delete surfboard. Please try again.',
+      },
+      { status: 500 },
+    )
+  }
+}
+
+export const action: ActionFunction = async ({ request, params }) => {
+  const user = await requireSessionCookie(request)
   const surfboardId = params.id
+
   if (!surfboardId) {
     return data<ActionData>(
       { error: 'Surfboard ID is required' },
@@ -100,120 +149,55 @@ export const action: ActionFunction = async ({ request, params }) => {
 
   const formData = await request.formData()
   const intent = formData.get('intent') as string
-
   const cookie = request.headers.get('Cookie') || ''
 
-  // Handle image upload
-  if (intent === 'add-image') {
-    const fileEntry = formData.get('image')
-    if (!fileEntry) {
+  if (intent === 'add-media') {
+    const fileEntry = formData.get('media')
+    const result = await handleMediaUpload(fileEntry, {
+      getUploadUrl: async (mediaType: string) => 
+        getSurfboardMediaUploadUrl(
+          surfboardId,
+          user.id,
+          { mediaType },
+          { headers: { Cookie: cookie } },
+        ),
+      recordMedia: async (s3Url: string, _mediaId: string, mediaType: string) =>
+        addSurfboardMedia(
+          surfboardId,
+          user.id,
+          {
+            originalUrl: s3Url,
+            thumbUrl: s3Url,
+            mediaType,
+          },
+          { headers: { Cookie: cookie } },
+        ),
+    })
+
+    if ('error' in result) {
       return data<ActionData>(
-        { error: 'No image file provided' },
-        { status: 400 },
+        { error: result.error },
+        { status: result.error.includes('exceeds') ? 400 : 500 },
       )
     }
 
-    // FormData entries can be File or Blob in Node.js
-    const isFile = fileEntry instanceof File
-    const isBlob = fileEntry instanceof Blob
-
-    if (!isFile && !isBlob) {
-      return data<ActionData>(
-        { error: 'Invalid file format. Please select a valid image file.' },
-        { status: 400 },
-      )
-    }
-
-    try {
-      // Convert file to base64
-      const base64Data = await fileToBase64(fileEntry)
-
-      // Call API to add image
-      const newImage = await addSurfboardImage(
-        surfboardId,
-        user.id,
-        {
-          originalUrl: base64Data,
-          thumbUrl: base64Data,
-        },
-        { headers: { Cookie: cookie } },
-      )
-
-      // Return the new image so the UI can update optimistically
-      return data<ActionData>({ success: true, image: newImage })
-    } catch (error) {
-      console.error('[surfboard.$id action] Error uploading image:', error)
-      return data<ActionData>(
-        {
-          error:
-            error instanceof Error
-              ? error.message
-              : 'Failed to upload image. Please try again.',
-        },
-        { status: 500 },
-      )
-    }
+    return data<ActionData>({ success: true, media: result.media })
   }
 
-  // Handle delete image
-  if (intent === 'delete-image') {
-    const imageId = formData.get('imageId') as string
-    if (!imageId) {
-      return data<ActionData>(
-        { error: 'Image ID is required' },
-        { status: 400 },
-      )
-    }
-
-    try {
-      await deleteSurfboardImage(imageId, user.id, {
-        headers: { Cookie: cookie },
-      })
-      return data<ActionData>({ success: true })
-    } catch (error) {
-      console.error('[surfboard.$id action] Error deleting image:', error)
-      return data<ActionData>(
-        {
-          error:
-            error instanceof Error
-              ? error.message
-              : 'Failed to delete image. Please try again.',
-        },
-        { status: 500 },
-      )
-    }
+  if (intent === 'delete-media') {
+    const mediaId = formData.get('mediaId') as string
+    return await handleDeleteMedia(mediaId, user.id, cookie)
   }
 
-  // Handle delete surfboard
   if (intent === 'delete-surfboard') {
-    try {
-      await deleteSurfboard(surfboardId, user.id, {
-        headers: { Cookie: cookie },
-      })
-      return redirect('/surfboards')
-    } catch (error) {
-      console.error('[surfboard.$id action] Error deleting surfboard:', error)
-      return data<ActionData>(
-        {
-          error:
-            error instanceof Error
-              ? error.message
-              : 'Failed to delete surfboard. Please try again.',
-        },
-        { status: 500 },
-      )
-    }
+    return await handleDeleteSurfboard(surfboardId, user.id, cookie)
   }
 
   return data<ActionData>({ error: 'Invalid intent' }, { status: 400 })
 }
 
 export default function SurfboardDetail() {
-  const loaderData = useLoaderData<LoaderData>()
-  const { surfboard: initialSurfboard, error } = loaderData || {
-    surfboard: undefined,
-    error: undefined,
-  }
+  const { surfboard: initialSurfboard, error } = useLoaderData<LoaderData>()
   const { user } = useUserContext()
   const { showSuccess, showError } = useToastContext()
   const navigate = useNavigate()
@@ -225,61 +209,70 @@ export default function SurfboardDetail() {
   const [deleteError, setDeleteError] = useState('')
 
   const sectionsRef = useScrollReveal()
-
   const {
     uploadFiles,
     isUploading,
     error: uploadError,
     fetcherData,
   } = useFileUpload()
-
-  const { submitAction: submitImageAction, fetcher: imageActionFetcher } =
+  const { submitAction: submitMediaAction, fetcher: mediaActionFetcher } =
     useActionFetcher<ActionData>()
   const { submitAction: submitDeleteAction, fetcher: deleteActionFetcher } =
     useActionFetcher<ActionData>()
 
-  // Sync loader data to state when it changes
   useEffect(() => {
     if (initialSurfboard) {
       setSurfboard(initialSurfboard)
     }
   }, [initialSurfboard])
 
-  // Handle successful image upload - optimistically update UI
   useEffect(() => {
-    if (fetcherData?.success && fetcherData?.image) {
-      const newImage = fetcherData.image as SurfboardImage
+    if (fetcherData?.success && fetcherData?.media) {
+      const newMedia = fetcherData.media as SurfboardMedia
       setSurfboard((prev) => {
         if (!prev) return prev
         return {
           ...prev,
-          images: [...(prev.images || []), newImage],
+          media: [...(prev.media || []), newMedia],
         }
       })
-      showSuccess('Image uploaded successfully!')
+      showSuccess('Media uploaded successfully!')
     }
   }, [fetcherData, showSuccess])
 
-  // Handle upload errors
   useEffect(() => {
     if (uploadError) {
       showError(uploadError)
     }
   }, [uploadError, showError])
 
-  // Handle image action responses (delete)
   useEffect(() => {
-    if (imageActionFetcher.data?.error) {
-      showError(imageActionFetcher.data.error)
-    } else if (imageActionFetcher.data?.success && imageActionFetcher.state === 'idle') {
-      // Image deleted successfully - Remix will automatically revalidate and update loader data
-      showSuccess('Image deleted successfully!')
+    if (mediaActionFetcher.data?.error) {
+      showError(mediaActionFetcher.data.error)
+    } else if (mediaActionFetcher.data?.success && mediaActionFetcher.state === 'idle') {
+      showSuccess('Media deleted successfully!')
     }
-  }, [imageActionFetcher.data, imageActionFetcher.state, showSuccess, showError])
+  }, [mediaActionFetcher.data, mediaActionFetcher.state, showSuccess, showError])
+
+  useEffect(() => {
+    if (deleteActionFetcher.data?.error) {
+      const errorMsg = deleteActionFetcher.data.error
+      setDeleteError(errorMsg)
+      showError(errorMsg)
+      setShowDeleteConfirm(false)
+    } else if (deleteActionFetcher.data?.success && deleteActionFetcher.state === 'idle') {
+      navigate('/surfboards')
+    }
+  }, [deleteActionFetcher.data, deleteActionFetcher.state, navigate, showError])
 
   const handleFileUpload = (files: FileList) => {
     if (!user?.id || !surfboard?.id) return
-    uploadFiles(files, 'add-image')
+    uploadFiles(files, 'add-media', 'media')
+  }
+
+  const handleDeleteConfirm = () => {
+    if (!user?.id || !surfboard?.id) return
+    submitDeleteAction('delete-surfboard', {})
   }
 
   if (error || !initialSurfboard?.id || !surfboard?.id) {
@@ -290,24 +283,6 @@ export default function SurfboardDetail() {
         </ContentStatus>
       </Page>
     )
-  }
-
-  // Handle delete surfboard response
-  useEffect(() => {
-    if (deleteActionFetcher.data?.error) {
-      const errorMsg = deleteActionFetcher.data.error
-      setDeleteError(errorMsg)
-      showError(errorMsg)
-      setShowDeleteConfirm(false)
-    } else if (deleteActionFetcher.data?.success && deleteActionFetcher.state === 'idle') {
-      // Surfboard deleted successfully - redirect to surfboards page
-      navigate('/surfboards')
-    }
-  }, [deleteActionFetcher.data, deleteActionFetcher.state, navigate, showError])
-
-  const handleDeleteConfirm = () => {
-    if (!user?.id || !surfboard?.id) return
-    submitDeleteAction('delete-surfboard', {})
   }
 
   return (
@@ -382,39 +357,38 @@ export default function SurfboardDetail() {
             </p>
           )}
 
-          <ErrorBoundary message="Unable to load images">
+          <ErrorBoundary message="Unable to load media">
             <section className="animate-on-scroll">
-              <h3>Images</h3>
+              <h3>Media</h3>
               <MediaGallery
                 items={
-                  surfboard.images?.map((img) => ({
-                    id: img.id,
-                    url: img.originalUrl,
-                    thumbUrl: img.thumbUrl,
-                    mediaType: 'image' as const,
+                  surfboard.media?.map((media) => ({
+                    id: media.id,
+                    url: media.originalUrl,
+                    thumbUrl: media.thumbUrl,
+                    mediaType: (media.mediaType || 'image') as 'image' | 'video',
                     alt: surfboard.name,
                   })) || []
                 }
                 canDelete={!!user?.id}
                 onDelete={(item) => {
                   if (user?.id) {
-                    // Submit delete action via fetcher - wait for server response
-                    submitImageAction('delete-image', { imageId: item.id })
+                    submitMediaAction('delete-media', { mediaId: item.id })
                   }
                 }}
                 altText={surfboard.name}
               />
 
               <div className="surfboard-media-upload">
-                {isUploading && <p className="mb">Uploading image...</p>}
-                {imageActionFetcher.state === 'submitting' && (
-                  <p className="mb">Deleting image...</p>
+                {isUploading && <p className="mb">Uploading media...</p>}
+                {mediaActionFetcher.state === 'submitting' && (
+                  <p className="mb">Deleting media...</p>
                 )}
                 <MediaUpload
                   onFilesSelected={handleFileUpload}
-                  accept="image/*"
+                  accept="image/*,video/*"
                   multiple
-                  disabled={isUploading || imageActionFetcher.state === 'submitting'}
+                  disabled={isUploading || mediaActionFetcher.state === 'submitting'}
                 />
               </div>
             </section>

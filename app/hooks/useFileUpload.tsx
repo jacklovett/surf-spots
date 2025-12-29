@@ -12,7 +12,7 @@ interface UseFileUploadReturn {
   error: string | null
   clearError: () => void
   fetcherData:
-    | { error?: string; success?: boolean; image?: unknown; media?: unknown }
+    | { error?: string; success?: boolean; media?: unknown }
     | undefined
 }
 
@@ -30,11 +30,22 @@ export const useFileUpload = (
 
   // Handle errors from action
   useEffect(() => {
+    // Check for errors in fetcher data
     if (fetcher.data?.error) {
       const errorMessage = fetcher.data.error
       setError(errorMessage)
       onError?.(errorMessage)
-    } else if (
+    } 
+    // Check for fetcher errors (network errors, etc.)
+    else if (fetcher.state === 'idle' && fetcher.data === undefined && fetcher.formMethod === 'post') {
+      // Fetcher completed but no data - might be an error
+      // This handles cases where the action throws before returning data
+      const errorMessage = 'An unexpected error occurred. Please try again.'
+      setError(errorMessage)
+      onError?.(errorMessage)
+    }
+    // Success case
+    else if (
       fetcher.state === 'idle' &&
       fetcher.data?.success === true &&
       fetcher.data?.error === undefined
@@ -42,12 +53,12 @@ export const useFileUpload = (
       setError(null)
       onSuccess?.()
     }
-  }, [fetcher.data, fetcher.state, onSuccess, onError])
+  }, [fetcher.data, fetcher.state, fetcher.formMethod, onSuccess, onError])
 
   const uploadFiles = (
     files: FileList,
     intent: string,
-    fieldName: string = 'image',
+    fieldName: string = 'media',
   ) => {
     // Upload each file using fetcher
     Array.from(files).forEach((file) => {
@@ -62,9 +73,8 @@ export const useFileUpload = (
     })
   }
 
-  const clearError = () => {
+  const clearError = () => 
     setError(null)
-  }
 
   return {
     uploadFiles,

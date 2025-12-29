@@ -16,7 +16,7 @@ export const Modal = (props: IProps) => {
         <div className="modal-header flex-end">
           <Button label="×" onClick={onClose} variant="icon" />
         </div>
-        <div className="modal-content column">{children}</div>
+        <div className="modal-content">{children}</div>
       </div>
     </div>,
     document.body,

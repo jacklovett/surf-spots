@@ -7,6 +7,7 @@ interface IProps {
   children?: ReactNode
   onClick?: () => void
   type?: 'button' | 'submit'
+  form?: string
   disabled?: boolean
   loading?: boolean
   variant?: ButtonType
@@ -22,6 +23,7 @@ export const Button = (props: IProps) => {
     children,
     onClick,
     type = 'button',
+    form,
     disabled = false,
     loading = false,
     variant = 'primary',
@@ -41,6 +43,7 @@ export const Button = (props: IProps) => {
       className={`button ${variant} ${size} ${loading ? 'loading' : ''} ${className}`.trim()}
       onClick={onClick ? () => onClick() : undefined}
       type={type}
+      form={form}
       disabled={isDisabled}
       aria-label={ariaLabelText}
       aria-disabled={isDisabled}

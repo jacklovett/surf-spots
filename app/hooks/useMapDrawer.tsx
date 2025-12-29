@@ -15,7 +15,6 @@ export const useMapDrawer = (
 
   const handleMarkerClick = useCallback(
     (event: MapMouseEvent) => {
-      // Prevent event propagation to avoid conflicts - TODO: verify necessity, seems hacky
       if (event.originalEvent) {
         event.originalEvent.stopPropagation()
       }

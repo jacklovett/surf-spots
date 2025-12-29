@@ -47,7 +47,7 @@ export const useSignUpPrompt = (): UseSignUpPromptReturn => {
                 Track your surfed spots and build a personal record of your surf
                 achievements.
               </p>
-              <ul className="benefits-list mb">
+              <ul className="benefits-list">
                 <li>Capture every spot you've surfed.</li>
                 <li>Track your exploration progress around the globe.</li>
                 <li>Discover your surf trends and favorite wave types.</li>
@@ -65,7 +65,7 @@ export const useSignUpPrompt = (): UseSignUpPromptReturn => {
                 Join our community and contribute by adding new surf spots for
                 others to discover.
               </p>
-              <ul className="benefits-list mb">
+              <ul className="benefits-list">
                 <li>Share your favorite surf spots with the community</li>
                 <li>Help other surfers discover new waves</li>
                 <li>Build your reputation as a surf spot contributor</li>
@@ -83,7 +83,7 @@ export const useSignUpPrompt = (): UseSignUpPromptReturn => {
                 Create trip itineraries, plan your surf adventures, and share
                 them with friends.
               </p>
-              <ul className="benefits-list mb">
+              <ul className="benefits-list">
                 <li>Plan epic surf trips with multiple spots</li>
                 <li>Invite friends to join your trips</li>
                 <li>Share photos and memories from your adventures</li>
@@ -100,7 +100,7 @@ export const useSignUpPrompt = (): UseSignUpPromptReturn => {
           content: (
             <>
               <p>Track your surfboard collection and manage all your boards.</p>
-              <ul className="benefits-list mb">
+              <ul className="benefits-list">
                 <li>Catalog all your surfboards in one place</li>
                 <li>Track dimensions, volume, and specifications</li>
                 <li>Add photos of your boards</li>
@@ -124,14 +124,18 @@ export const useSignUpPrompt = (): UseSignUpPromptReturn => {
       content: (
         <>
           <h2>{title}</h2>
-          {content}
-          <Button
-            label="Create an account"
-            onClick={() => {
-              setModalState(initialModalState)
-              navigate('/auth/sign-up')
-            }}
-          />
+          <div className="modal-scrollable-content">
+            {content}
+          </div>
+          <div className="modal-footer">
+            <Button
+              label="Create an account"
+              onClick={() => {
+                setModalState(initialModalState)
+                navigate('/auth/sign-up')
+              }}
+            />
+          </div>
         </>
       ),
       isVisible: true,

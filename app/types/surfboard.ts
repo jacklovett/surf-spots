@@ -10,16 +10,17 @@ export interface Surfboard {
   finSetup?: string
   description?: string
   modelUrl?: string
-  images?: SurfboardImage[]
+  media?: SurfboardMedia[]
   createdAt: string
   updatedAt: string
 }
 
-export interface SurfboardImage {
+export interface SurfboardMedia {
   id: string
   surfboardId: string
   originalUrl: string
   thumbUrl?: string
+  mediaType?: string
   createdAt: string
 }
 
@@ -47,7 +48,8 @@ export interface UpdateSurfboardRequest {
   modelUrl?: string
 }
 
-export interface CreateSurfboardImageRequest {
+export interface CreateSurfboardMediaRequest {
   originalUrl: string
   thumbUrl?: string
+  mediaType?: string
 }

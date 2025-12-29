@@ -22,6 +22,7 @@ import {
   extractAndValidateMemberEmails,
   addMembersToTrip,
 } from '~/components/TripForm'
+import { ActionData } from '~/types/api'
 
 export const loader: LoaderFunction = async ({ request }) => {
   try {
@@ -123,11 +124,6 @@ export const action: ActionFunction = async ({ request }) => {
 
 interface LoaderData {
   error?: string
-}
-
-interface ActionData {
-  submitStatus?: string
-  hasError?: boolean
 }
 
 export default function AddTrip() {

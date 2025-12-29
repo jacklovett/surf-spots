@@ -1,0 +1,11 @@
+.note-form-container {
+  @extend %flex-column;
+  height: 100%;
+  min-height: 0;
+}
+
+.note-form-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: $spacing-large;
+}

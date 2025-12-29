@@ -1,5 +1,5 @@
-import { ReactNode } from 'react'
-import { Form } from 'react-router'
+import { ReactNode, RefObject } from 'react'
+import { Form, useFetcher, FetcherWithComponents } from 'react-router'
 import { Button, ErrorBoundary } from '../index'
 import { SubmitStatus } from './index'
 import { useFormSubmission } from '~/hooks'
@@ -14,6 +14,12 @@ interface IProps {
   submitStatus: SubmitStatus | null
   onCancel?: () => void
   cancelLabel?: string
+  fetcher?: FetcherWithComponents<any>
+  action?: string
+  hideSubmitButton?: boolean
+  submitButtonClassName?: string
+  formId?: string
+  formRef?: RefObject<HTMLFormElement>
 }
 
 export const FormComponent = (props: IProps) => {
@@ -25,13 +31,25 @@ export const FormComponent = (props: IProps) => {
     submitStatus,
     onCancel,
     cancelLabel,
+    fetcher: propFetcher,
+    action,
+    hideSubmitButton = false,
+    submitButtonClassName,
   } = props
 
+  const defaultFetcher = useFetcher()
+  const fetcher = propFetcher ?? defaultFetcher
   const { isFormSubmitting } = useFormSubmission()
+  const isSubmitting = propFetcher ? fetcher.state === 'submitting' : isFormSubmitting
+
+  const FormElement = propFetcher ? fetcher.Form : Form
+  const formProps = propFetcher && action 
+    ? { method, noValidate: true, action, id: props.formId, ref: props.formRef } 
+    : { method, noValidate: true, id: props.formId, ref: props.formRef }
 
   return (
     <ErrorBoundary>
-      <Form method={method} noValidate>        
+      <FormElement {...formProps}>        
         {!!submitStatus && (
           <div className="form-status-container">
             {!submitStatus?.isError && (
@@ -43,26 +61,28 @@ export const FormComponent = (props: IProps) => {
           </div>
         )}
         {children}
-        <div className="center-horizontal form-submit">
-          <Button
-            label={submitLabel || 'Submit'}
-            type="submit"
-            disabled={isDisabled || isFormSubmitting}
-            loading={isFormSubmitting}
-            aria-label={isFormSubmitting ? `${submitLabel || 'Submit'} - Processing` : submitLabel || 'Submit'}
-          />
-        </div>
+        {!hideSubmitButton && (
+          <div className={submitButtonClassName || 'center-horizontal form-submit'}>
+            <Button
+              label={submitLabel || 'Submit'}
+              type="submit"
+              disabled={isDisabled || isSubmitting}
+              loading={isSubmitting}
+              aria-label={isSubmitting ? `${submitLabel || 'Submit'} - Processing` : submitLabel || 'Submit'}
+            />
+          </div>
+        )}
         {onCancel && (
           <div className="mt">
             <Button
               label={cancelLabel ?? 'Cancel'}
               onClick={() => onCancel()}
               variant="cancel"
-              disabled={isFormSubmitting}
+              disabled={isSubmitting}
             />
           </div>
         )}
-      </Form>
+      </FormElement>
     </ErrorBoundary>
   )
 }

@@ -1,4 +1,4 @@
-import { FormInput, DirectionSelector } from '~/components'
+import { FormInput, DirectionSelectors } from '~/components'
 import { TIDE_OPTIONS } from '~/types/formData/surfSpots'
 import { Tide, SurfSpotFormState } from '~/types/surfSpots'
 import { directionArrayToString } from '~/utils/surfSpotUtils'
@@ -43,43 +43,23 @@ export const BestConditionsSection = ({
 }: BestConditionsSectionProps) => {
   return (
     <div className="pv">
-      <h4 className="m-0 pt">Best Conditions</h4>
-      <div className="form-inline">
-        <div className="direction-selector-wrapper">
-          <label className="form-label">Swell Direction</label>
-          <p className="direction-selector-help">
-            Click a direction, then click another to select a range
-          </p>
-          <DirectionSelector
-            selected={swellDirectionArray}
-            onChange={(directions) => {
-              onSwellDirectionChange(directions)
-              onChange('swellDirection', directionArrayToString(directions))
-            }}
-            formName="swellDirection"
-          />
-          {errors.swellDirection && (
-            <p className="form-error">{errors.swellDirection}</p>
-          )}
-        </div>
-        <div className="direction-selector-wrapper">
-          <label className="form-label">Wind Direction</label>
-          <p className="direction-selector-help">
-            Click a direction, then click another to select a range
-          </p>
-          <DirectionSelector
-            selected={windDirectionArray}
-            onChange={(directions) => {
-              onWindDirectionChange(directions)
-              onChange('windDirection', directionArrayToString(directions))
-            }}
-            formName="windDirection"
-          />
-          {errors.windDirection && (
-            <p className="form-error">{errors.windDirection}</p>
-          )}
-        </div>
-      </div>
+      <h3>Best Conditions</h3>
+      <DirectionSelectors
+        swellDirectionArray={swellDirectionArray}
+        windDirectionArray={windDirectionArray}
+        onSwellDirectionChange={(directions: string[]) => {
+          onSwellDirectionChange(directions)
+          onChange('swellDirection', directionArrayToString(directions))
+        }}
+        onWindDirectionChange={(directions: string[]) => {
+          onWindDirectionChange(directions)
+          onChange('windDirection', directionArrayToString(directions))
+        }}
+        swellFormName="swellDirection"
+        windFormName="windDirection"
+        swellError={errors.swellDirection}
+        windError={errors.windDirection}
+      />
       <FormInput
         field={{
           label: 'Tide',

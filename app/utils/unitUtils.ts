@@ -219,6 +219,15 @@ export const getWeightLabel = (units: 'metric' | 'imperial'): string => {
 }
 
 /**
+ * Gets the wave units based on preferred units
+ * @param units - preferred display units
+ * @returns wave unit string ('m' for metric, 'ft' for imperial)
+ */
+export const getWaveUnits = (units: 'metric' | 'imperial'): string => {
+  return units === 'metric' ? 'm' : 'ft'
+}
+
+/**
  * Validates and converts height from display format to stored format (cm)
  * @param heightDisplay - height input string
  * @param units - preferred display units

@@ -6,8 +6,7 @@
 
   .surf-spot-preview-content {
     padding: $spacing-unit $spacing-large;
-    font-size: $font-size-small;
-    line-height: 1.5;
+    // line-height: 1.5;
     padding-bottom: $spacing-x-large;
   }
 
@@ -19,7 +18,7 @@
       padding: 2px 0;
 
       .label {
-        font-size: $font-size-x-small;
+        font-size: $font-size-small;
         color: $text-secondary;
         min-width: 90px;
       }
@@ -40,9 +39,10 @@
   }
 
   .preview-subtitle {
-    font-size: $font-size-small;
     color: $text-heading;
-    margin: $spacing-small 0 $spacing-small 0;
+    font-size: $font-size-base;
+    margin-top: $spacing-small;
+    margin-bottom: $spacing-unit;
     padding-bottom: $spacing-small;
     border-bottom: 1px solid $outline-color;
   }

@@ -383,7 +383,7 @@ export const Filters = memo(() => {
         </div>
       </div>
 
-      <div className="row gap filters-content-actions">
+      <div className="drawer-form-actions">
         <Button
           onClick={handleClearFilters}
           variant="cancel"

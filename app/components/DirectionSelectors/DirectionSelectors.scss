@@ -1,0 +1,17 @@
+// DirectionSelectors wrapping logic for smaller spaces
+.form-inline {
+  @media (max-width: 420px) {
+    flex-direction: column;
+  }
+}
+
+.direction-selector-wrapper {
+  flex: 1;
+  min-width: 200px;
+
+  @media (max-width: 420px) {
+    width: 100%;
+    min-width: 0;
+  }
+}
+

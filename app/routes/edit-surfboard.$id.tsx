@@ -18,15 +18,11 @@ import { Surfboard, UpdateSurfboardRequest } from '~/types/surfboard'
 import { cacheControlHeader, get } from '~/services/networkService'
 import { parseLength, parseDimension } from '~/utils/surfboardUtils'
 import { useSubmitStatus } from '~/hooks'
+import { ActionData } from '~/types/api'
 
 interface LoaderData {
   surfboard: Surfboard
   error?: string
-}
-
-interface ActionData {
-  submitStatus?: string
-  hasError?: boolean
 }
 
 export const loader: LoaderFunction = async ({ request, params }) => {

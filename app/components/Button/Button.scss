@@ -148,6 +148,7 @@
 }
 
 .icon {
+  @extend %flex-center;
   width: $spacing-large;
   height: $spacing-large;
   min-height: unset;
@@ -155,19 +156,26 @@
   color: $text-color;
   background: transparent;
   font-size: $font-size-x-large;
-  line-height: 1;
   border-radius: $circle-border-radius;
-  display: flex;
-  align-items: center;
-  justify-content: center;
   transition:
     color 0.3s,
     background 0.3s,
     transform 0.2s;
 
+  .button-content {
+    @extend %flex-center;
+    // Adjust vertical alignment for text characters like '×'
+    transform: translateY(-1px);
+  }
+
   &:hover {
     color: color.adjust($text-color, $lightness: -10%);
     background: $text-hover-background;
     transform: scale(1.03);
+
+    .button-content {
+      // Maintain the vertical adjustment on hover
+      transform: translateY(-1px);
+    }
   }
 }

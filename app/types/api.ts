@@ -9,3 +9,10 @@ export type FetcherSubmitParams =
   | FormData
   | URLSearchParams
   | Record<string, string>
+
+export interface ActionData {
+  error?: string
+  submitStatus?: string
+  hasError?: boolean
+  success?: boolean
+}

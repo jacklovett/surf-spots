@@ -103,8 +103,8 @@ export default function Surfboards() {
                   key={surfboard.id}
                   title={surfboard.name}
                   imageUrl={
-                    surfboard.images?.[0]?.thumbUrl ||
-                    surfboard.images?.[0]?.originalUrl
+                    surfboard.media?.[0]?.thumbUrl ||
+                    surfboard.media?.[0]?.originalUrl
                   }
                   imageAlt={surfboard.name}
                   onClick={() => handleSurfboardClick(surfboard.id)}

@@ -1,3 +1,4 @@
+import { useEffect, useRef } from 'react'
 import {
   ActionFunction,
   data,
@@ -5,10 +6,12 @@ import {
   useFetcher,
   useLoaderData,
   useNavigate,
+  useLocation,
 } from 'react-router'
 
-import { cacheControlHeader, get } from '~/services/networkService'
-import { SurfSpot } from '~/types/surfSpots'
+import { cacheControlHeader, get, post } from '~/services/networkService'
+import { requireSessionCookie } from '~/services/session.server'
+import { SurfSpot, SurfSpotNote, Tide, SkillLevel } from '~/types/surfSpots'
 
 import {
   CalendarIcon,
@@ -21,12 +24,14 @@ import {
   SurfHeightIcon,
   SurfMap,
   SurfSpotActions,
+  SurfSpotNoteForm,
+  TextButton,
   TideIcon,
 } from '~/components'
 import { submitFetcher } from '~/components/SurfSpotActions'
-import { FetcherSubmitParams } from '~/types/api'
+import { FetcherSubmitParams, ActionData } from '~/types/api'
 
-import { useUserContext, useSettingsContext } from '~/contexts'
+import { useUserContext, useSettingsContext, useLayoutContext, useToastContext, useSurfSpotsContext } from '~/contexts'
 
 import { surfSpotAction } from '~/services/surfSpot.server'
 import { getSession } from '~/services/session.server'
@@ -34,10 +39,112 @@ import { formatSurfHeightRange, formatSeason } from '~/utils/surfSpotUtils'
 
 interface LoaderData {
   surfSpotDetails?: SurfSpot
+  note?: SurfSpotNote | null
   error?: string
 }
 
-export const action: ActionFunction = surfSpotAction
+/**
+ * Helper function to handle saving a surf spot note
+ */
+const handleSaveNote = async (
+  formData: FormData,
+  userId: string,
+  cookie: string,
+): Promise<ReturnType<typeof data>> => {
+  const surfSpotId = formData.get('surfSpotId') as string
+
+  if (!surfSpotId) {
+    return data<ActionData>({
+      success: false,
+      submitStatus: 'Surf spot ID is required',
+      hasError: true,
+    }, { status: 400 })
+  }
+
+  const noteText = (formData.get('noteText') as string)?.trim() || ''
+  const preferredTideValue = formData.get('preferredTide') as string
+  const skillRequirementValue = formData.get('skillRequirement') as string
+
+  const noteData: SurfSpotNote = {
+    noteText,
+    preferredTide: preferredTideValue ? (preferredTideValue as Tide) : null,
+    preferredSwellDirection: (formData.get('preferredSwellDirection') as string)?.trim() || null,
+    preferredWind: (formData.get('preferredWind') as string)?.trim() || null,
+    preferredSwellRange: (formData.get('preferredSwellRange') as string)?.trim() || null,
+    skillRequirement: skillRequirementValue ? (skillRequirementValue as SkillLevel) : null,
+  }
+
+  const requestBody = {
+    ...noteData,
+    userId,
+  }
+
+  const savedNote = await post<typeof requestBody, SurfSpotNote>(
+    `surf-spots/id/${surfSpotId}/notes`,
+    requestBody,
+    { headers: { Cookie: cookie } },
+  )
+
+  return data<ActionData & { note: SurfSpotNote }>({
+    success: true,
+    submitStatus: 'Note saved successfully',
+    hasError: false,
+    note: savedNote,
+  })
+}
+
+export const action: ActionFunction = async (args) => {
+  const { request } = args
+  const formData = await request.formData()
+  const intent = formData.get('intent') as string
+
+  if (intent === 'saveNote') {
+    try {
+      const user = await requireSessionCookie(request)
+      const cookie = request.headers.get('Cookie') || ''
+      return await handleSaveNote(formData, user.id, cookie)
+    } catch (error) {
+      console.error('Error saving surf spot note:', error)
+      const errorMessage = error instanceof Error
+        ? error.message
+        : 'Failed to save note. Please try again.'
+      return data<ActionData>(
+        {
+          success: false,
+          submitStatus: errorMessage,
+          hasError: true,
+        },
+        { status: 500 },
+      )
+    }
+  }
+
+  // Handle other surf spot actions
+  return surfSpotAction(args)
+}
+
+/**
+ * Helper function to load a user's note for a surf spot
+ */
+const loadUserNote = async (
+  surfSpotId: string,
+  userId: string,
+  cookie: string,
+): Promise<SurfSpotNote | null> => {
+  try {
+    const note = await get<SurfSpotNote>(
+      `surf-spots/id/${surfSpotId}/notes/${userId}`,
+      { headers: { Cookie: cookie } },
+    )
+    return note
+  } catch (error) {
+    // 404 means note doesn't exist yet, which is fine
+    if (!(error instanceof Error && error.message.includes('404'))) {
+      console.error('[LOAD_USER_NOTE] Error fetching note:', error)
+    }
+    return null
+  }
+}
 
 export const loader: LoaderFunction = async ({ request, params }) => {
   const { surfSpot } = params
@@ -52,8 +159,16 @@ export const loader: LoaderFunction = async ({ request, params }) => {
       : `surf-spots/${surfSpot}`
 
     const surfSpotDetails = await get<SurfSpot>(url)
+
+    // Load note if user is authenticated
+    let note: SurfSpotNote | null = null
+    if (userId && surfSpotDetails?.id) {
+      const cookie = request.headers.get('Cookie') || ''
+      note = await loadUserNote(surfSpotDetails.id, userId, cookie)
+    }
+
     return data<LoaderData>(
-      { surfSpotDetails },
+      { surfSpotDetails, note },
       {
         headers: cacheControlHeader,
       },
@@ -72,25 +187,84 @@ export const loader: LoaderFunction = async ({ request, params }) => {
 }
 
 export default function SurfSpotDetails() {
-  const { surfSpotDetails, error } = useLoaderData<LoaderData>()
+  const { surfSpotDetails, note, error } = useLoaderData<LoaderData>()
   const { user } = useUserContext()
   const { settings } = useSettingsContext()
   const { preferredUnits } = settings
+  const { openDrawer } = useLayoutContext()
+  const { showSuccess, showError } = useToastContext()
+  const { setNote, setNoteSubmissionComplete } = useSurfSpotsContext()
   const navigate = useNavigate()
+  const location = useLocation()
 
   const fetcher = useFetcher<string>()
+  const noteFetcher = useFetcher<ActionData & { note?: SurfSpotNote }>()
+  const lastProcessedDataRef = useRef<typeof noteFetcher.data>(undefined)
 
+  // Set note in context from loader data - always keep it in sync
+  useEffect(() => {
+    if (surfSpotDetails?.id) {
+      const noteValue = note ?? null
+      setNote(surfSpotDetails.id.toString(), noteValue)
+    }
+  }, [surfSpotDetails?.id, note])
+
+  // Handle note form submission - show toast and update context
+  useEffect(() => {
+    // Only process if we have data and it's different from what we last processed
+    if (noteFetcher.state === 'idle' && noteFetcher.data && noteFetcher.data !== lastProcessedDataRef.current) {
+      lastProcessedDataRef.current = noteFetcher.data
+
+      if (noteFetcher.data.success) {
+        showSuccess(noteFetcher.data.submitStatus || 'Note saved successfully')
+        // Update context directly with saved note
+        if (surfSpotDetails?.id && noteFetcher.data.note) {
+          setNote(surfSpotDetails.id.toString(), noteFetcher.data.note)
+        }
+      } else {
+        // Handle any error case - check for submitStatus
+        const errorMessage = noteFetcher.data.submitStatus || 'Failed to save note. Please try again.'
+        showError(errorMessage)
+      }
+
+      // Signal that submission is complete
+      setNoteSubmissionComplete(true)
+    }
+    // Clear completion flag when new submission starts
+    if (noteFetcher.state === 'submitting') {
+      setNoteSubmissionComplete(false)
+      // Reset ref when new submission starts so we can process the new response
+      lastProcessedDataRef.current = undefined
+    }
+  }, [noteFetcher.data, noteFetcher.state, surfSpotDetails?.id, showSuccess, showError, setNote, setNoteSubmissionComplete])
+   
   const onFetcherSubmit = (params: FetcherSubmitParams) =>
     submitFetcher(params, fetcher)
 
-  if (error || !surfSpotDetails) {
+  const handleOpenNotesDrawer = () => {
+    if (!surfSpotDetails || !user) return
+
+    const drawerContent = (
+      <ErrorBoundary message="Something went wrong loading the note form">
+        <SurfSpotNoteForm
+          key={`note-form-${surfSpotDetails.id}`}
+          surfSpotId={surfSpotDetails.id.toString()}
+          surfSpotName={surfSpotDetails.name}
+          fetcher={noteFetcher}
+          action={location.pathname}
+        />
+      </ErrorBoundary>
+    )
+    openDrawer(drawerContent, 'right', 'My Notes')
+  }
+
+if (error || !surfSpotDetails) {
     return (
       <ContentStatus isError>
         <p>{error ?? 'Surf spot details not found.'}</p>
       </ContentStatus>
     )
   }
-
   const {
     beachBottomType,
     description,
@@ -121,7 +295,7 @@ export default function SurfSpotDetails() {
   return (
     <div className="mb-l">
       <div className="content column">
-        <div className="row space-between mt">
+        <div className="row space-between">
           <h1>{name}</h1>
           <div className="spot-actions">
             <SurfSpotActions
@@ -134,6 +308,15 @@ export default function SurfSpotDetails() {
             />
           </div>
         </div>
+        {user && (
+          <div className="row flex-end mb">
+            <TextButton
+              text="Show My Notes"
+              onClick={handleOpenNotesDrawer}
+              iconKey="clipboard"
+            />
+          </div>
+        )}
         <p className="description">{description}</p>
         {!isWavepool && (
           <div className="row spot-details gap mb pv">

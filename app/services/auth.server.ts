@@ -85,16 +85,31 @@ export const setSessionCookieAndRedirect = async (
 }
 
 export const verifyLogin = async (email: string, password: string) => {
-  const response = await post<AuthRequest, ApiResponse<User>>('auth/login', {
-    email: formatEmail(email),
-    password,
-    provider: 'EMAIL',
-  })
+  console.log(`[AUTH_SERVER] Attempting login for: ${formatEmail(email)}`)
+  try {
+    // The networkService extracts data.data from ApiResponse, so we get User directly
+    const user = await post<AuthRequest, User>('auth/login', {
+      email: formatEmail(email),
+      password,
+      provider: 'EMAIL',
+    })
 
-  if (!response.data) {
-    throw new Error(response.message || 'Invalid login credentials')
+    console.log(`[AUTH_SERVER] Login response received:`, { 
+      hasUser: !!user, 
+      userId: user?.id,
+      userEmail: user?.email
+    })
+
+    if (!user || !user.id) {
+      console.log(`[AUTH_SERVER] Login failed: No user data returned`)
+      throw new Error('Invalid login credentials')
+    }
+    console.log(`[AUTH_SERVER] Login successful for user: ${user.id}`)
+    return user
+  } catch (error) {
+    console.error(`[AUTH_SERVER] Login error:`, error)
+    throw error
   }
-  return response.data
 }
 
 export const registerUser = async (

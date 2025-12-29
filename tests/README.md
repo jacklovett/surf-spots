@@ -7,6 +7,26 @@ This directory contains end-to-end tests for the Surf Spots application using Pl
 - Node.js 18+ installed
 - Application dependencies installed (`npm install`)
 - Application running on `http://localhost:5173` (`npm run dev`)
+- Backend API running on `http://localhost:8080/api`
+- Environment variables configured (see Setup below)
+
+## Setup
+
+Create a `.env` file in the project root with the following variables:
+
+```env
+# E2E Test Credentials
+TEST_USER_EMAIL=your-test-email@example.com
+TEST_USER_PASSWORD=your-secure-test-password
+TEST_USER_NAME=Test User
+
+# API URL for backend
+VITE_API_URL=http://localhost:8080/api
+```
+
+**Important:** Replace the placeholder values with actual test credentials. The test user will be automatically created if it doesn't exist when tests run.
+
+You can copy `.env.example` from the project root as a starting point.
 
 ## Running Tests
 

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { useNavigation, useLoaderData } from 'react-router'
+import { useLoaderData } from 'react-router'
 
 import { useSettingsContext } from '~/contexts'
 import { defaultMapCenter } from '~/services/mapService'
@@ -50,8 +50,6 @@ interface SurfSpotFormProps {
 
 export const SurfSpotForm = (props: SurfSpotFormProps) => {
   const { actionType, onCancel } = props
-  const { state } = useNavigation()
-  const loading = state === 'loading'
 
   const { continents, surfSpot } = useLoaderData<LoaderData>()
 
@@ -432,7 +430,7 @@ export const SurfSpotForm = (props: SurfSpotFormProps) => {
           distanceUnits={distanceUnits}
           onChange={handleChange}
         />
-        <h4 className="mv">How would you rate this spot?</h4>
+        <h3 className="mv">How would you rate this spot?</h3>
         <div className="rating-container">
           <Rating
             value={formState.rating}

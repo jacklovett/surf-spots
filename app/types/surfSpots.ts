@@ -224,3 +224,14 @@ export const defaultSurfSpotFilters: SurfSpotFilters = {
   seasons: [],
   isWavepool: undefined,
 }
+
+export interface SurfSpotNote {
+  id?: number
+  noteText: string
+  preferredTide?: Tide | null
+  preferredSwellDirection?: string | null
+  preferredWind?: string | null
+  preferredSwellRange?: string | null
+  skillRequirement?: SkillLevel | null
+  surfSpotId?: number
+}

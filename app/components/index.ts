@@ -45,11 +45,13 @@ import Rating from './Rating'
 import Chip from './Chip'
 import ChipSelector from './ChipSelector'
 import DirectionSelector from './DirectionSelector'
+import DirectionSelectors from './DirectionSelectors'
 import ForecastLinks from './ForecastLinks'
 import KofiButton from './KofiButton'
 import SocialLinks from './SocialLinks'
 import SurfSpotForm from './SurfSpotForm'
 import SurfboardForm from './SurfboardForm'
+import SurfSpotNoteForm from './SurfSpotNoteForm'
 import ToastContainer from './ToastContainer'
 import Toolbar from './Toolbar'
 import TripForm from './TripForm'
@@ -72,6 +74,7 @@ export {
   Details,
   DirectionIcon,
   DirectionSelector,
+  DirectionSelectors,
   Drawer,
   DropdownMenu,
   EmptyState,
@@ -105,6 +108,7 @@ export {
   SurfSpotActions,
   SurfSpotForm,
   SurfboardForm,
+  SurfSpotNoteForm,
   SurfSpotPreview,
   SurfSpotList,
   TextButton,

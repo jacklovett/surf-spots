@@ -53,16 +53,3 @@
   }
 }
 
-.filters-content-actions {
-  @extend %flex-row;
-  flex-shrink: 0;
-  gap: $spacing-unit;
-  padding: $spacing-unit $spacing-small;
-  background: $white;
-
-  .button {
-    flex: 1 1 120px;
-    padding: $spacing-small $spacing-large;
-    white-space: nowrap;
-  }
-}

@@ -25,7 +25,7 @@ export class ErrorBoundary extends Component<
   }
 
   componentDidCatch(error: Error, errorInfo: any) {
-    // You can log the error to an external service if needed
+    // You can log the error to an external service (i.e. sentry) if needed
     console.error('Error caught in ErrorBoundary:', error, errorInfo)
   }
 

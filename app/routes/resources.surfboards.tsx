@@ -10,9 +10,6 @@ interface LoaderData {
 
 export const loader: LoaderFunction = async ({ request }) => {
   const user = await requireSessionCookie(request)
-  if (!user?.id) {
-    return data<LoaderData>({ surfboards: [] }, { status: 401 })
-  }
 
   const cookie = request.headers.get('Cookie') ?? ''
 
@@ -37,4 +34,3 @@ export const loader: LoaderFunction = async ({ request }) => {
     )
   }
 }
-

@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { CSSProperties, useEffect, useRef, useState } from 'react'
 import classNames from 'classnames'
 
 import { useLayoutContext } from '~/contexts'
@@ -237,13 +237,11 @@ export const Drawer = () => {
           'drawer--open': isAnimating,
           'drawer--swiping': isSwiping && translateX !== 0,
         })}
-        {...(isSwiping && translateX !== 0 && isAnimating
-          ? {
-              style: {
-                transform: `translateX(${translateX}px)`,
-              },
-            }
-          : {})}
+        style={
+          isSwiping && translateX !== 0 && isAnimating
+            ? ({ '--drawer-translate-x': `${translateX}px` } as CSSProperties)
+            : undefined
+        }
       >
         <div className="drawer-header">
           {title && <div className="drawer-title bold">{title}</div>}

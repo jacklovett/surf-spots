@@ -4,9 +4,13 @@
   font-size: 2.5rem;
   font-weight: 700;
   margin-bottom: $spacing-unit;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  overflow: hidden;
 }
 
-.content h3 {
+.content h3,
+.drawer-content h3 {
   font-size: $font-size-large;
   margin: 0 0 $spacing-unit 0;
   padding-bottom: $spacing-small;
@@ -176,18 +180,18 @@
   letter-spacing: 0.5px;
 }
 
-.content .row.space-between {
-  @media (max-width: 768px) {
-    flex-direction: column;
-    align-items: flex-start;
-    justify-content: flex-start;
-    gap: 0;
+.content > .row.space-between {
+  flex-wrap: nowrap;
+  
+  > h1 {
+    flex: 1;
+    min-width: 0;
+    margin-right: $spacing-unit;
+    word-break: break-word;
+    overflow-wrap: break-word;
+  }
 
-    h1 {
-      white-space: nowrap;
-      width: 100%;
-      margin-right: 0;
-      flex: none;
-    }
+  > .spot-actions {
+    flex-shrink: 0;
   }
 }

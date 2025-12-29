@@ -63,7 +63,7 @@ export const AccessAmenitiesSection = ({
 }: AccessAmenitiesSectionProps) => {
   return (
     <>
-      <h4 className="mt pt">Access & Amenities</h4>
+      <h3>Access & Amenities</h3>
       {/* Access */}
       <div className="pv">
         {/* Parking */}
@@ -93,7 +93,7 @@ export const AccessAmenitiesSection = ({
       </div>
       {/* Forecast Links */}
       <div className="pv">
-        <h4 className="m-0 pt">Forecast Links</h4>
+        <p className='bold'>Forecast Links</p>
         <p className="mb">
           Add forecast sites you know for this surf spot. (Maximum of 3)
         </p>

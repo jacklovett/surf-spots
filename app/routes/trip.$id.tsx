@@ -29,20 +29,22 @@ import {
   post,
   deleteData,
 } from '~/services/networkService'
-import { RecordMediaRequest, Trip, TripMedia } from '~/types/trip'
+import { Trip, TripMedia } from '~/types/trip'
+import { getUploadUrl, recordMedia } from '~/services/trip'
 import { useScrollReveal, useFileUpload, useActionFetcher } from '~/hooks'
 import { InfoModal } from '~/components/Modal'
-import { fileToBase64 } from '~/utils/fileUtils.server'
 import { formatDate } from '~/utils/dateUtils'
+import {
+  handleMediaUpload
+} from '~/utils/uploadUtils.server'
+import { ActionData as BaseActionData } from '~/types/api'
 
 interface LoaderData {
   trip: Trip
   error?: string
 }
 
-interface ActionData {
-  error?: string
-  success?: boolean
+interface ActionData extends BaseActionData {
   media?: TripMedia
 }
 
@@ -356,70 +358,40 @@ export const action: ActionFunction = async ({ request, params }) => {
   // Handle media upload
   if (intent === 'add-media') {
     const fileEntry = formData.get('image')
-    if (!fileEntry) {
-      return data<ActionData>(
-        { error: 'No media file provided' },
-        { status: 400 },
-      )
-    }
 
-    // FormData entries can be File or Blob in Node.js
-    const isFile = fileEntry instanceof File
-    const isBlob = fileEntry instanceof Blob
-
-    if (!isFile && !isBlob) {
-      return data<ActionData>(
-        { error: 'Invalid file format. Please select a valid media file.' },
-        { status: 400 },
-      )
-    }
-
-    try {
-      // Convert file to base64
-      const base64Data = await fileToBase64(fileEntry)
-
-      // Determine media type
-      const mimeType = isFile ? fileEntry.type : 'application/octet-stream'
-      const mediaType = mimeType.startsWith('image/') ? 'image' : 'video'
-
-      // Generate a media ID
-      const mediaId = `media-${Date.now()}-${Math.random().toString(36).substring(7)}`
-
-      // Call API to record media
-      await post<RecordMediaRequest, void>(
-        `trips/${tripId}/media?userId=${user.id}`,
-        {
-          mediaId,
-          url: base64Data,
+    const result = await handleMediaUpload(fileEntry, {
+      getUploadUrl: async (mediaType: string) => getUploadUrl(tripId, user.id, { mediaType }, { headers: { Cookie: cookie } }),
+      recordMedia: async (s3Url: string, mediaId: string, mediaType: string) => {
+        await recordMedia(
+          tripId,
+          user.id,
+          {
+            mediaId,
+            url: s3Url,
+            mediaType,
+          },
+          { headers: { Cookie: cookie } },
+        )
+        // Return TripMedia object for optimistic UI update
+        return {
+          id: mediaId,
+          url: s3Url,
           mediaType,
-        },
-        { headers: { Cookie: cookie } },
-      )
+          ownerId: user.id,
+          ownerName: user.name || 'Unknown',
+          uploadedAt: new Date().toISOString(),
+        } as TripMedia
+      },
+    })
 
-      // Create TripMedia object for optimistic UI update
-      const newMedia: TripMedia = {
-        id: mediaId,
-        url: base64Data,
-        mediaType,
-        ownerId: user.id,
-        ownerName: user.name || 'Unknown',
-        uploadedAt: new Date().toISOString(),
-      }
-
-      // Return the new media so the UI can update optimistically
-      return data<ActionData>({ success: true, media: newMedia })
-    } catch (error) {
-      console.error('[trip.$id action] Error uploading media:', error)
+    if ('error' in result) {
       return data<ActionData>(
-        {
-          error:
-            error instanceof Error
-              ? error.message
-              : 'Failed to upload media. Please try again.',
-        },
-        { status: 500 },
+        { error: result.error },
+        { status: result.error.includes('exceeds') ? 400 : 500 },
       )
     }
+
+    return data<ActionData>({ success: true, media: result.media })
   }
 
   return data<ActionData>({ error: 'Invalid intent' }, { status: 400 })
@@ -494,17 +466,6 @@ export default function TripDetail() {
     }
   }, [uploadError, showToastError])
 
-  // Handle action responses
-  useEffect(() => {
-    if (fetcher.data?.error) {
-      // Check if this is a delete trip error
-      if (fetcher.state === 'idle' && fetcher.data.error) {
-        setDeleteError(fetcher.data.error)
-      } else {
-        showError(fetcher.data.error)
-      }
-    }
-  }, [fetcher.data, fetcher.state])
 
   if (error || !initialTrip?.id || !trip?.id) {
     return (
@@ -667,10 +628,7 @@ export default function TripDetail() {
                   {currentTrip.spots.map((spot) => (
                     <div key={spot.id} className="trip-spot-item">
                       <div>
-                        <a
-                          href={`/surf-spots/id/${spot.surfSpotId}`}
-                          style={{ textDecoration: 'none', color: 'inherit' }}
-                        >
+                        <a href={`/surf-spots/id/${spot.surfSpotId}`}>
                           <h4>{spot.surfSpotName}</h4>
                         </a>
                         {spot.surfSpotRating && (
@@ -733,10 +691,7 @@ export default function TripDetail() {
                   {currentTrip.surfboards.map((surfboard) => (
                     <div key={surfboard.id} className="trip-spot-item">
                       <div>
-                        <a
-                          href={`/surfboard/${surfboard.surfboardId}`}
-                          style={{ textDecoration: 'none', color: 'inherit' }}
-                        >
+                        <a href={`/surfboard/${surfboard.surfboardId}`}>
                           <h4>{surfboard.surfboardName}</h4>
                         </a>
                       </div>

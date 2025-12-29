@@ -103,9 +103,7 @@ export const validateNumberRange = (
   return ''
 }
 
-export const validateAge = (value: string | undefined): string => {
-  return validateNumberRange(value, 13, 120, 'Age')
-}
+export const validateAge = (value: string | undefined): string => validateNumberRange(value, 13, 120, 'Age')
 
 export const validateHeight = (
   value: string | undefined,

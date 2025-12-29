@@ -11,18 +11,65 @@
 }
 
 .modal-container {
+  @extend %flex-column;
   background-color: $white;
   color: $text-color;
   border: 1px solid $outline-color;
   border-radius: $content-border-radius;
   padding: $spacing-unit;
   max-width: 90%;
-  width: 480px;
+  width: 560px;
+  max-height: 90vh;
+  overflow: hidden;
+  box-sizing: border-box;
+}
+
+.modal-header {
+  flex-shrink: 0;
+  padding: 0;
+  padding-bottom: 0;
+  margin-bottom: 0;
+  box-sizing: border-box;
 }
 
 .modal-content {
+  @extend %flex-column;
   gap: $spacing-unit;
-  padding: 0 $spacing-unit;
+  padding: $spacing-unit;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+  box-sizing: border-box;
+
+  h2 {
+    margin: 0 0 $spacing-unit 0;
+    flex-shrink: 0;
+  }
+
+  p {
+    margin: 0;
+  }
+
+  ul {
+    padding-left: $spacing-unit;
+  }
+
+  .modal-scrollable-content {
+    flex: 1;
+    overflow-y: auto;
+    overflow-x: hidden;
+    min-height: 0;
+  }
+
+  .modal-footer {
+    flex-shrink: 0;
+    margin-top: $spacing-unit;
+
+    .button {
+      width: 100%;
+      box-sizing: border-box;
+    }
+  }
 }
 
 .modal-actions {

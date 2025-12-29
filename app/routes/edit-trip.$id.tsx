@@ -23,15 +23,11 @@ import { requireSessionCookie } from '~/services/session.server'
 import { updateTrip } from '~/services/trip'
 import { Trip, UpdateTripRequest } from '~/types/trip'
 import { cacheControlHeader, get } from '~/services/networkService'
+import { ActionData } from '~/types/api'
 
 interface LoaderData {
   trip: Trip
   error?: string
-}
-
-interface ActionData {
-  submitStatus?: string
-  hasError?: boolean
 }
 
 export const loader: LoaderFunction = async ({ request, params }) => {

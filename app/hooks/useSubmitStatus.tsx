@@ -1,11 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useActionData, useLoaderData } from 'react-router'
 import { SubmitStatus } from '~/components/FormComponent'
-
-export interface ActionData {
-  submitStatus: string
-  hasError: boolean
-}
+import { ActionData } from '~/types/api'
 
 export const useSubmitStatus = () => {
   const actionData = useActionData<ActionData>()

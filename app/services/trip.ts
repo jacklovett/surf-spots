@@ -110,21 +110,23 @@ export const getUploadUrl = async (
   tripId: string,
   userId: string,
   request: UploadMediaRequest,
-): Promise<UploadUrlResponse> => {
-  return post<UploadMediaRequest, UploadUrlResponse>(
+  options?: RequestInit,
+): Promise<UploadUrlResponse> => post<UploadMediaRequest, UploadUrlResponse>(
     `${tripsEndpoint}/${tripId}/media/upload-url?userId=${userId}`,
     request,
+    options,
   )
-}
 
 export const recordMedia = async (
   tripId: string,
   userId: string,
   request: RecordMediaRequest,
+  options?: RequestInit,
 ): Promise<void> => {
   return post<RecordMediaRequest, void>(
     `${tripsEndpoint}/${tripId}/media?userId=${userId}`,
     request,
+    options,
   )
 }
 

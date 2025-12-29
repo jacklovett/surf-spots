@@ -3,6 +3,7 @@ import {
   defaultSurfSpotFilters,
   SurfSpotFilters,
   SurfSpot,
+  SurfSpotNote,
 } from '~/types/surfSpots'
 
 interface SurfSpotsProviderProps {
@@ -16,6 +17,11 @@ interface SurfSpotsContextType {
   setSurfSpots: (surfSpots: SurfSpot[]) => void
   updateSurfSpot: (surfSpotId: string, updates: Partial<SurfSpot>) => void
   mergeSurfSpots: (newSurfSpots: SurfSpot[]) => void
+  notes: Map<string, SurfSpotNote | null>
+  setNote: (surfSpotId: string, note: SurfSpotNote | null) => void
+  getNote: (surfSpotId: string) => SurfSpotNote | null | undefined
+  noteSubmissionComplete: boolean
+  setNoteSubmissionComplete: (complete: boolean) => void
 }
 
 const SurfSpotsContext = createContext<SurfSpotsContextType | undefined>(
@@ -27,6 +33,8 @@ export const SurfSpotsProvider = ({ children }: SurfSpotsProviderProps) => {
     defaultSurfSpotFilters,
   )
   const [surfSpots, setSurfSpots] = useState<SurfSpot[]>([])
+  const [notes, setNotes] = useState<Map<string, SurfSpotNote | null>>(new Map())
+  const [noteSubmissionComplete, setNoteSubmissionCompleteState] = useState<boolean>(false)
 
   const updateSurfSpot = (surfSpotId: string, updates: Partial<SurfSpot>) => {
     setSurfSpots((prev) =>
@@ -58,6 +66,22 @@ export const SurfSpotsProvider = ({ children }: SurfSpotsProviderProps) => {
     })
   }
 
+  const setNote = (surfSpotId: string, note: SurfSpotNote | null) => {
+    setNotes((prev) => {
+      const newMap = new Map(prev)
+      newMap.set(surfSpotId, note)
+      return newMap
+    })
+  }
+
+  const getNote = (surfSpotId: string): SurfSpotNote | null | undefined => {
+    return notes.get(surfSpotId)
+  }
+
+  const setNoteSubmissionComplete = (complete: boolean) => {
+    setNoteSubmissionCompleteState(complete)
+  }
+
   return (
     <SurfSpotsContext.Provider
       value={{
@@ -67,6 +91,11 @@ export const SurfSpotsProvider = ({ children }: SurfSpotsProviderProps) => {
         setSurfSpots,
         updateSurfSpot,
         mergeSurfSpots,
+        notes,
+        setNote,
+        getNote,
+        noteSubmissionComplete,
+        setNoteSubmissionComplete,
       }}
     >
       {children}

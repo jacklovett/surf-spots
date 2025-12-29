@@ -3,11 +3,12 @@ import { useState, memo, useCallback } from 'react'
 import { SurfSpot } from '~/types/surfSpots'
 import { User } from '~/types/user'
 import DropdownMenu from '../DropdownMenu'
+import TripSelectionModal from '../TripSelectionModal'
+
 import { useSurfSpotsContext } from '~/contexts'
 import { useSignUpPrompt } from '~/hooks'
 import { FetcherSubmitParams } from '~/types/api'
 import { InfoModal, InfoModalState } from '../Modal'
-import TripSelectionModal from '../TripSelectionModal'
 
 interface IProps {
   surfSpot: SurfSpot
@@ -124,14 +125,14 @@ export const SurfSpotActions = memo((props: IProps) => {
     <div className="actions">
       <DropdownMenu items={menuItems} align="right" />
       {user?.id && (
-        <TripSelectionModal
-          isOpen={tripSelectionModalOpen}
-          onClose={closeTripModal}
-          onError={showInfoModal}
-          surfSpot={surfSpotState}
-          userId={user.id}
-          onFetcherSubmit={onFetcherSubmit}
-        />
+          <TripSelectionModal
+            isOpen={tripSelectionModalOpen}
+            onClose={closeTripModal}
+            onError={showInfoModal}
+            surfSpot={surfSpotState}
+            userId={user.id}
+            onFetcherSubmit={onFetcherSubmit}
+          />
       )}
       <SignUpPromptModal />
       <InfoModal
