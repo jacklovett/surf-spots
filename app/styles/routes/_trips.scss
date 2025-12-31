@@ -1,30 +1,10 @@
 /* Trips Page Styles */
 .trips-header {
-  @extend %flex-space-between;
-  margin-bottom: $spacing-large;
-
-  h1 {
-    margin: 0;
-    white-space: nowrap;
-  }
-
-  @media (max-width: 768px) {
-    flex-direction: column;
-    align-items: flex-start;
-    justify-content: flex-start;
-    gap: $spacing-small;
-
-    h1 {
-      width: 100%;
-      flex: none;
-    }
-  }
+  @extend .page-header;
 }
 
 .trips-empty {
-  text-align: center;
-  padding: $spacing-x-large 0;
-  color: $text-secondary;
+  @extend .page-empty;
 }
 
 .trips-section {
@@ -37,39 +17,17 @@
 }
 
 .trips-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-  gap: $spacing-unit;
-
-  @media (max-width: 768px) {
-    grid-template-columns: 1fr;
-  }
+  @extend .page-grid;
 }
 
 .trip-card {
-  background: $white;
-  border: 1px solid $outline-color;
-  border-radius: $content-border-radius;
-  padding: $spacing-unit;
-  cursor: pointer;
-  transition: all 0.2s ease;
-
-  &:hover {
-    box-shadow: $box-shadow;
-    transform: translateY(-2px);
-  }
+  @extend .page-card;
 
   h3 {
-    margin: 0 0 $spacing-small 0;
     font-size: $font-size-large;
     padding-bottom: 0;
     border-bottom: none;
     color: $text-color;
-  }
-
-  p {
-    margin: $spacing-small 0;
-    color: $text-secondary;
   }
 
   .trip-owner {
@@ -85,9 +43,7 @@
 
 /* Trip Detail Page Styles */
 .trip-actions {
-  @extend %flex-base;
-  gap: $spacing-small;
-  flex-shrink: 0;
+  @extend .page-actions;
 }
 
 // Match surf spot details page styling
@@ -100,7 +56,7 @@
 
   h3 {
     font-size: $font-size-large;
-    margin: $spacing-x-large 0 $spacing-unit 0;
+    margin: $spacing-large 0 calc($spacing-unit * 1.5) 0;
     padding-bottom: $spacing-small;
     border-bottom: 2px solid $primary-color;
   }
@@ -141,13 +97,6 @@
 
 .trip-edit-form {
   max-width: 600px;
-
-  .form-actions {
-    @extend %flex-base;
-    gap: $spacing-small;
-    justify-content: flex-end;
-    margin-top: $spacing-unit;
-  }
 }
 
 .trip-spots-list,
@@ -199,8 +148,6 @@
   }
 
   @media (max-width: 768px) {
-    flex-direction: column;
-    align-items: flex-start;
     gap: $spacing-unit;
   }
 
@@ -241,6 +188,12 @@
     }
   }
 
+  .member-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: $spacing-small;
+  }
+
   .member-name {
     margin: 0 0 $spacing-small 0;
     font-weight: 600;
@@ -271,7 +224,7 @@
 }
 
 .trip-media-upload {
-  margin-top: $spacing-x-large;
+  margin-top: $spacing-unit;
 }
 
 // Date input styling
@@ -352,18 +305,7 @@ input[type='date']:focus {
   }
 }
 
-// Form inline helper
-.form-inline {
-  @extend %flex-base;
-  gap: $spacing-small;
-  align-items: flex-start;
-
-  .form-item {
-    flex: 1;
-    min-width: 0;
-    margin-bottom: 0;
-  }
-}
+// Form inline is now in _shared.scss
 
 .delete-error {
   color: $error;

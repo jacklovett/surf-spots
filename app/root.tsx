@@ -19,8 +19,9 @@ import {
   SurfSpotsProvider,
   TripProvider,
   ToastProvider,
+  SignUpPromptProvider,
 } from './contexts'
-import { ErrorBoundary, ToastContainer } from './components'
+import { ErrorBoundary, ToastContainer, SignUpPromptModal } from './components'
 
 import { getSession } from './services/session.server'
 import { User } from './types/user'
@@ -125,8 +126,11 @@ export default function App() {
             <SurfSpotsProvider>
               <TripProvider>
                 <ToastProvider>
-                  <Outlet />
-                  <ToastContainer />
+                  <SignUpPromptProvider>
+                    <Outlet />
+                    <ToastContainer />
+                    <SignUpPromptModal />
+                  </SignUpPromptProvider>
                 </ToastProvider>
               </TripProvider>
             </SurfSpotsProvider>

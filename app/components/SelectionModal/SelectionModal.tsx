@@ -2,49 +2,65 @@ import { useEffect, ReactNode } from 'react'
 import { Modal, Button, Loading, TextButton } from '~/components'
 import { SelectionItem } from './index'
 
-interface SelectionModalProps<T extends SelectionItem> {
-  isOpen: boolean
-  onClose: () => void
+export interface HeaderProps {
   title: string
   description?: string
-  items: T[]
-  isLoading: boolean
-  onLoadItems?: () => void
+}
+
+export interface EmptyStateProps {
+  title?: string
+  description?: string
+  ctaText?: string
+  ctaAction?: () => void
+}
+
+export interface FooterProps {
+  buttonText?: string
+  buttonAction?: () => void
+}
+
+export interface ErrorProps {
+  error?: string
+  onError?: (error: string) => void
+}
+
+export interface SelectionActionsProps<T extends SelectionItem> {
   isItemSelected: (item: T) => boolean
   onAdd: (item: T) => void
   onRemove: (item: T) => void
   addingItemId: string | null
   removingItemId: string | null
+}
+
+export interface SelectionModalProps<T extends SelectionItem> {
+  isOpen: boolean
+  onClose: () => void
+  header: HeaderProps
+  items: T[]
+  isLoading: boolean
+  onLoadItems?: () => void
+  selectionActions: SelectionActionsProps<T>
   renderItem?: (item: T, isSelected: boolean, isAdding: boolean, isRemoving: boolean) => ReactNode
-  emptyStateTitle?: string
-  emptyStateDescription?: string
-  emptyStateCtaText?: string
-  emptyStateCtaAction?: () => void
-  error?: string
-  onError?: (error: string) => void
+  emptyState?: EmptyStateProps
+  footer?: FooterProps
+  error?: ErrorProps
 }
 
 export function SelectionModal<T extends SelectionItem>({
   isOpen,
   onClose,
-  title,
-  description,
+  header,
   items,
   isLoading,
   onLoadItems,
-  isItemSelected,
-  onAdd,
-  onRemove,
-  addingItemId,
-  removingItemId,
+  selectionActions,
   renderItem,
-  emptyStateTitle,
-  emptyStateDescription,
-  emptyStateCtaText,
-  emptyStateCtaAction,
+  emptyState,
+  footer,
   error,
-  onError,
 }: SelectionModalProps<T>) {
+  const { isItemSelected, onAdd, onRemove, addingItemId, removingItemId } = selectionActions
+
   // Load items when modal opens
   useEffect(() => {
     if (isOpen && onLoadItems) {
@@ -54,10 +70,10 @@ export function SelectionModal<T extends SelectionItem>({
 
   // Handle errors
   useEffect(() => {
-    if (error && onError) {
-      onError(error)
+    if (error?.error && error?.onError) {
+      error.onError(error.error)
     }
-  }, [error, onError])
+  }, [error])
 
   if (!isOpen) return null
 
@@ -116,8 +132,8 @@ export function SelectionModal<T extends SelectionItem>({
     <Modal onClose={onClose}>
       <div className="selection-modal">
         <div className="selection-header">
-          <h2>{title}</h2>
-          {description && <p className="selection-description">{description}</p>}
+          <h2>{header.title}</h2>
+          {header.description && <p className="selection-description">{header.description}</p>}
         </div>
         {isLoading ? (
           <div className="selection-loading">
@@ -125,16 +141,16 @@ export function SelectionModal<T extends SelectionItem>({
           </div>
         ) : items.length === 0 ? (
           <div className="selection-empty-state">
-            <p className="selection-empty-title bold">{emptyStateTitle || 'No items available.'}</p>
-            {emptyStateDescription && (
-              <p className="selection-empty-description text-secondary">{emptyStateDescription}</p>
+            <p className="selection-empty-title bold">{emptyState?.title || 'No items available.'}</p>
+            {emptyState?.description && (
+              <p className="selection-empty-description text-secondary">{emptyState.description}</p>
             )}
-            {emptyStateCtaText && emptyStateCtaAction && (
+            {emptyState?.ctaText && emptyState?.ctaAction && (
               <div className="selection-actions">
                 <Button
-                  label={emptyStateCtaText}
+                  label={emptyState.ctaText}
                   variant="primary"
-                  onClick={emptyStateCtaAction}
+                  onClick={emptyState.ctaAction}
                 />
               </div>
             )}
@@ -152,6 +168,15 @@ export function SelectionModal<T extends SelectionItem>({
                   : defaultRenderItem(item, isSelected, isAdding, isRemoving)
               })}
             </div>
+            {footer?.buttonText && footer?.buttonAction && (
+              <div className="selection-actions">
+                <Button
+                  label={footer.buttonText}
+                  variant="secondary"
+                  onClick={footer.buttonAction}
+                />
+              </div>
+            )}
           </div>
         )}
       </div>

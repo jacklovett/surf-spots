@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react'
-import { useFetcher } from 'react-router'
+import { useFetcher, useNavigate } from 'react-router'
 import { SelectionModal } from '~/components'
 import { useToastContext } from '~/contexts'
 import { Trip } from '~/types/trip'
@@ -27,6 +27,7 @@ export const SurfboardSelectionModal = ({
   actionState = 'idle',
   actionData,
 }: SurfboardSelectionModalProps) => {
+  const navigate = useNavigate()
   const { showError: showToastError } = useToastContext()
   const surfboardsFetcher = useFetcher<{ surfboards: Surfboard[]; error?: string }>()
   
@@ -95,7 +96,6 @@ export const SurfboardSelectionModal = ({
     if (!userId) return
 
     setAddingSurfboardId(surfboardId)
-
     // Let the server response update the UI via React Router revalidation
     onSubmitAction('add-surfboard', { surfboardId })
   }
@@ -122,6 +122,11 @@ export const SurfboardSelectionModal = ({
     onSubmitAction('remove-surfboard', { tripSurfboardId })
   }
 
+  const handleGoToSurfboards = () => {
+    onClose()
+    navigate('/surfboards')
+  }
+
   // Convert surfboards to SelectionItem format
   const selectionItems: SelectionItem[] = allSurfboards.map((sb) => ({
     id: sb.id,
@@ -134,8 +139,10 @@ export const SurfboardSelectionModal = ({
     <SelectionModal
       isOpen={isOpen}
       onClose={onClose}
-      title="Add Surfboard"
-      description="Select a surfboard to add or remove from this trip:"
+      header={{
+        title: "Add Surfboard",
+        description: "Select a surfboard to add or remove from this trip:"
+      }}
       items={selectionItems}
       isLoading={isLoadingSurfboards}
       onLoadItems={() => {
@@ -143,17 +150,29 @@ export const SurfboardSelectionModal = ({
           surfboardsFetcher.load('/resources/surfboards')
         }
       }}
-      isItemSelected={(item) => (removingSurfboardId === item.id ? false : isSurfboardInTrip(item.id))      }
-      onAdd={(item) => handleAddSurfboard(item.id)}
-      onRemove={(item) => handleRemoveSurfboard(item.id)}
-      addingItemId={addingSurfboardId}
-      removingItemId={removingSurfboardId}
-      emptyStateTitle="No available surfboards to add."
-      emptyStateDescription="Create a surfboard first to add it to this trip."
-      error={surfboardsFetcher.data?.error}
-      onError={(error) => {
-        showToastError(error)
-        onClose()
+      selectionActions={{
+        isItemSelected: (item) => (removingSurfboardId === item.id ? false : isSurfboardInTrip(item.id)),
+        onAdd: (item) => handleAddSurfboard(item.id),
+        onRemove: (item) => handleRemoveSurfboard(item.id),
+        addingItemId: addingSurfboardId,
+        removingItemId: removingSurfboardId,
+      }}
+      emptyState={{
+        title: "No available surfboards to add.",
+        description: "Create a surfboard first to add it to this trip.",
+        ctaText: "Go to Surfboards",
+        ctaAction: handleGoToSurfboards,
+      }}
+      footer={{
+        buttonText: "Go to Surfboards",
+        buttonAction: handleGoToSurfboards,
+      }}
+      error={{
+        error: surfboardsFetcher.data?.error,
+        onError: (error) => {
+          showToastError(error)
+          onClose()
+        }
       }}
     />
   )

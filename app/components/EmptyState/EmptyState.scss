@@ -6,6 +6,10 @@
   box-shadow: $box-shadow;
   border: 1px solid $border-light;
 
+  @media (max-width: 768px) {
+    padding: $spacing-large $spacing-unit;
+  }
+
   .empty-icon {
     font-size: $font-size-xx-large * 2;
     margin-bottom: $spacing-unit;
@@ -31,6 +35,14 @@
 
     .button {
       max-width: 300px;
+      white-space: normal;
+      word-wrap: break-word;
+      padding: $spacing-unit $spacing-small;
+
+      @media (max-width: 768px) {
+        max-width: 100%;
+        padding: $spacing-unit;
+      }
     }
   }
 }

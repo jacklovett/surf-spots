@@ -39,6 +39,7 @@
 
   &.drawer--swiping {
     transition: none; /* Disable transition during swipe for smooth following */
+    transform: translateX(var(--drawer-translate-x, 0)); /* Apply swipe translation */
   }
 
   .drawer-content {

@@ -57,6 +57,10 @@ h2 {
   width: 100%;
   margin: 0 auto;
 
+  @media (max-width: 768px) {
+    padding: $spacing-large $spacing-small;
+  }
+
   .page-title-with-status {
     display: flex;
     align-items: center;
@@ -321,4 +325,102 @@ h2 {
 /* 404 Page Styles */
 .page-not-found-container {
   min-height: calc(100vh - 120px);
+}
+
+/* Shared Page Header Styles */
+.page-header {
+  @extend %flex-space-between;
+  margin-bottom: $spacing-large;
+
+  h1 {
+    margin: 0;
+    white-space: nowrap;
+  }
+
+  @media (max-width: 768px) {
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: flex-start;
+    gap: $spacing-small;
+
+    h1 {
+      width: 100%;
+      flex: none;
+    }
+  }
+}
+
+/* Shared Empty State */
+.page-empty {
+  text-align: center;
+  padding: $spacing-x-large 0;
+  color: $text-secondary;
+}
+
+/* Shared Grid Layout */
+.page-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: $spacing-unit;
+
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Shared Card Base Styles */
+.page-card {
+  background: $white;
+  border: 1px solid $outline-color;
+  border-radius: $content-border-radius;
+  padding: $spacing-unit;
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  &:hover {
+    box-shadow: $box-shadow;
+    transform: translateY(-2px);
+  }
+
+  h3 {
+    margin: 0 0 $spacing-small 0;
+  }
+
+  p {
+    margin: $spacing-small 0;
+    color: $text-secondary;
+  }
+}
+
+/* Shared Actions */
+.page-actions {
+  @extend %flex-base;
+  gap: $spacing-small;
+  flex-shrink: 0;
+}
+
+/* Shared Form Actions */
+.form-actions {
+  @extend %flex-base;
+  gap: $spacing-small;
+  justify-content: flex-end;
+  margin-top: $spacing-unit;
+}
+
+/* Shared Form Row/Inline */
+.form-row,
+.form-inline {
+  @extend %flex-base;
+  gap: $spacing-small;
+  align-items: flex-start;
+
+  @media (max-width: 768px) {
+    flex-direction: column;
+  }
+
+  .form-item {
+    flex: 1;
+    min-width: 0;
+    margin-bottom: 0;
+  }
 }

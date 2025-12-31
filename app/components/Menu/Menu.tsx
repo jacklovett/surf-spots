@@ -7,14 +7,13 @@ import {
 } from './index'
 import { ErrorBoundary } from '../index'
 import { MenuSection } from './MenuSection'
-import { useLayoutContext, useUserContext } from '~/contexts'
-import { useSignUpPrompt } from '~/hooks'
+import { useLayoutContext, useUserContext, useSignUpPromptContext } from '~/contexts'
 
 const Menu = () => {
   const navigate = useNavigate()
   const { user } = useUserContext()
   const { openDrawer, closeDrawer } = useLayoutContext()
-  const { showSignUpPrompt, SignUpPromptModal } = useSignUpPrompt()
+  const { showSignUpPrompt } = useSignUpPromptContext()
 
   // Map of protected routes to their route identifiers
   const protectedRoutes: Record<
@@ -81,7 +80,6 @@ const Menu = () => {
         <span></span>
         <span></span>
       </button>
-      <SignUpPromptModal />
     </nav>
   )
 }

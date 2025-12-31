@@ -9,4 +9,6 @@ export interface SelectionItem {
     [key: string]: unknown // Allow additional properties
   }
 
+export type { SelectionModalProps } from "./SelectionModal";
+
 export default SelectionModal

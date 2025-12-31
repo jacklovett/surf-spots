@@ -1,8 +1,7 @@
 import { MouseEvent } from 'react'
 import classNames from 'classnames'
 import { SocialLinks } from '../index'
-import { useUserContext } from '~/contexts'
-import { useSignUpPrompt } from '~/hooks/useSignUpPrompt'
+import { useUserContext, useSignUpPromptContext } from '~/contexts'
 
 export const COPYRIGHT_TEXT = `© ${new Date().getFullYear()} Surf Spots. All rights reserved.`
 
@@ -12,7 +11,7 @@ interface IProps {
 
 export const Footer = ({ isAlternate }: IProps) => {
   const { user } = useUserContext()
-  const { showSignUpPrompt, SignUpPromptModal } = useSignUpPrompt()
+  const { showSignUpPrompt } = useSignUpPromptContext()
 
   // Map of protected routes to their route identifiers
   const protectedRoutes: Record<
@@ -145,7 +144,6 @@ export const Footer = ({ isAlternate }: IProps) => {
         <div className="footer-bottom">
           <p>{COPYRIGHT_TEXT}</p>
         </div>
-        <SignUpPromptModal />
       </div>
     </footer>
   )

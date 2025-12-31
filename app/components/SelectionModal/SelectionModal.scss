@@ -16,14 +16,6 @@
     }
   }
 
-  p {
-    margin-bottom: $spacing-unit;
-  }
-
-  .text-secondary {
-    color: $text-secondary;
-  }
-
   .selection-loading {
     @extend %flex-center;
     padding: $spacing-x-large;
@@ -96,12 +88,9 @@
   .selection-empty-state {
     @extend %flex-column;
     text-align: center;
-    padding: $spacing-unit 0;
-    gap: $spacing-small;
+    padding-top: $spacing-unit;
 
     .selection-empty-title {
-      font-size: $font-size-large;
-      margin-bottom: $spacing-small;
       color: $text-color;
     }
 
@@ -114,13 +103,15 @@
   }
 
   .selection-actions {
-    @extend %flex-column;
+    @extend %flex-center;
     gap: $spacing-unit;
     margin-top: $spacing-unit;
     width: 100%;
 
     .button {
-      width: 100%;
+      width: auto;
+      min-width: 200px;
+      padding: 0 $spacing-large;
     }
   }
 }

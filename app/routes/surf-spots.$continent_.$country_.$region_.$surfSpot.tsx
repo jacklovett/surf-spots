@@ -31,7 +31,7 @@ import {
 import { submitFetcher } from '~/components/SurfSpotActions'
 import { FetcherSubmitParams, ActionData } from '~/types/api'
 
-import { useUserContext, useSettingsContext, useLayoutContext, useToastContext, useSurfSpotsContext } from '~/contexts'
+import { useUserContext, useSettingsContext, useLayoutContext, useToastContext, useSurfSpotsContext, useSignUpPromptContext } from '~/contexts'
 
 import { surfSpotAction } from '~/services/surfSpot.server'
 import { getSession } from '~/services/session.server'
@@ -194,6 +194,7 @@ export default function SurfSpotDetails() {
   const { openDrawer } = useLayoutContext()
   const { showSuccess, showError } = useToastContext()
   const { setNote, setNoteSubmissionComplete } = useSurfSpotsContext()
+  const { showSignUpPrompt } = useSignUpPromptContext()
   const navigate = useNavigate()
   const location = useLocation()
 
@@ -242,7 +243,13 @@ export default function SurfSpotDetails() {
     submitFetcher(params, fetcher)
 
   const handleOpenNotesDrawer = () => {
-    if (!surfSpotDetails || !user) return
+    if (!surfSpotDetails) return
+
+    // If user is not logged in, show sign up prompt
+    if (!user) {
+      showSignUpPrompt('notes')
+      return
+    }
 
     const drawerContent = (
       <ErrorBoundary message="Something went wrong loading the note form">
@@ -308,15 +315,13 @@ if (error || !surfSpotDetails) {
             />
           </div>
         </div>
-        {user && (
-          <div className="row flex-end mb">
-            <TextButton
-              text="Show My Notes"
-              onClick={handleOpenNotesDrawer}
-              iconKey="clipboard"
-            />
-          </div>
-        )}
+        <div className="row flex-end mb">
+          <TextButton
+            text={note ? "Show Notes" : "Add Notes"}
+            onClick={handleOpenNotesDrawer}
+            iconKey="clipboard"
+          />
+        </div>
         <p className="description">{description}</p>
         {!isWavepool && (
           <div className="row spot-details gap mb pv">

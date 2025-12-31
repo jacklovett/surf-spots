@@ -7,7 +7,6 @@ import { useLocationPin } from './useLocationPin'
 import { useLocationSelection } from './useLocationSelection'
 import { useMapDrawer } from './useMapDrawer'
 import { useScrollReveal } from './useScrollReveal'
-import { useSignUpPrompt } from './useSignUpPrompt'
 import { useStaticMap } from './useStaticMap'
 import { useSubmitStatus } from './useSubmitStatus'
 import { useFormSubmission } from './useFormSubmission'
@@ -23,7 +22,6 @@ export {
   useLocationSelection,
   useMapDrawer,
   useScrollReveal,
-  useSignUpPrompt,
   useStaticMap,
   useSubmitStatus,
 }

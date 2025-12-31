@@ -1,23 +1,40 @@
-import { useState } from 'react'
+import {
+  createContext,
+  ReactNode,
+  useContext,
+  useState,
+  useCallback,
+} from 'react'
 import { useNavigate } from 'react-router'
 import { Modal, Button } from '~/components'
 import { IModalState, initialModalState } from '~/components/Modal'
 
-type FeatureType =
+export type FeatureType =
   | 'surfed-spots'
   | 'watch-list'
   | 'add-surf-spot'
   | 'trips'
   | 'surfboards'
+  | 'notes'
 
-interface UseSignUpPromptReturn {
+interface SignUpPromptContextType {
   showSignUpPrompt: (feature: FeatureType) => void
   modalState: IModalState
   closeModal: () => void
   SignUpPromptModal: () => JSX.Element | null
 }
 
-export const useSignUpPrompt = (): UseSignUpPromptReturn => {
+const SignUpPromptContext = createContext<SignUpPromptContextType | undefined>(
+  undefined,
+)
+
+interface SignUpPromptProviderProps {
+  children: ReactNode
+}
+
+export const SignUpPromptProvider = ({
+  children,
+}: SignUpPromptProviderProps) => {
   const navigate = useNavigate()
   const [modalState, setModalState] = useState<IModalState>(initialModalState)
 
@@ -40,16 +57,16 @@ export const useSignUpPrompt = (): UseSignUpPromptReturn => {
         }
       case 'surfed-spots':
         return {
-          title: 'Sign Up to Track Your Surfed Spots',
+          title: 'Sign Up to Record Your Surfed Spots',
           content: (
             <>
               <p>
-                Track your surfed spots and build a personal record of your surf
+                Record your surfed spots and build a personal record of your surf
                 achievements.
               </p>
               <ul className="benefits-list">
                 <li>Capture every spot you've surfed.</li>
-                <li>Track your exploration progress around the globe.</li>
+                <li>Monitor your exploration progress around the globe.</li>
                 <li>Discover your surf trends and favorite wave types.</li>
                 <li>Share your journey with others!</li>
               </ul>
@@ -96,16 +113,32 @@ export const useSignUpPrompt = (): UseSignUpPromptReturn => {
         }
       case 'surfboards':
         return {
-          title: 'Sign Up to Track Your Surfboards',
+          title: 'Sign Up to Manage Your Surfboards',
           content: (
             <>
-              <p>Track your surfboard collection and manage all your boards.</p>
+              <p>Manage your surfboard collection and organize all your boards.</p>
               <ul className="benefits-list">
                 <li>Catalog all your surfboards in one place</li>
-                <li>Track dimensions, volume, and specifications</li>
-                <li>Add photos of your boards</li>
-                <li>Link to shaper and shop model pages</li>
+                <li>Record dimensions, volume, and specifications</li>
+                <li>Add photos and link to shaper pages</li>
                 <li>Plan which boards to bring on trips</li>
+              </ul>
+            </>
+          ),
+        }
+      case 'notes':
+        return {
+          title: 'Sign Up to Add Personal Notes',
+          content: (
+            <>
+              <p>
+                Save personal notes about surf spots to remember your experiences
+                and preferences and start building your own local knowledge base.
+              </p>
+              <ul className="benefits-list">
+                <li>Write personal notes about each surf spot</li>
+                <li>Remember your preferred conditions, tides, and board choices</li>
+                <li>Keep private insights that only you can see</li>
               </ul>
             </>
           ),
@@ -118,7 +151,7 @@ export const useSignUpPrompt = (): UseSignUpPromptReturn => {
     }
   }
 
-  const showSignUpPrompt = (feature: FeatureType) => {
+  const showSignUpPrompt = useCallback((feature: FeatureType) => {
     const { title, content } = getModalContent(feature)
     setModalState({
       content: (
@@ -140,19 +173,37 @@ export const useSignUpPrompt = (): UseSignUpPromptReturn => {
       ),
       isVisible: true,
     })
-  }
+  }, [navigate])
 
-  const closeModal = () => setModalState(initialModalState)
+  const closeModal = useCallback(() => {
+    setModalState(initialModalState)
+  }, [])
 
-  const SignUpPromptModal = () => {
+  const SignUpPromptModal = useCallback(() => {
     if (!modalState.isVisible) return null
     return <Modal onClose={closeModal}>{modalState.content}</Modal>
-  }
+  }, [modalState, closeModal])
 
-  return {
-    showSignUpPrompt,
-    modalState,
-    closeModal,
-    SignUpPromptModal,
+  return (
+    <SignUpPromptContext.Provider
+      value={{
+        showSignUpPrompt,
+        modalState,
+        closeModal,
+        SignUpPromptModal,
+      }}
+    >
+      {children}
+    </SignUpPromptContext.Provider>
+  )
+}
+
+export const useSignUpPromptContext = () => {
+  const context = useContext(SignUpPromptContext)
+  if (context === undefined) {
+    throw new Error(
+      'useSignUpPromptContext must be used within a SignUpPromptProvider',
+    )
   }
+  return context
 }

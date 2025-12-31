@@ -193,6 +193,12 @@ export const TripSelectionModal = ({
     closeDrawer()
   }
 
+  const handleGoToTrips = () => {
+    onClose()
+    navigate('/trips')
+    closeDrawer()
+  }
+
   // Convert trips to SelectionItem format
   const selectionItems: SelectionItem[] = trips.map((trip) => ({
     id: trip.id,
@@ -208,8 +214,10 @@ export const TripSelectionModal = ({
     <SelectionModal
       isOpen={isOpen}
       onClose={onClose}
-      title="Add to Trip"
-      description="Select a trip to add this surf spot to:"
+      header={{
+        title: "Add to Trip",
+        description: "Select a trip to add this surf spot to:"
+      }}
       items={selectionItems}
       isLoading={isLoadingTrips}
       onLoadItems={() => {
@@ -217,26 +225,36 @@ export const TripSelectionModal = ({
           tripsFetcher.load('/resources/trips')
         }
       }}
-      isItemSelected={(item) => {
-        const trip = item.trip as Trip
-        return isSpotInTrip(trip)
+      selectionActions={{
+        isItemSelected: (item) => {
+          const trip = item.trip as Trip
+          return isSpotInTrip(trip)
+        },
+        onAdd: (item) => {
+          const trip = item.trip as Trip
+          handleAddSpot(trip.id)
+        },
+        onRemove: (item) => {
+          const trip = item.trip as Trip
+          handleRemoveSpot(trip.id)
+        },
+        addingItemId: addingToTripId,
+        removingItemId: removingFromTripId,
       }}
-      onAdd={(item) => {
-        const trip = item.trip as Trip
-        handleAddSpot(trip.id)
+      emptyState={{
+        title: "No trips yet",
+        description: "Create a trip to start planning your surf adventures and add spots like this one.",
+        ctaText: "Create Trip",
+        ctaAction: handleCreateTrip,
       }}
-      onRemove={(item) => {
-        const trip = item.trip as Trip
-        handleRemoveSpot(trip.id)
+      footer={{
+        buttonText: "Go to Trips",
+        buttonAction: handleGoToTrips,
       }}
-      addingItemId={addingToTripId}
-      removingItemId={removingFromTripId}
-      emptyStateTitle="No trips yet"
-      emptyStateDescription="Create a trip to start planning your surf adventures and add spots like this one."
-      emptyStateCtaText="Create Trip"
-      emptyStateCtaAction={handleCreateTrip}
-      error={tripsFetcher.data?.error}
-      onError={(error) => onError('Error', error)}
+      error={{
+        error: tripsFetcher.data?.error,
+        onError: (error) => onError('Error', error)
+      }}
     />
   )
 }

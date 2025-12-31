@@ -82,7 +82,7 @@ export const action: ActionFunction = async ({ params, request }) => {
   }
 
   const user = await requireSessionCookie(request)
-  const { tripId } = params
+  const tripId = params.id
 
   if (!tripId || !user?.id) {
     return data<ActionData>(

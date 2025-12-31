@@ -89,6 +89,8 @@ const request = async <T, B = undefined>(
   try {
     const response = await fetch(fullUrl, {
       ...options,
+      // Always include credentials for API requests to send session cookies
+      // Only omit for external URLs (like S3 uploads)
       credentials: isFullUrl ? 'omit' : 'include',
       body: body ? (isFileOrBlob ? body : JSON.stringify(body)) : undefined,
       headers,

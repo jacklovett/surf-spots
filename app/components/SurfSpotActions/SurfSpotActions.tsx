@@ -5,8 +5,7 @@ import { User } from '~/types/user'
 import DropdownMenu from '../DropdownMenu'
 import TripSelectionModal from '../TripSelectionModal'
 
-import { useSurfSpotsContext } from '~/contexts'
-import { useSignUpPrompt } from '~/hooks'
+import { useSurfSpotsContext, useSignUpPromptContext } from '~/contexts'
 import { FetcherSubmitParams } from '~/types/api'
 import { InfoModal, InfoModalState } from '../Modal'
 
@@ -27,7 +26,7 @@ export const SurfSpotActions = memo((props: IProps) => {
   })
 
   const { updateSurfSpot } = useSurfSpotsContext()
-  const { showSignUpPrompt, SignUpPromptModal } = useSignUpPrompt()
+  const { showSignUpPrompt } = useSignUpPromptContext()
 
   const { id: surfSpotId, isSurfedSpot, isWatched, createdBy } = surfSpotState
 
@@ -134,7 +133,6 @@ export const SurfSpotActions = memo((props: IProps) => {
             onFetcherSubmit={onFetcherSubmit}
           />
       )}
-      <SignUpPromptModal />
       <InfoModal
         isOpen={infoModal.isOpen}
         onClose={closeInfoModal}

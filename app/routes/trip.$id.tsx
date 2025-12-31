@@ -466,6 +466,16 @@ export default function TripDetail() {
     }
   }, [uploadError, showToastError])
 
+  // Handle delete trip errors
+  useEffect(() => {
+    if (fetcher.data?.error && fetcher.state === 'idle') {
+      // Check if this is a delete-trip error by checking the formData intent
+      // or by checking if we're in the delete confirm modal
+      if (showDeleteConfirm) {
+        setDeleteError(fetcher.data.error)
+      }
+    }
+  }, [fetcher.data, fetcher.state, showDeleteConfirm])
 
   if (error || !initialTrip?.id || !trip?.id) {
     return (
@@ -514,7 +524,7 @@ export default function TripDetail() {
       return updater(prev)
     })
 
-  return (
+    return (
     <Page showHeader>
       <div className="info-page-content mv">
         <div ref={sectionsRef as RefObject<HTMLDivElement>}>
@@ -564,48 +574,53 @@ export default function TripDetail() {
                   {(currentTrip.members || []).map((member) => (
                     <div key={member.id} className="trip-member-item">
                       <div>
-                        <div className="member-email-row">
+                        <div className="member-email-row space-between">
                           <span className="member-email">
                             {member.userEmail}
                           </span>
+                          <div className="member-actions">
                           {member.status === 'PENDING' && (
                             <Chip label="Invite Sent" isFilled={false} />
+                          )}{currentTrip.isOwner && (
+                            <TextButton
+                              text={
+                                member.status === 'PENDING' ? 'Cancel' : 'Remove'
+                              }
+                              onClick={() => {
+                                if (!user?.id) return
+                                // Optimistic update
+                                setTrip((prev) => {
+                                  if (!prev) return prev
+                                  return {
+                                    ...prev,
+                                    members: prev.members?.filter(
+                                      (m) => m.id !== member.id,
+                                    ),
+                                  }
+                                })
+                                // Submit action via fetcher - Remix will handle revalidation
+                                if (member.status === 'PENDING') {
+                                  submitAction('cancel-invitation', {
+                                    invitationId: member.id,
+                                  })
+                                } else {
+                                  if (!member.userId) {
+                                    console.error('Cannot remove member: missing userId', member)
+                                    return
+                                  }
+                                  submitAction('remove-member', {
+                                    memberUserId: member.userId,
+                                  })
+                                }
+                              }}
+                              iconKey="bin"
+                              filled
+                              danger
+                            />
                           )}
                         </div>
                       </div>
-                      {currentTrip.isOwner && (
-                        <TextButton
-                          text={
-                            member.status === 'PENDING' ? 'Cancel' : 'Remove'
-                          }
-                          onClick={() => {
-                            if (!user?.id) return
-                            // Optimistic update
-                            setTrip((prev) => {
-                              if (!prev) return prev
-                              return {
-                                ...prev,
-                                members: prev.members?.filter(
-                                  (m) => m.id !== member.id,
-                                ),
-                              }
-                            })
-                            // Submit action via fetcher - Remix will handle revalidation
-                            if (member.status === 'PENDING') {
-                              submitAction('cancel-invitation', {
-                                invitationId: member.id,
-                              })
-                            } else {
-                              submitAction('remove-member', {
-                                memberUserId: member.id,
-                              })
-                            }
-                          }}
-                          iconKey="bin"
-                          filled
-                          danger
-                        />
-                      )}
+                      </div>
                     </div>
                   ))}
                 </div>
