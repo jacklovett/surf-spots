@@ -17,11 +17,11 @@
   height: 100%;
   background: $white;
   z-index: 50;
-  transform: translateX(-100%); /* Initially off-screen */
+  transform: translateX(-100%);
   transition:
     transform 0.3s cubic-bezier(0.4, 0, 0.2, 1),
-    box-shadow 0.3s ease; /* Smooth animation */
-  will-change: transform; /* Optimize performance for transforms */
+    box-shadow 0.3s ease;
+  will-change: transform;
 
   &.drawer--left {
     left: 0;
@@ -33,13 +33,13 @@
   }
 
   &.drawer--open {
-    transform: translateX(0); /* Slide into view */
+    transform: translateX(0);
     box-shadow: $box-shadow;
   }
 
   &.drawer--swiping {
-    transition: none; /* Disable transition during swipe for smooth following */
-    transform: translateX(var(--drawer-translate-x, 0)); /* Apply swipe translation */
+    transition: none;
+    transform: translateX(var(--drawer-translate-x, 0));
   }
 
   .drawer-content {
@@ -65,7 +65,7 @@
 
   .drawer-title {
     flex: 1;
-    min-width: 0; // Allow flex item to shrink below content size
+    min-width: 0;
     font-size: $font-size-large;
     color: $text-color;
     margin: 0;
@@ -81,7 +81,6 @@
     gap: 4px;
     flex-shrink: 0;
 
-    // Make dropdown trigger more compact in drawer
     .dropdown-menu-trigger {
       padding: 4px;
       color: $text-color;
@@ -129,7 +128,6 @@
   }
 }
 
-// Shared styles for form actions in drawers (fixed at bottom)
 .drawer-form-actions {
   @extend %flex-row;
   flex-shrink: 0;
@@ -140,13 +138,12 @@
   width: 100%;
 
   .button {
-    flex: 1 1 120px;
-    padding: $spacing-small $spacing-large;
-    white-space: nowrap;
+    width: auto;
+    flex: 1;
+    min-width: 0;
   }
 }
 
-// Prevent body scroll when drawer is open
 body.drawer-open {
   overflow: hidden;
 }

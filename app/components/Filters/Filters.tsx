@@ -387,9 +387,10 @@ export const Filters = memo(() => {
         <Button
           onClick={handleClearFilters}
           variant="cancel"
+          size="small"
           label="Clear All"
         />
-        <Button onClick={handleApplyFilters} label="Apply Filters" />
+        <Button onClick={handleApplyFilters} size="small" label="Apply Filters" />
       </div>
     </div>
   )
