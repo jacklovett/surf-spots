@@ -206,7 +206,6 @@ export const TripSelectionModal = ({
     metadata: trip.startDate && trip.endDate 
       ? `${formatDate(trip.startDate)} - ${formatDate(trip.endDate)}` 
       : undefined,
-    description: trip.description || undefined,
     trip, // Include full trip object for handlers
   }))
 

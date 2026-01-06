@@ -124,7 +124,7 @@
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: $spacing-large;
-  margin-bottom: $spacing-large;
+  margin-bottom: $spacing-x-large;
 
   @media (max-width: 640px) {
     grid-template-columns: 1fr;
@@ -135,7 +135,7 @@
 
 .stat-card {
   @extend .animate-bounce-in;
-  @extend %flex-center;
+  @extend %flex-column;
   background: $white;
   padding: $spacing-x-large $spacing-large;
   border-radius: $content-border-radius;
@@ -180,7 +180,7 @@
 
 /* Wave Preferences */
 .wave-preferences {
-  margin-bottom: $spacing-large;
+  margin-bottom: $spacing-x-large;
 
   @media (max-width: 640px) {
     padding: 0 $spacing-unit;
@@ -204,15 +204,16 @@
 }
 
 .preference-row {
-  @extend %flex-column;
+  @extend %flex-center;
   background: $white;
-  padding: $spacing-large;
+  padding: $spacing-x-large $spacing-large;
   border-radius: $content-border-radius;
   box-shadow: $box-shadow;
-  border: 1px solid $border-light;
+  border: 1px solid $outline-color;
   text-align: center;
-  gap: $spacing-unit;
-  transition: transform 0.2s ease;
+  gap: $spacing-small;
+  min-height: 120px;
+  transition: all 0.2s ease;
 
   &:hover {
     transform: translateY(-2px);
@@ -220,23 +221,30 @@
   }
 
   @media (max-width: 640px) {
-    padding: $spacing-unit;
+    padding: $spacing-large;
+    min-height: 100px;
   }
 }
 
 .preference-label {
   font-weight: 600;
   color: $text-secondary;
-  font-size: $font-size-small;
-  letter-spacing: 0.5px;
+  font-size: $font-size-base;
+  text-align: center;
 }
 
 .preference-value {
   font-weight: 700;
   color: $primary-color;
   font-size: $font-size-x-large;
+  text-align: center;
 
   @media (max-width: 640px) {
     font-size: $font-size-large;
   }
+}
+
+/* Map Section */
+.map-wrapper {
+  margin-bottom: $spacing-x-large;
 }

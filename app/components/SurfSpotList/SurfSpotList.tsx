@@ -2,6 +2,7 @@ import { memo } from 'react'
 import { useNavigate } from 'react-router'
 
 import { SurfSpot } from '~/types/surfSpots'
+import Rating from '../Rating'
 
 interface IProps {
   surfSpots: SurfSpot[]
@@ -52,7 +53,7 @@ const SurfSpotList = memo((props: IProps): JSX.Element => {
                       <th>Name</th>
                       <th>Region</th>
                       <th>Type</th>
-                      <th className="center-td">Rating</th>
+                      <th>Rating</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -68,7 +69,9 @@ const SurfSpotList = memo((props: IProps): JSX.Element => {
                           <td>{name}</td>
                           <td>{region?.name}</td>
                           <td>{type}</td>
-                          <td className="center-td">{rating ?? '-'}</td>
+                          <td>
+                            {rating ? <Rating value={rating} readOnly /> : '-'}
+                          </td>
                         </tr>
                       )
                     })}

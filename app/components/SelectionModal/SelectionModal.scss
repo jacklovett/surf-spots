@@ -1,10 +1,12 @@
 .selection-modal {
   @extend %flex-column;
-  min-height: 200px;
+  flex: 1;
+  min-height: 0;
 
   .selection-header {
     @extend %flex-column;
     margin-bottom: $spacing-unit;
+    flex-shrink: 0;
 
     h2 {
       margin-bottom: $spacing-small;
@@ -23,12 +25,23 @@
     min-height: 200px; // Match minimum height to prevent shift
   }
 
+  .selection-content {
+    @extend %flex-column;
+    flex: 1;
+    min-height: 0;
+    overflow: hidden;
+  }
+
   .selection-list {
     @extend %flex-column;
     gap: $spacing-small;
     margin: $spacing-unit 0;
-    max-height: 400px;
+    flex: 1;
+    min-height: 0;
     overflow-y: auto;
+    overflow-x: hidden;
+    padding-bottom: $spacing-unit;
+    box-sizing: border-box;
   }
 
   .selection-item {
@@ -43,7 +56,6 @@
     .selection-item-content {
       @extend %flex-column;
       width: 100%;
-      gap: $spacing-small;
     }
 
     .selection-item-header {
@@ -105,8 +117,8 @@
   .selection-actions {
     @extend %flex-center;
     gap: $spacing-unit;
-    margin-top: $spacing-unit;
     width: 100%;
+    flex-shrink: 0;
 
     .button {
       width: auto;

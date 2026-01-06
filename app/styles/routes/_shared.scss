@@ -81,8 +81,12 @@ h2 {
     padding: $spacing-large 0;
   }
 
+  h1 {
+    margin-bottom: $spacing-x-large;
+  }
+
   h2 {
-    margin: $spacing-large 0 $spacing-unit;
+    margin: $spacing-x-large 0 $spacing-large;
   }
 
   ul,
@@ -138,7 +142,7 @@ h2 {
 .spots-section,
 .notifications-section,
 .recent-spots-section {
-  margin-bottom: $spacing-large;
+  margin-bottom: $spacing-x-large;
 }
 
 .spots-section h2,

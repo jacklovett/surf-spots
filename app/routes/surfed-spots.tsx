@@ -158,16 +158,16 @@ export default function SurfedSpots() {
         {/* Stats Overview */}
         <div className="stats-overview mt-l">
           <div className="stat-card primary">
-            <div className="stat-value">{totalCount}</div>
             <div className="stat-label">Total Spots Surfed</div>
+            <div className="stat-value">{totalCount}</div>
           </div>
           <div className="stat-card">
-            <div className="stat-value">{countryCount}</div>
             <div className="stat-label">Countries</div>
+            <div className="stat-value">{countryCount}</div>
           </div>
           <div className="stat-card">
-            <div className="stat-value">{continentCount}</div>
             <div className="stat-label">Continents</div>
+            <div className="stat-value">{continentCount}</div>
           </div>
           <div className="stat-card">
             <div className="stat-label">Explorer Level</div>

@@ -156,7 +156,7 @@ export function SelectionModal<T extends SelectionItem>({
             )}
           </div>
         ) : (
-          <div>
+          <div className="selection-content">
             <div className="selection-list">
               {items.map((item) => {
                 const isSelected = isItemSelected(item)
