@@ -129,7 +129,6 @@ export default function SurfedSpots() {
     )
   }
 
-  // Destructure - no need for defaults since we checked above
   const {
     surfedSpots,
     totalCount = 0,
@@ -184,19 +183,19 @@ export default function SurfedSpots() {
             ref={preferencesRef as RefObject<HTMLDivElement>}
             className="preferences-list"
           >
-            <div className="preference-row animate-on-scroll">
+            <div className="preference-card animate-on-scroll">
               <span className="preference-label">Favorite Break</span>
               <span className="preference-value">
                 {mostSurfedSpotType || '-'}
               </span>
             </div>
-            <div className="preference-row animate-on-scroll">
+            <div className="preference-card animate-on-scroll">
               <span className="preference-label">Beach Type</span>
               <span className="preference-value">
                 {mostSurfedBeachBottomType || '-'}
               </span>
             </div>
-            <div className="preference-row animate-on-scroll">
+            <div className="preference-card animate-on-scroll">
               <span className="preference-label">Favorite Direction</span>
               <span className="preference-value">
                 {favoriteWaveDirection || '-'}
