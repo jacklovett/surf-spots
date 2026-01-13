@@ -15,6 +15,7 @@ import {
   fetchSurfSpotsByBounds,
   updateMapSourceData,
   defaultMapCenter,
+  calculateMostPopulatedCenter,
 } from '~/services/mapService'
 import { useSurfSpotsContext, useUserContext } from '~/contexts'
 import { useMapDrawer } from '~/hooks/useMapDrawer'
@@ -140,7 +141,15 @@ export const SurfMap = memo((props: IProps) => {
       })
     } else {
       // Interactive map mode
-      const initialCoords = userLocation || defaultMapCenter
+      // For preloaded mode with spots, center on most populated area
+      // Otherwise, use user location or default center
+      let initialCoords: Coordinates
+      if (isPreloadedMode && surfSpots && surfSpots.length > 0) {
+        const populatedCenter = calculateMostPopulatedCenter(surfSpots)
+        initialCoords = populatedCenter || defaultMapCenter
+      } else {
+        initialCoords = userLocation || defaultMapCenter
+      }
       mapInstance = initializeMap(mapContainerRef.current, true, initialCoords)
       mapInstance.addControl(new mapboxgl.NavigationControl(), 'top-right')
 

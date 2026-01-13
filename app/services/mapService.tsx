@@ -1,7 +1,5 @@
 import mapboxgl, {
   GeoJSONSourceSpecification,
-  Map,
-  MapMouseEvent,
 } from 'mapbox-gl'
 import type {
   BoundingBox,
@@ -24,6 +22,94 @@ export const ICON_IMAGE_PATH = `/images/png/pin.png`
 export const defaultMapCenter = {
   longitude: -9.2398383,
   latitude: 38.6429801,
+}
+
+/**
+ * Calculate the center of the most populated area from a set of surf spots.
+ * Uses a grid-based clustering approach to find the densest region.
+ * @param surfSpots - Array of surf spots
+ * @returns Coordinates of the center of the most populated area, or null if no spots
+ */
+export const calculateMostPopulatedCenter = (
+  surfSpots: SurfSpot[],
+): Coordinates | null => {
+  if (!surfSpots || surfSpots.length === 0) {
+    return null
+  }
+
+  // If only one spot, center on it
+  if (surfSpots.length === 1) {
+    return {
+      longitude: surfSpots[0].longitude,
+      latitude: surfSpots[0].latitude,
+    }
+  }
+
+  // Grid-based clustering to find densest area
+  // Use a grid size that adapts to the spread of points
+  const longitudes = surfSpots.map((spot) => spot.longitude)
+  const latitudes = surfSpots.map((spot) => spot.latitude)
+
+  const minLng = Math.min(...longitudes)
+  const maxLng = Math.max(...longitudes)
+  const minLat = Math.min(...latitudes)
+  const maxLat = Math.max(...latitudes)
+
+  const lngRange = maxLng - minLng
+  const latRange = maxLat - minLat
+
+  // If all points are at the same location, return that location
+  if (lngRange === 0 && latRange === 0) {
+    return {
+      longitude: surfSpots[0].longitude,
+      latitude: surfSpots[0].latitude,
+    }
+  }
+
+  // Use a grid with approximately 10x10 cells, but adapt to data spread
+  const gridSize = Math.max(5, Math.min(15, Math.ceil(Math.sqrt(surfSpots.length))))
+  const cellLngSize = lngRange > 0 ? lngRange / gridSize : 0.001 // Small default if range is 0
+  const cellLatSize = latRange > 0 ? latRange / gridSize : 0.001 // Small default if range is 0
+
+  // Count points in each grid cell
+  const grid: Map<string, number> = new Map()
+  let maxCount = 0
+  let densestCellKey = ''
+
+  surfSpots.forEach((spot) => {
+    const cellX = Math.floor((spot.longitude - minLng) / cellLngSize)
+    const cellY = Math.floor((spot.latitude - minLat) / cellLatSize)
+    const cellKey = `${cellX},${cellY}`
+
+    const count = (grid.get(cellKey) || 0) + 1
+    grid.set(cellKey, count)
+
+    if (count > maxCount) {
+      maxCount = count
+      densestCellKey = cellKey
+    }
+  })
+
+  // Calculate center of the densest cell
+  if (densestCellKey) {
+    const [cellX, cellY] = densestCellKey.split(',').map(Number)
+    const centerLng = minLng + (cellX + 0.5) * cellLngSize
+    const centerLat = minLat + (cellY + 0.5) * cellLatSize
+
+    return {
+      longitude: centerLng,
+      latitude: centerLat,
+    }
+  }
+
+  // Fallback: return geographic center of all points
+  const avgLng = longitudes.reduce((sum, lng) => sum + lng, 0) / longitudes.length
+  const avgLat = latitudes.reduce((sum, lat) => sum + lat, 0) / latitudes.length
+
+  return {
+    longitude: avgLng,
+    latitude: avgLat,
+  }
 }
 
 /**
@@ -256,7 +342,7 @@ export const initializeMap = (
   mapContainer: HTMLDivElement,
   interactive: boolean,
   coordinates?: Coordinates,
-): Map => {
+): mapboxgl.Map => {
   if (!mapContainer) {
     throw new Error('No container provided for map initialization.')
   }
@@ -289,7 +375,7 @@ export const initializeMap = (
  * @param map - the initialized map
  * @param surfSpots - the array of surf spots to be added
  */
-export const addSourceData = (map: Map, surfSpots: SurfSpot[]) =>
+export const addSourceData = (map: mapboxgl.Map, surfSpots: SurfSpot[]) =>
   map.addSource('surfSpots', createSurfSpotsSource(surfSpots))
 
 /**
@@ -331,8 +417,8 @@ export const getSourceData = (surfSpots: SurfSpot[]): GeoJSON.GeoJSON => ({
  * @param onMarkerClick - function to handle marker click
  */
 export const addLayers = (
-  map: Map,
-  onMarkerClick: (event: MapMouseEvent) => void,
+  map: mapboxgl.Map,
+  onMarkerClick: (event: mapboxgl.MapMouseEvent) => void,
 ) => {
   addClusterLayers(map)
   // Then add marker layers (these depend on image loading)
@@ -346,7 +432,7 @@ export const addLayers = (
  * @param map - the initialized map
  * @param onMarkerClick - function to handle marker click
  */
-const addClusterLayers = (map: Map) => {
+const addClusterLayers = (map: mapboxgl.Map) => {
   const primaryColor = getCssVariable('--primary-color')
   const accentColor = getCssVariable('--accent-color')
 
@@ -381,7 +467,7 @@ const addClusterLayers = (map: Map) => {
   })
 }
 
-const addMarkerLayers = (map: Map) => {
+const addMarkerLayers = (map: mapboxgl.Map) => {
   // Check if source exists before trying to add layers
   const source = map.getSource('surfSpots')
   if (!source) {
@@ -435,7 +521,7 @@ const addMarkerLayers = (map: Map) => {
  * @param map - the initialized map
  * @param event - the Mapbox mouse event
  */
-const handleClusterClick = (map: Map, event: MapMouseEvent) => {
+const handleClusterClick = (map: mapboxgl.Map, event: mapboxgl.MapMouseEvent) => {
   try {
     const features = map.queryRenderedFeatures(event.point, {
       layers: ['clusters'],
@@ -479,8 +565,8 @@ const handleClusterClick = (map: Map, event: MapMouseEvent) => {
  * @param onMarkerClick - function to handle marker click
  */
 const setupLayerInteractions = (
-  map: Map,
-  onMarkerClick: (event: MapMouseEvent) => void,
+  map: mapboxgl.Map,
+  onMarkerClick: (event: mapboxgl.MapMouseEvent) => void,
 ) => {
   map.on('click', 'clusters', (event) => handleClusterClick(map, event))
   map.on('click', 'marker', (event) => {
@@ -503,7 +589,7 @@ const setupLayerInteractions = (
  * @param map - map element to plot marker to
  * @returns
  **/
-export const addMarkerForCoordinate = (coordinates: Coordinates, map: Map) => {
+export const addMarkerForCoordinate = (coordinates: Coordinates, map: mapboxgl.Map) => {
   // Load the pin icon image
   map.loadImage(ICON_IMAGE_PATH, (error, image) => {
     if (error) {
@@ -552,14 +638,14 @@ export const createPinElement = (size: number = 42) => {
  * @param map - the map instance
  * @param surfSpots - array of surf spots to display
  */
-export const updateMapSourceData = (map: Map, surfSpots: SurfSpot[]): void => {
+export const updateMapSourceData = (map: mapboxgl.Map, surfSpots: SurfSpot[]): void => {
   const source = map.getSource('surfSpots') as mapboxgl.GeoJSONSource
   if (source) {
     source.setData(getSourceData(surfSpots))
   }
 }
 
-export const removeSource = (map: Map) => {
+export const removeSource = (map: mapboxgl.Map) => {
   try {
     // Check if source exists before trying to remove it
     const source = map.getSource('surfSpots')
