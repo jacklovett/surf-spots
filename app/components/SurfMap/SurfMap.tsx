@@ -15,7 +15,7 @@ import {
   fetchSurfSpotsByBounds,
   updateMapSourceData,
   defaultMapCenter,
-  calculateMostPopulatedCenter,
+  fitMapToSurfSpots,
 } from '~/services/mapService'
 import { useSurfSpotsContext, useUserContext } from '~/contexts'
 import { useMapDrawer } from '~/hooks/useMapDrawer'
@@ -141,12 +141,16 @@ export const SurfMap = memo((props: IProps) => {
       })
     } else {
       // Interactive map mode
-      // For preloaded mode with spots, center on most populated area
+      // For preloaded mode with spots, use first spot or geographic center as initial position
+      // Then fit bounds after load to show all spots
       // Otherwise, use user location or default center
       let initialCoords: Coordinates
       if (isPreloadedMode && surfSpots && surfSpots.length > 0) {
-        const populatedCenter = calculateMostPopulatedCenter(surfSpots)
-        initialCoords = populatedCenter || defaultMapCenter
+        // Use first spot as initial center, will be adjusted by fitBounds
+        initialCoords = {
+          longitude: surfSpots[0].longitude,
+          latitude: surfSpots[0].latitude,
+        }
       } else {
         initialCoords = userLocation || defaultMapCenter
       }
@@ -160,6 +164,12 @@ export const SurfMap = memo((props: IProps) => {
           : contextSurfSpots || []
         addSourceData(mapInstance, initialSpots)
         addLayers(mapInstance, handleMarkerClick)
+
+        // Fit map to show all spots if in preloaded mode with spots
+        if (isPreloadedMode && initialSpots.length > 0) {
+          // Small delay to ensure layers are rendered
+          setTimeout(() => fitMapToSurfSpots(mapInstance, initialSpots), 100)
+        }
 
         // Only fetch on load if dynamic mode with no existing spots
         if (!isPreloadedMode && !contextSurfSpots.length) {
@@ -198,6 +208,16 @@ export const SurfMap = memo((props: IProps) => {
     const spotsToDisplay = isPreloadedMode ? surfSpots || [] : contextSurfSpots
     if (spotsToDisplay.length || isPreloadedMode) {
       updateMapSourceData(mapRef.current, spotsToDisplay)
+      
+      // Fit bounds to show all spots when in preloaded mode and spots change
+      if (isPreloadedMode && spotsToDisplay.length > 0) {
+        // Small delay to ensure source data is updated
+        setTimeout(() => {
+          if (mapRef.current && !mapRef.current._removed) {
+            fitMapToSurfSpots(mapRef.current, spotsToDisplay)
+          }
+        }, 100)
+      }
     }
   }, [surfSpots, contextSurfSpots, disableInteractions, isPreloadedMode])
 
