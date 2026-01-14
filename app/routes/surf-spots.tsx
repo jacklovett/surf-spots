@@ -32,6 +32,7 @@ import {
   useLayoutContext,
   useSurfSpotsContext,
   useUserContext,
+  useToastContext,
 } from '~/contexts'
 
 interface LoaderData {
@@ -54,6 +55,7 @@ export const action: ActionFunction = surfSpotAction
 export default function SurfSpots() {
   const { user } = useUserContext()
   const { openDrawer } = useLayoutContext()
+  const { showError } = useToastContext()
   const navigate = useNavigate()
   const { pathname } = useLocation()
   const navigation = useNavigation()
@@ -66,11 +68,35 @@ export default function SurfSpots() {
     state === 'loading' && !navigatingTo?.startsWith('/surf-spots')
   const loading = state === 'loading' && !isNavigatingAway
 
-  const fetcher = useFetcher()
+  const fetcher = useFetcher<{ error?: string; submitStatus?: string; hasError?: boolean; success?: boolean }>()
+
+  // Handle fetcher errors - show toast messages instead of crashing
+  useEffect(() => {
+    if (fetcher.state === 'idle' && fetcher.data) {
+      const data = fetcher.data as { error?: string; submitStatus?: string; hasError?: boolean; success?: boolean }
+      if (data.error || (data.hasError && data.submitStatus)) {
+        const errorMessage = data.error || data.submitStatus || 'An unexpected error occurred. Please try again.'
+        showError(errorMessage)
+      }
+    }
+  }, [fetcher.data, fetcher.state, showError])
 
   const onFetcherSubmit = useCallback(
-    (params: FetcherSubmitParams) => submitFetcher(params, fetcher),
-    [fetcher],
+    (params: FetcherSubmitParams) => {
+      try {
+        // Determine the correct action route based on current pathname
+        // If we're on a detail page (child route), submit to that route
+        // Otherwise submit to the parent /surf-spots route
+        const actionRoute = pathname.startsWith('/surf-spots/') && pathname !== '/surf-spots' && pathname !== '/surf-spots/'
+          ? pathname
+          : '/surf-spots'
+        submitFetcher(params, fetcher, actionRoute)
+      } catch (error) {
+        console.error('Error submitting fetcher:', error)
+        showError('Failed to submit action. Please try again.')
+      }
+    },
+    [fetcher, showError, pathname],
   )
 
   // Get the initial view from the loader data

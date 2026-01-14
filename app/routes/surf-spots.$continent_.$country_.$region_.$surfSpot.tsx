@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useCallback } from 'react'
 import {
   ActionFunction,
   data,
@@ -198,9 +198,10 @@ export default function SurfSpotDetails() {
   const navigate = useNavigate()
   const location = useLocation()
 
-  const fetcher = useFetcher<string>()
+  const fetcher = useFetcher<ActionData>()
   const noteFetcher = useFetcher<ActionData & { note?: SurfSpotNote }>()
   const lastProcessedDataRef = useRef<typeof noteFetcher.data>(undefined)
+  const lastFetcherDataRef = useRef<typeof fetcher.data>(undefined)
 
   // Set note in context from loader data - always keep it in sync
   useEffect(() => {
@@ -209,6 +210,22 @@ export default function SurfSpotDetails() {
       setNote(surfSpotDetails.id.toString(), noteValue)
     }
   }, [surfSpotDetails?.id, note])
+
+  // Handle surf spot actions fetcher errors - show toast messages instead of crashing
+  useEffect(() => {
+    if (fetcher.state === 'idle' && fetcher.data && fetcher.data !== lastFetcherDataRef.current) {
+      lastFetcherDataRef.current = fetcher.data
+      const data = fetcher.data as ActionData
+      if (data.error || (data.hasError && data.submitStatus)) {
+        const errorMessage = data.error || data.submitStatus || 'An unexpected error occurred. Please try again.'
+        showError(errorMessage)
+      }
+    }
+    // Reset ref when new submission starts
+    if (fetcher.state === 'submitting') {
+      lastFetcherDataRef.current = undefined
+    }
+  }, [fetcher.data, fetcher.state, showError])
 
   // Handle note form submission - show toast and update context
   useEffect(() => {
@@ -239,8 +256,18 @@ export default function SurfSpotDetails() {
     }
   }, [noteFetcher.data, noteFetcher.state, surfSpotDetails?.id, showSuccess, showError, setNote, setNoteSubmissionComplete])
    
-  const onFetcherSubmit = (params: FetcherSubmitParams) =>
-    submitFetcher(params, fetcher)
+  const onFetcherSubmit = useCallback(
+    (params: FetcherSubmitParams) => {
+      try {
+        // Submit to current route (detail page) which has the action handler
+        submitFetcher(params, fetcher, location.pathname)
+      } catch (error) {
+        console.error('Error submitting fetcher:', error)
+        showError('Failed to submit action. Please try again.')
+      }
+    },
+    [fetcher, showError, location.pathname],
+  )
 
   const handleOpenNotesDrawer = () => {
     if (!surfSpotDetails) return
@@ -305,14 +332,16 @@ if (error || !surfSpotDetails) {
         <div className="row space-between">
           <h1>{name}</h1>
           <div className="spot-actions">
-            <SurfSpotActions
-              {...{
-                surfSpot: surfSpotDetails,
-                navigate,
-                user,
-                onFetcherSubmit,
-              }}
-            />
+            <ErrorBoundary message="Unable to display surf spot actions">
+              <SurfSpotActions
+                {...{
+                  surfSpot: surfSpotDetails,
+                  navigate,
+                  user,
+                  onFetcherSubmit,
+                }}
+              />
+            </ErrorBoundary>
           </div>
         </div>
         <div className="row flex-end mb">

@@ -25,28 +25,21 @@ export const defaultMapCenter = {
 }
 
 /**
- * Calculate the center of the most populated area from a set of surf spots.
- * Uses a grid-based clustering approach to find the densest region.
+ * Calculate bounds from a set of surf spots and fit the map to show all spots.
+ * Handles edge cases like single spots, spots at same location, etc.
+ * @param map - The Mapbox map instance
  * @param surfSpots - Array of surf spots
- * @returns Coordinates of the center of the most populated area, or null if no spots
+ * @param padding - Optional padding in pixels (default: 48)
  */
-export const calculateMostPopulatedCenter = (
+export const fitMapToSurfSpots = (
+  map: mapboxgl.Map,
   surfSpots: SurfSpot[],
-): Coordinates | null => {
+  padding: number = 48,
+): void => {
   if (!surfSpots || surfSpots.length === 0) {
-    return null
+    return
   }
 
-  // If only one spot, center on it
-  if (surfSpots.length === 1) {
-    return {
-      longitude: surfSpots[0].longitude,
-      latitude: surfSpots[0].latitude,
-    }
-  }
-
-  // Grid-based clustering to find densest area
-  // Use a grid size that adapts to the spread of points
   const longitudes = surfSpots.map((spot) => spot.longitude)
   const latitudes = surfSpots.map((spot) => spot.latitude)
 
@@ -58,58 +51,41 @@ export const calculateMostPopulatedCenter = (
   const lngRange = maxLng - minLng
   const latRange = maxLat - minLat
 
-  // If all points are at the same location, return that location
-  if (lngRange === 0 && latRange === 0) {
-    return {
-      longitude: surfSpots[0].longitude,
-      latitude: surfSpots[0].latitude,
-    }
+  // If all points are at the same location (or very close), center on it with a reasonable zoom
+  if (lngRange < 0.001 && latRange < 0.001) {
+    map.easeTo({
+      center: [surfSpots[0].longitude, surfSpots[0].latitude],
+      zoom: 12, // Reasonable zoom level for a single spot
+      duration: 1000,
+    })
+    return
   }
 
-  // Use a grid with approximately 10x10 cells, but adapt to data spread
-  const gridSize = Math.max(5, Math.min(15, Math.ceil(Math.sqrt(surfSpots.length))))
-  const cellLngSize = lngRange > 0 ? lngRange / gridSize : 0.001 // Small default if range is 0
-  const cellLatSize = latRange > 0 ? latRange / gridSize : 0.001 // Small default if range is 0
+  // Create bounds with minimum size to ensure visibility
+  // Add a small buffer to prevent bounds from being too tight
+  const minBuffer = 0.01 // ~1km buffer
+  const bufferedMinLng = minLng - Math.max(minBuffer, lngRange * 0.1)
+  const bufferedMaxLng = maxLng + Math.max(minBuffer, lngRange * 0.1)
+  const bufferedMinLat = minLat - Math.max(minBuffer, latRange * 0.1)
+  const bufferedMaxLat = maxLat + Math.max(minBuffer, latRange * 0.1)
 
-  // Count points in each grid cell
-  const grid: Map<string, number> = new Map()
-  let maxCount = 0
-  let densestCellKey = ''
-
-  surfSpots.forEach((spot) => {
-    const cellX = Math.floor((spot.longitude - minLng) / cellLngSize)
-    const cellY = Math.floor((spot.latitude - minLat) / cellLatSize)
-    const cellKey = `${cellX},${cellY}`
-
-    const count = (grid.get(cellKey) || 0) + 1
-    grid.set(cellKey, count)
-
-    if (count > maxCount) {
-      maxCount = count
-      densestCellKey = cellKey
-    }
-  })
-
-  // Calculate center of the densest cell
-  if (densestCellKey) {
-    const [cellX, cellY] = densestCellKey.split(',').map(Number)
-    const centerLng = minLng + (cellX + 0.5) * cellLngSize
-    const centerLat = minLat + (cellY + 0.5) * cellLatSize
-
-    return {
-      longitude: centerLng,
-      latitude: centerLat,
-    }
-  }
-
-  // Fallback: return geographic center of all points
-  const avgLng = longitudes.reduce((sum, lng) => sum + lng, 0) / longitudes.length
-  const avgLat = latitudes.reduce((sum, lat) => sum + lat, 0) / latitudes.length
-
-  return {
-    longitude: avgLng,
-    latitude: avgLat,
-  }
+  // Fit bounds to show all spots with padding
+  map.fitBounds(
+    [
+      [bufferedMinLng, bufferedMinLat], // Southwest corner
+      [bufferedMaxLng, bufferedMaxLat], // Northeast corner
+    ],
+    {
+      padding: {
+        top: padding,
+        bottom: padding,
+        left: padding,
+        right: padding,
+      },
+      maxZoom: 15, // Don't zoom in too close
+      duration: 1000, // Smooth animation
+    },
+  )
 }
 
 /**

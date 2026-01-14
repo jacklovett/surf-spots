@@ -46,39 +46,59 @@ export const SurfSpotActions = memo((props: IProps) => {
     actionType: 'add' | 'remove',
     target: 'user-spots' | 'watch',
   ) => {
-    if (!user) {
-      showSignUpPrompt(target === 'watch' ? 'watch-list' : 'surfed-spots')
-      return
-    }
+    try {
+      if (!user) {
+        showSignUpPrompt(target === 'watch' ? 'watch-list' : 'surfed-spots')
+        return
+      }
 
-    // Determine which property to toggle based on target
-    const propertyMap = {
-      'user-spots': 'isSurfedSpot' as const,
-      watch: 'isWatched' as const,
-    }
+      // Determine which property to toggle based on target
+      const propertyMap = {
+        'user-spots': 'isSurfedSpot' as const,
+        watch: 'isWatched' as const,
+      }
 
-    const property = propertyMap[target]
-    const currentValue = surfSpotState[property]
-    const newValue = !currentValue
+      const property = propertyMap[target]
+      const currentValue = surfSpotState[property]
+      const newValue = !currentValue
 
-    // Update local state optimistically
-    const updatedSurfSpot = {
-      ...surfSpotState,
-      [property]: newValue,
-    }
+      // Update local state optimistically
+      const updatedSurfSpot = {
+        ...surfSpotState,
+        [property]: newValue,
+      }
 
-    setSurfSpotState(updatedSurfSpot)
+      setSurfSpotState(updatedSurfSpot)
 
-    // Update context immediately - no need to wait for API
-    updateSurfSpot(surfSpotId, { [property]: newValue })
+      // Update context immediately - no need to wait for API
+      try {
+        updateSurfSpot(surfSpotId, { [property]: newValue })
+      } catch (contextError) {
+        console.error('Error updating surf spot in context:', contextError)
+        // Revert optimistic update on context error
+        setSurfSpotState(surfSpot)
+      }
 
-    // Submit to server using existing action
-    if (onFetcherSubmit) {
-      const formData = new FormData()
-      formData.append('actionType', actionType)
-      formData.append('target', target)
-      formData.append('surfSpotId', surfSpotId)
-      onFetcherSubmit(formData)
+      // Submit to server using existing action
+      if (onFetcherSubmit) {
+        try {
+          const formData = new FormData()
+          formData.append('actionType', actionType)
+          formData.append('target', target)
+          formData.append('surfSpotId', surfSpotId)
+          onFetcherSubmit(formData)
+        } catch (submitError) {
+          console.error('Error submitting fetcher:', submitError)
+          // Revert optimistic update on submit error
+          setSurfSpotState(surfSpot)
+          throw submitError
+        }
+      }
+    } catch (error) {
+      console.error('Error in handleAction:', error)
+      // Error will be handled by fetcher error handling in parent components
+      // Revert optimistic update
+      setSurfSpotState(surfSpot)
     }
   }
 
