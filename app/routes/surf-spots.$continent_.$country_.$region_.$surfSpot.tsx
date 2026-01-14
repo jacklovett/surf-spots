@@ -9,8 +9,8 @@ import {
   useLocation,
 } from 'react-router'
 
-import { cacheControlHeader, get, post } from '~/services/networkService'
-import { requireSessionCookie } from '~/services/session.server'
+import { cacheControlHeader, get, post, deleteData } from '~/services/networkService'
+import { requireSessionCookie, getSession, commitSession } from '~/services/session.server'
 import { SurfSpot, SurfSpotNote, Tide, SkillLevel } from '~/types/surfSpots'
 
 import {
@@ -33,8 +33,6 @@ import { FetcherSubmitParams, ActionData } from '~/types/api'
 
 import { useUserContext, useSettingsContext, useLayoutContext, useToastContext, useSurfSpotsContext, useSignUpPromptContext } from '~/contexts'
 
-import { surfSpotAction } from '~/services/surfSpot.server'
-import { getSession } from '~/services/session.server'
 import { formatSurfHeightRange, formatSeason } from '~/utils/surfSpotUtils'
 
 interface LoaderData {
@@ -42,6 +40,22 @@ interface LoaderData {
   note?: SurfSpotNote | null
   error?: string
 }
+
+/**
+ * Helper function to create error responses
+ */
+const createErrorResponse = (
+  message: string,
+  status: number = 500,
+  submitStatus?: string,
+): ReturnType<typeof data> => data<ActionData>(
+    {
+      success: false,
+      submitStatus: submitStatus || message,
+      hasError: true,
+    },
+    { status },
+  )
 
 /**
  * Helper function to handle saving a surf spot note
@@ -54,11 +68,7 @@ const handleSaveNote = async (
   const surfSpotId = formData.get('surfSpotId') as string
 
   if (!surfSpotId) {
-    return data<ActionData>({
-      success: false,
-      submitStatus: 'Surf spot ID is required',
-      hasError: true,
-    }, { status: 400 })
+    return createErrorResponse('Surf spot ID is required', 400)
   }
 
   const noteText = (formData.get('noteText') as string)?.trim() || ''
@@ -74,14 +84,9 @@ const handleSaveNote = async (
     skillRequirement: skillRequirementValue ? (skillRequirementValue as SkillLevel) : null,
   }
 
-  const requestBody = {
-    ...noteData,
-    userId,
-  }
-
-  const savedNote = await post<typeof requestBody, SurfSpotNote>(
+  const savedNote = await post<typeof noteData & { userId: string }, SurfSpotNote>(
     `surf-spots/id/${surfSpotId}/notes`,
-    requestBody,
+    { ...noteData, userId },
     { headers: { Cookie: cookie } },
   )
 
@@ -93,34 +98,127 @@ const handleSaveNote = async (
   })
 }
 
-export const action: ActionFunction = async (args) => {
-  const { request } = args
-  const formData = await request.formData()
-  const intent = formData.get('intent') as string
+/**
+ * Helper function to handle trip actions
+ */
+const handleTripAction = async (
+  intent: string,
+  formData: FormData,
+  userId: string,
+  cookie: string,
+): Promise<ReturnType<typeof data>> => {
+  const tripId = formData.get('tripId') as string
+  const tripSpotId = formData.get('tripSpotId') as string
+  const spotSurfSpotId = formData.get('surfSpotId') as string
 
-  if (intent === 'saveNote') {
-    try {
-      const user = await requireSessionCookie(request)
-      const cookie = request.headers.get('Cookie') || ''
-      return await handleSaveNote(formData, user.id, cookie)
-    } catch (error) {
-      console.error('Error saving surf spot note:', error)
-      const errorMessage = error instanceof Error
-        ? error.message
-        : 'Failed to save note. Please try again.'
-      return data<ActionData>(
-        {
-          success: false,
-          submitStatus: errorMessage,
-          hasError: true,
-        },
-        { status: 500 },
-      )
+  if (intent === 'add-spot') {
+    if (!tripId || !spotSurfSpotId) {
+      return data({ error: 'Trip ID and surf spot ID are required' }, { status: 400 })
     }
+    const newTripSpotId = await post<undefined, string>(
+      `trips/${tripId}/spots/${spotSurfSpotId}?userId=${userId}`,
+      undefined,
+      { headers: { Cookie: cookie } },
+    )
+    return data({ success: true, tripSpotId: newTripSpotId })
   }
 
-  // Handle other surf spot actions
-  return surfSpotAction(args)
+  if (intent === 'remove-spot') {
+    if (!tripId || !tripSpotId) {
+      return data({ error: 'Trip ID and trip spot ID are required' }, { status: 400 })
+    }
+    await deleteData(
+      `trips/${tripId}/spots/${tripSpotId}?userId=${userId}`,
+      { headers: { Cookie: cookie } },
+    )
+    return data({ success: true })
+  }
+
+  return data({ error: 'Invalid trip action' }, { status: 400 })
+}
+
+/**
+ * Helper function to handle surf spot actions (watch list / surfed spots)
+ */
+const handleSurfSpotAction = async (
+  actionType: string,
+  target: string,
+  surfSpotId: string,
+  userId: string,
+  cookie: string,
+): Promise<ReturnType<typeof data>> => {
+  const surfSpotIdNumber = Number(surfSpotId)
+  if (isNaN(surfSpotIdNumber)) {
+    return data({ error: 'Invalid surf spot ID' }, { status: 400 })
+  }
+
+  const endpoint =
+    actionType === 'add'
+      ? `${target}`
+      : `${target}/${userId}/remove/${surfSpotIdNumber}`
+
+  const session = await getSession(cookie)
+
+  if (actionType === 'add') {
+    await post(
+      endpoint,
+      { userId, surfSpotId: surfSpotIdNumber },
+      { headers: { Cookie: cookie } },
+    )
+  } else {
+    await deleteData(endpoint, { headers: { Cookie: cookie } })
+  }
+
+  return data(
+    { success: true },
+    { headers: { 'Set-Cookie': await commitSession(session) } },
+  )
+}
+
+export const action: ActionFunction = async ({ request }) => {
+  try {
+    // Authenticate user and get cookie before reading formData
+    const user = await requireSessionCookie(request)
+    const cookie = request.headers.get('Cookie') || ''
+    const formData = await request.formData()
+    const intent = formData.get('intent') as string
+    const actionType = formData.get('actionType') as string
+    const target = formData.get('target') as string
+    const surfSpotId = formData.get('surfSpotId') as string
+    const userId = String(user.id)
+
+    // Handle note saving
+    if (intent === 'saveNote') {
+      return await handleSaveNote(formData, userId, cookie)
+    }
+
+    // Handle trip actions
+    if (intent === 'add-spot' || intent === 'remove-spot') {
+      return await handleTripAction(intent, formData, userId, cookie)
+    }
+
+    // Handle surf spot actions (watch list / surfed spots)
+    if (!actionType || !target || !surfSpotId) {
+      return data({ error: 'Missing required fields' }, { status: 400 })
+    }
+
+    return await handleSurfSpotAction(actionType, target, surfSpotId, userId, cookie)
+  } catch (error) {
+    console.error('Error in action:', error)
+    
+    if (error instanceof Response) return error
+    
+    const errorMessage = error instanceof Error ? error.message : 'An unexpected error occurred. Please try again.'
+    const status = error instanceof Error && 'status' in error 
+      ? (error as { status?: number }).status || 500 
+      : 500
+
+    if (error instanceof Error && error.message === 'Invalid credentials') {
+      return createErrorResponse(error.message, 400)
+    }
+
+    return createErrorResponse(errorMessage, status)
+  }
 }
 
 /**
