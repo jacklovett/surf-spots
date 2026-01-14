@@ -36,15 +36,25 @@ export const ToastProvider = ({ children }: ToastProviderProps) => {
 
   const showToast = useCallback(
     (message: string, type: ToastType = 'info', duration?: number) => {
-      const id = `toast-${Date.now()}-${Math.random()}`
-      const newToast: IToast = {
-        id,
-        message,
-        type,
-        duration,
-      }
-
-      setToasts((prev) => [...prev, newToast])
+      // Check if a toast with the same message and type already exists
+      setToasts((prev) => {
+        const existingToast = prev.find(
+          (toast) => toast.message === message && toast.type === type
+        )
+        if (existingToast) {
+          // Toast already exists, don't add duplicate
+          return prev
+        }
+        
+        const id = `toast-${Date.now()}-${Math.random()}`
+        const newToast: IToast = {
+          id,
+          message,
+          type,
+          duration,
+        }
+        return [...prev, newToast]
+      })
     },
     [],
   )

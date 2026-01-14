@@ -44,7 +44,7 @@ const Rating = ({
         )
       })}
       {/* Hidden input to serialize the rating */}
-      <input type="hidden" name="rating" value={value} />
+      <input type="hidden" name="rating" value={value ?? ''} />
     </div>
   )
 }

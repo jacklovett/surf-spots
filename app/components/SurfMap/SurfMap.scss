@@ -30,11 +30,8 @@
     @extend %flex-column;
     flex: 1;
     min-height: 0;
+    margin-bottom: 0;
     overflow: hidden;
-
-    @media (max-width: 640px) {
-      margin-bottom: 0; // Remove margin to prevent space before footer
-    }
 
     .map-container {
       width: 100%;
