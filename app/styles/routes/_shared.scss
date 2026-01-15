@@ -152,59 +152,6 @@ h2 {
   margin-bottom: $spacing-unit;
 }
 
-/* Recent Spots Section */
-.recent-spots-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: $spacing-large;
-
-  @media (max-width: 640px) {
-    grid-template-columns: 1fr;
-    gap: $spacing-unit;
-  }
-}
-
-.recent-spot-card {
-  @extend %flex-space-between;
-  background: $white;
-  padding: $spacing-large;
-  border-radius: $content-border-radius;
-  box-shadow: $box-shadow;
-  border: 1px solid $border-light;
-  transition:
-    transform 0.2s ease,
-    box-shadow 0.2s ease;
-
-  &:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
-  }
-}
-
-.spot-info {
-  flex: 1;
-
-  h4 {
-    font-weight: 600;
-    margin-bottom: $spacing-small;
-    color: $text-heading;
-  }
-
-  .spot-location {
-    color: $text-secondary;
-    margin-bottom: $spacing-small;
-  }
-
-  .spot-rating {
-    display: flex;
-    align-items: center;
-    gap: $spacing-small;
-
-    .rating-text {
-      color: $text-secondary;
-    }
-  }
-}
 
 .spot-type {
   .type-badge {
@@ -379,11 +326,10 @@ h2 {
   border-radius: $content-border-radius;
   padding: $spacing-unit;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: transform 0.2s ease;
 
   &:hover {
-    box-shadow: $box-shadow;
-    transform: translateY(-2px);
+    transform: scale(1.03);
   }
 
   h3 {

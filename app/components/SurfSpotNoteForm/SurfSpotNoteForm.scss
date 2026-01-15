@@ -8,4 +8,5 @@
   flex: 1;
   overflow-y: auto;
   padding: $spacing-large;
+  @include vertical-scrollbar;
 }

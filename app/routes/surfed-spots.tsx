@@ -216,6 +216,7 @@ export default function SurfedSpots() {
                 <div
                   key={spot.id}
                   className="recent-spot-card animate-on-scroll"
+                  onClick={() => navigate(spot.path)}
                 >
                   <div className="spot-info">
                     <h4>{spot.name}</h4>

@@ -46,6 +46,7 @@
     flex: 1;
     overflow-y: auto;
     -webkit-overflow-scrolling: touch;
+    @include vertical-scrollbar;
   }
 
   @media (max-width: 768px) {

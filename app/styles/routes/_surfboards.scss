@@ -225,6 +225,7 @@
     margin: $spacing-unit 0;
     max-height: 400px;
     overflow-y: auto;
+    @include vertical-scrollbar;
   }
 
   .surfboard-selection-item {

@@ -121,11 +121,10 @@
   text-align: center;
   gap: $spacing-small;
   min-height: 120px;
-  transition: all 0.2s ease;
+  transition: border-color 0.2s ease;
 
   &:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+    border-color: $primary-color;
   }
 
   @media (max-width: 640px) {
@@ -152,7 +151,73 @@
   }
 }
 
-/* Map Section */
-.map-wrapper {
-  margin-bottom: $spacing-x-large;
+/* Recent Spots Section */
+.recent-spots-grid {
+  display: flex;
+  gap: $spacing-large;
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding: $spacing-small 4px;
+  @include horizontal-scrollbar;
+
+  @media (max-width: 640px) {
+    gap: $spacing-unit;
+  }
+}
+
+.recent-spot-card {
+  @extend %flex-space-between;
+  background: $white;
+  padding: $spacing-large;
+  border-radius: $content-border-radius;
+  box-shadow: $box-shadow;
+  border: 1px solid $border-light;
+  flex: 0 0 300px;
+  min-width: 300px;
+  cursor: pointer;
+  transition: border-color 0.2s ease;
+
+  &:hover {
+    border-color: $primary-color;
+  }
+
+  @media (max-width: 640px) {
+    flex: 0 0 280px;
+    min-width: 280px;
+  }
+}
+
+// Override animate-on-scroll's transition: none to enable hover effect
+.recent-spot-card.animate-on-scroll,
+.recent-spot-card.animate-on-scroll.visible {
+  transition: border-color 0.2s ease;
+
+  &:hover {
+    border-color: $primary-color;
+  }
+}
+
+.spot-info {
+  flex: 1;
+
+  h4 {
+    font-weight: 600;
+    margin-bottom: $spacing-small;
+    color: $text-heading;
+  }
+
+  .spot-location {
+    color: $text-secondary;
+    margin-bottom: $spacing-small;
+  }
+
+  .spot-rating {
+    display: flex;
+    align-items: center;
+    gap: $spacing-small;
+
+    .rating-text {
+      color: $text-secondary;
+    }
+  }
 }

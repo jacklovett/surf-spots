@@ -1,18 +1,10 @@
 @use 'sass:color';
 
-.surf-spot-container::-webkit-scrollbar {
-  height: 4px;
-}
-
-.surf-spot-container::-webkit-scrollbar-thumb {
-  background: $scrollbar-color;
-  border-radius: 4px;
-}
-
 .surf-spot-container {
   overflow-x: auto;
   -webkit-overflow-scrolling: touch; /* Smooth scrolling for mobile */
   font-size: $font-size-small;
+  @include horizontal-scrollbar(4px, $scrollbar-color, darken($scrollbar-color, 10%));
 }
 
 .surf-spot-table {

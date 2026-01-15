@@ -42,6 +42,7 @@
     overflow-x: hidden;
     padding-bottom: $spacing-unit;
     box-sizing: border-box;
+    @include vertical-scrollbar;
   }
 
   .selection-item {

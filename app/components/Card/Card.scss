@@ -1,18 +1,16 @@
 // Card component - must override base .card utility class
 // Using more specific selector to ensure it overrides base .card styles
-.card.animate-on-scroll,
 .card {
   background: $white;
   border: 1px solid $outline-color;
   border-radius: $content-border-radius;
-  padding: $spacing-large;
+  padding: $spacing-unit;
   margin: 0; // Override base .card margin
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: border-color 0.2s ease;
 
   &:hover {
-    box-shadow: $box-shadow;
-    transform: translateY(-2px);
+    border-color: $primary-color;
   }
 
   // Override global h3 styles - ensure no top margin or padding
@@ -21,7 +19,7 @@
     padding-top: 0;
     margin-top: 0;
   }
-  
+
   // When image is present, ensure proper spacing
   .card-image + h3 {
     margin-top: 0;
@@ -45,5 +43,14 @@
       height: 100%;
       object-fit: cover;
     }
+  }
+}
+
+.card.animate-on-scroll,
+.card.animate-on-scroll.visible {
+  transition: border-color 0.2s ease;
+
+  &:hover {
+    border-color: $primary-color;
   }
 }

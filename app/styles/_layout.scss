@@ -145,6 +145,7 @@
 
 .scroll {
   overflow-y: auto;
+  @include vertical-scrollbar;
 }
 
 .p {

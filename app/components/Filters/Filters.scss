@@ -8,6 +8,7 @@
   flex: 1;
   overflow-y: auto;
   padding: $spacing-unit;
+  @include vertical-scrollbar;
 
   .filters-content-section {
     margin-bottom: $spacing-large;
