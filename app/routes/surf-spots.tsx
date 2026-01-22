@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from 'react'
+import { useEffect, useState, useCallback, useMemo } from 'react'
 import {
   ActionFunction,
   Outlet,
@@ -59,18 +59,16 @@ export default function SurfSpots() {
   const navigate = useNavigate()
   const { pathname } = useLocation()
   const navigation = useNavigation()
-  const { state } = navigation
-
-  // Check if we're navigating away from this route (to a different route)
-  // navigation.location is the location being navigated to (if navigation is in progress)
   const navigatingTo = navigation.location?.pathname
-  const isNavigatingAway =
-    state === 'loading' && !navigatingTo?.startsWith('/surf-spots')
-  const loading = state === 'loading' && !isNavigatingAway
+  
+  // Show loading when navigating within surf-spots routes (not navigating away)
+  const loading = 
+    navigation.state === 'loading' && 
+    (!navigatingTo || navigatingTo.startsWith('/surf-spots'))
 
   const fetcher = useFetcher<{ error?: string; submitStatus?: string; hasError?: boolean; success?: boolean }>()
 
-  // Handle fetcher errors - show toast messages instead of crashing
+  // Handle fetcher errors - show toast messages
   useEffect(() => {
     if (fetcher.state === 'idle' && fetcher.data) {
       const data = fetcher.data as { error?: string; submitStatus?: string; hasError?: boolean; success?: boolean }
@@ -106,7 +104,7 @@ export default function SurfSpots() {
   // Handle the toggle view logic
   const handleToggleView = () => {
     navigate(isMapView ? '/surf-spots/continents/' : '/surf-spots')
-    setIsMapView(!isMapView)
+    // Don't update isMapView here - let it update from pathname change
   }
 
   const { filters } = useSurfSpotsContext()
@@ -120,16 +118,21 @@ export default function SurfSpots() {
     openDrawer(filtersContent, 'left', 'Filters')
   }
 
-  // Update isMapView when pathname changes, but don't redirect
+  // Update isMapView when pathname changes
   useEffect(() => {
-    const newIsMapView = checkIsMapView(pathname)
-    setIsMapView(newIsMapView)
+    setIsMapView(checkIsMapView(pathname))
   }, [pathname])
+
+  // Prevent map from rendering during transition to/from map view
+  const isMapViewTransition = 
+    navigation.state === 'loading' &&
+    navigatingTo &&
+    checkIsMapView(navigatingTo) !== checkIsMapView(pathname)
 
   const params = useParams()
   const { continent, country, region, subRegion, surfSpot } = params
 
-  const generateBreadcrumbItems = (): BreadcrumbItem[] => {
+  const breadcrumbs = useMemo((): BreadcrumbItem[] => {
     const breadcrumbItems: BreadcrumbItem[] = [
       { label: 'World', link: '/surf-spots/continents' },
     ]
@@ -163,9 +166,7 @@ export default function SurfSpots() {
       })
 
     return breadcrumbItems
-  }
-
-  const breadcrumbs = generateBreadcrumbItems()
+  }, [continent, country, region, subRegion, surfSpot])
   // Detect detail pages - check if pathname matches detail page route patterns
   // Pattern 1: /surf-spots/{continent}/{country}/{region}/{surfSpot} (excludes ending in 'sub-regions' or 'continents')
   // Pattern 2: /surf-spots/{continent}/{country}/{region}/sub-regions/{subRegion}/{surfSpot}
@@ -178,8 +179,14 @@ export default function SurfSpots() {
       pathname,
     )
 
+  const loadingComponent = (
+    <ContentStatus>
+      <Loading />
+    </ContentStatus>
+  )
+
   return (
-    <Page showHeader overrideLoading={loading}>
+    <Page showHeader overrideLoading>
       <Toolbar
         showAddButton={!!user}
         onAddNewSpot={() => navigate('/add-surf-spot')}
@@ -191,18 +198,20 @@ export default function SurfSpots() {
       />
       <TripPlannerButton onOpenTripPlanner={() => navigate('/trip-planner')} />
       {isMapView ? (
-        <div className="center column h-full map-wrapper">
-          <ErrorBoundary message="Uh-oh! Something went wrong displaying the map!">
-            <SurfMap onFetcherSubmit={onFetcherSubmit} />
-          </ErrorBoundary>
-        </div>
+        loading || isMapViewTransition ? (
+          loadingComponent
+        ) : (
+          <div className="center column h-full map-wrapper">
+            <ErrorBoundary message="Uh-oh! Something went wrong displaying the map!">
+              <SurfMap onFetcherSubmit={onFetcherSubmit} />
+            </ErrorBoundary>
+          </div>
+        )
       ) : (
         <div className="column surf-spots-list-view">
           <Breadcrumb items={breadcrumbs} />
           {loading ? (
-            <ContentStatus>
-              <Loading />
-            </ContentStatus>
+            loadingComponent
           ) : (
             <ErrorBoundary message="Uh-oh! Something went wrong!">
               <div className="mt">

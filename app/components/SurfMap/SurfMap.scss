@@ -39,10 +39,7 @@
       flex: 1;
       min-height: 0;
       overflow: hidden;
-
-      @media (max-width: 640px) {
-        aspect-ratio: unset; // Remove aspect-ratio on mobile to allow full height
-      }
+      aspect-ratio: unset; // Remove aspect-ratio to allow full height
     }
   }
 }

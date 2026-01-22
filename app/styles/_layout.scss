@@ -133,6 +133,12 @@
     560px,
     720px
   ); // Full width on mobile, 640px on tablet, 960px on desktop
+  
+  // Allow map-wrapper to fill available space when in full-page mode
+  .map-wrapper.h-full {
+    flex: 1;
+    min-height: 0; // Allow flexbox to shrink within parent
+  }
 }
 
 .card {

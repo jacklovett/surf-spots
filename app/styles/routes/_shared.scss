@@ -45,8 +45,9 @@ h2 {
   margin-top: 30vh;
 }
 
-// Less margin on surf-spots list view because toolbar takes up space
-.surf-spots-list-view .content-status {
+// Less margin on surf-spots routes because toolbar takes up space
+.surf-spots-list-view .content-status,
+.content-container > .content-status {
   margin-top: 15vh;
 }
 

@@ -6,6 +6,7 @@ import { useFormValidation } from './useFormValidation/useFormValidation'
 import { useLocationPin } from './useLocationPin'
 import { useLocationSelection } from './useLocationSelection'
 import { useMapDrawer } from './useMapDrawer'
+import { useResizeObserver } from './useResizeObserver'
 import { useScrollReveal } from './useScrollReveal'
 import { useStaticMap } from './useStaticMap'
 import { useSubmitStatus } from './useSubmitStatus'
@@ -21,6 +22,7 @@ export {
   useLocationPin,
   useLocationSelection,
   useMapDrawer,
+  useResizeObserver,
   useScrollReveal,
   useStaticMap,
   useSubmitStatus,

@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState, memo } from 'react'
 import { Link } from 'react-router'
 import { BreadcrumbItem, formatSlug } from './index'
 import { debounce } from '~/utils/commonUtils'
@@ -7,7 +7,7 @@ interface IProps {
   items: BreadcrumbItem[]
 }
 
-export const Breadcrumb = ({ items }: IProps) => {
+export const Breadcrumb = memo(({ items }: IProps) => {
   const breadcrumbRef = useRef<HTMLUListElement>(null)
   const [collapsedItems, setCollapsedItems] = useState<BreadcrumbItem[]>(items)
 
@@ -83,4 +83,6 @@ export const Breadcrumb = ({ items }: IProps) => {
       </ul>
     </nav>
   )
-}
+})
+
+Breadcrumb.displayName = 'Breadcrumb'

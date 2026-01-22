@@ -18,7 +18,7 @@ import {
   fitMapToSurfSpots,
 } from '~/services/mapService'
 import { useSurfSpotsContext, useUserContext } from '~/contexts'
-import { useMapDrawer } from '~/hooks/useMapDrawer'
+import { useMapDrawer, useResizeObserver } from '~/hooks'
 import { debounce } from '~/utils/commonUtils'
 import { FetcherSubmitParams } from '~/types/api'
 
@@ -220,6 +220,20 @@ export const SurfMap = memo((props: IProps) => {
       }
     }
   }, [surfSpots, contextSurfSpots, disableInteractions, isPreloadedMode])
+
+  // Resize map when container size changes (e.g., switching from list to map view)
+  const handleMapResize = useCallback(() => {
+    if (mapRef.current && !mapRef.current._removed) {
+      mapRef.current.resize()
+    }
+  }, [])
+
+  useResizeObserver(mapContainerRef, handleMapResize, {
+    delay: 0, // Small delay to ensure flex layout has calculated dimensions
+    enabled: !disableInteractions && !!mapRef.current,
+    triggerOnMount: true, // Trigger resize when observer is set up (e.g., when map becomes visible)
+    initialDelay: 100, // Delay to ensure flex layout has calculated final dimensions
+  })
 
   return (
     <div className={classNames({ 'map-container': true, border: !loading })}>
