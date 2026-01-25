@@ -11,6 +11,7 @@ import { useScrollReveal } from './useScrollReveal'
 import { useStaticMap } from './useStaticMap'
 import { useSubmitStatus } from './useSubmitStatus'
 import { useFormSubmission } from './useFormSubmission'
+import { useSurfSpotActions } from './useSurfSpotActions'
 
 export {
   useActionFetcher,
@@ -26,4 +27,5 @@ export {
   useScrollReveal,
   useStaticMap,
   useSubmitStatus,
+  useSurfSpotActions,
 }

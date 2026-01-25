@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback, useMemo } from 'react'
+import { useEffect, useState, useMemo } from 'react'
 import {
   ActionFunction,
   Outlet,
@@ -8,7 +8,6 @@ import {
   useNavigate,
   useNavigation,
   useParams,
-  useFetcher,
 } from 'react-router'
 
 import {
@@ -22,8 +21,6 @@ import {
   Toolbar,
   TripPlannerButton,
 } from '~/components'
-import { submitFetcher } from '~/components/SurfSpotActions'
-import { FetcherSubmitParams } from '~/types/api'
 import { BreadcrumbItem } from '~/components/Breadcrumb'
 import { getAppliedFiltersCount } from '~/components/Filters'
 
@@ -32,8 +29,8 @@ import {
   useLayoutContext,
   useSurfSpotsContext,
   useUserContext,
-  useToastContext,
 } from '~/contexts'
+import { useSurfSpotActions } from '~/hooks'
 
 interface LoaderData {
   isMapView: boolean
@@ -55,7 +52,6 @@ export const action: ActionFunction = surfSpotAction
 export default function SurfSpots() {
   const { user } = useUserContext()
   const { openDrawer } = useLayoutContext()
-  const { showError } = useToastContext()
   const navigate = useNavigate()
   const { pathname } = useLocation()
   const navigation = useNavigation()
@@ -66,46 +62,24 @@ export default function SurfSpots() {
     navigation.state === 'loading' && 
     (!navigatingTo || navigatingTo.startsWith('/surf-spots'))
 
-  const fetcher = useFetcher<{ error?: string; submitStatus?: string; hasError?: boolean; success?: boolean }>()
+  // Determine the correct action route based on current pathname
+  // If we're on a detail page (child route), submit to that route
+  // Otherwise submit to the parent /surf-spots route
+  const actionRoute =
+    pathname.startsWith('/surf-spots/') &&
+    pathname !== '/surf-spots' &&
+    pathname !== '/surf-spots/'
+      ? pathname
+      : '/surf-spots'
 
-  // Handle fetcher errors - show toast messages
-  useEffect(() => {
-    if (fetcher.state === 'idle' && fetcher.data) {
-      const data = fetcher.data as { error?: string; submitStatus?: string; hasError?: boolean; success?: boolean }
-      if (data.error || (data.hasError && data.submitStatus)) {
-        const errorMessage = data.error || data.submitStatus || 'An unexpected error occurred. Please try again.'
-        showError(errorMessage)
-      }
-    }
-  }, [fetcher.data, fetcher.state, showError])
-
-  const onFetcherSubmit = useCallback(
-    (params: FetcherSubmitParams) => {
-      try {
-        // Determine the correct action route based on current pathname
-        // If we're on a detail page (child route), submit to that route
-        // Otherwise submit to the parent /surf-spots route
-        const actionRoute = pathname.startsWith('/surf-spots/') && pathname !== '/surf-spots' && pathname !== '/surf-spots/'
-          ? pathname
-          : '/surf-spots'
-        submitFetcher(params, fetcher, actionRoute)
-      } catch (error) {
-        console.error('Error submitting fetcher:', error)
-        showError('Failed to submit action. Please try again.')
-      }
-    },
-    [fetcher, showError, pathname],
-  )
+  const { onFetcherSubmit } = useSurfSpotActions(actionRoute)
 
   // Get the initial view from the loader data
   const { isMapView: initialMapView } = useLoaderData<LoaderData>()
 
   const [isMapView, setIsMapView] = useState(initialMapView)
   // Handle the toggle view logic
-  const handleToggleView = () => {
-    navigate(isMapView ? '/surf-spots/continents/' : '/surf-spots')
-    // Don't update isMapView here - let it update from pathname change
-  }
+  const handleToggleView = () => navigate(isMapView ? '/surf-spots/continents/' : '/surf-spots')
 
   const { filters } = useSurfSpotsContext()
 

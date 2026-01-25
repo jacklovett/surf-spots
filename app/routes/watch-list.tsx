@@ -1,6 +1,7 @@
 import { RefObject } from 'react'
 import {
   data,
+  ActionFunction,
   LoaderFunction,
   useLoaderData,
   useNavigation,
@@ -22,7 +23,8 @@ import {
 } from '~/components'
 import { WatchedSurfSpotsSummary } from '~/types/watchedSurfSpotsSummary'
 import { cacheControlHeader, get } from '~/services/networkService'
-import { useScrollReveal } from '~/hooks'
+import { useScrollReveal, useSurfSpotActions } from '~/hooks'
+import { surfSpotAction } from '~/services/surfSpot.server'
 
 interface LoaderData {
   watchedSurfSpotsSummary?: WatchedSurfSpotsSummary
@@ -60,12 +62,15 @@ export const loader: LoaderFunction = async ({ request }) => {
   }
 }
 
+export const action: ActionFunction = surfSpotAction
+
 export default function Watchlist() {
   const { state } = useNavigation()
   const navigate = useNavigate()
   const loading = state === 'loading'
 
   const { watchedSurfSpotsSummary, error } = useLoaderData<LoaderData>()
+  const { onFetcherSubmit } = useSurfSpotActions()
   const feedRef = useScrollReveal()
   const emptyStateRef = useScrollReveal()
 
@@ -141,7 +146,7 @@ export default function Watchlist() {
 
             <div id="watchlist-map" className="map-wrapper center mt-l">
               <ErrorBoundary message="Uh-oh! Something went wrong displaying the map!">
-                <SurfMap surfSpots={surfSpots} />
+                <SurfMap surfSpots={surfSpots} onFetcherSubmit={onFetcherSubmit} />
               </ErrorBoundary>
             </div>
 

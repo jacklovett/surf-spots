@@ -1,6 +1,7 @@
 import { RefObject } from 'react'
 import {
   data,
+  ActionFunction,
   LoaderFunction,
   useLoaderData,
   useNavigation,
@@ -17,9 +18,10 @@ import {
   SurfMap,
   SurfSpotList,
 } from '~/components'
-import { useScrollReveal } from '~/hooks'
+import { useScrollReveal, useSurfSpotActions } from '~/hooks'
 import { cacheControlHeader, get } from '~/services/networkService'
 import { requireSessionCookie } from '~/services/session.server'
+import { surfSpotAction } from '~/services/surfSpot.server'
 import { SurfedSpotsSummary } from '~/types/surfedSpotsSummary'
 import { SurfSpot } from '~/types/surfSpots'
 
@@ -58,6 +60,8 @@ export const loader: LoaderFunction = async ({ request }) => {
     )
   }
 }
+
+export const action: ActionFunction = surfSpotAction
 
 // Helper function to get surf explorer level based on countries surfed
 const getSurfExplorerLevel = (countryCount: number) => {
@@ -103,6 +107,7 @@ export default function SurfedSpots() {
   const loading = state === 'loading'
 
   const { surfedSpotsSummary, error } = useLoaderData<LoaderData>()
+  const { onFetcherSubmit } = useSurfSpotActions()
 
   // Hooks to animate cards when they scroll into view
   const recentSpotsRef = useScrollReveal()
@@ -212,7 +217,7 @@ export default function SurfedSpots() {
               ref={recentSpotsRef as RefObject<HTMLDivElement>}
               className="recent-spots-grid"
             >
-              {recentSpots.map((spot) => (
+              {recentSpots.map((spot: SurfSpot) => (
                 <div
                   key={spot.id}
                   className="recent-spot-card animate-on-scroll"
@@ -238,7 +243,7 @@ export default function SurfedSpots() {
         <h2>Your Surf Journey Map</h2>
         <div className="map-wrapper center">
           <ErrorBoundary message="Uh-oh! Something went wrong displaying the map!">
-            <SurfMap surfSpots={surfSpots} />
+            <SurfMap surfSpots={surfSpots} onFetcherSubmit={onFetcherSubmit} />
           </ErrorBoundary>
         </div>
         {/* All Surf Spots List */}
