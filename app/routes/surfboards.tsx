@@ -96,7 +96,7 @@ export default function Surfboards() {
           <div className="surfboards-section">
             <div
               ref={surfboardsRef as RefObject<HTMLDivElement>}
-              className="surfboards-grid"
+              className="page-grid"
             >
               {surfboardsList.map((surfboard) => (
                 <Card

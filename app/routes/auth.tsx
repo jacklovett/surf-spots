@@ -8,6 +8,7 @@ import {
 } from 'react-router'
 import { authenticateWithCredentials, validate } from '~/services/auth.server'
 import { AuthPage, FormComponent, FormInput, SignInOptions } from '~/components'
+import { messageForDisplay, DEFAULT_ERROR_MESSAGE } from '~/utils/errorUtils'
 
 import { useFormValidation, useSubmitStatus } from '~/hooks'
 import { validateEmail, validatePassword } from '~/hooks/useFormValidation'
@@ -82,20 +83,17 @@ export const action: ActionFunction = async ({ request }) => {
         { status },
       )
     }
-    if (error instanceof Error && error.message === 'Invalid credentials') {
-      // Specific handling for authentication errors (e.g., invalid credentials)
-      return data(
-        { submitStatus: error.message, hasError: true },
-        { status: 400 },
-      )
-    }
-    // Handle other unexpected errors
+    const status =
+      error instanceof Error && 'status' in error
+        ? (error as { status?: number }).status ?? 500
+        : 500
+    const message = messageForDisplay(
+      error instanceof Error ? error.message : undefined,
+      DEFAULT_ERROR_MESSAGE,
+    )
     return data(
-      {
-        submitStatus: 'An unexpected error occurred. Please try again.',
-        hasError: true,
-      },
-      { status: 500 },
+      { submitStatus: message, hasError: true },
+      { status },
     )
   }
 }

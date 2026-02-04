@@ -8,7 +8,7 @@ import {
 } from 'react-router'
 
 import { formatEmail, registerUser, validate } from '~/services/auth.server'
-
+import { DEFAULT_ERROR_MESSAGE } from '~/utils/errorUtils'
 import { AuthPage, FormComponent, FormInput, SignInOptions } from '~/components'
 import { useFormValidation, useSubmitStatus } from '~/hooks'
 import { validateEmail, validatePassword } from '~/hooks/useFormValidation'
@@ -50,7 +50,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
     const submitError =
       e instanceof Error
         ? e.message
-        : 'An unexpected error occurred. Please try again.'
+        : DEFAULT_ERROR_MESSAGE
     return data(
       { submitStatus: submitError, hasError: true },
       { status: 400 },

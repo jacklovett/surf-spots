@@ -1,6 +1,7 @@
 .empty-state {
   text-align: center;
   padding: $spacing-x-large;
+  margin-top: $spacing-unit;
   background: $white;
   border-radius: $content-border-radius;
   box-shadow: $box-shadow;
@@ -40,7 +41,7 @@
       padding: $spacing-unit $spacing-small;
 
       @media (max-width: 768px) {
-        max-width: 100%;
+        max-width: 240px;
         padding: $spacing-unit;
       }
     }

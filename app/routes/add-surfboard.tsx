@@ -10,6 +10,7 @@ import { requireSessionCookie } from '~/services/session.server'
 import { CreateSurfboardRequest, Surfboard } from '~/types/surfboard'
 import { post } from '~/services/networkService'
 import { useSubmitStatus } from '~/hooks'
+import { messageForDisplay } from '~/utils/errorUtils'
 import { parseLength, parseDimension } from '~/utils/surfboardUtils'
 
 export const loader: LoaderFunction = async ({ request }) => {
@@ -83,8 +84,10 @@ export const action: ActionFunction = async ({ request }) => {
   } catch (error) {
     console.error('Error creating surfboard:', error)
     const networkError = error as { status?: number; message?: string }
-    const errorMessage =
-      networkError?.message || 'Failed to create surfboard. Please try again.'
+    const errorMessage = messageForDisplay(
+      networkError?.message,
+      'Failed to create surfboard. Please try again.',
+    )
     return data(
       {
         submitStatus: errorMessage,

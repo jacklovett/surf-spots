@@ -42,10 +42,6 @@
 }
 
 /* Trip Detail Page Styles */
-.trip-actions {
-  @extend .page-actions;
-}
-
 // Match surf spot details page styling
 .info-page-content {
   h1 {
@@ -226,9 +222,6 @@
   }
 }
 
-.trip-media-upload {
-  margin-top: $spacing-unit;
-}
 
 // Date input styling
 input[type='date'] {

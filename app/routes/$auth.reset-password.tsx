@@ -11,6 +11,7 @@ import {
 
 import { ContentStatus, FormComponent, FormInput, Page } from '~/components'
 import { post } from '~/services/networkService'
+import { DEFAULT_ERROR_MESSAGE } from '~/utils/errorUtils'
 import { useFormValidation, useSubmitStatus } from '~/hooks'
 import { validatePassword } from '~/hooks/useFormValidation'
 
@@ -53,7 +54,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
     const submitError =
       e instanceof Error
         ? e.message
-        : 'An unexpected error occurred. Please try again.'
+        : DEFAULT_ERROR_MESSAGE
 
     return data(
       { submitStatus: submitError, hasError: true },

@@ -6,21 +6,18 @@
 /**
  * Gets the media type (MIME type) from a file
  */
-export function getMediaType(file: File): string {
-  return file.type || 'application/octet-stream'
-}
+export const getMediaType = (file: File): string =>
+  file.type || 'application/octet-stream'
 
 /**
  * Validates if a file is an image
  */
-export function isImageFile(file: File): boolean {
-  return file.type.startsWith('image/')
-}
+export const isImageFile = (file: File): boolean =>
+  file.type.startsWith('image/')
 
 /**
  * Validates if a file is a video
  */
-export function isVideoFile(file: File): boolean {
-  return file.type.startsWith('video/')
-}
+export const isVideoFile = (file: File): boolean =>
+  file.type.startsWith('video/')
 

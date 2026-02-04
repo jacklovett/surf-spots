@@ -34,6 +34,7 @@ import { getUploadUrl, recordMedia } from '~/services/trip'
 import { useScrollReveal, useFileUpload, useActionFetcher } from '~/hooks'
 import { InfoModal } from '~/components/Modal'
 import { formatDate } from '~/utils/dateUtils'
+import { messageForDisplay } from '~/utils/errorUtils'
 import {
   handleMediaUpload
 } from '~/utils/uploadUtils.server'
@@ -119,10 +120,10 @@ export const action: ActionFunction = async ({ request, params }) => {
       })
       return data<ActionData>(
         {
-          error:
-            error instanceof Error
-              ? error.message
-              : 'Failed to delete trip. Please try again.',
+          error: messageForDisplay(
+            error instanceof Error ? error.message : undefined,
+            'Failed to delete trip. Please try again.',
+          ),
         },
         { status: 500 },
       )
@@ -157,10 +158,10 @@ export const action: ActionFunction = async ({ request, params }) => {
       })
       return data<ActionData>(
         {
-          error:
-            error instanceof Error
-              ? error.message
-              : 'Failed to add surfboard. Please try again.',
+          error: messageForDisplay(
+            error instanceof Error ? error.message : undefined,
+            'Failed to add surfboard. Please try again.',
+          ),
         },
         { status: 500 },
       )
@@ -196,10 +197,10 @@ export const action: ActionFunction = async ({ request, params }) => {
       })
       return data<ActionData>(
         {
-          error:
-            error instanceof Error
-              ? error.message
-              : 'Failed to remove surfboard. Please try again.',
+          error: messageForDisplay(
+            error instanceof Error ? error.message : undefined,
+            'Failed to remove surfboard. Please try again.',
+          ),
         },
         { status: 500 },
       )
@@ -233,10 +234,10 @@ export const action: ActionFunction = async ({ request, params }) => {
       })
       return data<ActionData>(
         {
-          error:
-            error instanceof Error
-              ? error.message
-              : 'Failed to remove spot. Please try again.',
+          error: messageForDisplay(
+            error instanceof Error ? error.message : undefined,
+            'Failed to remove spot. Please try again.',
+          ),
         },
         { status: 500 },
       )
@@ -270,10 +271,10 @@ export const action: ActionFunction = async ({ request, params }) => {
       })
       return data<ActionData>(
         {
-          error:
-            error instanceof Error
-              ? error.message
-              : 'Failed to remove member. Please try again.',
+          error: messageForDisplay(
+            error instanceof Error ? error.message : undefined,
+            'Failed to remove member. Please try again.',
+          ),
         },
         { status: 500 },
       )
@@ -309,10 +310,10 @@ export const action: ActionFunction = async ({ request, params }) => {
       })
       return data<ActionData>(
         {
-          error:
-            error instanceof Error
-              ? error.message
-              : 'Failed to cancel invitation. Please try again.',
+          error: messageForDisplay(
+            error instanceof Error ? error.message : undefined,
+            'Failed to cancel invitation. Please try again.',
+          ),
         },
         { status: 500 },
       )
@@ -345,10 +346,10 @@ export const action: ActionFunction = async ({ request, params }) => {
       })
       return data<ActionData>(
         {
-          error:
-            error instanceof Error
-              ? error.message
-              : 'Failed to delete media. Please try again.',
+          error: messageForDisplay(
+            error instanceof Error ? error.message : undefined,
+            'Failed to delete media. Please try again.',
+          ),
         },
         { status: 500 },
       )
@@ -422,6 +423,7 @@ export default function TripDetail() {
     uploadFiles,
     isUploading,
     error: uploadError,
+    clearError: clearUploadError,
     fetcherData,
   } = useFileUpload()
 
@@ -459,12 +461,13 @@ export default function TripDetail() {
     }
   }, [fetcherData, showSuccess])
 
-  // Handle upload errors
+  // Handle upload errors (clear after showing so the same error can show a new toast if triggered again)
   useEffect(() => {
     if (uploadError) {
       showToastError(uploadError)
+      clearUploadError()
     }
-  }, [uploadError, showToastError])
+  }, [uploadError, showToastError, clearUploadError])
 
   // Handle delete trip errors
   useEffect(() => {
@@ -787,7 +790,7 @@ export default function TripDetail() {
               />
 
               {currentTrip.isOwner && (
-                <div className="trip-media-upload">
+                <div className="media-upload-container">
                   {isUploading && <p className="mb">Uploading media...</p>}
                   <MediaUpload
                     onFilesSelected={(files) => {

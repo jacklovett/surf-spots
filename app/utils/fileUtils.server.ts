@@ -7,7 +7,7 @@
  * Converts a File or Blob to a base64 data URL string
  * Works in Node.js/React Router server environments
  */
-export async function fileToBase64(file: File | Blob): Promise<string> {
+export const fileToBase64 = async (file: File | Blob): Promise<string> => {
   const stream = file.stream()
   const reader = stream.getReader()
   const chunks: Uint8Array[] = []

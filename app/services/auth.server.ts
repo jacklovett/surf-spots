@@ -2,8 +2,8 @@ import { data, redirect } from 'react-router'
 import { AuthRequest, User } from '~/types/user'
 import { getSession, commitSession } from '~/services/session.server'
 import { post, isNetworkError } from './networkService'
+import { messageForDisplay } from '~/utils/errorUtils'
 import { validateEmail, validatePassword } from '~/hooks/useFormValidation'
-import { ApiResponse } from '~/types/api'
 
 export interface AuthErrors {
   email?: string
@@ -38,7 +38,8 @@ export const authenticateWithCredentials = async (request: Request) => {
     if (!user) {
       return data(
         {
-          submitStatus: 'Invalid login credentials',
+          submitStatus:
+            "That email and password didn't match. Try again or use Forgot password.",
           hasError: true,
         },
         { status: 401 },
@@ -48,11 +49,20 @@ export const authenticateWithCredentials = async (request: Request) => {
     return await setSessionCookieAndRedirect(request, user)
   } catch (error) {
     console.error('Login error:', error)
-    
+
     if (isNetworkError(error) && error.status !== undefined) {
-      if (error.status === 401 || error.status === 403 || error.status === 404) {
+      const status = error.status
+      if (status === 401 || status === 404) {
         return {
-          submitStatus: 'Invalid login credentials',
+          submitStatus:
+            "That email and password didn't match. Try again or use Forgot password.",
+          hasError: true,
+        }
+      }
+      if (status === 403) {
+        return {
+          submitStatus:
+            "This account can't sign in. Contact support if you need help.",
           hasError: true,
         }
       }
@@ -85,7 +95,6 @@ export const setSessionCookieAndRedirect = async (
 }
 
 export const verifyLogin = async (email: string, password: string) => {
-  console.log(`[AUTH_SERVER] Attempting login for: ${formatEmail(email)}`)
   try {
     // The networkService extracts data.data from ApiResponse, so we get User directly
     const user = await post<AuthRequest, User>('auth/login', {
@@ -94,20 +103,13 @@ export const verifyLogin = async (email: string, password: string) => {
       provider: 'EMAIL',
     })
 
-    console.log(`[AUTH_SERVER] Login response received:`, { 
-      hasUser: !!user, 
-      userId: user?.id,
-      userEmail: user?.email
-    })
-
     if (!user || !user.id) {
-      console.log(`[AUTH_SERVER] Login failed: No user data returned`)
-      throw new Error('Invalid login credentials')
+      throw new Error(
+        "That email and password didn't match. Try again or use Forgot password.",
+      )
     }
-    console.log(`[AUTH_SERVER] Login successful for user: ${user.id}`)
     return user
   } catch (error) {
-    console.error(`[AUTH_SERVER] Login error:`, error)
     throw error
   }
 }
@@ -140,11 +142,12 @@ export const handleOAuthError = (
 ) => {
   console.error(`${provider} OAuth error:`, error)
 
-  let errorMessage = 'Sign in failed. Please try again.'
-  
+  const fallback = 'Sign in failed. Please try again.'
+  let errorMessage = fallback
+
   if (error instanceof Error) {
     if (isNetworkError(error)) {
-      errorMessage = error.message
+      errorMessage = messageForDisplay(error.message, fallback)
     } else if (
       provider === 'facebook' &&
       error.message.includes('Email is required')

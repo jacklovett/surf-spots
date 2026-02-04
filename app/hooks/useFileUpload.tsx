@@ -1,5 +1,6 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useFetcher } from 'react-router'
+import { UPLOAD_ERROR_GENERIC } from '~/utils/errorUtils'
 
 interface UseFileUploadOptions {
   onSuccess?: () => void
@@ -28,32 +29,28 @@ export const useFileUpload = (
 
   const { onSuccess, onError } = options
 
-  // Handle errors from action
+  // Handle errors and success from action.
   useEffect(() => {
-    // Check for errors in fetcher data
-    if (fetcher.data?.error) {
-      const errorMessage = fetcher.data.error
-      setError(errorMessage)
-      onError?.(errorMessage)
-    } 
-    // Check for fetcher errors (network errors, etc.)
-    else if (fetcher.state === 'idle' && fetcher.data === undefined && fetcher.formMethod === 'post') {
-      // Fetcher completed but no data - might be an error
-      // This handles cases where the action throws before returning data
-      const errorMessage = 'An unexpected error occurred. Please try again.'
-      setError(errorMessage)
-      onError?.(errorMessage)
-    }
-    // Success case
-    else if (
-      fetcher.state === 'idle' &&
-      fetcher.data?.success === true &&
-      fetcher.data?.error === undefined
-    ) {
+    if (fetcher.state !== 'idle') return
+
+    if (fetcher.data?.success && !fetcher.data?.error) {
       setError(null)
       onSuccess?.()
+      return
     }
-  }, [fetcher.data, fetcher.state, fetcher.formMethod, onSuccess, onError])
+
+    if (fetcher.data?.error) {
+      setError(fetcher.data.error)
+      onError?.(fetcher.data.error)
+      return
+    }
+
+    // Response came back but had no success or error — show generic message (only when we have data, so we don't show error on initial mount)
+    if (fetcher.data !== undefined) {
+      setError(UPLOAD_ERROR_GENERIC)
+      onError?.(UPLOAD_ERROR_GENERIC)
+    }
+  }, [fetcher.data, fetcher.state, onSuccess, onError])
 
   const uploadFiles = (
     files: FileList,
@@ -73,8 +70,7 @@ export const useFileUpload = (
     })
   }
 
-  const clearError = () => 
-    setError(null)
+  const clearError = useCallback(() => setError(null), [])
 
   return {
     uploadFiles,

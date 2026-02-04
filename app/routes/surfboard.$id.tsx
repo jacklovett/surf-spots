@@ -20,6 +20,7 @@ import {
 } from '~/components'
 import { requireSessionCookie } from '~/services/session.server'
 import { cacheControlHeader, get } from '~/services/networkService'
+import { messageForDisplay } from '~/utils/errorUtils'
 import { Surfboard, SurfboardMedia } from '~/types/surfboard'
 import {
   addSurfboardMedia,
@@ -100,12 +101,13 @@ const handleDeleteMedia = async (
     return data<ActionData>({ success: true })
   } catch (error) {
     console.error('[surfboard.$id action] Error deleting media:', error)
+    const rawMessage = error instanceof Error ? error.message : undefined
     return data<ActionData>(
       {
-        error:
-          error instanceof Error
-            ? error.message
-            : 'Failed to delete media. Please try again.',
+        error: messageForDisplay(
+          rawMessage,
+          'Failed to delete media. Please try again.',
+        ),
       },
       { status: 500 },
     )
@@ -124,12 +126,13 @@ const handleDeleteSurfboard = async (
     return redirect('/surfboards')
   } catch (error) {
     console.error('[surfboard.$id action] Error deleting surfboard:', error)
+    const rawMessage = error instanceof Error ? error.message : undefined
     return data<ActionData>(
       {
-        error:
-          error instanceof Error
-            ? error.message
-            : 'Failed to delete surfboard. Please try again.',
+        error: messageForDisplay(
+          rawMessage,
+          'Failed to delete surfboard. Please try again.',
+        ),
       },
       { status: 500 },
     )
@@ -213,6 +216,7 @@ export default function SurfboardDetail() {
     uploadFiles,
     isUploading,
     error: uploadError,
+    clearError: clearUploadError,
     fetcherData,
   } = useFileUpload()
   const { submitAction: submitMediaAction, fetcher: mediaActionFetcher } =
@@ -243,8 +247,9 @@ export default function SurfboardDetail() {
   useEffect(() => {
     if (uploadError) {
       showError(uploadError)
+      clearUploadError()
     }
-  }, [uploadError, showError])
+  }, [uploadError, showError, clearUploadError])
 
   useEffect(() => {
     if (mediaActionFetcher.data?.error) {
@@ -379,7 +384,7 @@ export default function SurfboardDetail() {
                 altText={surfboard.name}
               />
 
-              <div className="surfboard-media-upload">
+              <div className="media-upload-container">
                 {isUploading && <p className="mb">Uploading media...</p>}
                 {mediaActionFetcher.state === 'submitting' && (
                   <p className="mb">Deleting media...</p>

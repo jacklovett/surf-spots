@@ -33,6 +33,7 @@ import { FetcherSubmitParams, ActionData } from '~/types/api'
 
 import { useUserContext, useSettingsContext, useLayoutContext, useToastContext, useSurfSpotsContext, useSignUpPromptContext } from '~/contexts'
 
+import { messageForDisplay, DEFAULT_ERROR_MESSAGE } from '~/utils/errorUtils'
 import { formatSurfHeightRange, formatSeason } from '~/utils/surfSpotUtils'
 
 interface LoaderData {
@@ -208,14 +209,14 @@ export const action: ActionFunction = async ({ request }) => {
     
     if (error instanceof Response) return error
     
-    const errorMessage = error instanceof Error ? error.message : 'An unexpected error occurred. Please try again.'
-    const status = error instanceof Error && 'status' in error 
-      ? (error as { status?: number }).status || 500 
+    const rawMessage = error instanceof Error ? error.message : undefined
+    const errorMessage = messageForDisplay(
+      rawMessage,
+      DEFAULT_ERROR_MESSAGE,
+    )
+    const status = error instanceof Error && 'status' in error
+      ? (error as { status?: number }).status || 500
       : 500
-
-    if (error instanceof Error && error.message === 'Invalid credentials') {
-      return createErrorResponse(error.message, 400)
-    }
 
     return createErrorResponse(errorMessage, status)
   }
@@ -315,7 +316,7 @@ export default function SurfSpotDetails() {
       lastFetcherDataRef.current = fetcher.data
       const data = fetcher.data as ActionData
       if (data.error || (data.hasError && data.submitStatus)) {
-        const errorMessage = data.error || data.submitStatus || 'An unexpected error occurred. Please try again.'
+        const errorMessage = data.error || data.submitStatus || DEFAULT_ERROR_MESSAGE
         showError(errorMessage)
       }
     }

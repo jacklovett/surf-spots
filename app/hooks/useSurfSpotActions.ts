@@ -2,6 +2,7 @@ import { useCallback, useEffect } from 'react'
 import { useFetcher, useLocation } from 'react-router'
 import { useToastContext } from '~/contexts'
 import { submitFetcher } from '~/components/SurfSpotActions'
+import { messageForDisplay, DEFAULT_ERROR_MESSAGE } from '~/utils/errorUtils'
 import { FetcherSubmitParams } from '~/types/api'
 
 interface FetcherData {
@@ -28,10 +29,11 @@ export const useSurfSpotActions = (actionRoute?: string) => {
     if (fetcher.state === 'idle' && fetcher.data) {
       const data = fetcher.data
       if (data.error || (data.hasError && data.submitStatus)) {
-        const errorMessage =
-          data.error ||
-          data.submitStatus ||
-          'An unexpected error occurred. Please try again.'
+        const rawMessage = data.error || data.submitStatus
+        const errorMessage = messageForDisplay(
+          rawMessage,
+          DEFAULT_ERROR_MESSAGE,
+        )
         showError(errorMessage)
       }
     }

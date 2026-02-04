@@ -1,3 +1,5 @@
+import { messageForDisplay, DEFAULT_ERROR_MESSAGE } from '~/utils/errorUtils'
+
 // Use process.env for server-side (Remix actions) and import.meta.env for client-side
 // In production builds, Vite env vars need to be available to server code
 const API_URL = 
@@ -6,7 +8,7 @@ const API_URL =
   ''
 
 if (!API_URL) {
-  console.error('[NetworkService] VITE_API_URL is not set! This will cause API calls to fail.')
+  console.debug('[NetworkService] VITE_API_URL is not set! This will cause API calls to fail.')
 }
 
 export const cacheControlHeader = {
@@ -20,6 +22,14 @@ export interface NetworkError extends Error {
 // Type guard for NetworkError
 export const isNetworkError = (err: unknown): err is NetworkError => {
   return err instanceof Error && 'status' in err
+}
+
+const getMessageFromBody = (data: unknown): string | undefined => {
+  if (data == null || typeof data !== 'object' || !('message' in data)) {
+    return undefined
+  }
+  const msg = (data as { message?: unknown }).message
+  return typeof msg === 'string' ? msg : undefined
 }
 
 const handleResponse = async <T>(response: Response): Promise<T> => {
@@ -47,7 +57,10 @@ const handleResponse = async <T>(response: Response): Promise<T> => {
   }
 
   if (!response.ok) {
-    const errorMessage = data?.message || `Request failed with status ${response.status}`
+    const errorMessage = messageForDisplay(
+      getMessageFromBody(data),
+      DEFAULT_ERROR_MESSAGE,
+    )
     const error = new Error(errorMessage) as NetworkError
     error.status = response.status
     throw error

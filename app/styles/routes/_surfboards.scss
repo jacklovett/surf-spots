@@ -11,10 +11,6 @@
   margin-bottom: $spacing-x-large;
 }
 
-.surfboards-grid {
-  @extend .page-grid;
-}
-
 .surfboard-card {
   @extend .page-card;
 
@@ -132,10 +128,6 @@
   }
 }
 
-.surfboard-media-upload {
-  margin-top: $spacing-x-large;
-}
-
 .surfboard-details {
   margin-bottom: $spacing-x-large;
 
@@ -178,7 +170,6 @@
   }
 }
 
-// Form styles are now in _shared.scss
 
 .delete-confirm-modal {
   h2 {

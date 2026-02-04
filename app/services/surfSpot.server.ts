@@ -2,6 +2,7 @@ import { ActionFunction, data } from 'react-router'
 import { post, deleteData } from './networkService'
 import { getSession, commitSession } from './session.server'
 import { requireSessionCookie } from './session.server'
+import { messageForDisplay, DEFAULT_ERROR_MESSAGE } from '~/utils/errorUtils'
 import { SurfSpotStatus } from '~/types/surfSpots'
 
 export const surfSpotAction: ActionFunction = async ({ request }) => {
@@ -59,12 +60,13 @@ export const surfSpotAction: ActionFunction = async ({ request }) => {
         message: error instanceof Error ? error.message : String(error),
         status: error instanceof Error && 'status' in error ? (error as { status?: number }).status : undefined,
       })
+      const rawMessage = error instanceof Error ? error.message : undefined
       return data(
         {
-          error:
-            error instanceof Error
-              ? error.message
-              : 'Failed to update trip. Please try again.',
+          error: messageForDisplay(
+            rawMessage,
+            'Failed to update trip. Please try again.',
+          ),
         },
         { status: 500 },
       )
@@ -114,18 +116,17 @@ export const surfSpotAction: ActionFunction = async ({ request }) => {
   } catch (error) {
     console.error('Error occurred in surfSpotAction:', error)
     if (error instanceof Response) return error
-    if (error instanceof Error && error.message === 'Invalid credentials') {
-      return data(
-        { submitStatus: error.message, hasError: true },
-        { status: 400 },
-      )
-    }
+    const status =
+      error instanceof Error && 'status' in error
+        ? (error as { status?: number }).status ?? 500
+        : 500
+    const message =
+      error instanceof Error
+        ? messageForDisplay(error.message, DEFAULT_ERROR_MESSAGE)
+        : DEFAULT_ERROR_MESSAGE
     return data(
-      {
-        submitStatus: 'An unexpected error occurred. Please try again.',
-        hasError: true,
-      },
-      { status: 500 },
+      { submitStatus: message, hasError: true },
+      { status },
     )
   }
 }
