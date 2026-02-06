@@ -42,7 +42,7 @@ export const Filters = memo(() => {
 
   const parkingOptions = [
     ...PARKING_OPTIONS.slice(1, PARKING_OPTIONS.length - 1),
-    { key: 'boatRequired', value: 'boat required', label: 'Boat required' },
+    { key: 'boatRequired', value: 'boat required', label: 'Boat Required' },
   ]
 
   /**
@@ -114,6 +114,13 @@ export const Filters = memo(() => {
     setSelectedFilters((prev) => ({
       ...prev,
       isWavepool: checked ? true : undefined,
+    }))
+
+  // Handle river wave filter change (boolean)
+  const handleRiverWaveChange = (checked: boolean) =>
+    setSelectedFilters((prev) => ({
+      ...prev,
+      isRiverWave: checked ? true : undefined,
     }))
 
   // Apply filters: update global context
@@ -378,6 +385,13 @@ export const Filters = memo(() => {
               description="Show only wavepools"
               checked={selectedFilters.isWavepool === true}
               onChange={handleWavepoolChange}
+            />
+            <CheckboxOption
+              name="riverWave"
+              title="River Wave"
+              description="Show only river waves"
+              checked={selectedFilters.isRiverWave === true}
+              onChange={handleRiverWaveChange}
             />
           </div>
         </div>

@@ -154,6 +154,7 @@ export interface NewSurfSpot extends Coordinates {
   boatRequired: boolean
   isWavepool: boolean
   wavepoolUrl?: string
+  isRiverWave: boolean
   parking: string
   foodNearby: boolean
   foodTypes: string[]
@@ -205,6 +206,7 @@ export interface SurfSpotFilters {
   facilities: Option[]
   seasons: string[] // Array of month names (e.g., "January", "February", etc.)
   isWavepool?: boolean
+  isRiverWave?: boolean
 }
 
 export const defaultSurfSpotFilters: SurfSpotFilters = {
@@ -223,6 +225,7 @@ export const defaultSurfSpotFilters: SurfSpotFilters = {
   facilities: [],
   seasons: [],
   isWavepool: undefined,
+  isRiverWave: undefined,
 }
 
 export interface SurfSpotNote {

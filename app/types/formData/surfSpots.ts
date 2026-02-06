@@ -113,12 +113,12 @@ export const BEACH_BOTTOM_OPTIONS = [
 
 export const HAZARDS: Option[] = [
   { key: 'sharks', value: 'Sharks', label: 'Sharks' },
-  { key: 'currents', value: 'Currents', label: 'Strong currents' },
+  { key: 'currents', value: 'Currents', label: 'Strong Currents' },
   { key: 'rips', value: 'Rips', label: 'Rip Tides' },
   { key: 'rocks', value: 'Rocks', label: 'Rocks' },
   { key: 'reef', value: 'Reef', label: 'Reef' },
   { key: 'crocodiles', value: 'Crocodiles', label: 'Crocodiles' },
-  { key: 'localism', value: 'Localism', label: 'Localism issues' },
+  { key: 'localism', value: 'Localism', label: 'Localism Issues' },
 ]
 
 export const ACCOMMODATION_TYPES: Option[] = [

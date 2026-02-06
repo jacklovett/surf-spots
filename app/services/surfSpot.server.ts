@@ -144,6 +144,7 @@ export const createSurfSpotFromFormData = async (request: Request) => {
   const boatRequired = formData.get('boatRequired') === 'on'
   const isWavepool = formData.get('isWavepool') === 'on'
   const wavepoolUrl = formData.get('wavepoolUrl')?.toString() || null
+  const isRiverWave = formData.get('isRiverWave') === 'on'
 
   // Handle array fields
   const foodOptions = formData.getAll('foodOptions') as string[]
@@ -214,6 +215,7 @@ export const createSurfSpotFromFormData = async (request: Request) => {
     boatRequired,
     isWavepool,
     wavepoolUrl,
+    isRiverWave,
     parking,
     foodNearby,
     foodOptions,

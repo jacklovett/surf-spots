@@ -415,6 +415,7 @@ if (error || !surfSpotDetails) {
     boatRequired,
     isWavepool,
     wavepoolUrl,
+    isRiverWave,
     parking,
     foodNearby,
     foodTypes,
@@ -424,6 +425,8 @@ if (error || !surfSpotDetails) {
     facilities,
     forecasts,
   } = surfSpotDetails
+
+  const isNoveltyWave = isWavepool || isRiverWave
 
   return (
     <div className="mb-l">
@@ -451,7 +454,7 @@ if (error || !surfSpotDetails) {
           />
         </div>
         <p className="description">{description}</p>
-        {!isWavepool && (
+        {!isNoveltyWave && (
           <div className="row spot-details gap mb pv">
             <Details label="Break Type" value={type} />
             <Details label="Beach Bottom" value={beachBottomType} />
@@ -466,7 +469,7 @@ if (error || !surfSpotDetails) {
         </div>
       </ErrorBoundary>
       <div className="content pt">
-        {!isWavepool && (
+        {!isNoveltyWave && (
           <>
             <section>
               <h3>Best Conditions</h3>

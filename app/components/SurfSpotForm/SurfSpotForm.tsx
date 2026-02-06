@@ -102,6 +102,7 @@ export const SurfSpotForm = (props: SurfSpotFormProps) => {
   const [isBoatRequired, setIsBoatRequired] = useState(!!surfSpot?.boatRequired)
   const [isWavepool, setIsWavepool] = useState(!!surfSpot?.isWavepool)
   const [wavepoolUrl, setWavepoolUrl] = useState(surfSpot?.wavepoolUrl || '')
+  const [isRiverWave, setIsRiverWave] = useState(!!surfSpot?.isRiverWave)
 
   const [accommodation, setAccommodation] = useState<Availability>({
     nearby: !!surfSpot?.accommodationNearby,
@@ -122,6 +123,7 @@ export const SurfSpotForm = (props: SurfSpotFormProps) => {
   )
 
   const isPrivateSpot = spotStatus === SurfSpotStatus.PRIVATE
+  const isNoveltyWave = isWavepool || isRiverWave
 
   // Convert direction strings to arrays for DirectionSelector
   const initialSwellDirection = directionStringToArray(
@@ -193,11 +195,11 @@ export const SurfSpotForm = (props: SurfSpotFormProps) => {
           return validateRequired(value, 'Description')
         },
         swellDirection: (value) => {
-          if (isWavepool) return '' // Not required for wavepools
+          if (isNoveltyWave) return '' // Not required for wavepools/river waves
           return validateDirection(value, 'Swell Direction')
         },
         windDirection: (value) => {
-          if (isWavepool) return '' // Not required for wavepools
+          if (isNoveltyWave) return '' // Not required for wavepools/river waves
           return validateDirection(value, 'Wind Direction')
         },
         forecastLinks: (links) => {
@@ -348,6 +350,13 @@ export const SurfSpotForm = (props: SurfSpotFormProps) => {
             checked={isWavepool}
             onChange={() => setIsWavepool(!isWavepool)}
           />
+          <CheckboxOption
+            name="isRiverWave"
+            title="River wave?"
+            description="Is this a river wave (standing wave / river break)?"
+            checked={isRiverWave}
+            onChange={() => setIsRiverWave(!isRiverWave)}
+          />
           {isWavepool && (
             <FormInput
               field={{
@@ -367,7 +376,7 @@ export const SurfSpotForm = (props: SurfSpotFormProps) => {
             />
           )}
         </div>
-        {!isWavepool && (
+        {!isNoveltyWave && (
           <>
             <SpotDetailsSection
               formState={{
