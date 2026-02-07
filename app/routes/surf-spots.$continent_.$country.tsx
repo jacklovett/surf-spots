@@ -58,26 +58,6 @@ export default function Country() {
     <div className="content mb-l">
       <h1>{name}</h1>
       <p className="description">{description}</p>
-      {emergencyNumbers && emergencyNumbers.length > 0 && (
-        <section className="country-emergency-section">
-          <h3 className="country-emergency-title">
-            <span className="country-emergency-title-icon" aria-hidden>
-              <Icon iconKey="phone" useCurrentColor />
-            </span>
-            Emergency numbers
-          </h3>
-          <ul className="country-emergency-list">
-            {emergencyNumbers.map((item) => (
-              <li key={`${item.label}-${item.number}`}>
-                <span className="country-emergency-label">{item.label}</span>
-                <a href={`tel:${item.number.replace(/\s/g, '')}`} className="country-emergency-link">
-                  {item.number}
-                </a>
-              </li>
-            ))}
-          </ul>
-        </section>
-      )}
       <div className="list-map">
         {regions.length > 0 ? (
           regions.map((region) => {
@@ -96,6 +76,26 @@ export default function Country() {
           <p>No regions found</p>
         )}
       </div>
+      {emergencyNumbers && emergencyNumbers.length > 0 && (
+        <section className="country-emergency-section">
+          <h3 className="country-emergency-title">
+            <span className="country-emergency-title-icon" aria-hidden>
+              <Icon iconKey="phone" />
+            </span>
+            Emergency numbers
+          </h3>
+          <ul className="country-emergency-list">
+            {emergencyNumbers.map((item) => (
+              <li key={`${item.label}-${item.number}`}>
+                <span className="country-emergency-label">{item.label}</span>
+                <a href={`tel:${item.number.replace(/\s/g, '')}`} className="country-emergency-link">
+                  {item.number}
+                </a>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
     </div>
   )
 }

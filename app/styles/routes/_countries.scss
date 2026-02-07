@@ -1,0 +1,55 @@
+/* Country page: Emergency numbers */
+.country-emergency-section {
+    margin: $spacing-large 0;
+  
+    .country-emergency-title {
+      display: flex;
+      align-items: center;
+      gap: $spacing-small;
+      font-size: $font-size-large;
+      margin: 0 0 $spacing-unit 0;
+      padding-bottom: $spacing-small;
+      border-bottom: 2px solid $primary-color;
+    }
+  
+    .country-emergency-title-icon {
+      display: inline-flex;
+      align-items: center;
+    }
+  
+    .country-emergency-list {
+      @extend %flex-column;
+      list-style: none;
+      padding: $spacing-x-large;
+      margin-top: $spacing-unit;
+      gap: $spacing-small;
+      border: 1px solid $border-light;
+      border-radius: $content-border-radius;
+  
+      @media (max-width: 768px) {
+        padding: $spacing-large $spacing-unit;
+      }
+  
+      li {
+        display: flex;
+        align-items: baseline;
+        gap: $spacing-unit;
+        flex-wrap: wrap;
+      }
+    }
+  
+    .country-emergency-label {
+      color: $text-color;
+    }
+  
+    .country-emergency-link {
+      color: $primary-color;
+      text-decoration: none;
+      font-variant-numeric: tabular-nums;
+  
+      &:hover {
+        text-decoration: underline;
+      }
+    }
+  }
+  
