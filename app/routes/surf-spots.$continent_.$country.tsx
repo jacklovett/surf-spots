@@ -1,5 +1,5 @@
 import { data, Link, useLoaderData, useParams } from 'react-router'
-import { ContentStatus } from '~/components'
+import { ContentStatus, Icon } from '~/components'
 import { cacheControlHeader, get } from '~/services/networkService'
 import type { Country, Region } from '~/types/surfSpots'
 
@@ -52,12 +52,32 @@ export default function Country() {
     )
   }
 
-  const { name, description } = countryDetails
+  const { name, description, emergencyNumbers } = countryDetails
 
   return (
     <div className="content mb-l">
       <h1>{name}</h1>
       <p className="description">{description}</p>
+      {emergencyNumbers && emergencyNumbers.length > 0 && (
+        <section className="country-emergency-section">
+          <h3 className="country-emergency-title">
+            <span className="country-emergency-title-icon" aria-hidden>
+              <Icon iconKey="phone" useCurrentColor />
+            </span>
+            Emergency numbers
+          </h3>
+          <ul className="country-emergency-list">
+            {emergencyNumbers.map((item) => (
+              <li key={`${item.label}-${item.number}`}>
+                <span className="country-emergency-label">{item.label}</span>
+                <a href={`tel:${item.number.replace(/\s/g, '')}`} className="country-emergency-link">
+                  {item.number}
+                </a>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
       <div className="list-map">
         {regions.length > 0 ? (
           regions.map((region) => {

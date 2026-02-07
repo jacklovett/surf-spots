@@ -28,6 +28,12 @@ export interface Continent {
   description: string
 }
 
+export interface EmergencyNumber {
+  id?: number
+  label: string
+  number: string
+}
+
 export interface Country {
   id: string
   name: string
@@ -35,6 +41,7 @@ export interface Country {
   description: string
   regions: []
   continent?: Continent
+  emergencyNumbers?: EmergencyNumber[]
 }
 
 export interface MapboxReverseGeocodeResult {

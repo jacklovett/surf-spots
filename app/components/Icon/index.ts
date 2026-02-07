@@ -21,6 +21,7 @@ export type IconKey =
   | 'logout'
   | 'map'
   | 'more'
+  | 'phone'
   | 'pin'
   | 'plane'
   | 'plus'
