@@ -59,8 +59,8 @@ export default function TripPlanner() {
             </li>
           </ul>
           <p className="mb">
-            The more spots you add to your surfed spots and watch list, the
-            better the AI can understand your preferences and provide tailored
+            The more spots you add to your surfed spots, trips and watch list, the
+            better the model can understand your preferences and provide tailored
             recommendations!
           </p>
         </section>

@@ -87,13 +87,6 @@ export const loader: LoaderFunction = async ({ request, params }) => {
 
 export const action: ActionFunction = async ({ request, params }) => {
   const user = await requireSessionCookie(request)
-  if (!user?.id) {
-    return data<ActionData>(
-      { error: 'You must be logged in to upload media' },
-      { status: 401 },
-    )
-  }
-
   const tripId = params.id
   if (!tripId) {
     return data<ActionData>({ error: 'Trip ID is required' }, { status: 400 })
@@ -405,7 +398,7 @@ export default function TripDetail() {
     error: undefined,
   }
   const { user } = useUserContext()
-  const { showSuccess, showError: showToastError } = useToastContext()
+  const { showSuccess, showError } = useToastContext()
   const navigate = useNavigate()
   const { fetcher, submitAction } = useActionFetcher<ActionData>()
 
@@ -413,9 +406,6 @@ export default function TripDetail() {
   const [trip, setTrip] = useState<Trip | undefined>(initialTrip)
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
   const [deleteError, setDeleteError] = useState('')
-  const [showErrorModal, setShowErrorModal] = useState(false)
-  const [errorMessage, setErrorMessage] = useState('')
-  const [errorTitle, setErrorTitle] = useState<string | undefined>(undefined)
   const [showAddSurfboardModal, setShowAddSurfboardModal] = useState(false)
   const sectionsRef = useScrollReveal()
 
@@ -461,13 +451,13 @@ export default function TripDetail() {
     }
   }, [fetcherData, showSuccess])
 
-  // Handle upload errors (clear after showing so the same error can show a new toast if triggered again)
+  // Handle upload errors (clears after showing so the same error can show a new toast if triggered again)
   useEffect(() => {
     if (uploadError) {
-      showToastError(uploadError)
+      showError(uploadError)
       clearUploadError()
     }
-  }, [uploadError, showToastError, clearUploadError])
+  }, [uploadError, showError, clearUploadError])
 
   // Handle delete trip errors
   useEffect(() => {
@@ -505,12 +495,6 @@ export default function TripDetail() {
     const formData = new FormData()
     formData.append('intent', 'delete-trip')
     fetcher.submit(formData, { method: 'POST' })
-  }
-
-  const showError = (message: string, title?: string) => {
-    setErrorMessage(message)
-    setErrorTitle(title)
-    setShowErrorModal(true)
   }
 
   const handleAddSurfboardClick = () => {
@@ -834,15 +818,6 @@ export default function TripDetail() {
             </div>
           </div>
         </Modal>
-      )}
-
-      {showErrorModal && (
-        <InfoModal
-          isOpen={showErrorModal}
-          onClose={() => setShowErrorModal(false)}
-          title={errorTitle}
-          message={errorMessage}
-        />
       )}
 
       {showAddSurfboardModal && currentTrip && (
