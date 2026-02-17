@@ -1,8 +1,9 @@
 import { test, expect } from '@playwright/test'
-import { login } from './utils/auth-helper'
 
 test.describe('Watch List Page', () => {
   test.describe('Unauthenticated User', () => {
+    test.use({ storageState: undefined })
+
     test('should redirect to auth page when not logged in', async ({
       page,
     }) => {
@@ -14,10 +15,6 @@ test.describe('Watch List Page', () => {
   })
 
   test.describe('Authenticated User', () => {
-    test.beforeEach(async ({ page }) => {
-      await login(page)
-    })
-
     test('should display watch list page title', async ({ page }) => {
       await page.goto('/watch-list')
 
@@ -41,12 +38,12 @@ test.describe('Watch List Page', () => {
 
         // Check CTA button
         await expect(
-          page.locator('.empty-state a:has-text("Explore Surf Spots")'),
+          page.locator('.empty-state button:has-text("Explore Surf Spots")'),
         ).toBeVisible()
       }
     })
 
-    test('should have Explore Surf Spots link in empty state', async ({
+    test('should have Explore Surf Spots button in empty state', async ({
       page,
     }) => {
       await page.goto('/watch-list')
@@ -54,13 +51,13 @@ test.describe('Watch List Page', () => {
       const emptyState = page.locator('.empty-state')
 
       if (await emptyState.isVisible()) {
-        const exploreLink = page.locator(
-          '.empty-state a:has-text("Explore Surf Spots")',
+        const exploreButton = page.locator(
+          '.empty-state button:has-text("Explore Surf Spots")',
         )
-        await expect(exploreLink).toBeVisible()
+        await expect(exploreButton).toBeVisible()
 
         // Click and verify navigation
-        await exploreLink.click()
+        await exploreButton.click()
         await expect(page).toHaveURL(/\/surf-spots/)
       }
     })

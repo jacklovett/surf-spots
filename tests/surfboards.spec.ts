@@ -1,11 +1,6 @@
 import { test, expect } from '@playwright/test'
-import { login } from './utils/auth-helper'
 
 test.describe('Surfboards Feature', () => {
-  test.beforeEach(async ({ page }) => {
-    await login(page)
-  })
-
   test('should navigate to surfboards page and show empty state', async ({
     page,
   }) => {

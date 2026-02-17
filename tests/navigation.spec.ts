@@ -55,6 +55,7 @@ test.describe('Navigation', () => {
       '/surf-spots',
       '/surf-spots/continents',
       '/about-us',
+      '/trip-planner',
     ]
 
     for (const route of publicRoutes) {
@@ -66,44 +67,38 @@ test.describe('Navigation', () => {
     }
   })
 
-  test('should handle auth guard redirects', async ({ page }) => {
-    // Ensure user is not logged in
-    await page.context().clearCookies()
+  test.describe('when unauthenticated', () => {
+    test.use({ storageState: undefined })
 
-    // Test auth-guarded routes that should redirect to login
-    const authGuardedRoutes = [
-      '/profile',
-      '/surfed-spots',
-      '/watch-list',
-      '/add-surf-spot',
-      '/surfboards',
-      '/trips',
-      '/edit-surf-spot/123', // Use a real ID instead of placeholder
-    ]
+    test('should handle auth guard redirects', async ({ page }) => {
+      // Test auth-guarded routes that should redirect to login
+      const authGuardedRoutes = [
+        '/profile',
+        '/surfed-spots',
+        '/watch-list',
+        '/add-surf-spot',
+        '/surfboards',
+        '/trips',
+        '/add-trip',
+        '/edit-surf-spot/123',
+      ]
 
-    for (const route of authGuardedRoutes) {
-      // In Remix, loader redirects happen server-side before the page is sent
-      // Wait for 'load' to ensure the full redirect cycle is complete
-      await page.goto(route, { waitUntil: 'load', timeout: 20000 })
-      
-      // The redirect should already be complete, but verify we're on auth page
-      const currentUrl = page.url()
-      expect(currentUrl).toContain('/auth')
+      for (const route of authGuardedRoutes) {
+        await page.goto(route, { waitUntil: 'load', timeout: 20000 })
 
-      // Verify auth page content is visible
-      await expect(
-        page.locator('h1:has-text("Sign In"), h1:has-text("Login")'),
-      ).toBeVisible({ timeout: 5000 })
-    }
-  })
+        const currentUrl = page.url()
+        expect(currentUrl).toContain('/auth')
 
-  test('should show sign-up prompt modal when clicking protected links in menu', async ({
-    page,
-  }) => {
-    // Ensure user is not logged in (clear any existing session)
-    await page.goto('/')
-    await page.context().clearCookies()
-    await page.reload()
+        await expect(
+          page.locator('h1:has-text("Sign In"), h1:has-text("Login")'),
+        ).toBeVisible({ timeout: 5000 })
+      }
+    })
+
+    test('should show sign-up prompt modal when clicking protected links in menu', async ({
+      page,
+    }) => {
+      await page.goto('/')
 
     // Open menu drawer (check for hamburger menu or drawer trigger)
     const menuTriggers = [
@@ -180,13 +175,10 @@ test.describe('Navigation', () => {
     }
   })
 
-  test('should show sign-up prompt modal when clicking protected links in footer', async ({
+    test('should show sign-up prompt modal when clicking protected links in footer', async ({
     page,
   }) => {
-    // Ensure user is not logged in
     await page.goto('/')
-    await page.context().clearCookies()
-    await page.reload()
 
     // Scroll to footer
     await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight))
@@ -233,6 +225,7 @@ test.describe('Navigation', () => {
         }
       }
     }
+  })
   })
 
   test('should handle 404 errors gracefully', async ({ page }) => {
