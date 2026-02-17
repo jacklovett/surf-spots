@@ -1,13 +1,11 @@
 import { Page, expect } from '@playwright/test'
 
 /**
- * Wait for page to be ready for interaction.
- * Uses 'load' instead of 'networkidle' so pages with maps/analytics/long-lived
- * connections don't time out (networkidle is flaky on SPAs).
+ * Wait for page to fully load
  */
 export async function waitForPageLoad(page: Page) {
-  await page.waitForLoadState('load', { timeout: 30000 })
-  await page.waitForTimeout(1000) // Brief buffer for hydration
+  await page.waitForLoadState('networkidle', { timeout: 30000 })
+  await page.waitForTimeout(2000) // Additional buffer for slower machines
 }
 
 /**

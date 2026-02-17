@@ -1,9 +1,9 @@
 import { Page, expect } from '@playwright/test'
 
 /**
- * Login helper for e2e tests that need to authenticate in-test.
- * Most tests use the setup project's storage state and start already logged in.
- * Use this helper only when running with storageState: undefined (e.g. testing login flow).
+ * Login helper function for e2e tests
+ * Navigates to auth page and logs in with test credentials.
+ * Automatically creates the test user if it doesn't exist.
  */
 export async function login(page: Page) {
   const testEmail = process.env.TEST_USER_EMAIL

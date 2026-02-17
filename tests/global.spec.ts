@@ -37,7 +37,7 @@ test.describe('Global Functionality', () => {
   test('should have proper page structure', async ({ page }) => {
     // Test that pages load correctly and have basic structure
     const routes = [
-      { path: '/', expectedContent: 'Never Forget a Wave' },
+      { path: '/', expectedContent: 'Track Your Surf Journey' },
       { path: '/auth', expectedContent: 'Sign In' },
       { path: '/surf-spots', expectedContent: 'View Switch' },
       { path: '/about-us', expectedContent: 'About' },
@@ -59,8 +59,8 @@ test.describe('Global Functionality', () => {
         // For auth page, check for the main heading
         await expect(page.locator('h1:has-text("Sign In")')).toBeVisible()
       } else if (route.path === '/surf-spots') {
-        // For surf spots page, check that toolbar has at least one button
-        await expect(page.locator('.toolbar button').first()).toBeVisible()
+        // For surf spots page, check for view switch button
+        await expect(page.locator('.toolbar button')).toBeVisible()
       } else if (route.path === '/about-us') {
         // For about page, check for about content
         await expect(
