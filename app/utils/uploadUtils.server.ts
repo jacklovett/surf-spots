@@ -86,11 +86,17 @@ export const handleMediaUpload = async <T>(
     s3Url = result.s3Url
     mediaId = result.mediaId
   } catch (uploadError) {
-    const err = uploadError as Error & { status?: number }
-    console.error('[handleMediaUpload] failed at getUploadUrl or S3 upload:', {
-      message: err.message,
-      status: err.status,
-    }, err)
+    const err = uploadError as Error & { status?: number; responseSummary?: { status: number; statusText: string; contentType: string; reason: string } }
+    const msg = err.message ?? String(err)
+    const status = String(err.status ?? 'none')
+    const summary = err.responseSummary
+      ? `API returned HTTP ${err.responseSummary.status} (${err.responseSummary.statusText}) contentType=${err.responseSummary.contentType} reason=${err.responseSummary.reason}`
+      : 'no responseSummary (likely network/fetch failure before API response)'
+    const stack = err.stack ?? '(no stack)'
+    const line =
+      '[handleMediaUpload] FAILED at getUploadUrl or S3 upload. ' +
+      'message=' + msg + ' HTTP_status=' + status + ' ' + summary + '\nStack:\n' + stack
+    console.error(line)
     return {
       error: toSafeMessage(
         uploadError,
@@ -104,11 +110,17 @@ export const handleMediaUpload = async <T>(
     const media = await options.recordMedia(s3Url, mediaId, mediaType)
     return { success: true, media }
   } catch (recordError) {
-    const err = recordError as Error & { status?: number }
-    console.error('[handleMediaUpload] failed at recordMedia:', {
-      message: err.message,
-      status: err.status,
-    }, recordError)
+    const err = recordError as Error & { status?: number; responseSummary?: { status: number; statusText: string; contentType: string; reason: string } }
+    const msg = err.message ?? String(err)
+    const status = String(err.status ?? 'none')
+    const summary = err.responseSummary
+      ? `API returned HTTP ${err.responseSummary.status} (${err.responseSummary.statusText}) contentType=${err.responseSummary.contentType} reason=${err.responseSummary.reason}`
+      : 'no responseSummary'
+    const stack = err.stack ?? '(no stack)'
+    const line =
+      '[handleMediaUpload] FAILED at recordMedia. ' +
+      'message=' + msg + ' HTTP_status=' + status + ' ' + summary + '\nStack:\n' + stack
+    console.error(line)
     return {
       error: toSafeMessage(
         recordError,

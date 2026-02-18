@@ -188,7 +188,10 @@ export const action: ActionFunction = async ({ request, params }) => {
 
         return data<ActionData>({ success: true, media: result.media })
       } catch (addMediaError) {
-        console.error('[surfboard.$id action] Error in add-media:', addMediaError)
+        const e = addMediaError as Error
+        console.error(
+          '[surfboard.$id action] add-media threw. message=' + (e.message ?? String(e)) + '\nStack:\n' + (e.stack ?? '(no stack)'),
+        )
         const message = messageForDisplay(
           addMediaError instanceof Error ? addMediaError.message : undefined,
           UPLOAD_ERROR_MEDIA_UNAVAILABLE,
@@ -211,7 +214,10 @@ export const action: ActionFunction = async ({ request, params }) => {
     if (error instanceof Response) {
       throw error
     }
-    console.error('[surfboard.$id action] Unhandled error:', error)
+    const e = error as Error
+    console.error(
+      '[surfboard.$id action] Unhandled error. message=' + (e.message ?? String(error)) + '\nStack:\n' + (e.stack ?? '(no stack)'),
+    )
     const message = messageForDisplay(
       error instanceof Error ? error.message : undefined,
       'Something went wrong. Please try again.',

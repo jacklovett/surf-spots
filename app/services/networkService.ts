@@ -17,6 +17,13 @@ export const cacheControlHeader = {
 
 export interface NetworkError extends Error {
   status?: number
+  /** When thrown from handleResponse: why we could not use the API body (so callers can log it). */
+  responseSummary?: {
+    status: number
+    statusText: string
+    contentType: string
+    reason: string
+  }
 }
 
 // Type guard for NetworkError
@@ -43,17 +50,18 @@ const handleResponse = async <T>(response: Response): Promise<T> => {
     try {
       data = await response.json()
     } catch (parseError) {
-      console.error('[NetworkService] Failed to parse JSON response:', {
-        status: response.status,
-        contentType,
-        error: parseError,
-      })
       const error = new Error(
         response.ok
           ? 'Failed to parse JSON response'
           : `Request failed with status ${response.status}`,
       ) as NetworkError
       error.status = response.status
+      error.responseSummary = {
+        status: response.status,
+        statusText: response.statusText,
+        contentType: contentType ?? 'none',
+        reason: 'response.json() threw (body is not valid JSON). parseError=' + (parseError instanceof Error ? parseError.message : String(parseError)),
+      }
       throw error
     }
   }
@@ -72,20 +80,22 @@ const handleResponse = async <T>(response: Response): Promise<T> => {
     }
     const bodyMessage = getMessageFromBody(data)
     const errorMessage = messageForDisplay(bodyMessage, DEFAULT_ERROR_MESSAGE)
-    if (!bodyMessage) {
-      const bodySummary =
-        data == null
-          ? 'body not parsed (check Content-Type or non-JSON response)'
+    const contentTypeHeader = response.headers.get('content-type') ?? 'none'
+    const reason =
+      bodyMessage
+        ? 'using message from body'
+        : data == null
+          ? 'body not parsed (Content-Type may not be application/json or response was not JSON)'
           : 'body has no message/error/errorMessage field'
-      console.error('[NetworkService] API error:', {
-        status: response.status,
-        statusText: response.statusText,
-        contentType: response.headers.get('content-type') ?? 'none',
-        reason: bodySummary,
-      })
+    const responseSummary = {
+      status: response.status,
+      statusText: response.statusText,
+      contentType: contentTypeHeader,
+      reason,
     }
     const error = new Error(errorMessage) as NetworkError
     error.status = response.status
+    error.responseSummary = responseSummary
     throw error
   }
 
@@ -141,6 +151,12 @@ const request = async <T, B = undefined>(
           `Request failed with status ${response.status} ${response.statusText}`,
         ) as NetworkError
         error.status = response.status
+        error.responseSummary = {
+          status: response.status,
+          statusText: response.statusText,
+          contentType: response.headers.get('content-type') ?? 'none',
+          reason: 'S3 or external URL returned non-OK (not our JSON API).',
+        }
         throw error
       }
       return undefined as T
@@ -151,10 +167,15 @@ const request = async <T, B = undefined>(
     if (isNetworkError(fetchError)) {
       throw fetchError
     }
-    const error = new Error(
-      fetchError instanceof Error ? fetchError.message : 'Network request failed',
-    ) as NetworkError
+    const msg = fetchError instanceof Error ? fetchError.message : 'Network request failed'
+    const error = new Error(msg) as NetworkError
     error.status = 0
+    error.responseSummary = {
+      status: 0,
+      statusText: 'NoResponse',
+      contentType: 'none',
+      reason: 'fetch threw before response (connection refused, timeout, DNS, CORS, or network failure). message=' + msg,
+    }
     throw error
   }
 }

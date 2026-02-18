@@ -387,7 +387,10 @@ export const action: ActionFunction = async ({ request, params }) => {
 
       return data<ActionData>({ success: true, media: result.media })
     } catch (error) {
-      console.error('[trip.$id action] Error in add-media:', error)
+      const e = error as Error
+      console.error(
+        '[trip.$id action] add-media threw. message=' + (e.message ?? String(error)) + '\nStack:\n' + (e.stack ?? '(no stack)'),
+      )
       const message = messageForDisplay(
         error instanceof Error ? error.message : undefined,
         UPLOAD_ERROR_MEDIA_UNAVAILABLE,
