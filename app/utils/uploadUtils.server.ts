@@ -20,7 +20,7 @@ import {
 const MAX_FILE_SIZE_BYTES = 10 * 1024 * 1024 // 10MB
 const DEFAULT_MIME_TYPE = 'application/octet-stream'
 
-/** API/validation messages we pass through; any other error shows UPLOAD_ERROR_MEDIA_UNAVAILABLE. */
+/** API/validation messages we pass through to the user; any other error uses UPLOAD_ERROR_MEDIA_UNAVAILABLE. */
 const SAFE_UPLOAD_MESSAGES = new Set([
   UPLOAD_ERROR_NO_MEDIA_FILE,
   UPLOAD_ERROR_FILE_SIZE_EXCEEDED,
