@@ -6,6 +6,8 @@ import {
   ActionFunction,
   useLoaderData,
   useNavigate,
+  useParams,
+  useLocation,
 } from 'react-router'
 import {
   ContentStatus,
@@ -26,12 +28,10 @@ import {
   addSurfboardMedia,
   deleteSurfboardMedia,
   deleteSurfboard,
-  getSurfboardMediaUploadUrl,
 } from '~/services/surfboard'
 import { useUserContext, useToastContext } from '~/contexts'
 import { useScrollReveal, useFileUpload, useActionFetcher } from '~/hooks'
 import { formatLength, formatDimension } from '~/utils/surfboardUtils'
-import { handleMediaUpload } from '~/utils/uploadUtils.server'
 import { ActionData as BaseActionData } from '~/types/api'
 
 interface LoaderData {
@@ -155,48 +155,26 @@ export const action: ActionFunction = async ({ request, params }) => {
     const intent = formData.get('intent') as string
     const cookie = request.headers.get('Cookie') || ''
 
-    if (intent === 'add-media') {
+    if (intent === 'record-media') {
+      const s3Url = formData.get('s3Url') as string
+      const mediaType = (formData.get('mediaType') as string) || 'image'
+      if (!s3Url) {
+        return data<ActionData>({ error: 'Missing s3Url' }, { status: 400 })
+      }
       try {
-        const fileEntry = formData.get('media')
-        const result = await handleMediaUpload(fileEntry, {
-          getUploadUrl: async (mediaType: string) =>
-            getSurfboardMediaUploadUrl(
-              surfboardId,
-              user.id,
-              { mediaType },
-              { headers: { Cookie: cookie } },
-            ),
-          recordMedia: async (s3Url: string, _mediaId: string, mediaType: string) =>
-            addSurfboardMedia(
-              surfboardId,
-              user.id,
-              {
-                originalUrl: s3Url,
-                thumbUrl: s3Url,
-                mediaType,
-              },
-              { headers: { Cookie: cookie } },
-            ),
-        })
-
-        if ('error' in result) {
-          return data<ActionData>(
-            { error: result.error },
-            { status: result.error.includes('exceeds') ? 400 : 500 },
-          )
-        }
-
-        return data<ActionData>({ success: true, media: result.media })
-      } catch (addMediaError) {
-        const e = addMediaError as Error
-        console.error(
-          '[surfboard.$id action] add-media threw. message=' + (e.message ?? String(e)) + '\nStack:\n' + (e.stack ?? '(no stack)'),
+        const media = await addSurfboardMedia(
+          surfboardId,
+          user.id,
+          { originalUrl: s3Url, thumbUrl: s3Url, mediaType },
+          { headers: { Cookie: cookie } },
         )
-        const message = messageForDisplay(
-          addMediaError instanceof Error ? addMediaError.message : undefined,
-          UPLOAD_ERROR_MEDIA_UNAVAILABLE,
+        return data<ActionData>({ success: true, media })
+      } catch (err) {
+        console.error('[surfboard.$id action] record-media failed', { surfboardId, err })
+        return data<ActionData>(
+          { error: messageForDisplay(err instanceof Error ? err.message : undefined, UPLOAD_ERROR_MEDIA_UNAVAILABLE) },
+          { status: 500 },
         )
-        return data<ActionData>({ error: message }, { status: 500 })
       }
     }
 
@@ -239,13 +217,25 @@ export default function SurfboardDetail() {
   const [deleteError, setDeleteError] = useState('')
 
   const sectionsRef = useScrollReveal()
+  const params = useParams()
+  const location = useLocation()
+  const surfboardId = params.id
   const {
     uploadFiles,
     isUploading,
     error: uploadError,
     clearError: clearUploadError,
     fetcherData,
-  } = useFileUpload()
+  } = useFileUpload({
+    directUpload:
+      surfboardId && location.pathname
+        ? {
+            getUploadUrlApi: (mediaType: string) =>
+              `/api/surfboard/${surfboardId}/upload-url?mediaType=${mediaType}`,
+            recordActionUrl: location.pathname,
+          }
+        : undefined,
+  })
   const { submitAction: submitMediaAction, fetcher: mediaActionFetcher } =
     useActionFetcher<ActionData>()
   const { submitAction: submitDeleteAction, fetcher: deleteActionFetcher } =

@@ -88,7 +88,7 @@ export const MediaUpload = ({
           {isDragging ? 'Drop files here' : 'Click to upload or drag and drop'}
         </p>
         <p className="media-upload-hint">
-          Photos and videos (PNG, JPG, MP4, etc.)
+          Photos and videos (PNG, JPG, MP4, etc.), up to 500 MB each
         </p>
       </div>
     </div>

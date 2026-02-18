@@ -13,7 +13,7 @@ export const DEFAULT_ERROR_MESSAGE =
 /** Upload: validation + API messages. Match backend ApiErrors where noted. */
 export const UPLOAD_ERROR_NO_MEDIA_FILE = 'No media file provided'
 export const UPLOAD_ERROR_FILE_SIZE_EXCEEDED =
-  'File size exceeds 10MB limit. Please choose a smaller file.'
+  'File size exceeds 500 MB limit. Please choose a smaller file or compress it.'
 /** Fallback for API/network/storage errors (user-facing only; dev details stay in logs). */
 export const UPLOAD_ERROR_MEDIA_UNAVAILABLE =
   'Media upload failed. Please try again later.'

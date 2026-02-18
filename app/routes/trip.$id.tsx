@@ -5,6 +5,8 @@ import {
   ActionFunction,
   useLoaderData,
   useNavigate,
+  useParams,
+  useLocation,
   redirect,
 } from 'react-router'
 import {
@@ -30,14 +32,11 @@ import {
   deleteData,
 } from '~/services/networkService'
 import { Trip, TripMedia } from '~/types/trip'
-import { getUploadUrl, recordMedia } from '~/services/trip'
+import { recordMedia } from '~/services/trip'
 import { useScrollReveal, useFileUpload, useActionFetcher } from '~/hooks'
 import { InfoModal } from '~/components/Modal'
 import { formatDate } from '~/utils/dateUtils'
 import { messageForDisplay, UPLOAD_ERROR_MEDIA_UNAVAILABLE } from '~/utils/errorUtils'
-import {
-  handleMediaUpload
-} from '~/utils/uploadUtils.server'
 import { ActionData as BaseActionData } from '~/types/api'
 
 interface LoaderData {
@@ -349,53 +348,41 @@ export const action: ActionFunction = async ({ request, params }) => {
     }
   }
 
-  // Handle media upload
-  if (intent === 'add-media') {
+  // Record media after client uploaded directly to S3 (avoids FUNCTION_PAYLOAD_TOO_LARGE)
+  if (intent === 'record-media') {
+    const mediaId = formData.get('mediaId') as string
+    const s3Url = formData.get('s3Url') as string
+    const mediaType = (formData.get('mediaType') as string) || 'image'
+    if (!mediaId || !s3Url) {
+      return data<ActionData>(
+        { error: 'Missing mediaId or s3Url' },
+        { status: 400 },
+      )
+    }
     try {
-      const fileEntry = formData.get('image')
-
-      const result = await handleMediaUpload(fileEntry, {
-        getUploadUrl: async (mediaType: string) => getUploadUrl(tripId, user.id, { mediaType }, { headers: { Cookie: cookie } }),
-        recordMedia: async (s3Url: string, mediaId: string, mediaType: string) => {
-          await recordMedia(
-            tripId,
-            user.id,
-            {
-              mediaId,
-              url: s3Url,
-              mediaType,
-            },
-            { headers: { Cookie: cookie } },
-          )
-          return {
-            id: mediaId,
-            url: s3Url,
-            mediaType,
-            ownerId: user.id,
-            ownerName: user.name || 'Unknown',
-            uploadedAt: new Date().toISOString(),
-          } as TripMedia
-        },
+      await recordMedia(
+        tripId,
+        user.id,
+        { mediaId, url: s3Url, mediaType },
+        { headers: { Cookie: cookie } },
+      )
+      return data<ActionData>({
+        success: true,
+        media: {
+          id: mediaId,
+          url: s3Url,
+          mediaType,
+          ownerId: user.id,
+          ownerName: user.name || 'Unknown',
+          uploadedAt: new Date().toISOString(),
+        } as TripMedia,
       })
-
-      if ('error' in result) {
-        return data<ActionData>(
-          { error: result.error },
-          { status: result.error.includes('exceeds') ? 400 : 500 },
-        )
-      }
-
-      return data<ActionData>({ success: true, media: result.media })
     } catch (error) {
-      const e = error as Error
-      console.error(
-        '[trip.$id action] add-media threw. message=' + (e.message ?? String(error)) + '\nStack:\n' + (e.stack ?? '(no stack)'),
+      console.error('[trip.$id action] record-media failed', { tripId, mediaId, error })
+      return data<ActionData>(
+        { error: messageForDisplay(error instanceof Error ? error.message : undefined, UPLOAD_ERROR_MEDIA_UNAVAILABLE) },
+        { status: 500 },
       )
-      const message = messageForDisplay(
-        error instanceof Error ? error.message : undefined,
-        UPLOAD_ERROR_MEDIA_UNAVAILABLE,
-      )
-      return data<ActionData>({ error: message }, { status: 500 })
     }
   }
 
@@ -420,13 +407,25 @@ export default function TripDetail() {
   const [showAddSurfboardModal, setShowAddSurfboardModal] = useState(false)
   const sectionsRef = useScrollReveal()
 
+  const params = useParams()
+  const location = useLocation()
+  const tripId = params.id
   const {
     uploadFiles,
     isUploading,
     error: uploadError,
     clearError: clearUploadError,
     fetcherData,
-  } = useFileUpload()
+  } = useFileUpload({
+    directUpload:
+      tripId && location.pathname
+        ? {
+            getUploadUrlApi: (mediaType: string) =>
+              `/api/trip/${tripId}/upload-url?mediaType=${mediaType}`,
+            recordActionUrl: location.pathname,
+          }
+        : undefined,
+  })
 
   // Sync state with loader data when it changes (e.g., after navigation or revalidation)
   // Only sync if trip ID changed (navigation) or if we don't have local state

@@ -17,7 +17,7 @@ import {
   UPLOAD_ERROR_NO_MEDIA_FILE,
 } from '~/utils/errorUtils'
 
-const MAX_FILE_SIZE_BYTES = 10 * 1024 * 1024 // 10MB
+const MAX_FILE_SIZE_BYTES = 500 * 1024 * 1024 // 500MB (home videos, long clips)
 const DEFAULT_MIME_TYPE = 'application/octet-stream'
 
 /** API/validation messages we pass through to the user; any other error uses UPLOAD_ERROR_MEDIA_UNAVAILABLE. */
