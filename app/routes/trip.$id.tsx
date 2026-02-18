@@ -34,7 +34,7 @@ import { getUploadUrl, recordMedia } from '~/services/trip'
 import { useScrollReveal, useFileUpload, useActionFetcher } from '~/hooks'
 import { InfoModal } from '~/components/Modal'
 import { formatDate } from '~/utils/dateUtils'
-import { messageForDisplay } from '~/utils/errorUtils'
+import { messageForDisplay, UPLOAD_ERROR_MEDIA_UNAVAILABLE } from '~/utils/errorUtils'
 import {
   handleMediaUpload
 } from '~/utils/uploadUtils.server'
@@ -351,41 +351,49 @@ export const action: ActionFunction = async ({ request, params }) => {
 
   // Handle media upload
   if (intent === 'add-media') {
-    const fileEntry = formData.get('image')
+    try {
+      const fileEntry = formData.get('image')
 
-    const result = await handleMediaUpload(fileEntry, {
-      getUploadUrl: async (mediaType: string) => getUploadUrl(tripId, user.id, { mediaType }, { headers: { Cookie: cookie } }),
-      recordMedia: async (s3Url: string, mediaId: string, mediaType: string) => {
-        await recordMedia(
-          tripId,
-          user.id,
-          {
-            mediaId,
+      const result = await handleMediaUpload(fileEntry, {
+        getUploadUrl: async (mediaType: string) => getUploadUrl(tripId, user.id, { mediaType }, { headers: { Cookie: cookie } }),
+        recordMedia: async (s3Url: string, mediaId: string, mediaType: string) => {
+          await recordMedia(
+            tripId,
+            user.id,
+            {
+              mediaId,
+              url: s3Url,
+              mediaType,
+            },
+            { headers: { Cookie: cookie } },
+          )
+          return {
+            id: mediaId,
             url: s3Url,
             mediaType,
-          },
-          { headers: { Cookie: cookie } },
+            ownerId: user.id,
+            ownerName: user.name || 'Unknown',
+            uploadedAt: new Date().toISOString(),
+          } as TripMedia
+        },
+      })
+
+      if ('error' in result) {
+        return data<ActionData>(
+          { error: result.error },
+          { status: result.error.includes('exceeds') ? 400 : 500 },
         )
-        // Return TripMedia object for optimistic UI update
-        return {
-          id: mediaId,
-          url: s3Url,
-          mediaType,
-          ownerId: user.id,
-          ownerName: user.name || 'Unknown',
-          uploadedAt: new Date().toISOString(),
-        } as TripMedia
-      },
-    })
+      }
 
-    if ('error' in result) {
-      return data<ActionData>(
-        { error: result.error },
-        { status: result.error.includes('exceeds') ? 400 : 500 },
+      return data<ActionData>({ success: true, media: result.media })
+    } catch (error) {
+      console.error('[trip.$id action] Error in add-media:', error)
+      const message = messageForDisplay(
+        error instanceof Error ? error.message : undefined,
+        UPLOAD_ERROR_MEDIA_UNAVAILABLE,
       )
+      return data<ActionData>({ error: message }, { status: 500 })
     }
-
-    return data<ActionData>({ success: true, media: result.media })
   }
 
   return data<ActionData>({ error: 'Invalid intent' }, { status: 400 })

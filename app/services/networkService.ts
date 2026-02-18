@@ -95,10 +95,12 @@ const request = async <T, B = undefined>(
   const headers: HeadersInit = {
     ...(options.headers as Record<string, string>),
   }
-
+  if (!isFullUrl) {
+    (headers as Record<string, string>)['Accept'] = 'application/json'
+  }
   const isFileOrBlob = body instanceof File || body instanceof Blob
   if (body && !isFileOrBlob) {
-    headers['Content-Type'] = 'application/json'
+    (headers as Record<string, string>)['Content-Type'] = 'application/json'
   }
 
   try {

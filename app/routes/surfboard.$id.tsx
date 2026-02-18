@@ -20,7 +20,7 @@ import {
 } from '~/components'
 import { requireSessionCookie } from '~/services/session.server'
 import { cacheControlHeader, get } from '~/services/networkService'
-import { messageForDisplay } from '~/utils/errorUtils'
+import { messageForDisplay, UPLOAD_ERROR_MEDIA_UNAVAILABLE } from '~/utils/errorUtils'
 import { Surfboard, SurfboardMedia } from '~/types/surfboard'
 import {
   addSurfboardMedia,
@@ -155,36 +155,45 @@ export const action: ActionFunction = async ({ request, params }) => {
   const cookie = request.headers.get('Cookie') || ''
 
   if (intent === 'add-media') {
-    const fileEntry = formData.get('media')
-    const result = await handleMediaUpload(fileEntry, {
-      getUploadUrl: async (mediaType: string) => 
-        getSurfboardMediaUploadUrl(
-          surfboardId,
-          user.id,
-          { mediaType },
-          { headers: { Cookie: cookie } },
-        ),
-      recordMedia: async (s3Url: string, _mediaId: string, mediaType: string) =>
-        addSurfboardMedia(
-          surfboardId,
-          user.id,
-          {
-            originalUrl: s3Url,
-            thumbUrl: s3Url,
-            mediaType,
-          },
-          { headers: { Cookie: cookie } },
-        ),
-    })
+    try {
+      const fileEntry = formData.get('media')
+      const result = await handleMediaUpload(fileEntry, {
+        getUploadUrl: async (mediaType: string) =>
+          getSurfboardMediaUploadUrl(
+            surfboardId,
+            user.id,
+            { mediaType },
+            { headers: { Cookie: cookie } },
+          ),
+        recordMedia: async (s3Url: string, _mediaId: string, mediaType: string) =>
+          addSurfboardMedia(
+            surfboardId,
+            user.id,
+            {
+              originalUrl: s3Url,
+              thumbUrl: s3Url,
+              mediaType,
+            },
+            { headers: { Cookie: cookie } },
+          ),
+      })
 
-    if ('error' in result) {
-      return data<ActionData>(
-        { error: result.error },
-        { status: result.error.includes('exceeds') ? 400 : 500 },
+      if ('error' in result) {
+        return data<ActionData>(
+          { error: result.error },
+          { status: result.error.includes('exceeds') ? 400 : 500 },
+        )
+      }
+
+      return data<ActionData>({ success: true, media: result.media })
+    } catch (error) {
+      console.error('[surfboard.$id action] Error in add-media:', error)
+      const message = messageForDisplay(
+        error instanceof Error ? error.message : undefined,
+        UPLOAD_ERROR_MEDIA_UNAVAILABLE,
       )
+      return data<ActionData>({ error: message }, { status: 500 })
     }
-
-    return data<ActionData>({ success: true, media: result.media })
   }
 
   if (intent === 'delete-media') {
