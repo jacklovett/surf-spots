@@ -77,14 +77,44 @@ export const handleMediaUpload = async <T>(
   const mimeType = fileEntry instanceof File ? fileEntry.type : DEFAULT_MIME_TYPE
   const mediaType = mimeType.startsWith('image/') ? 'image' : 'video'
 
+  let s3Url: string
+  let mediaId: string
   try {
-    const { s3Url, mediaId } = await uploadToPresignedUrl(fileEntry, () =>
+    const result = await uploadToPresignedUrl(fileEntry, () =>
       options.getUploadUrl(mediaType),
     )
+    s3Url = result.s3Url
+    mediaId = result.mediaId
+  } catch (uploadError) {
+    const err = uploadError as Error & { status?: number }
+    console.error('[handleMediaUpload] failed at getUploadUrl or S3 upload:', {
+      message: err.message,
+      status: err.status,
+    }, err)
+    return {
+      error: toSafeMessage(
+        uploadError,
+        SAFE_UPLOAD_MESSAGES,
+        UPLOAD_ERROR_MEDIA_UNAVAILABLE,
+      ),
+    }
+  }
+
+  try {
     const media = await options.recordMedia(s3Url, mediaId, mediaType)
     return { success: true, media }
-  } catch (error) {
-    console.error('[handleMediaUpload]', error)
-    return { error: toSafeMessage(error, SAFE_UPLOAD_MESSAGES, UPLOAD_ERROR_MEDIA_UNAVAILABLE) }
+  } catch (recordError) {
+    const err = recordError as Error & { status?: number }
+    console.error('[handleMediaUpload] failed at recordMedia:', {
+      message: err.message,
+      status: err.status,
+    }, recordError)
+    return {
+      error: toSafeMessage(
+        recordError,
+        SAFE_UPLOAD_MESSAGES,
+        UPLOAD_ERROR_MEDIA_UNAVAILABLE,
+      ),
+    }
   }
 }

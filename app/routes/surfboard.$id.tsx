@@ -140,72 +140,84 @@ const handleDeleteSurfboard = async (
 }
 
 export const action: ActionFunction = async ({ request, params }) => {
-  const user = await requireSessionCookie(request)
-  const surfboardId = params.id
+  try {
+    const user = await requireSessionCookie(request)
+    const surfboardId = params.id
 
-  if (!surfboardId) {
-    return data<ActionData>(
-      { error: 'Surfboard ID is required' },
-      { status: 400 },
-    )
-  }
-
-  const formData = await request.formData()
-  const intent = formData.get('intent') as string
-  const cookie = request.headers.get('Cookie') || ''
-
-  if (intent === 'add-media') {
-    try {
-      const fileEntry = formData.get('media')
-      const result = await handleMediaUpload(fileEntry, {
-        getUploadUrl: async (mediaType: string) =>
-          getSurfboardMediaUploadUrl(
-            surfboardId,
-            user.id,
-            { mediaType },
-            { headers: { Cookie: cookie } },
-          ),
-        recordMedia: async (s3Url: string, _mediaId: string, mediaType: string) =>
-          addSurfboardMedia(
-            surfboardId,
-            user.id,
-            {
-              originalUrl: s3Url,
-              thumbUrl: s3Url,
-              mediaType,
-            },
-            { headers: { Cookie: cookie } },
-          ),
-      })
-
-      if ('error' in result) {
-        return data<ActionData>(
-          { error: result.error },
-          { status: result.error.includes('exceeds') ? 400 : 500 },
-        )
-      }
-
-      return data<ActionData>({ success: true, media: result.media })
-    } catch (error) {
-      console.error('[surfboard.$id action] Error in add-media:', error)
-      const message = messageForDisplay(
-        error instanceof Error ? error.message : undefined,
-        UPLOAD_ERROR_MEDIA_UNAVAILABLE,
+    if (!surfboardId) {
+      return data<ActionData>(
+        { error: 'Surfboard ID is required' },
+        { status: 400 },
       )
-      return data<ActionData>({ error: message }, { status: 500 })
     }
-  }
 
-  if (intent === 'delete-media') {
-    const mediaId = formData.get('mediaId') as string
-    return await handleDeleteMedia(mediaId, user.id, cookie)
-  }
+    const formData = await request.formData()
+    const intent = formData.get('intent') as string
+    const cookie = request.headers.get('Cookie') || ''
 
-  if (intent === 'delete-surfboard') {
-    return await handleDeleteSurfboard(surfboardId, user.id, cookie)
-  }
+    if (intent === 'add-media') {
+      try {
+        const fileEntry = formData.get('media')
+        const result = await handleMediaUpload(fileEntry, {
+          getUploadUrl: async (mediaType: string) =>
+            getSurfboardMediaUploadUrl(
+              surfboardId,
+              user.id,
+              { mediaType },
+              { headers: { Cookie: cookie } },
+            ),
+          recordMedia: async (s3Url: string, _mediaId: string, mediaType: string) =>
+            addSurfboardMedia(
+              surfboardId,
+              user.id,
+              {
+                originalUrl: s3Url,
+                thumbUrl: s3Url,
+                mediaType,
+              },
+              { headers: { Cookie: cookie } },
+            ),
+        })
 
-  return data<ActionData>({ error: 'Invalid intent' }, { status: 400 })
+        if ('error' in result) {
+          return data<ActionData>(
+            { error: result.error },
+            { status: result.error.includes('exceeds') ? 400 : 500 },
+          )
+        }
+
+        return data<ActionData>({ success: true, media: result.media })
+      } catch (addMediaError) {
+        console.error('[surfboard.$id action] Error in add-media:', addMediaError)
+        const message = messageForDisplay(
+          addMediaError instanceof Error ? addMediaError.message : undefined,
+          UPLOAD_ERROR_MEDIA_UNAVAILABLE,
+        )
+        return data<ActionData>({ error: message }, { status: 500 })
+      }
+    }
+
+    if (intent === 'delete-media') {
+      const mediaId = formData.get('mediaId') as string
+      return await handleDeleteMedia(mediaId, user.id, cookie)
+    }
+
+    if (intent === 'delete-surfboard') {
+      return await handleDeleteSurfboard(surfboardId, user.id, cookie)
+    }
+
+    return data<ActionData>({ error: 'Invalid intent' }, { status: 400 })
+  } catch (error) {
+    if (error instanceof Response) {
+      throw error
+    }
+    console.error('[surfboard.$id action] Unhandled error:', error)
+    const message = messageForDisplay(
+      error instanceof Error ? error.message : undefined,
+      'Something went wrong. Please try again.',
+    )
+    return data<ActionData>({ error: message }, { status: 500 })
+  }
 }
 
 export default function SurfboardDetail() {

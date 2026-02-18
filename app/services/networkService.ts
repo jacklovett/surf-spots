@@ -38,7 +38,7 @@ const handleResponse = async <T>(response: Response): Promise<T> => {
   const contentType = response.headers.get('content-type')
   const isJson = contentType?.includes('application/json')
 
-  let data = null
+  let data: unknown = null
   if (isJson) {
     try {
       data = await response.json()
@@ -59,10 +59,31 @@ const handleResponse = async <T>(response: Response): Promise<T> => {
   }
 
   if (!response.ok) {
-    const errorMessage = messageForDisplay(
-      getMessageFromBody(data),
-      DEFAULT_ERROR_MESSAGE,
-    )
+    if (data == null) {
+      try {
+        const text = await response.text()
+        const parsed = text ? JSON.parse(text) : null
+        if (parsed != null && typeof parsed === 'object') {
+          data = parsed
+        }
+      } catch {
+        // ignore: body was not JSON, keep data null
+      }
+    }
+    const bodyMessage = getMessageFromBody(data)
+    const errorMessage = messageForDisplay(bodyMessage, DEFAULT_ERROR_MESSAGE)
+    if (!bodyMessage) {
+      const bodySummary =
+        data == null
+          ? 'body not parsed (check Content-Type or non-JSON response)'
+          : 'body has no message/error/errorMessage field'
+      console.error('[NetworkService] API error:', {
+        status: response.status,
+        statusText: response.statusText,
+        contentType: response.headers.get('content-type') ?? 'none',
+        reason: bodySummary,
+      })
+    }
     const error = new Error(errorMessage) as NetworkError
     error.status = response.status
     throw error
