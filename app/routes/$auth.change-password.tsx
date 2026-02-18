@@ -9,7 +9,7 @@ import {
 
 import { FormComponent, FormInput, Page } from '~/components'
 import { edit } from '~/services/networkService'
-import { DEFAULT_ERROR_MESSAGE } from '~/utils/errorUtils'
+import { messageForDisplay, DEFAULT_ERROR_MESSAGE } from '~/utils/errorUtils'
 import { getSession, requireSessionCookie } from '~/services/session.server'
 import { useFormValidation, useSubmitStatus } from '~/hooks'
 import { validatePassword } from '~/hooks/useFormValidation'
@@ -64,11 +64,10 @@ export const action = async ({ request }: ActionFunctionArgs) => {
       { status: 200 },
     )
   } catch (e) {
-    const submitError =
-      e instanceof Error
-        ? e.message
-        : DEFAULT_ERROR_MESSAGE
-
+    const submitError = messageForDisplay(
+      e instanceof Error ? e.message : undefined,
+      DEFAULT_ERROR_MESSAGE,
+    )
     return data(
       { submitStatus: submitError, hasError: true },
       { status: 500 },

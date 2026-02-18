@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react'
 import { useFetcher } from 'react-router'
-import { UPLOAD_ERROR_GENERIC } from '~/utils/errorUtils'
+import { UPLOAD_ERROR_MEDIA_UNAVAILABLE } from '~/utils/errorUtils'
 
 interface UseFileUploadOptions {
   onSuccess?: () => void
@@ -45,10 +45,9 @@ export const useFileUpload = (
       return
     }
 
-    // Response came back but had no success or error — show generic message (only when we have data, so we don't show error on initial mount)
     if (fetcher.data !== undefined) {
-      setError(UPLOAD_ERROR_GENERIC)
-      onError?.(UPLOAD_ERROR_GENERIC)
+      setError(UPLOAD_ERROR_MEDIA_UNAVAILABLE)
+      onError?.(UPLOAD_ERROR_MEDIA_UNAVAILABLE)
     }
   }, [fetcher.data, fetcher.state, onSuccess, onError])
 

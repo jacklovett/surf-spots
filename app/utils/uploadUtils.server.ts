@@ -13,7 +13,6 @@ import { edit } from '~/services/networkService'
 import {
   toSafeMessage,
   UPLOAD_ERROR_FILE_SIZE_EXCEEDED,
-  UPLOAD_ERROR_GENERIC,
   UPLOAD_ERROR_MEDIA_UNAVAILABLE,
   UPLOAD_ERROR_NO_MEDIA_FILE,
 } from '~/utils/errorUtils'
@@ -21,7 +20,7 @@ import {
 const MAX_FILE_SIZE_BYTES = 10 * 1024 * 1024 // 10MB
 const DEFAULT_MIME_TYPE = 'application/octet-stream'
 
-/** Allowed upload error messages (API/validation); anything else becomes UPLOAD_ERROR_GENERIC. */
+/** API/validation messages we pass through; any other error shows UPLOAD_ERROR_MEDIA_UNAVAILABLE. */
 const SAFE_UPLOAD_MESSAGES = new Set([
   UPLOAD_ERROR_NO_MEDIA_FILE,
   UPLOAD_ERROR_FILE_SIZE_EXCEEDED,
@@ -86,6 +85,6 @@ export const handleMediaUpload = async <T>(
     return { success: true, media }
   } catch (error) {
     console.error('[handleMediaUpload]', error)
-    return { error: toSafeMessage(error, SAFE_UPLOAD_MESSAGES, UPLOAD_ERROR_GENERIC) }
+    return { error: toSafeMessage(error, SAFE_UPLOAD_MESSAGES, UPLOAD_ERROR_MEDIA_UNAVAILABLE) }
   }
 }

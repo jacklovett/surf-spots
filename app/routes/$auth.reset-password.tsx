@@ -11,7 +11,7 @@ import {
 
 import { ContentStatus, FormComponent, FormInput, Page } from '~/components'
 import { post } from '~/services/networkService'
-import { DEFAULT_ERROR_MESSAGE } from '~/utils/errorUtils'
+import { messageForDisplay, DEFAULT_ERROR_MESSAGE } from '~/utils/errorUtils'
 import { useFormValidation, useSubmitStatus } from '~/hooks'
 import { validatePassword } from '~/hooks/useFormValidation'
 
@@ -51,11 +51,10 @@ export const action = async ({ request }: ActionFunctionArgs) => {
     await post(`auth/reset-password`, ResetPasswordRequest)
     return redirect('/auth?passwordReset=true')
   } catch (e) {
-    const submitError =
-      e instanceof Error
-        ? e.message
-        : DEFAULT_ERROR_MESSAGE
-
+    const submitError = messageForDisplay(
+      e instanceof Error ? e.message : undefined,
+      DEFAULT_ERROR_MESSAGE,
+    )
     return data(
       { submitStatus: submitError, hasError: true },
       { status: 500 },

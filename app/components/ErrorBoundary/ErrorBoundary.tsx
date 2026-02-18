@@ -37,7 +37,6 @@ export class ErrorBoundary extends Component<
           <h4 className="mt">
             {this.props.message ?? 'Oops! Something went wrong.'}
           </h4>
-          <p>{this.state.error?.message}</p>
         </div>
       )
     }

@@ -1,21 +1,20 @@
 /**
- * When we show API or server errors in the UI (toasts, forms), we must never
- * display internal details: stack traces, exception class names, file paths,
- * or raw exception messages that could leak implementation info.
- *
- * This module filters error text before display: if the message looks
- * internal or is missing, we show a generic fallback instead.
+ * Central place for safe, user-facing error messages.
+ * Allowlist + fallback is standard: only show messages we know are safe or a
+ * context fallback; never raw stack traces or internal text.
+ * Backend/API messages are passed through when present and safe; networkService
+ * uses DEFAULT_ERROR_MESSAGE only when the response has no usable message.
  */
 
-/** Default message shown when no safe error message is available. */
+/** Shown when no safe message is available (e.g. networkService after non-JSON/502). */
 export const DEFAULT_ERROR_MESSAGE =
   'An unexpected error occurred. Please try again.'
 
-/** Upload-specific messages (validation + API fallback). Must match API copy where noted. */
-export const UPLOAD_ERROR_GENERIC = 'Unable to upload. Please try again later.'
+/** Upload: validation + API messages. Match backend copy where noted. */
 export const UPLOAD_ERROR_NO_MEDIA_FILE = 'No media file provided'
 export const UPLOAD_ERROR_FILE_SIZE_EXCEEDED =
   'File size exceeds 10MB limit. Please choose a smaller file.'
+/** Single upload failure message for API/network/config errors (used as fallback in upload flow). */
 export const UPLOAD_ERROR_MEDIA_UNAVAILABLE =
   'Media upload failed. Please try again later.'
 
@@ -46,6 +45,9 @@ export const toSafeMessage = (
     return fallback
   }
   const msg = error.message.trim()
+  if (msg === DEFAULT_ERROR_MESSAGE) {
+    return fallback
+  }
   if (allowedMessages.has(msg)) {
     return msg
   }

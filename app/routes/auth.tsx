@@ -74,10 +74,15 @@ export const action: ActionFunction = async ({ request }) => {
   } catch (error) {
     console.log('Error: ', error)
     if (error instanceof Response) {
-      const { status, statusText } = error
+      const { status } = error
       return data(
         {
-          submitStatus: statusText || `${status} Authentication failed`,
+          submitStatus: messageForDisplay(
+            undefined,
+            status === 401
+              ? "That email and password didn't match. Try again or use Forgot password."
+              : DEFAULT_ERROR_MESSAGE,
+          ),
           hasError: true,
         },
         { status },

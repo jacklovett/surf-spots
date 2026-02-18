@@ -1,6 +1,11 @@
 .page-wrapper {
   @extend %flex-column;
   min-height: 100vh;
+
+  > header,
+  > footer {
+    flex-shrink: 0;
+  }
 }
 
 .page {

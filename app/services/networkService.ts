@@ -25,11 +25,13 @@ export const isNetworkError = (err: unknown): err is NetworkError => {
 }
 
 const getMessageFromBody = (data: unknown): string | undefined => {
-  if (data == null || typeof data !== 'object' || !('message' in data)) {
-    return undefined
+  if (data == null || typeof data !== 'object') return undefined
+  const o = data as Record<string, unknown>
+  for (const key of ['message', 'error', 'errorMessage']) {
+    const val = o[key]
+    if (typeof val === 'string' && val.trim()) return val.trim()
   }
-  const msg = (data as { message?: unknown }).message
-  return typeof msg === 'string' ? msg : undefined
+  return undefined
 }
 
 const handleResponse = async <T>(response: Response): Promise<T> => {

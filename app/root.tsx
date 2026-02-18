@@ -21,7 +21,9 @@ import {
   ToastProvider,
   SignUpPromptProvider,
 } from './contexts'
-import { ErrorBoundary, ToastContainer, SignUpPromptModal } from './components'
+import { ErrorBoundary as AppErrorBoundary, ToastContainer, SignUpPromptModal } from './components'
+
+export { ErrorBoundary } from './RootErrorBoundary'
 
 import { getSession } from './services/session.server'
 import { User } from './types/user'
@@ -119,7 +121,7 @@ export default function App() {
   }, [])
 
   return (
-    <ErrorBoundary message="Application error - please refresh the page">
+    <AppErrorBoundary message="Application error - please refresh the page">
       <UserProvider {...{ user }}>
         <LayoutProvider>
           <SettingsProvider>
@@ -137,6 +139,6 @@ export default function App() {
           </SettingsProvider>
         </LayoutProvider>
       </UserProvider>
-    </ErrorBoundary>
+    </AppErrorBoundary>
   )
 }
