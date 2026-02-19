@@ -143,7 +143,7 @@ export const action: ActionFunction = async ({ request, params }) => {
     const intent = formData.get('intent') as string
     const cookie = request.headers.get('Cookie') || ''
 
-    if (intent === 'record-media') {
+    if (intent === 'add-media') {
       const s3Url = formData.get('s3Url') as string
       const mediaType = (formData.get('mediaType') as string) || 'image'
       if (!s3Url) {
@@ -158,7 +158,7 @@ export const action: ActionFunction = async ({ request, params }) => {
         )
         return data<ActionData>({ success: true, media })
       } catch (err) {
-        console.error('[surfboard.$id action] record-media failed', { surfboardId, err })
+        console.error('[surfboard.$id action] add-media failed', { surfboardId, err })
         return data<ActionData>(
           { error: getDisplayMessage(err, UPLOAD_ERROR_MEDIA_UNAVAILABLE) },
           { status: 500 },
@@ -214,14 +214,11 @@ export default function SurfboardDetail() {
     clearError: clearUploadError,
     fetcherData,
   } = useFileUpload({
-    directUpload:
-      surfboardId && location.pathname
-        ? {
-            getUploadUrlApi: (mediaType: string) =>
-              `/api/surfboard/${surfboardId}/upload-url?mediaType=${mediaType}`,
-            recordActionUrl: location.pathname,
-          }
-        : undefined,
+    directUpload: {
+      getUploadUrlApi: (mediaType: string) =>
+        `/api/surfboard/${surfboardId}/upload-url?mediaType=${mediaType}`,
+      recordActionUrl: location.pathname,
+    },
   })
   const { submitAction: submitMediaAction, fetcher: mediaActionFetcher } =
     useActionFetcher<ActionData>()
@@ -276,7 +273,7 @@ export default function SurfboardDetail() {
 
   const handleFileUpload = (files: FileList) => {
     if (!user?.id || !surfboard?.id) return
-    uploadFiles(files, 'add-media', 'media')
+    uploadFiles(files)
   }
 
   const handleDeleteConfirm = () => {

@@ -91,7 +91,7 @@ export const action: ActionFunction = async ({ request }) => {
         submitStatus: errorMessage,
         hasError: true,
       },
-      { status: networkError?.status || 500 },
+      { status: error instanceof Response ? error.status : 500 },
     )
   }
 }

@@ -315,7 +315,7 @@ export const action: ActionFunction = async ({ request, params }) => {
   }
 
   // Record media after client uploaded directly to S3 (avoids FUNCTION_PAYLOAD_TOO_LARGE)
-  if (intent === 'record-media') {
+  if (intent === 'add-media') {
     const mediaId = formData.get('mediaId') as string
     const s3Url = formData.get('s3Url') as string
     const mediaType = (formData.get('mediaType') as string) || 'image'
@@ -344,7 +344,7 @@ export const action: ActionFunction = async ({ request, params }) => {
         } as TripMedia,
       })
     } catch (error) {
-      console.error('[trip.$id action] record-media failed', { tripId, mediaId, error })
+      console.error('[trip.$id action] add-media failed', { tripId, mediaId, error })
       return data<ActionData>(
         { error: getDisplayMessage(error, UPLOAD_ERROR_MEDIA_UNAVAILABLE) },
         { status: 500 },
@@ -383,14 +383,11 @@ export default function TripDetail() {
     clearError: clearUploadError,
     fetcherData,
   } = useFileUpload({
-    directUpload:
-      tripId && location.pathname
-        ? {
-            getUploadUrlApi: (mediaType: string) =>
-              `/api/trip/${tripId}/upload-url?mediaType=${mediaType}`,
-            recordActionUrl: location.pathname,
-          }
-        : undefined,
+    directUpload: {
+      getUploadUrlApi: (mediaType: string) =>
+        `/api/trip/${tripId}/upload-url?mediaType=${mediaType}`,
+      recordActionUrl: location.pathname,
+    },
   })
 
   // Sync state with loader data when it changes (e.g., after navigation or revalidation)
@@ -755,7 +752,7 @@ export default function TripDetail() {
                   <MediaUpload
                     onFilesSelected={(files) => {
                       if (!user?.id || !currentTrip?.id) return
-                      uploadFiles(files, 'add-media', 'image')
+                      uploadFiles(files)
                     }}
                     accept="image/*,video/*"
                     multiple
