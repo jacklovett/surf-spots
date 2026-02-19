@@ -7,6 +7,8 @@
 import { data, LoaderFunction } from 'react-router'
 import { requireSessionCookie } from '~/services/session.server'
 import { getSurfboardMediaUploadUrl } from '~/services/surfboard'
+import { getDisplayMessage } from '~/services/networkService'
+import { UPLOAD_ERROR_MEDIA_UNAVAILABLE } from '~/utils/errorUtils'
 
 interface LoaderData {
   uploadUrl: string
@@ -43,7 +45,7 @@ export const loader: LoaderFunction = async ({ request, params }) => {
       error,
     })
     return data<LoaderData>(
-      { uploadUrl: '', mediaId: '', error: 'Failed to get upload URL' },
+      { uploadUrl: '', mediaId: '', error: getDisplayMessage(error, UPLOAD_ERROR_MEDIA_UNAVAILABLE) },
       { status: 503 },
     )
   }

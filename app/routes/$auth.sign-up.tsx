@@ -8,7 +8,7 @@ import {
 } from 'react-router'
 
 import { formatEmail, registerUser, validate } from '~/services/auth.server'
-import { messageForDisplay, DEFAULT_ERROR_MESSAGE } from '~/utils/errorUtils'
+import { getDisplayMessage } from '~/services/networkService'
 import { AuthPage, FormComponent, FormInput, SignInOptions } from '~/components'
 import { useFormValidation, useSubmitStatus } from '~/hooks'
 import { validateEmail, validatePassword } from '~/hooks/useFormValidation'
@@ -47,10 +47,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
 
     return await registerUser(authRequest, request)
   } catch (e) {
-    const submitError = messageForDisplay(
-      e instanceof Error ? e.message : undefined,
-      DEFAULT_ERROR_MESSAGE,
-    )
+    const submitError = getDisplayMessage(e)
     return data(
       { submitStatus: submitError, hasError: true },
       { status: 400 },

@@ -10,8 +10,7 @@ import {
 } from 'react-router'
 
 import { ContentStatus, FormComponent, FormInput, Page } from '~/components'
-import { post } from '~/services/networkService'
-import { messageForDisplay, DEFAULT_ERROR_MESSAGE } from '~/utils/errorUtils'
+import { post, getDisplayMessage } from '~/services/networkService'
 import { useFormValidation, useSubmitStatus } from '~/hooks'
 import { validatePassword } from '~/hooks/useFormValidation'
 
@@ -51,10 +50,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
     await post(`auth/reset-password`, ResetPasswordRequest)
     return redirect('/auth?passwordReset=true')
   } catch (e) {
-    const submitError = messageForDisplay(
-      e instanceof Error ? e.message : undefined,
-      DEFAULT_ERROR_MESSAGE,
-    )
+    const submitError = getDisplayMessage(e)
     return data(
       { submitStatus: submitError, hasError: true },
       { status: 500 },

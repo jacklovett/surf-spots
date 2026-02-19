@@ -31,7 +31,7 @@ export const useSurfSpotActions = (actionRoute?: string) => {
       if (data.error || (data.hasError && data.submitStatus)) {
         const rawMessage = data.error || data.submitStatus
         const errorMessage = messageForDisplay(
-          rawMessage,
+          typeof rawMessage === 'string' ? rawMessage : undefined,
           DEFAULT_ERROR_MESSAGE,
         )
         showError(errorMessage)

@@ -1,9 +1,10 @@
 /**
- * Central place for safe, user-facing error messages.
- * Allowlist + fallback is standard: only show messages we know are safe or a
- * context fallback; never raw stack traces or internal text.
- * Backend/API messages are passed through when present and safe; networkService
- * uses DEFAULT_ERROR_MESSAGE only when the response has no usable message.
+ * Central place for safe, user-facing error messages and fallbacks.
+ * Strategy: API errors are sanitized in networkService (handleResponse) and
+ * thrown as NetworkError. In routes/actions use getDisplayMessage(error) or getDisplayMessage(error, fallback) — fallback defaults to DEFAULT_ERROR_MESSAGE
+ * from networkService so API messages are shown as-is and other errors are
+ * sanitized once. Do not call messageForDisplay again on errors that came from
+ * our API (use getDisplayMessage instead).
  */
 
 /** Shown when no safe message is available (e.g. networkService after non-JSON/502). */

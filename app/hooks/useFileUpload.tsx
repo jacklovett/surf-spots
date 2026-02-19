@@ -99,13 +99,12 @@ export const useFileUpload = (
                 credentials: 'include',
               })
               if (!res.ok) {
-                const text = await res.text()
                 let errMsg = UPLOAD_ERROR_MEDIA_UNAVAILABLE
                 try {
-                  const json = JSON.parse(text) as { error?: string }
-                  if (json?.error) errMsg = json.error
+                  const body = (await res.json()) as { error?: string }
+                  if (typeof body?.error === 'string' && body.error.trim()) errMsg = body.error.trim()
                 } catch {
-                  // use default
+                  // response wasn't JSON or had no error field; keep generic message
                 }
                 setError(errMsg)
                 onError?.(errMsg)
@@ -116,9 +115,13 @@ export const useFileUpload = (
                 mediaId?: string
                 error?: string
               }
-              if (json?.error || !json?.uploadUrl || !json?.mediaId) {
-                setError(json?.error ?? UPLOAD_ERROR_MEDIA_UNAVAILABLE)
-                onError?.(json?.error ?? UPLOAD_ERROR_MEDIA_UNAVAILABLE)
+              if (!json?.uploadUrl || !json?.mediaId) {
+                const errMsg =
+                  typeof json?.error === 'string' && json.error.trim()
+                    ? json.error.trim()
+                    : UPLOAD_ERROR_MEDIA_UNAVAILABLE
+                setError(errMsg)
+                onError?.(errMsg)
                 break
               }
               const putRes = await fetch(json.uploadUrl, {

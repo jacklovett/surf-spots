@@ -33,7 +33,8 @@ import { FetcherSubmitParams, ActionData } from '~/types/api'
 
 import { useUserContext, useSettingsContext, useLayoutContext, useToastContext, useSurfSpotsContext, useSignUpPromptContext } from '~/contexts'
 
-import { messageForDisplay, DEFAULT_ERROR_MESSAGE } from '~/utils/errorUtils'
+import { getDisplayMessage } from '~/services/networkService'
+import { DEFAULT_ERROR_MESSAGE } from '~/utils/errorUtils'
 import { formatSurfHeightRange, formatSeason } from '~/utils/surfSpotUtils'
 
 interface LoaderData {
@@ -206,14 +207,10 @@ export const action: ActionFunction = async ({ request }) => {
     return await handleSurfSpotAction(actionType, target, surfSpotId, userId, cookie)
   } catch (error) {
     console.error('Error in action:', error)
-    
+
     if (error instanceof Response) return error
-    
-    const rawMessage = error instanceof Error ? error.message : undefined
-    const errorMessage = messageForDisplay(
-      rawMessage,
-      DEFAULT_ERROR_MESSAGE,
-    )
+
+    const errorMessage = getDisplayMessage(error)
     const status = error instanceof Error && 'status' in error
       ? (error as { status?: number }).status || 500
       : 500

@@ -21,8 +21,8 @@ import {
   MediaGallery,
 } from '~/components'
 import { requireSessionCookie } from '~/services/session.server'
-import { cacheControlHeader, get } from '~/services/networkService'
-import { messageForDisplay, UPLOAD_ERROR_MEDIA_UNAVAILABLE } from '~/utils/errorUtils'
+import { cacheControlHeader, get, getDisplayMessage } from '~/services/networkService'
+import { UPLOAD_ERROR_MEDIA_UNAVAILABLE } from '~/utils/errorUtils'
 import { Surfboard, SurfboardMedia } from '~/types/surfboard'
 import {
   addSurfboardMedia,
@@ -101,14 +101,8 @@ const handleDeleteMedia = async (
     return data<ActionData>({ success: true })
   } catch (error) {
     console.error('[surfboard.$id action] Error deleting media:', error)
-    const rawMessage = error instanceof Error ? error.message : undefined
     return data<ActionData>(
-      {
-        error: messageForDisplay(
-          rawMessage,
-          'Failed to delete media. Please try again.',
-        ),
-      },
+      { error: getDisplayMessage(error, 'Failed to delete media. Please try again.') },
       { status: 500 },
     )
   }
@@ -126,14 +120,8 @@ const handleDeleteSurfboard = async (
     return redirect('/surfboards')
   } catch (error) {
     console.error('[surfboard.$id action] Error deleting surfboard:', error)
-    const rawMessage = error instanceof Error ? error.message : undefined
     return data<ActionData>(
-      {
-        error: messageForDisplay(
-          rawMessage,
-          'Failed to delete surfboard. Please try again.',
-        ),
-      },
+      { error: getDisplayMessage(error, 'Failed to delete surfboard. Please try again.') },
       { status: 500 },
     )
   }
@@ -172,7 +160,7 @@ export const action: ActionFunction = async ({ request, params }) => {
       } catch (err) {
         console.error('[surfboard.$id action] record-media failed', { surfboardId, err })
         return data<ActionData>(
-          { error: messageForDisplay(err instanceof Error ? err.message : undefined, UPLOAD_ERROR_MEDIA_UNAVAILABLE) },
+          { error: getDisplayMessage(err, UPLOAD_ERROR_MEDIA_UNAVAILABLE) },
           { status: 500 },
         )
       }
@@ -196,11 +184,10 @@ export const action: ActionFunction = async ({ request, params }) => {
     console.error(
       '[surfboard.$id action] Unhandled error. message=' + (e.message ?? String(error)) + '\nStack:\n' + (e.stack ?? '(no stack)'),
     )
-    const message = messageForDisplay(
-      error instanceof Error ? error.message : undefined,
-      'Something went wrong. Please try again.',
+    return data<ActionData>(
+      { error: getDisplayMessage(error, 'Something went wrong. Please try again.') },
+      { status: 500 },
     )
-    return data<ActionData>({ error: message }, { status: 500 })
   }
 }
 

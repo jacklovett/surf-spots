@@ -8,7 +8,8 @@ import {
 } from 'react-router'
 import { authenticateWithCredentials, validate } from '~/services/auth.server'
 import { AuthPage, FormComponent, FormInput, SignInOptions } from '~/components'
-import { messageForDisplay, DEFAULT_ERROR_MESSAGE } from '~/utils/errorUtils'
+import { getDisplayMessage } from '~/services/networkService'
+import { DEFAULT_ERROR_MESSAGE } from '~/utils/errorUtils'
 
 import { useFormValidation, useSubmitStatus } from '~/hooks'
 import { validateEmail, validatePassword } from '~/hooks/useFormValidation'
@@ -77,12 +78,10 @@ export const action: ActionFunction = async ({ request }) => {
       const { status } = error
       return data(
         {
-          submitStatus: messageForDisplay(
-            undefined,
+          submitStatus:
             status === 401
               ? "That email and password didn't match. Try again or use Forgot password."
               : DEFAULT_ERROR_MESSAGE,
-          ),
           hasError: true,
         },
         { status },
@@ -92,10 +91,7 @@ export const action: ActionFunction = async ({ request }) => {
       error instanceof Error && 'status' in error
         ? (error as { status?: number }).status ?? 500
         : 500
-    const message = messageForDisplay(
-      error instanceof Error ? error.message : undefined,
-      DEFAULT_ERROR_MESSAGE,
-    )
+    const message = getDisplayMessage(error)
     return data(
       { submitStatus: message, hasError: true },
       { status },

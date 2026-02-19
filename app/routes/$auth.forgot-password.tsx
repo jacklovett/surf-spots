@@ -6,8 +6,7 @@ import {
 } from 'react-router'
 
 import { AuthPage, FormComponent, FormInput } from '~/components'
-import { post } from '~/services/networkService'
-import { messageForDisplay, DEFAULT_ERROR_MESSAGE } from '~/utils/errorUtils'
+import { post, getDisplayMessage } from '~/services/networkService'
 import { useFormValidation, useSubmitStatus } from '~/hooks'
 import { validateEmail } from '~/hooks/useFormValidation'
 
@@ -53,10 +52,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
     )
   } catch (e) {
     console.log(e)
-    const submitError = messageForDisplay(
-      e instanceof Error ? e.message : undefined,
-      DEFAULT_ERROR_MESSAGE,
-    )
+    const submitError = getDisplayMessage(e)
     return data(
       { submitStatus: submitError, hasError: true },
       { status: 500 },

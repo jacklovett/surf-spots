@@ -7,6 +7,8 @@
 import { data, LoaderFunction } from 'react-router'
 import { requireSessionCookie } from '~/services/session.server'
 import { getUploadUrl } from '~/services/trip'
+import { getDisplayMessage } from '~/services/networkService'
+import { UPLOAD_ERROR_MEDIA_UNAVAILABLE } from '~/utils/errorUtils'
 
 interface LoaderData {
   uploadUrl: string
@@ -39,7 +41,7 @@ export const loader: LoaderFunction = async ({ request, params }) => {
   } catch (error) {
     console.error('[api.trip.upload-url] getUploadUrl failed', { tripId, userId: user.id, error })
     return data<LoaderData>(
-      { uploadUrl: '', mediaId: '', error: 'Failed to get upload URL' },
+      { uploadUrl: '', mediaId: '', error: getDisplayMessage(error, UPLOAD_ERROR_MEDIA_UNAVAILABLE) },
       { status: 503 },
     )
   }

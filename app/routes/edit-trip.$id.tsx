@@ -21,9 +21,8 @@ import {
 } from '~/components/TripForm'
 import { requireSessionCookie } from '~/services/session.server'
 import { updateTrip } from '~/services/trip'
-import { messageForDisplay } from '~/utils/errorUtils'
 import { Trip, UpdateTripRequest } from '~/types/trip'
-import { cacheControlHeader, get } from '~/services/networkService'
+import { cacheControlHeader, get, getDisplayMessage } from '~/services/networkService'
 import { ActionData } from '~/types/api'
 
 interface LoaderData {
@@ -149,13 +148,9 @@ export const action: ActionFunction = async ({ params, request }) => {
           },
         )
       } catch (error) {
-        const rawMessage = error instanceof Error ? error.message : undefined
         return data<ActionData>(
           {
-            submitStatus: messageForDisplay(
-              rawMessage,
-              'Failed to add members.',
-            ),
+            submitStatus: getDisplayMessage(error, 'Failed to add members.'),
             hasError: true,
           },
           { status: 400 },

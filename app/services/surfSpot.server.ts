@@ -1,8 +1,7 @@
 import { ActionFunction, data } from 'react-router'
-import { post, deleteData } from './networkService'
+import { post, deleteData, getDisplayMessage } from './networkService'
 import { getSession, commitSession } from './session.server'
 import { requireSessionCookie } from './session.server'
-import { messageForDisplay, DEFAULT_ERROR_MESSAGE } from '~/utils/errorUtils'
 import { SurfSpotStatus } from '~/types/surfSpots'
 
 export const surfSpotAction: ActionFunction = async ({ request }) => {
@@ -60,14 +59,8 @@ export const surfSpotAction: ActionFunction = async ({ request }) => {
         message: error instanceof Error ? error.message : String(error),
         status: error instanceof Error && 'status' in error ? (error as { status?: number }).status : undefined,
       })
-      const rawMessage = error instanceof Error ? error.message : undefined
       return data(
-        {
-          error: messageForDisplay(
-            rawMessage,
-            'Failed to update trip. Please try again.',
-          ),
-        },
+        { error: getDisplayMessage(error, 'Failed to update trip. Please try again.') },
         { status: 500 },
       )
     }
@@ -120,10 +113,7 @@ export const surfSpotAction: ActionFunction = async ({ request }) => {
       error instanceof Error && 'status' in error
         ? (error as { status?: number }).status ?? 500
         : 500
-    const message =
-      error instanceof Error
-        ? messageForDisplay(error.message, DEFAULT_ERROR_MESSAGE)
-        : DEFAULT_ERROR_MESSAGE
+    const message = getDisplayMessage(error)
     return data(
       { submitStatus: message, hasError: true },
       { status },

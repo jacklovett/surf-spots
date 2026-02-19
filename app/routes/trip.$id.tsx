@@ -30,13 +30,14 @@ import {
   get,
   post,
   deleteData,
+  getDisplayMessage,
 } from '~/services/networkService'
 import { Trip, TripMedia } from '~/types/trip'
 import { recordMedia } from '~/services/trip'
 import { useScrollReveal, useFileUpload, useActionFetcher } from '~/hooks'
 import { InfoModal } from '~/components/Modal'
 import { formatDate } from '~/utils/dateUtils'
-import { messageForDisplay, UPLOAD_ERROR_MEDIA_UNAVAILABLE } from '~/utils/errorUtils'
+import { UPLOAD_ERROR_MEDIA_UNAVAILABLE } from '~/utils/errorUtils'
 import { ActionData as BaseActionData } from '~/types/api'
 
 interface LoaderData {
@@ -111,12 +112,7 @@ export const action: ActionFunction = async ({ request, params }) => {
         userId: user.id,
       })
       return data<ActionData>(
-        {
-          error: messageForDisplay(
-            error instanceof Error ? error.message : undefined,
-            'Failed to delete trip. Please try again.',
-          ),
-        },
+        { error: getDisplayMessage(error, 'Failed to delete trip. Please try again.') },
         { status: 500 },
       )
     }
@@ -149,12 +145,7 @@ export const action: ActionFunction = async ({ request, params }) => {
         userId: user.id,
       })
       return data<ActionData>(
-        {
-          error: messageForDisplay(
-            error instanceof Error ? error.message : undefined,
-            'Failed to add surfboard. Please try again.',
-          ),
-        },
+        { error: getDisplayMessage(error, 'Failed to add surfboard. Please try again.') },
         { status: 500 },
       )
     }
@@ -188,12 +179,7 @@ export const action: ActionFunction = async ({ request, params }) => {
         userId: user.id,
       })
       return data<ActionData>(
-        {
-          error: messageForDisplay(
-            error instanceof Error ? error.message : undefined,
-            'Failed to remove surfboard. Please try again.',
-          ),
-        },
+        { error: getDisplayMessage(error, 'Failed to remove surfboard. Please try again.') },
         { status: 500 },
       )
     }
@@ -225,12 +211,7 @@ export const action: ActionFunction = async ({ request, params }) => {
         userId: user.id,
       })
       return data<ActionData>(
-        {
-          error: messageForDisplay(
-            error instanceof Error ? error.message : undefined,
-            'Failed to remove spot. Please try again.',
-          ),
-        },
+        { error: getDisplayMessage(error, 'Failed to remove spot. Please try again.') },
         { status: 500 },
       )
     }
@@ -262,12 +243,7 @@ export const action: ActionFunction = async ({ request, params }) => {
         currentUserId: user.id,
       })
       return data<ActionData>(
-        {
-          error: messageForDisplay(
-            error instanceof Error ? error.message : undefined,
-            'Failed to remove member. Please try again.',
-          ),
-        },
+        { error: getDisplayMessage(error, 'Failed to remove member. Please try again.') },
         { status: 500 },
       )
     }
@@ -301,12 +277,7 @@ export const action: ActionFunction = async ({ request, params }) => {
         userId: user.id,
       })
       return data<ActionData>(
-        {
-          error: messageForDisplay(
-            error instanceof Error ? error.message : undefined,
-            'Failed to cancel invitation. Please try again.',
-          ),
-        },
+        { error: getDisplayMessage(error, 'Failed to cancel invitation. Please try again.') },
         { status: 500 },
       )
     }
@@ -337,12 +308,7 @@ export const action: ActionFunction = async ({ request, params }) => {
         userId: user.id,
       })
       return data<ActionData>(
-        {
-          error: messageForDisplay(
-            error instanceof Error ? error.message : undefined,
-            'Failed to delete media. Please try again.',
-          ),
-        },
+        { error: getDisplayMessage(error, 'Failed to delete media. Please try again.') },
         { status: 500 },
       )
     }
@@ -380,7 +346,7 @@ export const action: ActionFunction = async ({ request, params }) => {
     } catch (error) {
       console.error('[trip.$id action] record-media failed', { tripId, mediaId, error })
       return data<ActionData>(
-        { error: messageForDisplay(error instanceof Error ? error.message : undefined, UPLOAD_ERROR_MEDIA_UNAVAILABLE) },
+        { error: getDisplayMessage(error, UPLOAD_ERROR_MEDIA_UNAVAILABLE) },
         { status: 500 },
       )
     }

@@ -4,12 +4,10 @@ import {
   data,
   Link,
   redirect,
-  useNavigation,
 } from 'react-router'
 
 import { FormComponent, FormInput, Page } from '~/components'
-import { edit } from '~/services/networkService'
-import { messageForDisplay, DEFAULT_ERROR_MESSAGE } from '~/utils/errorUtils'
+import { edit, getDisplayMessage } from '~/services/networkService'
 import { getSession, requireSessionCookie } from '~/services/session.server'
 import { useFormValidation, useSubmitStatus } from '~/hooks'
 import { validatePassword } from '~/hooks/useFormValidation'
@@ -64,10 +62,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
       { status: 200 },
     )
   } catch (e) {
-    const submitError = messageForDisplay(
-      e instanceof Error ? e.message : undefined,
-      DEFAULT_ERROR_MESSAGE,
-    )
+    const submitError = getDisplayMessage(e)
     return data(
       { submitStatus: submitError, hasError: true },
       { status: 500 },
@@ -76,9 +71,6 @@ export const action = async ({ request }: ActionFunctionArgs) => {
 }
 
 const ChangePassword = () => {
-  const { state } = useNavigation()
-  const loading = state === 'loading'
-
   const { formState, errors, isFormValid, handleChange } = useFormValidation({
     initialFormState: {
       currentPassword: '',

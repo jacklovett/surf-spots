@@ -31,6 +31,22 @@ export const isNetworkError = (err: unknown): err is NetworkError => {
   return err instanceof Error && 'status' in err
 }
 
+/**
+ * Single entry point for user-facing error messages. Use this in routes/actions
+ * when returning error text to the client. API errors (NetworkError) are already
+ * sanitized in handleResponse so we pass them through; other errors are
+ * sanitized once via messageForDisplay. Pass fallback only when you need a
+ * different message than the default.
+ */
+export function getDisplayMessage(
+  error: unknown,
+  fallback: string = DEFAULT_ERROR_MESSAGE,
+): string {
+  if (isNetworkError(error)) return error.message
+  const msg = error instanceof Error ? error.message : undefined
+  return messageForDisplay(msg, fallback)
+}
+
 const getMessageFromBody = (data: unknown): string | undefined => {
   if (data == null || typeof data !== 'object') return undefined
   const o = data as Record<string, unknown>
@@ -93,6 +109,7 @@ const handleResponse = async <T>(response: Response): Promise<T> => {
       contentType: contentTypeHeader,
       reason,
     }
+    // Throw so callers can try/catch. We carry the API's message in error.message (no new wording).
     const error = new Error(errorMessage) as NetworkError
     error.status = response.status
     error.responseSummary = responseSummary

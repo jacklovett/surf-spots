@@ -9,9 +9,8 @@
  * Used by trip.$id and surfboard.$id actions.
  */
 
-import { edit } from '~/services/networkService'
+import { edit, getDisplayMessage } from '~/services/networkService'
 import {
-  toSafeMessage,
   UPLOAD_ERROR_FILE_SIZE_EXCEEDED,
   UPLOAD_ERROR_MEDIA_UNAVAILABLE,
   UPLOAD_ERROR_NO_MEDIA_FILE,
@@ -19,13 +18,6 @@ import {
 
 const MAX_FILE_SIZE_BYTES = 500 * 1024 * 1024 // 500MB (home videos, long clips)
 const DEFAULT_MIME_TYPE = 'application/octet-stream'
-
-/** API/validation messages we pass through to the user; any other error uses UPLOAD_ERROR_MEDIA_UNAVAILABLE. */
-const SAFE_UPLOAD_MESSAGES = new Set([
-  UPLOAD_ERROR_NO_MEDIA_FILE,
-  UPLOAD_ERROR_FILE_SIZE_EXCEEDED,
-  UPLOAD_ERROR_MEDIA_UNAVAILABLE,
-])
 
 /** Result from API presigned-URL endpoint. */
 export interface PresignedUrlResult {
@@ -97,13 +89,7 @@ export const handleMediaUpload = async <T>(
       '[handleMediaUpload] FAILED at getUploadUrl or S3 upload. ' +
       'message=' + msg + ' HTTP_status=' + status + ' ' + summary + '\nStack:\n' + stack
     console.error(line)
-    return {
-      error: toSafeMessage(
-        uploadError,
-        SAFE_UPLOAD_MESSAGES,
-        UPLOAD_ERROR_MEDIA_UNAVAILABLE,
-      ),
-    }
+    return { error: getDisplayMessage(uploadError, UPLOAD_ERROR_MEDIA_UNAVAILABLE) }
   }
 
   try {
@@ -121,12 +107,6 @@ export const handleMediaUpload = async <T>(
       '[handleMediaUpload] FAILED at recordMedia. ' +
       'message=' + msg + ' HTTP_status=' + status + ' ' + summary + '\nStack:\n' + stack
     console.error(line)
-    return {
-      error: toSafeMessage(
-        recordError,
-        SAFE_UPLOAD_MESSAGES,
-        UPLOAD_ERROR_MEDIA_UNAVAILABLE,
-      ),
-    }
+    return { error: getDisplayMessage(recordError, UPLOAD_ERROR_MEDIA_UNAVAILABLE) }
   }
 }

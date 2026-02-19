@@ -1,8 +1,7 @@
 import { data, redirect } from 'react-router'
 import { AuthRequest, User } from '~/types/user'
 import { getSession, commitSession } from '~/services/session.server'
-import { post, isNetworkError } from './networkService'
-import { messageForDisplay } from '~/utils/errorUtils'
+import { post, isNetworkError, getDisplayMessage } from './networkService'
 import { validateEmail, validatePassword } from '~/hooks/useFormValidation'
 
 export interface AuthErrors {
@@ -146,9 +145,7 @@ export const handleOAuthError = (
   let errorMessage = fallback
 
   if (error instanceof Error) {
-    if (isNetworkError(error)) {
-      errorMessage = messageForDisplay(error.message, fallback)
-    } else if (
+    if (
       provider === 'facebook' &&
       error.message.includes('Email is required')
     ) {
@@ -156,6 +153,8 @@ export const handleOAuthError = (
         'Email access is required. Please allow email access in Facebook settings and try again.'
     } else if (error.message.includes(`Failed to get ${provider} profile`)) {
       errorMessage = 'Unable to retrieve your profile. Please try again.'
+    } else {
+      errorMessage = getDisplayMessage(error, fallback)
     }
   }
 
