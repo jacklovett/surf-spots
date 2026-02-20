@@ -331,7 +331,7 @@ const Profile = () => {
             showLabel={!!formState.name}
           />
           
-          <div className="profile-optional-section">
+          <div className="mt-l">
             <h3>Optional</h3>
             <p>
               Help us tailor your profile and provide insights based on surfers like you.
