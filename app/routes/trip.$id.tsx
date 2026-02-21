@@ -488,11 +488,13 @@ export default function TripDetail() {
     <Page showHeader>
       <div className="info-page-content mv">
         <div ref={sectionsRef as RefObject<HTMLDivElement>}>
-          <TextButton
-            text="Back to Trips"
-            onClick={() => navigate('/trips')}
-            iconKey="chevron-left"
-          />
+          <div className="back-nav">
+            <TextButton
+              text="Back to Trips"
+              onClick={() => navigate('/trips')}
+              iconKey="chevron-left"
+            />
+          </div>
           <div className="row space-between">
             <h1>{currentTrip.title}</h1>
             {currentTrip.isOwner && (

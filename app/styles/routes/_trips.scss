@@ -41,55 +41,6 @@
   }
 }
 
-/* Trip Detail Page Styles */
-// Match surf spot details page styling
-.info-page-content {
-  h1 {
-    font-size: 2.5rem;
-    font-weight: 700;
-    margin-bottom: $spacing-unit;
-  }
-
-  h3 {
-    font-size: $font-size-large;
-    padding-bottom: $spacing-small;
-    border-bottom: 2px solid $primary-color;
-  }
-
-  // Override h3 border for empty-state h3 (more specific selector)
-  section .empty-state h3 {
-    border-bottom: none;
-    padding-bottom: 0;
-    margin-top: 0; // Reset top margin for empty state
-  }
-
-  section {
-    margin-bottom: $spacing-x-large;
-
-    &:last-child {
-      margin-bottom: 0;
-    }
-  }
-
-  .description {
-    font-size: $font-size-base;
-    line-height: 1.6;
-    color: $text-color;
-    margin-bottom: $spacing-large;
-  }
-
-  
-.spot-actions {
-  @extend %flex-row;
-  gap: $spacing-small;
-  flex-wrap: wrap;
-
-  @media (max-width: 768px) {
-    margin-bottom: $spacing-unit;
-  }
-}
-}
-
 .trip-edit-form {
   max-width: 600px;
 }

@@ -54,12 +54,17 @@ h2 {
 /* Info Pages Styling */
 .info-page-content {
   padding: $spacing-large $spacing-unit;
+  padding-bottom: $spacing-x-large;
   max-width: 800px;
   width: 100%;
   margin: 0 auto;
 
   @media (max-width: 768px) {
     padding: $spacing-large $spacing-small;
+  }
+
+  .back-nav {
+    margin-bottom: $spacing-unit;
   }
 
   .page-title-with-status {
@@ -83,11 +88,50 @@ h2 {
   }
 
   h1 {
-    margin-bottom: $spacing-x-large;
+    font-size: $font-size-xx-large;
+    font-weight: bold;
+    margin-bottom: $spacing-unit;
   }
 
   h2 {
-    margin: $spacing-x-large 0 $spacing-large;
+    margin: $spacing-large 0 $spacing-large;
+  }
+
+  h3 {
+    font-size: $font-size-large;
+    padding-bottom: $spacing-small;
+    border-bottom: 2px solid $primary-color;
+  }
+
+  section {
+    margin-bottom: $spacing-x-large;
+
+    &:last-child {
+      margin-bottom: 0;
+    }
+
+    .empty-state h3 {
+      border-bottom: none;
+      padding-bottom: 0;
+      margin-top: 0;
+    }
+  }
+
+  .description {
+    font-size: $font-size-base;
+    line-height: 1.6;
+    color: $text-color;
+    margin-bottom: $spacing-large;
+  }
+
+  .spot-actions {
+    @extend %flex-row;
+    gap: $spacing-small;
+    flex-wrap: wrap;
+
+    @media (max-width: 768px) {
+      margin-bottom: $spacing-unit;
+    }
   }
 
   ul,

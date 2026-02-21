@@ -295,11 +295,13 @@ export default function SurfboardDetail() {
     <Page showHeader>
       <div className="info-page-content mv">
         <div ref={sectionsRef as RefObject<HTMLDivElement>}>
-          <TextButton
-            text="Back to Surfboards"
-            onClick={() => navigate('/surfboards')}
-            iconKey="chevron-left"
-          />
+          <div className="back-nav">
+            <TextButton
+              text="Back to Surfboards"
+              onClick={() => navigate('/surfboards')}
+              iconKey="chevron-left"
+            />
+          </div>
           <div className="row space-between">
             <h1>{surfboard.name}</h1>
             <div className="spot-actions">

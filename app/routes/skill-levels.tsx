@@ -13,12 +13,14 @@ const SkillLevels = () => {
   return (
     <Page showHeader>
       <div className="info-page-content mv">
-        <TextButton
-          text="Back to Profile"
-          onClick={() => navigate('/profile')}
-          iconKey="chevron-left"
-        />
-        <h1>Surf Skill Levels</h1>
+        <div className="back-nav">
+          <TextButton
+            text="Back to Profile"
+            onClick={() => navigate('/profile')}
+            iconKey="chevron-left"
+          />
+        </div>
+        <h1>Skill Levels</h1>
         <p className="mb">
           Understanding your skill level helps us provide better recommendations
           and personalized statistics. Here's what each level means:
