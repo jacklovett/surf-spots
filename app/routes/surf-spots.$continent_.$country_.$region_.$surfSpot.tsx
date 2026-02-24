@@ -34,7 +34,12 @@ import { FetcherSubmitParams, ActionData } from '~/types/api'
 import { useUserContext, useSettingsContext, useLayoutContext, useToastContext, useSurfSpotsContext, useSignUpPromptContext } from '~/contexts'
 
 import { getDisplayMessage } from '~/services/networkService'
-import { DEFAULT_ERROR_MESSAGE } from '~/utils/errorUtils'
+import {
+  DEFAULT_ERROR_MESSAGE,
+  getSafeFetcherErrorMessage,
+  ERROR_SAVE_NOTE,
+  ERROR_SOMETHING_WENT_WRONG,
+} from '~/utils/errorUtils'
 import { formatSurfHeightRange, formatSeason } from '~/utils/surfSpotUtils'
 
 interface LoaderData {
@@ -293,13 +298,21 @@ export default function SurfSpotDetails() {
   const { showSignUpPrompt } = useSignUpPromptContext()
   const navigate = useNavigate()
   const location = useLocation()
+  const searchParams = new URLSearchParams(location.search)
 
   const fetcher = useFetcher<ActionData>()
   const noteFetcher = useFetcher<ActionData & { note?: SurfSpotNote }>()
   const lastProcessedDataRef = useRef<typeof noteFetcher.data>(undefined)
   const lastFetcherDataRef = useRef<typeof fetcher.data>(undefined)
 
-  // Set note in context from loader data - always keep it in sync
+  useEffect(() => {
+    if (searchParams.has('success')) {
+      showSuccess('Surf spot saved successfully')
+      navigate(location.pathname, { replace: true })
+    }
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps -- run once on mount; navigate clears query
+
+  // Set note in context from loader data
   useEffect(() => {
     if (surfSpotDetails?.id) {
       const noteValue = note ?? null
@@ -307,17 +320,16 @@ export default function SurfSpotDetails() {
     }
   }, [surfSpotDetails?.id, note])
 
-  // Handle surf spot actions fetcher errors - show toast messages instead of crashing
+  // Surf spot actions fetcher: on error show toast with safe message
   useEffect(() => {
     if (fetcher.state === 'idle' && fetcher.data && fetcher.data !== lastFetcherDataRef.current) {
       lastFetcherDataRef.current = fetcher.data
       const data = fetcher.data as ActionData
       if (data.error || (data.hasError && data.submitStatus)) {
-        const errorMessage = data.error || data.submitStatus || DEFAULT_ERROR_MESSAGE
+        const errorMessage = getSafeFetcherErrorMessage(fetcher.data, DEFAULT_ERROR_MESSAGE)
         showError(errorMessage)
       }
     }
-    // Reset ref when new submission starts
     if (fetcher.state === 'submitting') {
       lastFetcherDataRef.current = undefined
     }
@@ -330,24 +342,28 @@ export default function SurfSpotDetails() {
       lastProcessedDataRef.current = noteFetcher.data
 
       if (noteFetcher.data.success) {
-        showSuccess(noteFetcher.data.submitStatus || 'Note saved successfully')
+        const successMsg =
+          typeof noteFetcher.data.submitStatus === 'string' && noteFetcher.data.submitStatus.trim()
+            ? noteFetcher.data.submitStatus.trim()
+            : 'Note saved successfully'
+        showSuccess(successMsg)
         // Update context directly with saved note
         if (surfSpotDetails?.id && noteFetcher.data.note) {
           setNote(surfSpotDetails.id.toString(), noteFetcher.data.note)
         }
       } else {
-        // Handle any error case - check for submitStatus
-        const errorMessage = noteFetcher.data.submitStatus || 'Failed to save note. Please try again.'
+        const errorMessage = getSafeFetcherErrorMessage(
+          noteFetcher.data,
+          ERROR_SAVE_NOTE,
+        )
         showError(errorMessage)
       }
 
       // Signal that submission is complete
       setNoteSubmissionComplete(true)
     }
-    // Clear completion flag when new submission starts
     if (noteFetcher.state === 'submitting') {
       setNoteSubmissionComplete(false)
-      // Reset ref when new submission starts so we can process the new response
       lastProcessedDataRef.current = undefined
     }
   }, [noteFetcher.data, noteFetcher.state, surfSpotDetails?.id, showSuccess, showError, setNote, setNoteSubmissionComplete])
@@ -359,7 +375,7 @@ export default function SurfSpotDetails() {
         submitFetcher(params, fetcher, location.pathname)
       } catch (error) {
         console.error('Error submitting fetcher:', error)
-        showError('Failed to submit action. Please try again.')
+        showError(ERROR_SOMETHING_WENT_WRONG)
       }
     },
     [fetcher, showError, location.pathname],

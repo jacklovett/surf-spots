@@ -37,7 +37,16 @@ import { recordMedia } from '~/services/trip'
 import { useScrollReveal, useFileUpload, useActionFetcher } from '~/hooks'
 import { InfoModal } from '~/components/Modal'
 import { formatDate } from '~/utils/dateUtils'
-import { UPLOAD_ERROR_MEDIA_UNAVAILABLE } from '~/utils/errorUtils'
+import {
+  UPLOAD_ERROR_MEDIA_UNAVAILABLE,
+  ERROR_DELETE_TRIP,
+  ERROR_ADD_SURFBOARD_TO_TRIP,
+  ERROR_REMOVE_SURFBOARD_FROM_TRIP,
+  ERROR_REMOVE_SPOT_FROM_TRIP,
+  ERROR_REMOVE_MEMBER,
+  ERROR_CANCEL_INVITATION,
+  ERROR_DELETE_MEDIA,
+} from '~/utils/errorUtils'
 import { ActionData as BaseActionData } from '~/types/api'
 
 interface LoaderData {
@@ -112,7 +121,7 @@ export const action: ActionFunction = async ({ request, params }) => {
         userId: user.id,
       })
       return data<ActionData>(
-        { error: getDisplayMessage(error, 'Failed to delete trip. Please try again.') },
+        { error: getDisplayMessage(error, ERROR_DELETE_TRIP) },
         { status: 500 },
       )
     }
@@ -145,7 +154,7 @@ export const action: ActionFunction = async ({ request, params }) => {
         userId: user.id,
       })
       return data<ActionData>(
-        { error: getDisplayMessage(error, 'Failed to add surfboard. Please try again.') },
+        { error: getDisplayMessage(error, ERROR_ADD_SURFBOARD_TO_TRIP) },
         { status: 500 },
       )
     }
@@ -179,7 +188,7 @@ export const action: ActionFunction = async ({ request, params }) => {
         userId: user.id,
       })
       return data<ActionData>(
-        { error: getDisplayMessage(error, 'Failed to remove surfboard. Please try again.') },
+        { error: getDisplayMessage(error, ERROR_REMOVE_SURFBOARD_FROM_TRIP) },
         { status: 500 },
       )
     }
@@ -211,7 +220,7 @@ export const action: ActionFunction = async ({ request, params }) => {
         userId: user.id,
       })
       return data<ActionData>(
-        { error: getDisplayMessage(error, 'Failed to remove spot. Please try again.') },
+        { error: getDisplayMessage(error, ERROR_REMOVE_SPOT_FROM_TRIP) },
         { status: 500 },
       )
     }
@@ -243,7 +252,7 @@ export const action: ActionFunction = async ({ request, params }) => {
         currentUserId: user.id,
       })
       return data<ActionData>(
-        { error: getDisplayMessage(error, 'Failed to remove member. Please try again.') },
+        { error: getDisplayMessage(error, ERROR_REMOVE_MEMBER) },
         { status: 500 },
       )
     }
@@ -277,7 +286,7 @@ export const action: ActionFunction = async ({ request, params }) => {
         userId: user.id,
       })
       return data<ActionData>(
-        { error: getDisplayMessage(error, 'Failed to cancel invitation. Please try again.') },
+        { error: getDisplayMessage(error, ERROR_CANCEL_INVITATION) },
         { status: 500 },
       )
     }
@@ -308,7 +317,7 @@ export const action: ActionFunction = async ({ request, params }) => {
         userId: user.id,
       })
       return data<ActionData>(
-        { error: getDisplayMessage(error, 'Failed to delete media. Please try again.') },
+        { error: getDisplayMessage(error, ERROR_DELETE_MEDIA) },
         { status: 500 },
       )
     }
@@ -369,13 +378,13 @@ export default function TripDetail() {
   // Use state for optimistic UI updates when removing members/spots/media
   const [trip, setTrip] = useState<Trip | undefined>(initialTrip)
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
-  const [deleteError, setDeleteError] = useState('')
   const [showAddSurfboardModal, setShowAddSurfboardModal] = useState(false)
   const sectionsRef = useScrollReveal()
 
   const params = useParams()
   const location = useLocation()
   const tripId = params.id
+  const searchParams = new URLSearchParams(location.search)
   const {
     uploadFiles,
     isUploading,
@@ -409,6 +418,17 @@ export default function TripDetail() {
     }
   }, [initialTrip, trip, fetcher.state])
 
+  useEffect(() => {
+    const success = searchParams.get('success')
+    if (success === 'created') {
+      showSuccess('Trip created successfully')
+      navigate(location.pathname, { replace: true })
+    } else if (success === 'updated') {
+      showSuccess('Trip updated successfully')
+      navigate(location.pathname, { replace: true })
+    }
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps -- run once on mount; navigate clears query
+
   // Handle successful media upload - optimistically update UI
   useEffect(() => {
     if (fetcherData?.success && fetcherData?.media) {
@@ -424,7 +444,6 @@ export default function TripDetail() {
     }
   }, [fetcherData, showSuccess])
 
-  // Handle upload errors (clears after showing so the same error can show a new toast if triggered again)
   useEffect(() => {
     if (uploadError) {
       showError(uploadError)
@@ -432,16 +451,16 @@ export default function TripDetail() {
     }
   }, [uploadError, showError, clearUploadError])
 
-  // Handle delete trip errors
   useEffect(() => {
-    if (fetcher.data?.error && fetcher.state === 'idle') {
-      // Check if this is a delete-trip error by checking the formData intent
-      // or by checking if we're in the delete confirm modal
-      if (showDeleteConfirm) {
-        setDeleteError(fetcher.data.error)
-      }
-    }
-  }, [fetcher.data, fetcher.state, showDeleteConfirm])
+    if (fetcher.state !== 'idle' || !showDeleteConfirm || fetcher.data == null) return
+    const raw = fetcher.data as unknown
+    const msg =
+      typeof raw === 'object' && raw !== null && 'error' in raw && typeof (raw as { error: unknown }).error === 'string'
+        ? (raw as { error: string }).error.trim()
+        : ''
+    const message = msg || ERROR_DELETE_TRIP
+    showError(message)
+  }, [fetcher.data, fetcher.state, showDeleteConfirm, showError])
 
   if (error || !initialTrip?.id || !trip?.id) {
     return (
@@ -459,7 +478,6 @@ export default function TripDetail() {
   const handleDeleteClick = () => {
     if (!user?.id) return
     setShowDeleteConfirm(true)
-    setDeleteError('')
   }
 
   const handleDeleteConfirm = () => {
@@ -775,7 +793,6 @@ export default function TripDetail() {
               Are you sure you want to delete this trip? This action cannot be
               undone.
             </p>
-            {deleteError && <p className="delete-error">{deleteError}</p>}
             <div className="modal-actions">
               <Button
                 label="Delete"
@@ -785,10 +802,7 @@ export default function TripDetail() {
               <Button
                 label="Cancel"
                 variant="cancel"
-                onClick={() => {
-                  setShowDeleteConfirm(false)
-                  setDeleteError('')
-                }}
+                onClick={() => setShowDeleteConfirm(false)}
               />
             </div>
           </div>

@@ -1,4 +1,9 @@
-import { messageForDisplay, DEFAULT_ERROR_MESSAGE } from '~/utils/errorUtils'
+import {
+  messageForDisplay,
+  DEFAULT_ERROR_MESSAGE,
+  ERROR_CHECK_INPUT,
+  ERROR_OUR_PROBLEM,
+} from '~/utils/errorUtils'
 
 // Use process.env for server-side (Remix actions) and import.meta.env for client-side
 // In production builds, Vite env vars need to be available to server code
@@ -34,15 +39,26 @@ export const isNetworkError = (err: unknown): err is NetworkError => {
 /**
  * Single entry point for user-facing error messages. Use this in routes/actions
  * when returning error text to the client. API errors (NetworkError) are already
- * sanitized in handleResponse so we pass them through; other errors are
- * sanitized once via messageForDisplay. Pass fallback only when you need a
- * different message than the default.
+ * sanitized in handleResponse so we pass them through; when the API did not
+ * return a specific message we use status to show a clearer fallback (check
+ * input for 4xx, our problem for 5xx/network). Other errors are sanitized once
+ * via messageForDisplay.
  */
 export function getDisplayMessage(
   error: unknown,
   fallback: string = DEFAULT_ERROR_MESSAGE,
 ): string {
-  if (isNetworkError(error)) return error.message
+  if (isNetworkError(error)) {
+    const status = error.status
+    if (
+      status !== undefined &&
+      error.message === DEFAULT_ERROR_MESSAGE
+    ) {
+      if (status >= 400 && status < 500) return ERROR_CHECK_INPUT
+      if (status >= 500 || status === 0) return ERROR_OUR_PROBLEM
+    }
+    return error.message
+  }
   const msg = error instanceof Error ? error.message : undefined
   return messageForDisplay(msg, fallback)
 }

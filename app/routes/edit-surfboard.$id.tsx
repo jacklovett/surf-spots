@@ -19,6 +19,7 @@ import { cacheControlHeader, get } from '~/services/networkService'
 import { parseLength, parseDimension } from '~/utils/surfboardUtils'
 import { useSubmitStatus } from '~/hooks'
 import { ActionData } from '~/types/api'
+import { ERROR_UPDATE_SURFBOARD } from '~/utils/errorUtils'
 
 interface LoaderData {
   surfboard: Surfboard
@@ -125,12 +126,12 @@ export const action: ActionFunction = async ({ params, request }) => {
       headers: { Cookie: cookie },
     })
 
-    return redirect(`/surfboard/${surfboardId}`)
+    return redirect(`/surfboard/${surfboardId}?success`)
   } catch (error) {
     console.error('Failed to update surfboard:', error)
     return data<ActionData>(
       {
-        submitStatus: 'Failed to update surfboard. Please try again.',
+        submitStatus: ERROR_UPDATE_SURFBOARD,
         hasError: true,
       },
       { status: 500 },

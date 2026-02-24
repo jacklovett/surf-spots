@@ -3,6 +3,7 @@ import { post, deleteData, getDisplayMessage } from './networkService'
 import { getSession, commitSession } from './session.server'
 import { requireSessionCookie } from './session.server'
 import { SurfSpotStatus } from '~/types/surfSpots'
+import { ERROR_UPDATE_TRIP } from '~/utils/errorUtils'
 
 export const surfSpotAction: ActionFunction = async ({ request }) => {
   const clonedRequest = request.clone()
@@ -60,7 +61,7 @@ export const surfSpotAction: ActionFunction = async ({ request }) => {
         status: error instanceof Error && 'status' in error ? (error as { status?: number }).status : undefined,
       })
       return data(
-        { error: getDisplayMessage(error, 'Failed to update trip. Please try again.') },
+        { error: getDisplayMessage(error, ERROR_UPDATE_TRIP) },
         { status: 500 },
       )
     }

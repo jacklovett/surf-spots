@@ -42,6 +42,11 @@ import useFormValidation, {
 } from '~/hooks/useFormValidation'
 import { GENDER_OPTIONS, USER_SKILL_LEVEL_OPTIONS } from '~/types/formData/profile'
 import {
+  ERROR_POPULATE_LOCATION,
+  ERROR_DELETE_ACCOUNT,
+  ERROR_UPDATE_PROFILE,
+} from '~/utils/errorUtils'
+import {
   convertHeightToDisplay,
   convertHeightFromDisplay,
   convertWeightToDisplay,
@@ -77,7 +82,7 @@ export const loader: LoaderFunction = async ({ request }) => {
   } catch (error) {
     console.error(error)
     return {
-      error: 'Unable to populate location drop-down menus',
+      error: ERROR_POPULATE_LOCATION,
     }
   }
 }
@@ -107,7 +112,7 @@ export const action: ActionFunction = async ({ request }) => {
       console.error('Unable to delete account: ', error)
       return data(
         {
-          submitStatus: 'Unable to delete account. Please try again later',
+          submitStatus: ERROR_DELETE_ACCOUNT,
           hasError: true,
         },
         { status: 500 },
@@ -202,7 +207,7 @@ export const action: ActionFunction = async ({ request }) => {
     return data(
       {
         submitStatus:
-          'Unable to update profile details. Please try again later',
+          ERROR_UPDATE_PROFILE,
         hasError: true,
       },
       { status: 500 },
@@ -463,7 +468,9 @@ const Profile = () => {
             </p>
             {deleteFetcher.data?.hasError && (
               <p className="delete-error">
-                {deleteFetcher.data.submitStatus}
+                {typeof deleteFetcher.data.submitStatus === 'string' && deleteFetcher.data.submitStatus.trim()
+                  ? deleteFetcher.data.submitStatus.trim()
+                  : ERROR_DELETE_ACCOUNT}
               </p>
             )}
             <div className="modal-actions">

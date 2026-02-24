@@ -2,6 +2,7 @@ import { data, LoaderFunction } from 'react-router'
 import { requireSessionCookie } from '~/services/session.server'
 import { cacheControlHeader, get } from '~/services/networkService'
 import { Trip } from '~/types/trip'
+import { ERROR_LOAD_TRIPS } from '~/utils/errorUtils'
 
 interface LoaderData {
   trips: Trip[]
@@ -30,7 +31,7 @@ export const loader: LoaderFunction = async ({ request }) => {
     console.error('Error fetching trips in resource route:', error)
     return data<LoaderData>(
       {
-        error: 'Failed to load trips',
+        error: ERROR_LOAD_TRIPS,
         trips: [],
       },
       { status: 500 },

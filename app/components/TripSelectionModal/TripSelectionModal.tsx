@@ -5,6 +5,7 @@ import { useTripContext, useLayoutContext } from '~/contexts'
 import { Trip } from '~/types/trip'
 import { SurfSpot } from '~/types/surfSpots'
 import { formatDate } from '~/utils/dateUtils'
+import { getSafeFetcherErrorMessage, ERROR_LOAD_TRIPS, ERROR_SOMETHING_WENT_WRONG } from '~/utils/errorUtils'
 import { SelectionItem } from '../SelectionModal'
 import { FetcherSubmitParams } from '~/types/api'
 
@@ -92,7 +93,7 @@ export const TripSelectionModal = ({
         setTrips(trips)
       }
       if (tripsFetcher.data.error) {
-        onError('Error', tripsFetcher.data.error)
+        onError('Error', getSafeFetcherErrorMessage(tripsFetcher.data, ERROR_LOAD_TRIPS))
       }
     } else if (tripsFetcher.state === 'loading' && !tripsFetcher.data) {
       setIsLoadingTrips(true)
@@ -114,7 +115,7 @@ export const TripSelectionModal = ({
       setRemovingFromTripId(null)
       
       if (actionFetcher.data.error) {
-        onError('Error', actionFetcher.data.error)
+        onError('Error', getSafeFetcherErrorMessage(actionFetcher.data, ERROR_SOMETHING_WENT_WRONG))
       }
     }
   }, [actionFetcher.state, actionFetcher.data, onError])

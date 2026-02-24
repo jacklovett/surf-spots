@@ -7,6 +7,7 @@ import { createSurfSpotFromFormData } from '~/services/surfSpot.server'
 import SurfSpotForm, { LoaderData } from '~/components/SurfSpotForm'
 import { Continent } from '~/types/surfSpots'
 import { Page, ErrorBoundary } from '~/components'
+import { ERROR_ADD_SURF_SPOT } from '~/utils/errorUtils'
 
 export const loader: LoaderFunction = async ({ request }) => {
   await requireSessionCookie(request)
@@ -53,7 +54,7 @@ export const action: ActionFunction = async ({ request }) => {
     console.error('Unable to add surf spot: ', error)
     return data(
       {
-        submitStatus: 'Unable to add surf spot. Please try again later.',
+        submitStatus: ERROR_ADD_SURF_SPOT,
         hasError: true,
       },
       { status: 500 },

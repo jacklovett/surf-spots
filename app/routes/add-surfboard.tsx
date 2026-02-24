@@ -11,6 +11,7 @@ import { CreateSurfboardRequest, Surfboard } from '~/types/surfboard'
 import { post, getDisplayMessage } from '~/services/networkService'
 import { useSubmitStatus } from '~/hooks'
 import { parseLength, parseDimension } from '~/utils/surfboardUtils'
+import { ERROR_CREATE_SURFBOARD } from '~/utils/errorUtils'
 
 export const loader: LoaderFunction = async ({ request }) => {
   try {
@@ -79,12 +80,12 @@ export const action: ActionFunction = async ({ request }) => {
       { headers: { Cookie: cookie } },
     )
 
-    return redirect(`/surfboard/${surfboard.id}`)
+    return redirect(`/surfboard/${surfboard.id}?success`)
   } catch (error) {
     console.error('Error creating surfboard:', error)
     const errorMessage = getDisplayMessage(
       error,
-      'Failed to create surfboard. Please try again.',
+      ERROR_CREATE_SURFBOARD,
     )
     return data(
       {

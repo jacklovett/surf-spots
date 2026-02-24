@@ -12,6 +12,7 @@ import {
 } from '~/types/surfSpots'
 import type { AddSurfSpotMapRef } from '~/components/SurfMap/AddSurfSpotMap'
 import { useToastContext } from '~/contexts'
+import { ERROR_DETERMINE_REGION } from '~/utils/errorUtils'
 
 type FormChangeHandler = <K extends keyof SurfSpotFormState>(
   field: K,
@@ -350,9 +351,7 @@ export const useLocationSelection = ({
             onLocationChangeRef.current('country', targetCountryId)
           }
 
-          setRegionNotFoundMessage(
-            'Unable to determine region for this location. Please try entering manually.',
-          )
+          setRegionNotFoundMessage(ERROR_DETERMINE_REGION)
 
           previousCoordsRef.current = { longitude, latitude }
         } else {
@@ -365,9 +364,7 @@ export const useLocationSelection = ({
             onLocationChangeRef.current('country', '')
           }
 
-          setRegionNotFoundMessage(
-            'Unable to determine region for this location. Please try entering manually.',
-          )
+          setRegionNotFoundMessage(ERROR_DETERMINE_REGION)
 
           setIsDeterminingLocation(false)
           isAutoFillingRef.current = false

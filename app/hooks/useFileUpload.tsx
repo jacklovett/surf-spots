@@ -12,6 +12,7 @@ import { edit } from '~/services/networkService'
 import {
   UPLOAD_ERROR_MEDIA_UNAVAILABLE,
   UPLOAD_ERROR_FILE_SIZE_EXCEEDED,
+  getSafeFetcherErrorMessage,
 } from '~/utils/errorUtils'
 
 const MAX_FILE_SIZE_BYTES = 500 * 1024 * 1024 // 500MB
@@ -72,9 +73,13 @@ export const useFileUpload = (options: UseFileUploadOptions): UseFileUploadRetur
       resolveWhenActionDone.current = null
       return
     }
-    if (fetcher.data?.error) {
-      setError(fetcher.data.error)
-      onError?.(fetcher.data.error)
+    if (fetcher.data?.error || (fetcher.data && !fetcher.data?.success)) {
+      const message = getSafeFetcherErrorMessage(
+        fetcher.data,
+        UPLOAD_ERROR_MEDIA_UNAVAILABLE,
+      )
+      setError(message)
+      onError?.(message)
       resolveWhenActionDone.current?.()
       resolveWhenActionDone.current = null
       return
@@ -120,7 +125,7 @@ export const useFileUpload = (options: UseFileUploadOptions): UseFileUploadRetur
               resolveWhenActionDone.current = resolve
               fetcher.submit(formData, { method: 'POST', action: directUpload.recordActionUrl })
             })
-            if (fetcher.data?.error) break
+            if (fetcher.data && (fetcher.data as { error?: unknown }).error) break
           } catch {
             setError(UPLOAD_ERROR_MEDIA_UNAVAILABLE)
             onError?.(UPLOAD_ERROR_MEDIA_UNAVAILABLE)

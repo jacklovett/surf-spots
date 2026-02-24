@@ -3,6 +3,7 @@ import { AuthRequest, User } from '~/types/user'
 import { getSession, commitSession } from '~/services/session.server'
 import { post, isNetworkError, getDisplayMessage } from './networkService'
 import { validateEmail, validatePassword } from '~/hooks/useFormValidation'
+import { ERROR_SIGN_IN, ERROR_RETRIEVE_PROFILE } from '~/utils/errorUtils'
 
 export interface AuthErrors {
   email?: string
@@ -68,7 +69,7 @@ export const authenticateWithCredentials = async (request: Request) => {
     }
 
     return {
-      submitStatus: 'Unable to sign in. Please try again.',
+      submitStatus: ERROR_SIGN_IN,
       hasError: true,
     }
   }
@@ -152,7 +153,7 @@ export const handleOAuthError = (
       errorMessage =
         'Email access is required. Please allow email access in Facebook settings and try again.'
     } else if (error.message.includes(`Failed to get ${provider} profile`)) {
-      errorMessage = 'Unable to retrieve your profile. Please try again.'
+      errorMessage = ERROR_RETRIEVE_PROFILE
     } else {
       errorMessage = getDisplayMessage(error, fallback)
     }

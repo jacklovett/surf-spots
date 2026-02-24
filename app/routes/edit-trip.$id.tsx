@@ -24,6 +24,7 @@ import { updateTrip } from '~/services/trip'
 import { Trip, UpdateTripRequest } from '~/types/trip'
 import { cacheControlHeader, get, getDisplayMessage } from '~/services/networkService'
 import { ActionData } from '~/types/api'
+import { ERROR_ADD_MEMBERS, ERROR_UPDATE_TRIP } from '~/utils/errorUtils'
 
 interface LoaderData {
   trip: Trip
@@ -150,7 +151,7 @@ export const action: ActionFunction = async ({ params, request }) => {
       } catch (error) {
         return data<ActionData>(
           {
-            submitStatus: getDisplayMessage(error, 'Failed to add members.'),
+            submitStatus: getDisplayMessage(error, ERROR_ADD_MEMBERS),
             hasError: true,
           },
           { status: 400 },
@@ -158,12 +159,12 @@ export const action: ActionFunction = async ({ params, request }) => {
       }
     }
 
-    return redirect(`/trip/${tripId}`)
+    return redirect(`/trip/${tripId}?success=updated`)
   } catch (error) {
     console.error('Failed to update trip:', error)
     return data<ActionData>(
       {
-        submitStatus: 'Failed to update trip. Please try again.',
+        submitStatus: ERROR_UPDATE_TRIP,
         hasError: true,
       },
       { status: 500 },

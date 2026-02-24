@@ -12,8 +12,10 @@ export default defineConfig({
       },
     },
   },
-  // Ensure proper file watching
+  // Ensure proper file watching; listen on all interfaces so localhost (IPv4 or IPv6) works on Windows
   server: {
+    host: '::', // dual-stack: reachable via localhost (127.0.0.1 and ::1)
+    port: 5173,
     watch: {
       usePolling: true,
     },

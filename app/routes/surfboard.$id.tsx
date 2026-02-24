@@ -22,7 +22,13 @@ import {
 } from '~/components'
 import { requireSessionCookie } from '~/services/session.server'
 import { cacheControlHeader, get, getDisplayMessage } from '~/services/networkService'
-import { UPLOAD_ERROR_MEDIA_UNAVAILABLE } from '~/utils/errorUtils'
+import {
+  UPLOAD_ERROR_MEDIA_UNAVAILABLE,
+  getSafeFetcherErrorMessage,
+  ERROR_DELETE_MEDIA,
+  ERROR_DELETE_SURFBOARD,
+  ERROR_SOMETHING_WENT_WRONG,
+} from '~/utils/errorUtils'
 import { Surfboard, SurfboardMedia } from '~/types/surfboard'
 import {
   addSurfboardMedia,
@@ -102,7 +108,7 @@ const handleDeleteMedia = async (
   } catch (error) {
     console.error('[surfboard.$id action] Error deleting media:', error)
     return data<ActionData>(
-      { error: getDisplayMessage(error, 'Failed to delete media. Please try again.') },
+      { error: getDisplayMessage(error, ERROR_DELETE_MEDIA) },
       { status: 500 },
     )
   }
@@ -121,7 +127,7 @@ const handleDeleteSurfboard = async (
   } catch (error) {
     console.error('[surfboard.$id action] Error deleting surfboard:', error)
     return data<ActionData>(
-      { error: getDisplayMessage(error, 'Failed to delete surfboard. Please try again.') },
+      { error: getDisplayMessage(error, ERROR_DELETE_SURFBOARD) },
       { status: 500 },
     )
   }
@@ -185,7 +191,7 @@ export const action: ActionFunction = async ({ request, params }) => {
       '[surfboard.$id action] Unhandled error. message=' + (e.message ?? String(error)) + '\nStack:\n' + (e.stack ?? '(no stack)'),
     )
     return data<ActionData>(
-      { error: getDisplayMessage(error, 'Something went wrong. Please try again.') },
+      { error: getDisplayMessage(error, ERROR_SOMETHING_WENT_WRONG) },
       { status: 500 },
     )
   }
@@ -201,12 +207,12 @@ export default function SurfboardDetail() {
     initialSurfboard,
   )
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
-  const [deleteError, setDeleteError] = useState('')
 
   const sectionsRef = useScrollReveal()
   const params = useParams()
   const location = useLocation()
   const surfboardId = params.id
+  const searchParams = new URLSearchParams(location.search)
   const {
     uploadFiles,
     isUploading,
@@ -232,6 +238,13 @@ export default function SurfboardDetail() {
   }, [initialSurfboard])
 
   useEffect(() => {
+    if (searchParams.has('success')) {
+      showSuccess('Surfboard saved successfully')
+      navigate(location.pathname, { replace: true })
+    }
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps -- run once on mount; navigate clears query
+
+  useEffect(() => {
     if (fetcherData?.success && fetcherData?.media) {
       const newMedia = fetcherData.media as SurfboardMedia
       setSurfboard((prev) => {
@@ -253,23 +266,30 @@ export default function SurfboardDetail() {
   }, [uploadError, showError, clearUploadError])
 
   useEffect(() => {
-    if (mediaActionFetcher.data?.error) {
-      showError(mediaActionFetcher.data.error)
-    } else if (mediaActionFetcher.data?.success && mediaActionFetcher.state === 'idle') {
+    if (mediaActionFetcher.state !== 'idle' || mediaActionFetcher.data == null) return
+    if (mediaActionFetcher.data.success) {
       showSuccess('Media deleted successfully!')
+      return
     }
+    const message = getSafeFetcherErrorMessage(
+      mediaActionFetcher.data,
+      ERROR_DELETE_MEDIA,
+    )
+    showError(message)
   }, [mediaActionFetcher.data, mediaActionFetcher.state, showSuccess, showError])
 
   useEffect(() => {
-    if (deleteActionFetcher.data?.error) {
-      const errorMsg = deleteActionFetcher.data.error
-      setDeleteError(errorMsg)
-      showError(errorMsg)
-      setShowDeleteConfirm(false)
-    } else if (deleteActionFetcher.data?.success && deleteActionFetcher.state === 'idle') {
+    if (deleteActionFetcher.state !== 'idle' || !showDeleteConfirm || deleteActionFetcher.data == null) return
+    if (deleteActionFetcher.data.success) {
       navigate('/surfboards')
+      return
     }
-  }, [deleteActionFetcher.data, deleteActionFetcher.state, navigate, showError])
+    const message = getSafeFetcherErrorMessage(
+      deleteActionFetcher.data,
+      ERROR_DELETE_SURFBOARD,
+    )
+    showError(message)
+  }, [deleteActionFetcher.data, deleteActionFetcher.state, showDeleteConfirm, navigate, showError])
 
   const handleFileUpload = (files: FileList) => {
     if (!user?.id || !surfboard?.id) return
@@ -412,7 +432,6 @@ export default function SurfboardDetail() {
               Are you sure you want to delete this surfboard? This action cannot
               be undone.
             </p>
-            {deleteError && <p className="delete-error">{deleteError}</p>}
             <div className="modal-actions">
               <Button
                 label="Delete"
@@ -422,10 +441,7 @@ export default function SurfboardDetail() {
               <Button
                 label="Cancel"
                 variant="cancel"
-                onClick={() => {
-                  setShowDeleteConfirm(false)
-                  setDeleteError('')
-                }}
+                onClick={() => setShowDeleteConfirm(false)}
               />
             </div>
           </div>

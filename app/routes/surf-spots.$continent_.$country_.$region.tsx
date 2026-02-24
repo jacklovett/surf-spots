@@ -12,6 +12,7 @@ import { cacheControlHeader, get, post } from '~/services/networkService'
 import { getSession } from '~/services/session.server'
 import type { SurfSpot, Region, SurfSpotFilters } from '~/types/surfSpots'
 import { useSurfSpotsContext } from '~/contexts'
+import { ERROR_LOAD_REGION_DATA } from '~/utils/errorUtils'
 
 interface LoaderData {
   surfSpots: SurfSpot[]
@@ -20,9 +21,16 @@ interface LoaderData {
 }
 
 export const loader: LoaderFunction = async ({ request, params }) => {
-  const { region } = params
+  const { country, region } = params
   const url = new URL(request.url)
   const searchParams = Object.fromEntries(url.searchParams.entries())
+
+  if (!country || !region) {
+    return data<LoaderData>(
+      { surfSpots: [], regionDetails: undefined, error: 'Missing country or region in URL.' },
+      { status: 404 },
+    )
+  }
 
   try {
     const session = await getSession(request.headers.get('Cookie'))
@@ -31,17 +39,22 @@ export const loader: LoaderFunction = async ({ request, params }) => {
 
     const filters = { ...searchParams, userId }
 
-    // Try to get region details first
-    const regionDetails = await get<Region>(`regions/${region}`)
+    // Get region by country + region slug so we get the correct region (e.g. England's South West, not Italy's)
+    const regionDetails = await get<Region>(`regions/country/${country}/${region}`)
 
-    // Then get surf spots for this region
-    const surfSpots = await post<typeof filters, SurfSpot[]>(
-      `surf-spots/region/${region}`,
-      { ...filters },
-    )
+    // Get surf spots by region id; if this fails we still show region name and description
+    let surfSpots: SurfSpot[] = []
+    try {
+      surfSpots = await post<typeof filters, SurfSpot[]>(
+        `surf-spots/region-id/${regionDetails.id}`,
+        { ...filters },
+      ) ?? []
+    } catch (spotsError) {
+      console.error('Error loading surf spots for region:', spotsError)
+    }
 
     return data<LoaderData>(
-      { surfSpots: surfSpots ?? [], regionDetails },
+      { surfSpots, regionDetails },
       {
         headers: cacheControlHeader,
       },
@@ -52,7 +65,7 @@ export const loader: LoaderFunction = async ({ request, params }) => {
       {
         surfSpots: [],
         regionDetails: undefined,
-        error: 'Failed to load region data. Please try again later.',
+        error: ERROR_LOAD_REGION_DATA,
       },
       {
         status: 404,
@@ -106,7 +119,7 @@ export default function Region() {
   return (
     <div className="content mb-l">
       <h1>{name}</h1>
-      <p className="description">{description}</p>
+      {(description != null && description !== '') && <p className="description">{description}</p>}
 
       {/* Show sub-regions if they exist */}
       {subRegions && subRegions.length > 0 && (

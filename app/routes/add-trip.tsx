@@ -23,6 +23,7 @@ import {
   addMembersToTrip,
 } from '~/components/TripForm'
 import { ActionData } from '~/types/api'
+import { ERROR_CREATE_TRIP } from '~/utils/errorUtils'
 
 export const loader: LoaderFunction = async ({ request }) => {
   try {
@@ -109,12 +110,12 @@ export const action: ActionFunction = async ({ request }) => {
       }
     }
 
-    return redirect(`/trip/${trip.id}`)
+    return redirect(`/trip/${trip.id}?success=created`)
   } catch (error) {
     console.error('Failed to create trip:', error)
     return data(
       {
-        submitStatus: 'Failed to create trip. Please try again.',
+        submitStatus: ERROR_CREATE_TRIP,
         hasError: true,
       },
       { status: 500 },

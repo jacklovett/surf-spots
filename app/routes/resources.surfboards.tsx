@@ -2,6 +2,7 @@ import { data, LoaderFunction } from 'react-router'
 import { requireSessionCookie } from '~/services/session.server'
 import { cacheControlHeader, get } from '~/services/networkService'
 import { Surfboard } from '~/types/surfboard'
+import { ERROR_LOAD_SURFBOARDS } from '~/utils/errorUtils'
 
 interface LoaderData {
   surfboards: Surfboard[]
@@ -27,7 +28,7 @@ export const loader: LoaderFunction = async ({ request }) => {
     console.error('Error fetching surfboards in resource route:', error)
     return data<LoaderData>(
       {
-        error: 'Failed to load surfboards',
+        error: ERROR_LOAD_SURFBOARDS,
         surfboards: [],
       },
       { status: 500 },

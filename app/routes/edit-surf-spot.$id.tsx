@@ -11,6 +11,7 @@ import { requireSessionCookie } from '~/services/session.server'
 import { createSurfSpotFromFormData } from '~/services/surfSpot.server'
 
 import { Continent, SurfSpot } from '~/types/surfSpots'
+import { ERROR_EDIT_SURF_SPOT } from '~/utils/errorUtils'
 import SurfSpotForm, { LoaderData } from '~/components/SurfSpotForm'
 
 export const loader: LoaderFunction = async ({ request, params }) => {
@@ -80,15 +81,12 @@ export const action: ActionFunction = async ({ request, params }) => {
       headers: { Cookie: cookie },
     })
 
-    return data(
-      { submitStatus: 'Surf spot edited successfully', hasError: false },
-      { status: 200 },
-    )
+    return redirect(`/surf-spots/id/${id}?success`)
   } catch (error) {
     console.error('Unable to edit surf spot: ', error)
     return data(
       {
-        submitStatus: 'Unable to edit surf spot. Please try again later.',
+        submitStatus: ERROR_EDIT_SURF_SPOT,
         hasError: true,
       },
       { status: 500 },

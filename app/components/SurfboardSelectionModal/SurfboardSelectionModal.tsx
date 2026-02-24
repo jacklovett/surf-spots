@@ -4,6 +4,7 @@ import { SelectionModal } from '~/components'
 import { useToastContext } from '~/contexts'
 import { Trip } from '~/types/trip'
 import { Surfboard } from '~/types/surfboard'
+import { getSafeFetcherErrorMessage, ERROR_LOAD_SURFBOARDS } from '~/utils/errorUtils'
 import { SelectionItem } from '../SelectionModal'
 
 interface SurfboardSelectionModalProps {
@@ -73,8 +74,10 @@ export const SurfboardSelectionModal = ({
             setAllSurfboards(surfboards)
         }
         if (surfboardsFetcher.data.error) {
-            showToastError(surfboardsFetcher.data.error)
-        onClose()
+          showToastError(
+            getSafeFetcherErrorMessage(surfboardsFetcher.data, ERROR_LOAD_SURFBOARDS),
+          )
+          onClose()
       }
     } else if (surfboardsFetcher.state === 'loading' && !surfboardsFetcher.data) {
       setIsLoadingSurfboards(true)

@@ -18,6 +18,7 @@ import {
 import { SelectOption } from '~/components/FormInput'
 import { useSettingsContext, useUserContext } from '~/contexts'
 import { units } from '~/contexts/SettingsContext'
+import { ERROR_UPDATE_SETTINGS } from '~/utils/errorUtils'
 import { edit } from '~/services/networkService'
 import {
   requireSessionCookie,
@@ -95,7 +96,7 @@ export const action: ActionFunction = async ({ request }) => {
     console.error('Unable to update settings: ', error)
     return data(
       {
-        submitStatus: 'Unable to update settings. Please try again later.',
+        submitStatus: ERROR_UPDATE_SETTINGS,
         hasError: true,
       },
       { status: 500 },

@@ -2,7 +2,7 @@ import { useCallback, useEffect } from 'react'
 import { useFetcher, useLocation } from 'react-router'
 import { useToastContext } from '~/contexts'
 import { submitFetcher } from '~/components/SurfSpotActions'
-import { messageForDisplay, DEFAULT_ERROR_MESSAGE } from '~/utils/errorUtils'
+import { messageForDisplay, DEFAULT_ERROR_MESSAGE, ERROR_SOMETHING_WENT_WRONG } from '~/utils/errorUtils'
 import { FetcherSubmitParams } from '~/types/api'
 
 interface FetcherData {
@@ -47,7 +47,7 @@ export const useSurfSpotActions = (actionRoute?: string) => {
         submitFetcher(params, fetcher, route)
       } catch (error) {
         console.error('Error submitting fetcher:', error)
-        showError('Failed to submit action. Please try again.')
+        showError(ERROR_SOMETHING_WENT_WRONG)
       }
     },
     [fetcher, showError, pathname, actionRoute],
