@@ -3,6 +3,7 @@ import {
   DEFAULT_ERROR_MESSAGE,
   ERROR_CHECK_INPUT,
   ERROR_OUR_PROBLEM,
+  ERROR_REQUEST_TIMEOUT,
 } from '~/utils/errorUtils'
 
 // Use process.env for server-side (Remix actions) and import.meta.env for client-side
@@ -30,6 +31,9 @@ export interface NetworkError extends Error {
     reason: string
   }
 }
+
+/** Options for API requests. timeoutMs aborts the request after that many milliseconds. */
+export type RequestOptions = RequestInit & { timeoutMs?: number }
 
 // Type guard for NetworkError
 export const isNetworkError = (err: unknown): err is NetworkError => {
@@ -142,7 +146,7 @@ const handleResponse = async <T>(response: Response): Promise<T> => {
 
 const request = async <T, B = undefined>(
   endpoint: string,
-  options: RequestInit = {},
+  options: RequestOptions = {},
   body?: B,
 ): Promise<T> => {
   const isFullUrl = endpoint.startsWith('http://') || endpoint.startsWith('https://')
@@ -156,8 +160,17 @@ const request = async <T, B = undefined>(
     throw error
   }
 
+  const { timeoutMs, ...fetchInit } = options
+  let controller: AbortController | null = null
+  let timeoutId: ReturnType<typeof setTimeout> | null = null
+  if (timeoutMs != null && timeoutMs > 0) {
+    controller = new AbortController()
+    timeoutId = setTimeout(() => controller!.abort(), timeoutMs)
+    fetchInit.signal = controller.signal
+  }
+
   const headers: HeadersInit = {
-    ...(options.headers as Record<string, string>),
+    ...(fetchInit.headers as Record<string, string>),
   }
   if (!isFullUrl) {
     (headers as Record<string, string>)['Accept'] = 'application/json'
@@ -169,13 +182,14 @@ const request = async <T, B = undefined>(
 
   try {
     const response = await fetch(fullUrl, {
-      ...options,
+      ...fetchInit,
       // Always include credentials for API requests to send session cookies
       // Only omit for external URLs (like S3 uploads)
       credentials: isFullUrl ? 'omit' : 'include',
       body: body ? (isFileOrBlob ? body : JSON.stringify(body)) : undefined,
       headers,
     })
+    if (timeoutId != null) clearTimeout(timeoutId)
 
     // External URLs (like S3) don't return JSON - just check status
     if (isFullUrl) {
@@ -197,17 +211,21 @@ const request = async <T, B = undefined>(
 
     return handleResponse<T>(response)
   } catch (fetchError) {
+    if (timeoutId != null) clearTimeout(timeoutId)
     if (isNetworkError(fetchError)) {
       throw fetchError
     }
-    const msg = fetchError instanceof Error ? fetchError.message : 'Network request failed'
+    const isAbort = fetchError instanceof Error && (fetchError as Error & { name?: string }).name === 'AbortError'
+    const msg = isAbort
+      ? ERROR_REQUEST_TIMEOUT
+      : (fetchError instanceof Error ? fetchError.message : 'Network request failed')
     const error = new Error(msg) as NetworkError
     error.status = 0
     error.responseSummary = {
       status: 0,
-      statusText: 'NoResponse',
+      statusText: isAbort ? 'Timeout' : 'NoResponse',
       contentType: 'none',
-      reason: 'fetch threw before response (connection refused, timeout, DNS, CORS, or network failure). message=' + msg,
+      reason: isAbort ? 'request aborted after timeout' : 'fetch threw before response (connection refused, DNS, CORS, or network failure). message=' + (fetchError instanceof Error ? fetchError.message : String(fetchError)),
     }
     throw error
   }
@@ -216,22 +234,22 @@ const request = async <T, B = undefined>(
 // Specific HTTP method functions
 export const get = async <T>(
   endpoint: string,
-  options: RequestInit = {},
+  options: RequestOptions = {},
 ): Promise<T> => request<T>(endpoint, options)
 
 export const post = async <T, R>(
   endpoint: string,
   body: T,
-  options: RequestInit = {},
+  options: RequestOptions = {},
 ): Promise<R> => request<R, T>(endpoint, { ...options, method: 'POST' }, body)
 
 export const edit = async <T, R = void>(
   endpoint: string,
   body: T,
-  options: RequestInit = {},
+  options: RequestOptions = {},
 ): Promise<R> => request<R, T>(endpoint, { ...options, method: 'PUT' }, body)
 
 export const deleteData = async (
   endpoint: string,
-  options: RequestInit = {},
+  options: RequestOptions = {},
 ): Promise<void> => request<void>(endpoint, { ...options, method: 'DELETE' })

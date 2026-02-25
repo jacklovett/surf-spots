@@ -16,11 +16,15 @@ import {
   updateMapSourceData,
   defaultMapCenter,
   fitMapToSurfSpots,
+  WITHIN_BOUNDS_TIMEOUT_MS,
 } from '~/services/mapService'
+import { getDisplayMessage } from '~/services/networkService'
 import { useSurfSpotsContext, useUserContext } from '~/contexts'
 import { useMapDrawer, useResizeObserver } from '~/hooks'
 import { debounce } from '~/utils/commonUtils'
 import { FetcherSubmitParams } from '~/types/api'
+import { ERROR_LOAD_MAP_SPOTS } from '~/utils/errorUtils'
+import { Button, ContentStatus } from '~/components'
 
 interface IProps {
   surfSpots?: SurfSpot[]
@@ -31,6 +35,7 @@ interface IProps {
 export const SurfMap = memo((props: IProps) => {
   const { surfSpots, disableInteractions, onFetcherSubmit } = props
   const [loading, setLoading] = useState(true)
+  const [loadError, setLoadError] = useState<string | null>(null)
   const [userLocation, setUserLocation] = useState<Coordinates | null>(null)
   const [locationFetched, setLocationFetched] = useState(false)
 
@@ -63,20 +68,29 @@ export const SurfMap = memo((props: IProps) => {
 
   const { handleMarkerClick } = useMapDrawer(onFetcherSubmit)
 
-  // Debounced fetch for dynamic mode
+  // Debounced fetch for dynamic mode; setError allows showing timeout/network errors in map area
   const debouncedFetchSurfSpots = useCallback(
-    debounce(async (map: mapboxgl.Map) => {
-      try {
-        const newSurfSpots = await fetchSurfSpotsByBounds(
-          map,
-          user?.id,
-          filtersRef.current,
-        )
-        mergeSurfSpots(newSurfSpots)
-      } catch (error) {
-        console.error('Error fetching surf spots:', error)
-      }
-    }, 500),
+    debounce(
+      async (
+        map: mapboxgl.Map,
+        setError?: (msg: string | null) => void,
+      ) => {
+        try {
+          setError?.(null)
+          const newSurfSpots = await fetchSurfSpotsByBounds(
+            map,
+            user?.id,
+            filtersRef.current,
+            { timeoutMs: WITHIN_BOUNDS_TIMEOUT_MS },
+          )
+          mergeSurfSpots(newSurfSpots)
+        } catch (error) {
+          console.error('Error fetching surf spots:', error)
+          setError?.(getDisplayMessage(error, ERROR_LOAD_MAP_SPOTS))
+        }
+      },
+      500,
+    ),
     [user?.id, mergeSurfSpots],
   )
 
@@ -84,16 +98,20 @@ export const SurfMap = memo((props: IProps) => {
   useEffect(() => {
     if (isPreloadedMode || disableInteractions || !mapRef.current) return
 
-    fetchSurfSpotsByBounds(mapRef.current, user?.id, filters)
+    fetchSurfSpotsByBounds(mapRef.current, user?.id, filters, {
+      timeoutMs: WITHIN_BOUNDS_TIMEOUT_MS,
+    })
       .then((newSurfSpots) => {
+        setLoadError(null)
         setSurfSpots(newSurfSpots)
         if (mapRef.current && !mapRef.current._removed) {
           updateMapSourceData(mapRef.current, newSurfSpots)
         }
       })
-      .catch((error) =>
-        console.error('Error fetching surf spots on filter change:', error),
-      )
+      .catch((error) => {
+        console.error('Error fetching surf spots on filter change:', error)
+        setLoadError(getDisplayMessage(error, ERROR_LOAD_MAP_SPOTS))
+      })
   }, [filters, user?.id, setSurfSpots, disableInteractions, isPreloadedMode])
 
   // Fetch user's location on mount (interactive maps only)
@@ -173,7 +191,7 @@ export const SurfMap = memo((props: IProps) => {
 
         // Only fetch on load if dynamic mode with no existing spots
         if (!isPreloadedMode && !contextSurfSpots.length) {
-          debouncedFetchSurfSpots(mapInstance)
+          debouncedFetchSurfSpots(mapInstance, setLoadError)
         }
       })
 
@@ -181,7 +199,7 @@ export const SurfMap = memo((props: IProps) => {
       if (!isPreloadedMode) {
         const handleMapUpdate = () => {
           if (mapInstance && !mapInstance._removed) {
-            debouncedFetchSurfSpots(mapInstance)
+            debouncedFetchSurfSpots(mapInstance, setLoadError)
           }
         }
         mapInstance.on('moveend', handleMapUpdate)
@@ -234,6 +252,26 @@ export const SurfMap = memo((props: IProps) => {
     triggerOnMount: true, // Trigger resize when observer is set up (e.g., when map becomes visible)
     initialDelay: 100, // Delay to ensure flex layout has calculated final dimensions
   })
+
+  const handleRetryMapLoad = useCallback(() => {
+    setLoadError(null)
+    if (mapRef.current && !mapRef.current._removed) {
+      debouncedFetchSurfSpots(mapRef.current, setLoadError)
+    }
+  }, [debouncedFetchSurfSpots])
+
+  if (loadError && !disableInteractions) {
+    return (
+      <div className="map-container border">
+        <ContentStatus isError>
+          <p>{loadError}</p>
+          <Button className="mt" onClick={handleRetryMapLoad}>
+            Try again
+          </Button>
+        </ContentStatus>
+      </div>
+    )
+  }
 
   return (
     <div className={classNames({ 'map-container': true, border: !loading })}>

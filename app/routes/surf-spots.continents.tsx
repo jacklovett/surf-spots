@@ -1,7 +1,11 @@
 import { data, Link, useLoaderData } from 'react-router'
 import { ContentStatus } from '~/components'
-import { cacheControlHeader, get } from '~/services/networkService'
+import { cacheControlHeader, get, getDisplayMessage } from '~/services/networkService'
 import { Continent } from '~/types/surfSpots'
+import { ERROR_LOAD_CONTINENTS } from '~/utils/errorUtils'
+
+/** Timeout for continents request (e.g. cold start). Generous for production. */
+const CONTINENTS_REQUEST_TIMEOUT_MS = 30_000
 
 interface LoaderData {
   continents: Continent[]
@@ -10,7 +14,9 @@ interface LoaderData {
 
 export const loader = async () => {
   try {
-    const continents = await get<Continent[]>(`continents`)
+    const continents = await get<Continent[]>(`continents`, {
+      timeoutMs: CONTINENTS_REQUEST_TIMEOUT_MS,
+    })
     // Cache the response for 1 hour and serve stale data for up to 1 day
     return data<LoaderData>(
       { continents: continents ?? [] },
@@ -23,7 +29,7 @@ export const loader = async () => {
     return data<LoaderData>(
       {
         continents: [],
-        error: `We couldn't find the continents right now. Please try again later.`,
+        error: getDisplayMessage(error, ERROR_LOAD_CONTINENTS),
       },
       {
         status: 500,

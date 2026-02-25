@@ -274,10 +274,14 @@ export const getRegionAndCountryFromCoordinates = async (
   }
 }
 
+/** Timeout for within-bounds request (e.g. cold start). Generous for production. */
+export const WITHIN_BOUNDS_TIMEOUT_MS = 30_000
+
 export const fetchSurfSpotsByBounds = async (
   map: mapboxgl.Map,
   userId?: string,
   filters?: SurfSpotFilters,
+  options?: { timeoutMs?: number },
 ): Promise<SurfSpot[]> => {
   try {
     const bounds = map.getBounds()
@@ -300,10 +304,12 @@ export const fetchSurfSpotsByBounds = async (
     return await post<
       BoundingBox & Partial<BackendFilterFormat> & { userId?: string },
       SurfSpot[]
-    >('surf-spots/within-bounds', payload)
+    >('surf-spots/within-bounds', payload, {
+      timeoutMs: options?.timeoutMs ?? WITHIN_BOUNDS_TIMEOUT_MS,
+    })
   } catch (e) {
     console.error('Unable to fetch surf spots by bounds:', e)
-    return []
+    throw e
   }
 }
 

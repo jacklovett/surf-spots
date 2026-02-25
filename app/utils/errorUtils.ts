@@ -23,6 +23,10 @@ export const ERROR_CHECK_INPUT =
 export const ERROR_OUR_PROBLEM =
   'Something went wrong. Please try again later.'
 
+/** Shown when a request times out (e.g. cold start or slow network). */
+export const ERROR_REQUEST_TIMEOUT =
+  'Request took too long. Please try again.'
+
 /** Upload: validation + API messages. Match backend ApiErrors where noted. */
 export const UPLOAD_ERROR_NO_MEDIA_FILE = 'No media file provided'
 export const UPLOAD_ERROR_FILE_SIZE_EXCEEDED =
@@ -53,6 +57,8 @@ export const ERROR_LOAD_SURFBOARDS = 'Failed to load surfboards.'
 // Surf spots
 export const ERROR_SAVE_NOTE = 'Failed to save note. Please try again.'
 export const ERROR_LOAD_REGION_DATA = 'Failed to load region data. Please try again later.'
+export const ERROR_LOAD_CONTINENTS = "We couldn't load the continents. Please try again."
+export const ERROR_LOAD_MAP_SPOTS = "We couldn't load the map. Please try again."
 export const ERROR_ADD_SURF_SPOT = 'Unable to add surf spot. Please try again later.'
 export const ERROR_EDIT_SURF_SPOT = 'Unable to update surf spot. Please try again later.'
 
