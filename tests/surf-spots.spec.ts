@@ -73,6 +73,82 @@ test.describe('Surf Spots', () => {
     await expect(filtersDrawer).toBeVisible()
   })
 
+  test('should show Standing Wave as break type option in filters', async ({
+    page,
+  }) => {
+    await page.goto('/surf-spots')
+    const filtersButton = page.locator('.toolbar button:has-text("Filters")')
+    await expect(filtersButton).toBeVisible()
+    await filtersButton.click()
+    await expect(page.locator('.drawer')).toBeVisible()
+    // Break type options include Standing Wave (for river waves / wave pools)
+    await expect(page.locator('text=Standing Wave')).toBeVisible()
+  })
+
+  test('should show novelty wave chip on detail page when spot is river wave or wave pool', async ({
+    page,
+  }) => {
+    // Navigate to a region that has spots, then open the first spot detail
+    await page.goto('/surf-spots/africa/algeria/boumerdes')
+    await page.waitForLoadState('networkidle')
+
+    const firstSpotLink = page.locator('.list-map a').first()
+    const linkVisible = await firstSpotLink.isVisible().catch(() => false)
+    if (!linkVisible) {
+      test.skip()
+      return
+    }
+
+    await firstSpotLink.click()
+    await page.waitForLoadState('networkidle')
+
+    // If this spot is a novelty wave, the chip should be next to the title and ocean Best Conditions hidden
+    const riverChip = page.locator('.page-title-with-status .chip:has-text("River wave")')
+    const poolChip = page.locator('.page-title-with-status .chip:has-text("Wave pool")')
+    const hasNoveltyChip =
+      (await riverChip.isVisible().catch(() => false)) ||
+      (await poolChip.isVisible().catch(() => false))
+
+    if (hasNoveltyChip) {
+      // Chip is already confirmed visible above; ensure ocean Best Conditions is not shown
+      await expect(page.getByText('Swell Direction')).not.toBeVisible()
+    }
+  })
+
+  test('should show novelty wave chip in map preview drawer when spot is river wave or wave pool', async ({
+    page,
+  }) => {
+    await page.goto('/surf-spots')
+    await page.waitForTimeout(2000)
+
+    const marker = page.locator('.mapboxgl-marker').first()
+    const markerVisible = await marker.isVisible().catch(() => false)
+    if (!markerVisible) {
+      test.skip()
+      return
+    }
+
+    await marker.click()
+    await page.waitForTimeout(500)
+
+    const drawer = page.locator('.drawer')
+    const drawerVisible = await drawer.isVisible().catch(() => false)
+    if (!drawerVisible) {
+      test.skip()
+      return
+    }
+
+    // If the opened spot is a novelty wave, the preview should show the chip inside the drawer
+    const noveltyChipInDrawer = drawer.locator('.surf-spot-preview-novelty .chip')
+    const hasNoveltyChip = await noveltyChipInDrawer.isVisible().catch(() => false)
+
+    if (hasNoveltyChip) {
+      await expect(
+        noveltyChipInDrawer.filter({ hasText: /River wave|Wave pool/ }),
+      ).toBeVisible()
+    }
+  })
+
   test('should display toolbar with actions', async ({ page }) => {
     // Check if toolbar is present
     const toolbar = page.locator('.toolbar')

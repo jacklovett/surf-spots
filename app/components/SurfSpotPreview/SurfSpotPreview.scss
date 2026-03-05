@@ -10,6 +10,15 @@
     padding-bottom: $spacing-x-large;
   }
 
+  .surf-spot-preview-novelty {
+    margin-bottom: $spacing-unit;
+
+    .chip {
+      display: inline-block;
+      width: auto;
+    }
+  }
+
   .preview-section {
     padding-bottom: $spacing-unit;
 

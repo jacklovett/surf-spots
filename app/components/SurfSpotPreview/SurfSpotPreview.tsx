@@ -5,6 +5,7 @@ import { SurfSpot } from '~/types/surfSpots'
 
 import Details from '../Details'
 import Rating from '../Rating'
+import Chip from '../Chip'
 import { useLayoutContext, useSettingsContext } from '~/contexts'
 import { FetcherSubmitParams } from '~/types/api'
 import {
@@ -13,7 +14,7 @@ import {
   SurfHeightIcon,
   CalendarIcon,
 } from '../ConditionIcons'
-import { formatSurfHeightRange, formatSeason } from '~/utils/surfSpotUtils'
+import { formatSurfHeightRange, formatSeason, getNoveltyWaveLabel } from '~/utils/surfSpotUtils'
 
 interface IProps {
   surfSpot: SurfSpot
@@ -38,8 +39,12 @@ export const SurfSpotPreview = memo((props: IProps) => {
     maxSurfHeight,
     swellSeason,
     rating,
+    isWavepool,
+    isRiverWave,
   } = surfSpot
 
+  const isNoveltyWave = isWavepool || isRiverWave
+  const noveltyLabel = getNoveltyWaveLabel({ isWavepool, isRiverWave })
   const { closeDrawer } = useLayoutContext()
   const { settings } = useSettingsContext()
   const { preferredUnits } = settings
@@ -47,6 +52,11 @@ export const SurfSpotPreview = memo((props: IProps) => {
   return (
     <div className="surf-spot-preview">
       <div className="surf-spot-preview-content">
+        {noveltyLabel && (
+          <div className="surf-spot-preview-novelty">
+            <Chip label={noveltyLabel} isFilled={false} />
+          </div>
+        )}
         <div className="surf-spot-preview-details">
           {/* Basic Details */}
           <div className="preview-section">
@@ -56,45 +66,54 @@ export const SurfSpotPreview = memo((props: IProps) => {
             <Details label="Wave Direction" value={waveDirection} />
           </div>
 
-          {/* Best Conditions */}
-          <div className="preview-section">
-            <h4 className="preview-subtitle">Best Conditions</h4>
-            <div className="condition-item">
-              <DirectionIcon
-                type="swell"
-                directionRange={swellDirection}
-                size={20}
-              />
-              <Details label="Swell Direction" value={swellDirection} />
+          {/* Best Conditions – swell/wind/tide/height for ocean only */}
+          {!isNoveltyWave && (
+            <div className="preview-section">
+              <h4 className="preview-subtitle">Best Conditions</h4>
+              <div className="condition-item">
+                <DirectionIcon
+                  type="swell"
+                  directionRange={swellDirection}
+                  size={20}
+                />
+                <Details label="Swell Direction" value={swellDirection} />
+              </div>
+              <div className="condition-item">
+                <DirectionIcon
+                  type="wind"
+                  directionRange={windDirection}
+                  size={20}
+                />
+                <Details label="Wind Direction" value={windDirection} />
+              </div>
+              <div className="condition-item">
+                <TideIcon tide={tide} size={20} />
+                <Details label="Tides" value={tide} />
+              </div>
+              <div className="condition-item">
+                <SurfHeightIcon size={20} />
+                <Details
+                  label="Surf Height"
+                  value={formatSurfHeightRange(
+                    preferredUnits,
+                    minSurfHeight,
+                    maxSurfHeight,
+                  )}
+                />
+              </div>
             </div>
-            <div className="condition-item">
-              <DirectionIcon
-                type="wind"
-                directionRange={windDirection}
-                size={20}
-              />
-              <Details label="Wind Direction" value={windDirection} />
+          )}
+
+          {/* Season – for all spots when available */}
+          {swellSeason && (
+            <div className="preview-section">
+              <h4 className="preview-subtitle">Season</h4>
+              <div className="condition-item">
+                <CalendarIcon size={20} />
+                <Details label="Season" value={formatSeason(swellSeason)} />
+              </div>
             </div>
-            <div className="condition-item">
-              <TideIcon tide={tide} size={20} />
-              <Details label="Tides" value={tide} />
-            </div>
-            <div className="condition-item">
-              <SurfHeightIcon size={20} />
-              <Details
-                label="Surf Height"
-                value={formatSurfHeightRange(
-                  preferredUnits,
-                  minSurfHeight,
-                  maxSurfHeight,
-                )}
-              />
-            </div>
-            <div className="condition-item">
-              <CalendarIcon size={20} />
-              <Details label="Season" value={formatSeason(swellSeason)} />
-            </div>
-          </div>
+          )}
 
           {/* Rating */}
           <div className="preview-section">

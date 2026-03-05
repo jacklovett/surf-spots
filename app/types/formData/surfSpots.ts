@@ -90,6 +90,11 @@ export const BREAK_TYPE_OPTIONS = [
     value: SurfSpotType.REEF_BREAK,
     label: 'Reef Break',
   },
+  {
+    key: SurfSpotType.STANDING_WAVE,
+    value: SurfSpotType.STANDING_WAVE,
+    label: 'Standing Wave',
+  },
 ]
 
 export const BEACH_BOTTOM_OPTIONS = [

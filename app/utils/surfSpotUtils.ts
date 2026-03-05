@@ -134,3 +134,13 @@ export const directionArrayToString = (directionArray: string[]): string => {
   // For ranges, join with hyphen (e.g., ["N", "NE", "E"] -> "N-E")
   return `${directionArray[0]}-${directionArray[directionArray.length - 1]}`
 }
+
+/** Returns a label for novelty waves (river / wave pool), or null for regular ocean spots. */
+export const getNoveltyWaveLabel = (spot: {
+  isWavepool?: boolean
+  isRiverWave?: boolean
+}): 'River wave' | 'Wave pool' | null => {
+  if (spot.isWavepool) return 'Wave pool'
+  if (spot.isRiverWave) return 'River wave'
+  return null
+}

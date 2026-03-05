@@ -87,6 +87,23 @@ h2 {
     padding: $spacing-large 0;
   }
 
+  /* Same title+chip layout on content pages (e.g. surf spot details) */
+  .content .page-title-with-status {
+    @extend %flex-base;
+    align-items: center;
+    gap: $spacing-unit;
+    margin-bottom: 0;
+
+    h1 {
+      margin: 0;
+    }
+
+    @media (max-width: 768px) {
+      flex-wrap: wrap;
+      align-items: flex-start;
+    }
+  }
+
   h1 {
     font-size: $font-size-xx-large;
     font-weight: bold;

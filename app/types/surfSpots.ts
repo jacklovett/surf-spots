@@ -82,6 +82,7 @@ export enum SurfSpotType {
   BEACH_BREAK = 'Beach Break',
   REEF_BREAK = 'Reef Break',
   POINT_BREAK = 'Point Break',
+  STANDING_WAVE = 'Standing Wave',
 }
 
 export enum BeachBottomType {

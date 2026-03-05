@@ -15,6 +15,7 @@ import { SurfSpot, SurfSpotNote, Tide, SkillLevel } from '~/types/surfSpots'
 
 import {
   CalendarIcon,
+  Chip,
   ContentStatus,
   Details,
   DirectionIcon,
@@ -40,7 +41,7 @@ import {
   ERROR_SAVE_NOTE,
   ERROR_SOMETHING_WENT_WRONG,
 } from '~/utils/errorUtils'
-import { formatSurfHeightRange, formatSeason } from '~/utils/surfSpotUtils'
+import { formatSurfHeightRange, formatSeason, getNoveltyWaveLabel } from '~/utils/surfSpotUtils'
 
 interface LoaderData {
   surfSpotDetails?: SurfSpot
@@ -248,7 +249,7 @@ const loadUserNote = async (
 }
 
 export const loader: LoaderFunction = async ({ request, params }) => {
-  const { surfSpot } = params
+  const { surfSpot: surfSpotSlug } = params
   try {
     const session = await getSession(request.headers.get('Cookie'))
     const user = session.get('user')
@@ -256,8 +257,8 @@ export const loader: LoaderFunction = async ({ request, params }) => {
 
     // Build API URL with optional userId
     const url = userId
-      ? `surf-spots/${surfSpot}?userId=${userId}`
-      : `surf-spots/${surfSpot}`
+      ? `surf-spots/${surfSpotSlug}?userId=${userId}`
+      : `surf-spots/${surfSpotSlug}`
 
     const surfSpotDetails = await get<SurfSpot>(url)
 
@@ -440,12 +441,16 @@ if (error || !surfSpotDetails) {
   } = surfSpotDetails
 
   const isNoveltyWave = isWavepool || isRiverWave
+  const noveltyLabel = getNoveltyWaveLabel({ isWavepool, isRiverWave })
 
   return (
     <div className="mb-l">
       <div className="content column">
         <div className="row space-between">
-          <h1>{name}</h1>
+          <div className="page-title-with-status">
+            <h1>{name}</h1>
+            {noveltyLabel && <Chip label={noveltyLabel} isFilled={false} />}
+          </div>
           <div className="spot-actions">
             <ErrorBoundary message="Unable to display surf spot actions">
               <SurfSpotActions
@@ -467,14 +472,12 @@ if (error || !surfSpotDetails) {
           />
         </div>
         <p className="description">{description}</p>
-        {!isNoveltyWave && (
-          <div className="row spot-details gap mb pv">
-            <Details label="Break Type" value={type} />
-            <Details label="Beach Bottom" value={beachBottomType} />
-            <Details label="Wave Direction" value={waveDirection} />
-            <Details label="Skill Level" value={skillLevel} />
-          </div>
-        )}
+        <div className="row spot-details gap mb pv">
+          <Details label="Break Type" value={type} />
+          <Details label="Beach Bottom" value={beachBottomType} />
+          <Details label="Wave Direction" value={waveDirection} />
+          <Details label="Skill Level" value={skillLevel} />
+        </div>
       </div>
       <ErrorBoundary message="Uh-oh! Something went wrong displaying the map!">
         <div className="map-wrapper mv">
@@ -482,6 +485,17 @@ if (error || !surfSpotDetails) {
         </div>
       </ErrorBoundary>
       <div className="content pt">
+        {(isNoveltyWave && swellSeason) && (
+          <section>
+            <h3>Best Conditions</h3>
+            <div className="best-conditions">
+              <div className="best-conditions-item">
+                <CalendarIcon />
+                <Details label="Season" value={formatSeason(swellSeason)} />
+              </div>
+            </div>
+          </section>
+        )}
         {!isNoveltyWave && (
           <>
             <section>
