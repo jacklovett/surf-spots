@@ -74,6 +74,7 @@ body:has(.root-error-page) {
   justify-content: center;
 }
 .root-error-page__btn {
+  width: fit-content;
   padding: 10px 20px;
   min-height: 56px;
   font-family: inherit;
