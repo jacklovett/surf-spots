@@ -67,14 +67,16 @@ body:has(.root-error-page) {
 }
 .root-error-page__actions {
   margin-top: 16px;
-  display: flex;
+  display: inline-flex;
   flex-direction: row;
   flex-wrap: nowrap;
   gap: 8px;
   justify-content: center;
 }
 .root-error-page__btn {
-  width: fit-content;
+  display: inline-flex;
+  width: auto !important;
+  flex: 0 0 auto;
   padding: 10px 20px;
   min-height: 56px;
   font-family: inherit;
