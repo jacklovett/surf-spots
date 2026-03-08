@@ -34,6 +34,7 @@ export interface BackendFilterFormat {
   facilities?: string[]
   hazards?: string[]
   forecasts?: string[]
+  webcams?: string[]
   seasons?: string[]
 }
 

@@ -2,11 +2,11 @@ import {
   CheckboxOption,
   ChipSelector,
   FormInput,
-  ForecastLinks,
+  UrlLinkList,
 } from '~/components'
 import { Option } from '~/components/FormInput'
 import { SurfSpotFormState } from '~/types/surfSpots'
-import { ForecastLink } from '../ForecastLinks'
+import { UrlLinkItem } from '~/components/UrlLinkList'
 import { kmToMiles } from '~/utils/unitUtils'
 import {
   Availability,
@@ -35,11 +35,13 @@ interface AccessAmenitiesSectionProps {
   onHazardsChange: (value: Option[]) => void
   formState: {
     parking: string
-    forecastLinks: ForecastLink[]
+    forecastLinks: UrlLinkItem[]
+    webcamLinks: UrlLinkItem[]
   }
   errors: {
     parking?: string
     forecastLinks?: string
+    webcamLinks?: string
   }
   distanceUnits: string
   onChange: FormChangeHandler
@@ -97,9 +99,26 @@ export const AccessAmenitiesSection = ({
         <p className="mb">
           Add forecast sites you know for this surf spot. (Maximum of 3)
         </p>
-        <ForecastLinks
-          forecastLinks={formState.forecastLinks}
+        <UrlLinkList
+          links={formState.forecastLinks}
           onChange={(links) => onChange('forecastLinks', links)}
+          inputName="forecasts"
+          linkLabel="Forecast Link"
+          addButtonText="Add Forecast Link"
+        />
+      </div>
+      {/* Webcam Links */}
+      <div className="pv">
+        <p className='bold'>Webcam Links</p>
+        <p className="mb">
+          Add webcam links for live views of this surf spot. (Maximum of 3)
+        </p>
+        <UrlLinkList
+          links={formState.webcamLinks}
+          onChange={(links) => onChange('webcamLinks', links)}
+          inputName="webcams"
+          linkLabel="Webcam Link"
+          addButtonText="Add Webcam Link"
         />
       </div>
       {/* Amenities */}

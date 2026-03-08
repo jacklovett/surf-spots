@@ -9,6 +9,7 @@ import {
 
 import { formatEmail, registerUser, validate } from '~/services/auth.server'
 import { getDisplayMessage } from '~/services/networkService'
+import { ERROR_SIGN_UP } from '~/utils/errorUtils'
 import { AuthPage, FormComponent, FormInput, SignInOptions } from '~/components'
 import { useFormValidation, useSubmitStatus } from '~/hooks'
 import { validateEmail, validatePassword } from '~/hooks/useFormValidation'
@@ -47,7 +48,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
 
     return await registerUser(authRequest, request)
   } catch (e) {
-    const submitError = getDisplayMessage(e)
+    const submitError = getDisplayMessage(e, ERROR_SIGN_UP)
     return data(
       { submitStatus: submitError, hasError: true },
       { status: 400 },

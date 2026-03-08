@@ -142,7 +142,12 @@ export const createSurfSpotFromFormData = async (request: Request) => {
   const accommodationOptions = formData.getAll(
     'accommodationOptions',
   ) as string[]
-  const forecasts = formData.getAll('forecasts') as string[]
+  const forecasts = (formData.getAll('forecasts') as string[]).filter(
+    (u) => u != null && u.trim() !== '',
+  )
+  const webcams = (formData.getAll('webcams') as string[]).filter(
+    (u) => u != null && u.trim() !== '',
+  )
   const facilities = formData.getAll('facilities') as string[]
   const hazards = formData.getAll('hazards') as string[]
   // Handle other fields
@@ -203,6 +208,7 @@ export const createSurfSpotFromFormData = async (request: Request) => {
     maxSurfHeight,
     skillLevel,
     forecasts,
+    webcams,
     boatRequired,
     isWavepool,
     wavepoolUrl,

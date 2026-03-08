@@ -142,6 +142,43 @@ test.describe('User Actions', () => {
     }
   })
 
+  test('should show Webcam Links section on add surf spot form', async ({
+    page,
+  }) => {
+    await page.goto('/add-surf-spot')
+    await page.waitForLoadState('networkidle')
+
+    await expect(page.getByText('Webcam Links', { exact: true })).toBeVisible()
+    await expect(
+      page.getByRole('button', { name: 'Add Webcam Link' }),
+    ).toBeVisible()
+  })
+
+  test('should add and remove webcam link row when clicking Add Webcam Link', async ({
+    page,
+  }) => {
+    await page.goto('/add-surf-spot')
+    await page.waitForLoadState('networkidle')
+
+    const addWebcamButton = page.getByRole('button', {
+      name: 'Add Webcam Link',
+    })
+    await addWebcamButton.click()
+
+    const webcamInputs = page.locator('input[name="webcams"]')
+    await expect(webcamInputs).toHaveCount(1)
+
+    await addWebcamButton.click()
+    await expect(webcamInputs).toHaveCount(2)
+
+    const firstWebcamRow = page
+      .locator('.form-inline')
+      .filter({ has: page.locator('input[name="webcams"]') })
+      .first()
+    await firstWebcamRow.getByRole('button', { name: 'Remove' }).click()
+    await expect(webcamInputs).toHaveCount(1)
+  })
+
   test('should auto-populate country and region from map pin', async ({
     page,
   }) => {

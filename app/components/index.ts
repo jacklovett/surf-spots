@@ -46,7 +46,7 @@ import Chip from './Chip'
 import ChipSelector from './ChipSelector'
 import DirectionSelector from './DirectionSelector'
 import DirectionSelectors from './DirectionSelectors'
-import ForecastLinks from './ForecastLinks'
+import UrlLinkList from './UrlLinkList'
 import KofiButton from './KofiButton'
 import SocialLinks from './SocialLinks'
 import SurfSpotForm from './SurfSpotForm'
@@ -85,7 +85,6 @@ export {
   FloatingButton,
   Footer,
   FormComponent,
-  ForecastLinks,
   FormInput,
   Header,
   Icon,
@@ -122,5 +121,6 @@ export {
   SurfboardSelectionModal,
   TripSelectionModal,
   SelectionModal,
+  UrlLinkList,
   ViewSwitch,
 }

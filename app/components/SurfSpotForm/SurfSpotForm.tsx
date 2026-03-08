@@ -30,7 +30,7 @@ import {
   Rating,
 } from '~/components'
 import { Option } from '~/components/FormInput'
-import { ForecastLink } from '../ForecastLinks'
+import { UrlLinkItem } from '../UrlLinkList'
 import { LocationSection } from './LocationSection'
 import { SpotDetailsSection } from './SpotDetailsSection'
 import { BestConditionsSection } from './BestConditionsSection'
@@ -179,7 +179,11 @@ export const SurfSpotForm = (props: SurfSpotFormProps) => {
         parking: surfSpot?.parking || '',
         foodNearby: !!surfSpot?.foodNearby,
         skillLevel: surfSpot?.skillLevel || '',
-        forecastLinks: (surfSpot?.forecasts as unknown as ForecastLink[]) || [],
+        forecastLinks: (surfSpot?.forecasts as unknown as UrlLinkItem[]) || [],
+        webcamLinks: (surfSpot?.webcams ?? []).map((url) => ({
+          url,
+          errorMessage: '',
+        })),
         wavepoolUrl: surfSpot?.wavepoolUrl || '',
       } as SurfSpotFormState,
       validationFunctions: {
@@ -214,6 +218,20 @@ export const SurfSpotForm = (props: SurfSpotFormProps) => {
           // Only update state if the validation errors have changed
           if (JSON.stringify(links) !== JSON.stringify(updatedLinks)) {
             handleChange('forecastLinks', updatedLinks)
+          }
+
+          return ''
+        },
+        webcamLinks: (links) => {
+          if (!Array.isArray(links)) return 'Invalid data format'
+
+          const updatedLinks = links.map((link) => ({
+            ...link,
+            errorMessage: validateUrl(link.url, 'Webcam Link') || '',
+          }))
+
+          if (JSON.stringify(links) !== JSON.stringify(updatedLinks)) {
+            handleChange('webcamLinks', updatedLinks)
           }
 
           return ''
@@ -393,6 +411,7 @@ export const SurfSpotForm = (props: SurfSpotFormProps) => {
               }}
               onChange={handleChange}
             />
+            <div className="pv">
             <BestConditionsSection
               formState={{
                 swellDirection: formState.swellDirection,
@@ -415,6 +434,7 @@ export const SurfSpotForm = (props: SurfSpotFormProps) => {
               onWindDirectionChange={setWindDirectionArray}
               onChange={handleChange}
             />
+            </div>
           </>
         )}
         <AccessAmenitiesSection
@@ -431,10 +451,12 @@ export const SurfSpotForm = (props: SurfSpotFormProps) => {
           formState={{
             parking: formState.parking,
             forecastLinks: formState.forecastLinks,
+            webcamLinks: formState.webcamLinks,
           }}
           errors={{
             parking: errors.parking,
             forecastLinks: errors.forecastLinks,
+            webcamLinks: errors.webcamLinks,
           }}
           distanceUnits={distanceUnits}
           onChange={handleChange}

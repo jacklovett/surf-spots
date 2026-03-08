@@ -54,14 +54,14 @@ export function getDisplayMessage(
 ): string {
   if (isNetworkError(error)) {
     const status = error.status
-    if (
-      status !== undefined &&
-      error.message === DEFAULT_ERROR_MESSAGE
-    ) {
+    // status 0 = no response (connection/CORS/network) – never show raw message to user
+    if (status === 0) return ERROR_OUR_PROBLEM
+    if (status !== undefined) {
       if (status >= 400 && status < 500) return ERROR_CHECK_INPUT
-      if (status >= 500 || status === 0) return ERROR_OUR_PROBLEM
+      if (status >= 500) return ERROR_OUR_PROBLEM
     }
-    return error.message
+    // Only show API message if we have a real status and it's not a technical leak
+    return messageForDisplay(error.message, fallback)
   }
   const msg = error instanceof Error ? error.message : undefined
   return messageForDisplay(msg, fallback)
@@ -216,9 +216,10 @@ const request = async <T, B = undefined>(
       throw fetchError
     }
     const isAbort = fetchError instanceof Error && (fetchError as Error & { name?: string }).name === 'AbortError'
+    // Never surface raw fetch/browser errors (e.g. "fetch failed", "Failed to fetch") to the UI
     const msg = isAbort
       ? ERROR_REQUEST_TIMEOUT
-      : (fetchError instanceof Error ? fetchError.message : 'Network request failed')
+      : DEFAULT_ERROR_MESSAGE
     const error = new Error(msg) as NetworkError
     error.status = 0
     error.responseSummary = {

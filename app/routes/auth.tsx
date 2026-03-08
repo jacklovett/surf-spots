@@ -9,7 +9,7 @@ import {
 import { authenticateWithCredentials, validate } from '~/services/auth.server'
 import { AuthPage, FormComponent, FormInput, SignInOptions } from '~/components'
 import { getDisplayMessage } from '~/services/networkService'
-import { DEFAULT_ERROR_MESSAGE } from '~/utils/errorUtils'
+import { DEFAULT_ERROR_MESSAGE, ERROR_SIGN_IN } from '~/utils/errorUtils'
 
 import { useFormValidation, useSubmitStatus } from '~/hooks'
 import { validateEmail, validatePassword } from '~/hooks/useFormValidation'
@@ -91,7 +91,7 @@ export const action: ActionFunction = async ({ request }) => {
       error instanceof Error && 'status' in error
         ? (error as { status?: number }).status ?? 500
         : 500
-    const message = getDisplayMessage(error)
+    const message = getDisplayMessage(error, ERROR_SIGN_IN)
     return data(
       { submitStatus: message, hasError: true },
       { status },

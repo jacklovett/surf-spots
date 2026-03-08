@@ -1,4 +1,4 @@
-import { ForecastLink } from '~/components/ForecastLinks'
+import { UrlLinkItem } from '~/components/UrlLinkList'
 import { Option } from '~/components/FormInput'
 
 export interface Coordinates {
@@ -172,6 +172,7 @@ export interface NewSurfSpot extends Coordinates {
   hazards: string[]
   rating: number
   forecasts: string[]
+  webcams: string[]
 }
 
 export interface SurfSpotFormState {
@@ -194,7 +195,8 @@ export interface SurfSpotFormState {
   parking: string
   foodNearby: boolean
   skillLevel?: SkillLevel
-  forecastLinks: ForecastLink[]
+  forecastLinks: UrlLinkItem[]
+  webcamLinks: UrlLinkItem[]
   wavepoolUrl?: string
 }
 

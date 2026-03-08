@@ -438,6 +438,7 @@ if (error || !surfSpotDetails) {
     hazards,
     facilities,
     forecasts,
+    webcams,
   } = surfSpotDetails
 
   const isNoveltyWave = isWavepool || isRiverWave
@@ -556,6 +557,32 @@ if (error || !surfSpotDetails) {
                 <p>
                   Know a reliable forecast for this spot? Let us know and share
                   the love!
+                </p>
+              )}
+            </section>
+            <section>
+              <h3>Webcams</h3>
+              {webcams && webcams.length > 0 ? (
+                <>
+                  <p>
+                    Live views of the spot. Check the webcams before you go.
+                  </p>
+                  <div className="column mv">
+                    {webcams.map((webcam) => (
+                      <a
+                        key={webcam}
+                        href={webcam}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        {webcam}
+                      </a>
+                    ))}
+                  </div>
+                </>
+              ) : (
+                <p>
+                  Know a webcam for this spot? Let us know and we can add it!
                 </p>
               )}
             </section>

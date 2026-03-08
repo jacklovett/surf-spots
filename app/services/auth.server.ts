@@ -66,6 +66,13 @@ export const authenticateWithCredentials = async (request: Request) => {
           hasError: true,
         }
       }
+      // status 0 = no response (connection/CORS/offline) – user-friendly sign-in message, not technical
+      if (status === 0) {
+        return {
+          submitStatus: ERROR_SIGN_IN,
+          hasError: true,
+        }
+      }
     }
 
     return {

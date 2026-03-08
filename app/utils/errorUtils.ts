@@ -69,6 +69,7 @@ export const ERROR_POPULATE_LOCATION = 'Unable to populate location drop-down me
 
 // Auth
 export const ERROR_SIGN_IN = 'Unable to sign in. Please try again.'
+export const ERROR_SIGN_UP = 'Unable to sign up. Please try again.'
 export const ERROR_RETRIEVE_PROFILE = 'Unable to retrieve your profile. Please try again.'
 
 // Settings
@@ -79,8 +80,16 @@ export const ERROR_DETERMINE_REGION =
   'Unable to determine region for this location. Please try entering manually.'
 
 const MAX_DISPLAY_LENGTH = 300
-// Generic patterns that suggest stack traces or internal errors (backend-agnostic).
-const INTERNAL_INDICATORS = [' at ', 'Exception', 'Error:', 'Caused by:']
+// Patterns that must never be shown to users (technical/implementation details).
+const INTERNAL_INDICATORS = [
+  ' at ',
+  'Exception',
+  'Error:',
+  'Caused by:',
+  'fetch failed',
+  'failed to fetch',
+  'network request failed',
+]
 
 /**
  * Turn an unknown thrown value into a safe UI string: if the error message

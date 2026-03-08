@@ -73,6 +73,20 @@ test.describe('Surf Spots', () => {
     await expect(filtersDrawer).toBeVisible()
   })
 
+  test('should show Webcams section on surf spot detail page', async ({
+    page,
+  }) => {
+    await page.goto(
+      '/surf-spots/africa/algeria/boumerdes/costa-da-caparica',
+    )
+    await page.waitForLoadState('networkidle')
+
+    await expect(page.getByRole('heading', { name: 'Webcams', level: 3 })).toBeVisible()
+    await expect(
+      page.getByText(/Know a webcam for this spot|Live views of the spot/),
+    ).toBeVisible()
+  })
+
   test('should show Standing Wave as break type option in filters', async ({
     page,
   }) => {
