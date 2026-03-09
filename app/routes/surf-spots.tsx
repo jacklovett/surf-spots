@@ -169,6 +169,7 @@ export default function SurfSpots() {
         isMapView={isMapView}
         onToggleView={handleToggleView}
         hideFilters={isDetailPage}
+        hideToolbarBorder={isMapView && !loading && !isMapViewTransition}
       />
       <TripPlannerButton onOpenTripPlanner={() => navigate('/trip-planner')} />
       {isMapView ? (

@@ -10,6 +10,7 @@ interface ToolbarProps {
   isMapView: boolean
   onToggleView: () => void
   hideFilters?: boolean
+  hideToolbarBorder?: boolean
 }
 
 export const Toolbar = (props: ToolbarProps) => {
@@ -21,11 +22,14 @@ export const Toolbar = (props: ToolbarProps) => {
     isMapView,
     onToggleView,
     hideFilters,
+    hideToolbarBorder = false,
   } = props
 
   return (
     <>
-      <div className="row toolbar flex-end space-between">
+      <div
+        className={`row toolbar flex-end space-between ${hideToolbarBorder ? ' toolbar--map-view' : ''}`}
+      >
         <div className="row flex-1">
           {!hideFilters && (
             <TextButton

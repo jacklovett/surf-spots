@@ -27,4 +27,9 @@
 .toolbar {
   padding: $spacing-unit $spacing-small;
   border-bottom: 1px solid $outline-color;
+
+  // Avoid double border when map or map skeleton is shown below
+  &.toolbar--map-view {
+    border-bottom: none;
+  }
 }
