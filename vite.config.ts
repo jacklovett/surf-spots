@@ -12,9 +12,9 @@ export default defineConfig({
       },
     },
   },
-  // Ensure proper file watching; listen on all interfaces so localhost (IPv4 or IPv6) works on Windows
+  // Listen on all interfaces so the app on a physical device can reach the dev server at your PC's IP (e.g. 192.168.1.4:5173)
   server: {
-    host: '::', // dual-stack: reachable via localhost (127.0.0.1 and ::1)
+    host: true, // same as 0.0.0.0: reachable from LAN (phone, emulator)
     port: 5173,
     watch: {
       usePolling: true,
