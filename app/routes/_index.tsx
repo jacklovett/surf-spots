@@ -10,7 +10,7 @@ export const meta: MetaFunction = () => {
     {
       name: 'description',
       content:
-        "Map every surf spot you've surfed, discover new waves, plan epic trips with friends, and build your surf collection. Monitor conditions, track your journey, and never miss the perfect session.",
+        "Map every surf spot you've surfed, discover new waves, plan epic trips with friends, catalog your surfboards, and build your surf collection. Monitor conditions, track your journey, and never miss the perfect session.",
     },
   ]
 }
@@ -108,6 +108,25 @@ export default function Index() {
                   spots secret.
                 </p>
               </div>
+
+              <div className="feature-card animate-on-scroll">
+                <div className="feature-icon" aria-hidden="true">
+                  <Icon iconKey="surfboard" useAccentColor />
+                </div>
+                <h3>Your Quiver</h3>
+                <p>
+                  Catalog your surfboards in one place. Plan which boards to
+                  bring on trips and track your full setup.
+                </p>
+                <div className="feature-card-cta">
+                  <NavButton
+                    label="Surfboards"
+                    to="/surfboards"
+                    variant="secondary"
+                    ariaLabel="View surfboards feature"
+                  />
+                </div>
+              </div>
             </div>
           </div>
         </section>
@@ -151,11 +170,38 @@ export default function Index() {
                 <div className="feature-icon" aria-hidden="true">
                   <Icon iconKey="plane" useAccentColor />
                 </div>
-                <h3>Organize Trips</h3>
+                <h3>Trips</h3>
                 <p>
-                  Create itineraries with multiple spots, invite friends to
-                  join, and document your journey with shared photos.
+                  Create trips with multiple spots, add your quiver, invite
+                  friends to join, and document your journey with shared photos.
                 </p>
+                <div className="feature-card-cta">
+                  <NavButton
+                    label="Trips"
+                    to="/trips"
+                    variant="secondary"
+                    ariaLabel="View trips feature"
+                  />
+                </div>
+              </div>
+
+              <div className="feature-card animate-on-scroll">
+                <div className="feature-icon" aria-hidden="true">
+                  <Icon iconKey="pin" useAccentColor />
+                </div>
+                <h3>Trip Planner</h3>
+                <p>
+                  Optimize your route between spots. Get the best order to hit
+                  your surfed list, watch list, or trip destinations.
+                </p>
+                <div className="feature-card-cta">
+                  <NavButton
+                    label="Trip Planner"
+                    to="/trip-planner"
+                    variant="secondary"
+                    ariaLabel="Open trip planner"
+                  />
+                </div>
               </div>
             </div>
           </div>
