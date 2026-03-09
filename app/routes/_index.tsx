@@ -118,14 +118,6 @@ export default function Index() {
                   Catalog your surfboards in one place. Plan which boards to
                   bring on trips and track your full setup.
                 </p>
-                <div className="feature-card-cta">
-                  <NavButton
-                    label="Surfboards"
-                    to="/surfboards"
-                    variant="secondary"
-                    ariaLabel="View surfboards feature"
-                  />
-                </div>
               </div>
             </div>
           </div>
@@ -175,14 +167,6 @@ export default function Index() {
                   Create trips with multiple spots, add your quiver, invite
                   friends to join, and document your journey with shared photos.
                 </p>
-                <div className="feature-card-cta">
-                  <NavButton
-                    label="Trips"
-                    to="/trips"
-                    variant="secondary"
-                    ariaLabel="View trips feature"
-                  />
-                </div>
               </div>
 
               <div className="feature-card animate-on-scroll">
@@ -194,14 +178,6 @@ export default function Index() {
                   Optimize your route between spots. Get the best order to hit
                   your surfed list, watch list, or trip destinations.
                 </p>
-                <div className="feature-card-cta">
-                  <NavButton
-                    label="Trip Planner"
-                    to="/trip-planner"
-                    variant="secondary"
-                    ariaLabel="Open trip planner"
-                  />
-                </div>
               </div>
             </div>
           </div>
