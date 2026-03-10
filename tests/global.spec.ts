@@ -15,9 +15,7 @@ test.describe('Global Functionality', () => {
 
     if (hasLoadingIndicator) {
       await expect(loadingIndicator.first()).toBeVisible()
-
-      // Wait for loading to complete
-      await page.waitForTimeout(2000)
+      await page.waitForSelector('.map-container', { state: 'visible', timeout: 15000 })
       await expect(loadingIndicator.first()).not.toBeVisible()
     }
     // If no loading indicator appears, that's also fine - pages may load instantly
@@ -39,7 +37,7 @@ test.describe('Global Functionality', () => {
     const routes = [
       { path: '/', expectedContent: 'Track Your Surf Journey' },
       { path: '/auth', expectedContent: 'Sign In' },
-      { path: '/surf-spots', expectedContent: 'View Switch' },
+      { path: '/surf-spots', expectedContent: 'Map' },
       { path: '/about-us', expectedContent: 'About' },
     ]
 
@@ -140,11 +138,8 @@ test.describe('Global Functionality', () => {
 
   test('should handle browser refresh', async ({ page }) => {
     await page.goto('/surf-spots')
+    await page.waitForSelector('.map-container', { state: 'visible', timeout: 15000 })
 
-    // Wait for page to load
-    await page.waitForTimeout(2000)
-
-    // Refresh the page
     await page.reload()
 
     // Check if page loads correctly after refresh
@@ -195,17 +190,8 @@ test.describe('Global Functionality', () => {
 
   test('should handle navigation state', async ({ page }) => {
     await page.goto('/surf-spots')
-
-    // Check if navigation elements are present
-    const breadcrumb = page.locator('.breadcrumb')
-    if (await breadcrumb.isVisible()) {
-      await expect(breadcrumb).toBeVisible()
-    }
-
-    // Check if toolbar is present
-    const toolbar = page.locator('.toolbar')
-    if (await toolbar.isVisible()) {
-      await expect(toolbar).toBeVisible()
-    }
+    await expect(page.locator('.toolbar')).toBeVisible({ timeout: 10000 })
+    await page.goto('/surf-spots/continents')
+    await expect(page.locator('.breadcrumb')).toBeVisible({ timeout: 5000 })
   })
 })

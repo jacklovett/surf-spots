@@ -2,33 +2,35 @@ import { test, expect } from '@playwright/test'
 import { login } from './utils/auth-helper'
 import { waitForPageLoad, waitForLoadingComplete } from './utils/test-helpers'
 
+/** Go to a region with spots and open the first surf spot detail page (so we don't depend on a hardcoded slug that may not exist in DB). */
+async function goToSurfSpotDetailWithNotes(page: import('@playwright/test').Page) {
+  await page.goto('/surf-spots/africa/algeria/boumerdes')
+  await page.waitForLoadState('networkidle', { timeout: 15000 })
+  const firstSpotLink = page.locator('.list-map a').first()
+  await firstSpotLink.waitFor({ state: 'visible', timeout: 15000 })
+  await firstSpotLink.click()
+  await page.waitForURL(/\/surf-spots\/[^/]+\/[^/]+\/[^/]+\/[^/]+/)
+  const notesButton = page.getByRole('button', { name: /Show Notes|Add Notes/ })
+  await notesButton.waitFor({ state: 'visible', timeout: 15000 })
+}
+
 test.describe('Surf Spot Notes Feature', () => {
   test.beforeEach(async ({ page }) => {
     await login(page)
   })
 
-  test('should display "Show My Notes" button on surf spot details page', async ({
+  test('should display notes button on surf spot details page', async ({
     page,
   }) => {
-    // Navigate to a surf spot details page
-    // Using a known surf spot path - adjust if needed
-    await page.goto('/surf-spots/africa/algeria/boumerdes/costa-da-caparica')
-    await waitForPageLoad(page)
-
-    // Check if "Show My Notes" button is visible
-    const showNotesButton = page.locator('button:has-text("Show My Notes")')
-    await expect(showNotesButton).toBeVisible()
+    await goToSurfSpotDetailWithNotes(page)
+    await expect(page.getByRole('button', { name: /Show Notes|Add Notes/ })).toBeVisible()
   })
 
-  test('should open notes drawer when clicking "Show My Notes"', async ({
+  test('should open notes drawer when clicking notes button', async ({
     page,
   }) => {
-    await page.goto('/surf-spots/africa/algeria/boumerdes/costa-da-caparica')
-    await waitForPageLoad(page)
-
-    // Click "Show My Notes" button
-    const showNotesButton = page.locator('button:has-text("Show My Notes")')
-    await showNotesButton.click()
+    await goToSurfSpotDetailWithNotes(page)
+    await page.getByRole('button', { name: /Show Notes|Add Notes/ }).click()
 
     // Wait for drawer to open
     await page.waitForSelector('.drawer--open', { timeout: 5000 })
@@ -40,12 +42,8 @@ test.describe('Surf Spot Notes Feature', () => {
   })
 
   test('should create a new note with all fields', async ({ page }) => {
-    await page.goto('/surf-spots/africa/algeria/boumerdes/costa-da-caparica')
-    await waitForPageLoad(page)
-
-    // Open notes drawer
-    const showNotesButton = page.locator('button:has-text("Show My Notes")')
-    await showNotesButton.click()
+    await goToSurfSpotDetailWithNotes(page)
+    await page.getByRole('button', { name: /Show Notes|Add Notes/ }).click()
     await page.waitForSelector('.drawer--open', { timeout: 5000 })
 
     // Wait for form to load
@@ -106,12 +104,8 @@ test.describe('Surf Spot Notes Feature', () => {
   test('should create a note with only optional fields (all fields empty)', async ({
     page,
   }) => {
-    await page.goto('/surf-spots/africa/algeria/boumerdes/costa-da-caparica')
-    await waitForPageLoad(page)
-
-    // Open notes drawer
-    const showNotesButton = page.locator('button:has-text("Show My Notes")')
-    await showNotesButton.click()
+    await goToSurfSpotDetailWithNotes(page)
+    await page.getByRole('button', { name: /Show Notes|Add Notes/ }).click()
     await page.waitForSelector('.drawer--open', { timeout: 5000 })
 
     // Wait for form to load
@@ -130,11 +124,8 @@ test.describe('Surf Spot Notes Feature', () => {
   })
 
   test('should display existing note when opening drawer', async ({ page }) => {
-    // First, create a note
-    await page.goto('/surf-spots/africa/algeria/boumerdes/costa-da-caparica')
-    await waitForPageLoad(page)
-
-    const showNotesButton = page.locator('button:has-text("Show My Notes")')
+    await goToSurfSpotDetailWithNotes(page)
+    const showNotesButton = page.getByRole('button', { name: /Show Notes|Add Notes/ })
     await showNotesButton.click()
     await page.waitForSelector('.drawer--open', { timeout: 5000 })
     await waitForLoadingComplete(page)
@@ -149,9 +140,7 @@ test.describe('Surf Spot Notes Feature', () => {
     await expect(saveButton).toBeEnabled({ timeout: 5000 })
     await saveButton.click()
 
-    // Wait for save to complete
     await page.waitForSelector('.toast--success', { timeout: 5000 })
-    await page.waitForTimeout(1000)
 
     // Close drawer
     const closeButton = page.locator('.drawer-close, button[aria-label="Close"]')
@@ -160,7 +149,6 @@ test.describe('Surf Spot Notes Feature', () => {
       await page.waitForSelector('.drawer--open', { state: 'hidden', timeout: 5000 })
     }
 
-    // Reopen drawer - should show existing note
     await showNotesButton.click()
     await page.waitForSelector('.drawer--open', { timeout: 5000 })
     await waitForLoadingComplete(page)
@@ -177,12 +165,8 @@ test.describe('Surf Spot Notes Feature', () => {
   })
 
   test('should update existing note', async ({ page }) => {
-    await page.goto('/surf-spots/africa/algeria/boumerdes/costa-da-caparica')
-    await waitForPageLoad(page)
-
-    // Open notes drawer
-    const showNotesButton = page.locator('button:has-text("Show My Notes")')
-    await showNotesButton.click()
+    await goToSurfSpotDetailWithNotes(page)
+    await page.getByRole('button', { name: /Show Notes|Add Notes/ }).click()
     await page.waitForSelector('.drawer--open', { timeout: 5000 })
     await waitForLoadingComplete(page)
 
@@ -213,12 +197,8 @@ test.describe('Surf Spot Notes Feature', () => {
   })
 
   test('should show loading animation while fetching note', async ({ page }) => {
-    await page.goto('/surf-spots/africa/algeria/boumerdes/costa-da-caparica')
-    await waitForPageLoad(page)
-
-    // Open notes drawer
-    const showNotesButton = page.locator('button:has-text("Show My Notes")')
-    await showNotesButton.click()
+    await goToSurfSpotDetailWithNotes(page)
+    await page.getByRole('button', { name: /Show Notes|Add Notes/ }).click()
 
     // Check for loading animation (should appear briefly)
     const loadingAnimation = page.locator('.loading, .wave-icon')
@@ -234,12 +214,8 @@ test.describe('Surf Spot Notes Feature', () => {
   })
 
   test('should have drawer form actions fixed at bottom', async ({ page }) => {
-    await page.goto('/surf-spots/africa/algeria/boumerdes/costa-da-caparica')
-    await waitForPageLoad(page)
-
-    // Open notes drawer
-    const showNotesButton = page.locator('button:has-text("Show My Notes")')
-    await showNotesButton.click()
+    await goToSurfSpotDetailWithNotes(page)
+    await page.getByRole('button', { name: /Show Notes|Add Notes/ }).click()
     await page.waitForSelector('.drawer--open', { timeout: 5000 })
 
     // Check if save button is in the fixed actions area
@@ -253,12 +229,8 @@ test.describe('Surf Spot Notes Feature', () => {
   test('should handle multiple surf spots with separate notes', async ({
     page,
   }) => {
-    // Create note for first surf spot
-    await page.goto('/surf-spots/africa/algeria/boumerdes/costa-da-caparica')
-    await waitForPageLoad(page)
-
-    const showNotesButton1 = page.locator('button:has-text("Show My Notes")')
-    await showNotesButton1.click()
+    await goToSurfSpotDetailWithNotes(page)
+    await page.getByRole('button', { name: /Show Notes|Add Notes/ }).click()
     await page.waitForSelector('.drawer--open', { timeout: 5000 })
     await waitForLoadingComplete(page)
 
@@ -279,21 +251,16 @@ test.describe('Surf Spot Notes Feature', () => {
       await page.waitForSelector('.drawer--open', { state: 'hidden', timeout: 5000 })
     }
 
-    // Navigate to different surf spot
-    // Note: Adjust URL to a different surf spot if needed
     await page.goto('/surf-spots/africa/algeria/boumerdes')
-    await waitForPageLoad(page)
-
-    // Click on a different surf spot if available
-    const firstSpotLink = page.locator('.surf-spot-card, .spot-item').first()
-    if (await firstSpotLink.isVisible()) {
-      await firstSpotLink.click()
-      await waitForPageLoad(page)
-
-      // Open notes for this spot
-      const showNotesButton2 = page.locator('button:has-text("Show My Notes")')
-      if (await showNotesButton2.isVisible()) {
-        await showNotesButton2.click()
+    await page.waitForLoadState('networkidle', { timeout: 15000 })
+    const spotLinks = page.locator('.list-map a')
+    const count = await spotLinks.count()
+    if (count >= 2) {
+      await spotLinks.nth(1).click()
+      await page.waitForURL(/\/surf-spots\/[^/]+\/[^/]+\/[^/]+\/[^/]+/)
+      const notesBtn2 = page.getByRole('button', { name: /Show Notes|Add Notes/ })
+      if (await notesBtn2.isVisible()) {
+        await notesBtn2.click()
         await page.waitForSelector('.drawer--open', { timeout: 5000 })
         await waitForLoadingComplete(page)
 
@@ -301,8 +268,7 @@ test.describe('Surf Spot Notes Feature', () => {
         const noteTextArea2 = page.locator('textarea[name="noteText"]')
         if (await noteTextArea2.isVisible()) {
           const noteValue = await noteTextArea2.inputValue()
-          // Should be empty or different from first spot's note
-          expect(noteValue).not.toContain('Note for Costa da Caparica')
+          expect(noteValue).not.toContain('Existing note for testing')
         }
       }
     }

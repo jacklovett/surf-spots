@@ -9,18 +9,20 @@ test.describe('Surfboards Feature', () => {
   test('should navigate to surfboards page and show empty state', async ({
     page,
   }) => {
-    await page.goto('/surfboards', { waitUntil: 'domcontentloaded' })
+    await page.goto('/surfboards')
 
-    // Verify we're not redirected to auth (login should have worked)
     await expect(page).toHaveURL(/\/surfboards/)
     await expect(page.locator('h1')).toContainText('My Surfboards')
 
-    // Check for empty state or existing surfboards
-    const hasSurfboards = (await page.locator('.surfboard-card').count()) > 0
-    if (!hasSurfboards) {
-      await expect(page.locator('.surfboards-empty')).toContainText(
-        'No surfboards yet',
-      )
+    // Wait for content: either empty state or at least one surfboard card (Card has class "card")
+    await Promise.race([
+      page.locator('.surfboards-empty').waitFor({ state: 'visible', timeout: 15000 }),
+      page.locator('.surfboards-section .card').first().waitFor({ state: 'visible', timeout: 15000 }),
+    ])
+
+    const emptyState = page.locator('.surfboards-empty')
+    if (await emptyState.isVisible()) {
+      await expect(emptyState).toContainText('No surfboards yet')
     }
   })
 
@@ -28,23 +30,19 @@ test.describe('Surfboards Feature', () => {
     await page.goto('/add-surfboard')
     await expect(page.locator('h1')).toContainText('Add Surfboard')
 
-    // Fill in surfboard details
     await page.fill('input[name="name"]', 'Test Board')
     await page.selectOption('select[name="boardType"]', 'shortboard')
-    await page.fill('input[name="length"]', '6')
-    await page.fill('input[name="lengthIn"]', '0')
+    await page.fill('input[name="length"]', "6'0")
     await page.fill('input[name="width"]', '19.5')
     await page.fill('input[name="thickness"]', '2.5')
     await page.fill('input[name="volume"]', '28.5')
     await page.selectOption('select[name="finSetup"]', 'thruster')
     await page.fill('textarea[name="description"]', 'My favorite board')
 
-    // Wait for form validation and submit
     const submitButton = page.locator('button[type="submit"]')
     await expect(submitButton).toBeEnabled({ timeout: 5000 })
     await submitButton.click()
 
-    // Wait for navigation and check we're on surfboard detail page
     await page.waitForURL(/\/surfboard\/[a-f0-9-]+/)
     await expect(page.locator('h1')).toContainText('Test Board')
   })
@@ -67,7 +65,7 @@ test.describe('Surfboards Feature', () => {
     await page.goto('/surfboards')
 
     // Click first surfboard if exists
-    const firstSurfboard = page.locator('.surfboard-card').first()
+    const firstSurfboard = page.locator('.surfboards-section .card').first()
     if (await firstSurfboard.isVisible()) {
       await firstSurfboard.click()
       await page.waitForURL(/\/surfboard\/[a-f0-9-]+/)
@@ -105,9 +103,10 @@ test.describe('Surfboards Feature', () => {
     // Click delete button
     await page.click('button:has-text("Delete")')
 
-    // Wait for modal to appear and confirm deletion
-    await page.waitForSelector('.delete-confirm-modal', { state: 'visible' })
-    await page.click('button:has-text("Delete"):not(:has-text("Cancel"))')
+    // Wait for modal and click confirm Delete inside the modal (avoid overlay intercepting)
+    const modal = page.locator('.delete-confirm-modal')
+    await modal.waitFor({ state: 'visible', timeout: 5000 })
+    await modal.getByRole('button', { name: 'Delete' }).click()
 
     // Verify redirected to surfboards list
     await page.waitForURL('/surfboards')
@@ -118,7 +117,7 @@ test.describe('Surfboards Feature', () => {
     await page.goto('/surfboards')
 
     // Check if surfboards exist and have animation class
-    const surfboardCards = page.locator('.surfboard-card.animate-on-scroll')
+    const surfboardCards = page.locator('.surfboards-section .card')
     const count = await surfboardCards.count()
 
     if (count > 0) {
@@ -132,7 +131,7 @@ test.describe('Surfboards Feature', () => {
   }) => {
     await page.goto('/surfboards')
 
-    const firstSurfboard = page.locator('.surfboard-card').first()
+    const firstSurfboard = page.locator('.surfboards-section .card').first()
     if (await firstSurfboard.isVisible()) {
       await firstSurfboard.click()
       await page.waitForURL(/\/surfboard\/[a-f0-9-]+/)
@@ -150,11 +149,9 @@ test.describe('Surfboards Feature', () => {
   })
 
   test('should display surfboard dimensions correctly', async ({ page }) => {
-    // Create a surfboard with dimensions
     await page.goto('/add-surfboard')
     await page.fill('input[name="name"]', 'Dimension Test Board')
-    await page.fill('input[name="length"]', '6')
-    await page.fill('input[name="lengthIn"]', '2')
+    await page.fill('input[name="length"]', "6'2")
     await page.fill('input[name="width"]', '19.5')
     await page.fill('input[name="thickness"]', '2.5')
     await page.fill('input[name="volume"]', '28.5')
@@ -203,9 +200,10 @@ test.describe('Surfboards Feature', () => {
     // Click delete button
     await page.click('button:has-text("Delete")')
 
-    // Wait for modal and cancel
-    await page.waitForSelector('.delete-confirm-modal', { state: 'visible' })
-    await page.click('button:has-text("Cancel")')
+    // Wait for modal and cancel (click inside modal so overlay does not intercept)
+    const modal = page.locator('.delete-confirm-modal')
+    await modal.waitFor({ state: 'visible', timeout: 5000 })
+    await modal.getByRole('button', { name: 'Cancel' }).click()
 
     // Verify still on detail page
     await expect(page).toHaveURL(/\/surfboard\/[a-f0-9-]+/)
@@ -221,20 +219,19 @@ test.describe('Surfboards Feature', () => {
     await submitButton6.click()
     await page.waitForURL(/\/surfboard\/[a-f0-9-]+/)
 
-    // Check for Images section
-    await expect(page.locator('h3:has-text("Images")')).toBeVisible()
+    // Check for Media section (app uses "Media" not "Images")
+    await expect(page.locator('h3:has-text("Media")')).toBeVisible()
 
-    // Check for MediaUpload component
+    // MediaUpload hides the file input and shows a clickable card; assert the upload UI is present
+    await expect(page.locator('.media-upload-card').first()).toBeVisible()
     const fileInput = page.locator('input[type="file"][accept*="image"]')
-    await expect(fileInput).toBeVisible()
 
     // Upload a test image (using a small test image)
     // Note: In a real test, you'd use a test fixture image file
     const testImagePath = 'tests/fixtures/test-image.png'
     try {
       await fileInput.setInputFiles(testImagePath)
-      // Wait for upload to complete
-      await page.waitForTimeout(3000)
+      await page.locator('.toast--success, .image-gallery .image-thumbnail').first().waitFor({ state: 'visible', timeout: 15000 })
 
       // Check for success toast or image in gallery
       const successToast = page.locator('.toast--success, [role="status"]:has-text("uploaded successfully")')
@@ -256,7 +253,7 @@ test.describe('Surfboards Feature', () => {
     // Navigate to a surfboard that might have images
     await page.goto('/surfboards')
 
-    const firstSurfboard = page.locator('.surfboard-card').first()
+    const firstSurfboard = page.locator('.surfboards-section .card').first()
     if (await firstSurfboard.isVisible()) {
       await firstSurfboard.click()
       await page.waitForURL(/\/surfboard\/[a-f0-9-]+/)
@@ -271,7 +268,7 @@ test.describe('Surfboards Feature', () => {
         await imageGallery.locator('.image-thumbnail').first().click()
 
         // Wait for preview modal to appear
-        await page.waitForSelector('.image-preview-modal', { state: 'visible' })
+        await page.waitForSelector('.image-preview-modal', { state: 'visible', timeout: 5000 })
 
         // Verify modal contains image
         await expect(page.locator('.image-preview-full')).toBeVisible()
@@ -292,7 +289,7 @@ test.describe('Surfboards Feature', () => {
     // Navigate to a surfboard
     await page.goto('/surfboards')
 
-    const firstSurfboard = page.locator('.surfboard-card').first()
+    const firstSurfboard = page.locator('.surfboards-section .card').first()
     if (await firstSurfboard.isVisible()) {
       await firstSurfboard.click()
       await page.waitForURL(/\/surfboard\/[a-f0-9-]+/)
@@ -306,17 +303,11 @@ test.describe('Surfboards Feature', () => {
       if (thumbnailCount > 0) {
         // Click first thumbnail to open preview
         await imageGallery.locator('.image-thumbnail').first().click()
-        await page.waitForSelector('.image-preview-modal', { state: 'visible' })
+        await page.waitForSelector('.image-preview-modal', { state: 'visible', timeout: 5000 })
 
         // Click delete button
         await page.click('.image-preview-actions button:has-text("Delete")')
-
-        // Wait for modal to close
-        await page.waitForSelector('.image-preview-modal', { state: 'hidden' })
-
-        // Verify image was removed (count should decrease)
-        // Note: This assumes the image was actually deleted
-        await page.waitForTimeout(1000)
+        await page.waitForSelector('.image-preview-modal', { state: 'hidden', timeout: 10000 })
       }
     }
   })

@@ -78,6 +78,14 @@ npx playwright test --project=chromium
 ### Test Utilities
 - `utils/test-helpers.ts` - Common test helper functions
 
+## Playwright best practices (this suite)
+
+- **Prefer user-facing locators**: `getByRole`, `getByText`, `getByLabel` over CSS when possible.
+- **No `waitForTimeout`**: Use `waitForSelector`, `waitFor({ state })`, or `expect(…).toBeVisible({ timeout })` so tests fail fast with clear errors.
+- **Explicit timeouts** on network-dependent waits (e.g. 10–15s for map/markers) so CI doesn’t hang.
+- **One logical assertion per test** (or a small, related set); skip via `test.skip()` when a precondition isn’t met (e.g. not logged in).
+- **Config**: `actionTimeout` 15s, `expect.timeout` 15s, test timeout 90s; trace on first retry, screenshot/video on failure.
+
 ## Configuration
 
 ### Playwright Config (`playwright.config.ts`)
@@ -102,8 +110,9 @@ await expect(page).toHaveURL(/\/surf-spots/)
 
 ### Element Interaction
 ```typescript
-await page.click('button:has-text("Add")')
-await page.fill('input[name="email"]', 'test@example.com')
+await page.getByRole('button', { name: /Add new spot/i }).click()
+await page.getByLabel(/Email/i).fill('test@example.com')
+await page.waitForSelector('.map-container', { state: 'visible', timeout: 15000 })
 ```
 
 ### Form Validation

@@ -44,41 +44,43 @@ test.describe('Landing Page', () => {
       page.locator('h2:has-text("Plan Your Adventures")'),
     ).toBeVisible()
 
-    // Check if feature cards are present (6 total: 3 in each section)
+    // Check if feature cards are present (8 total: 4 in Track section, 4 in Plan section)
     const featureCards = page.locator('.feature-card')
-    await expect(featureCards).toHaveCount(6)
+    await expect(featureCards).toHaveCount(8)
 
-    // Check specific feature titles from "Track Your Journey"
+    // Check specific feature titles by heading (avoids "Your Quiver" matching Trips card paragraph "add your quiver")
     await expect(
-      page.locator('.feature-card:has-text("Your Surf Map")'),
+      page.getByRole('heading', { name: 'Your Surf Map', level: 3 }),
     ).toBeVisible()
     await expect(
-      page.locator('.feature-card:has-text("Your Stats")'),
+      page.getByRole('heading', { name: 'Your Stats', level: 3 }),
     ).toBeVisible()
     await expect(
-      page.locator('.feature-card:has-text("Your Discoveries")'),
+      page.getByRole('heading', { name: 'Your Discoveries', level: 3 }),
+    ).toBeVisible()
+    await expect(
+      page.getByRole('heading', { name: 'Your Quiver', level: 3 }),
     ).toBeVisible()
 
-    // Check specific feature titles from "Plan Your Adventures"
     await expect(
-      page.locator('.feature-card:has-text("Explore Worldwide")'),
+      page.getByRole('heading', { name: 'Explore Worldwide', level: 3 }),
     ).toBeVisible()
     await expect(
-      page.locator('.feature-card:has-text("Watch List Alerts")'),
+      page.getByRole('heading', { name: 'Watch List Alerts', level: 3 }),
     ).toBeVisible()
     await expect(
-      page.locator('.feature-card:has-text("Organize Trips")'),
+      page.getByRole('heading', { name: 'Trips', level: 3 }),
+    ).toBeVisible()
+    await expect(
+      page.getByRole('heading', { name: 'Trip Planner', level: 3 }),
     ).toBeVisible()
   })
 
   test('should have proper navigation links', async ({ page }) => {
     await page.goto('/')
 
-    // Check if navigation elements are present
-    const navButton = page.locator('[data-testid="nav-button"]').first()
-    if (await navButton.isVisible()) {
-      await expect(navButton).toBeVisible()
-    }
+    // Hero CTA and main nav are present (NavButton renders as .button link)
+    await expect(page.locator('.hero-cta .button')).toBeVisible()
   })
 
   test('should display how it works section', async ({ page }) => {

@@ -1,3 +1,4 @@
+import 'dotenv/config'
 import { defineConfig, devices } from '@playwright/test'
 import { fileURLToPath } from 'url'
 import { dirname, join } from 'path'

@@ -21,11 +21,8 @@ test.describe('Authentication', () => {
     await page.fill('input[name="email"]', 'invalid-email')
     await page.fill('input[name="password"]', 'password123')
 
-    // Wait for form validation to complete
-    await page.waitForTimeout(1000)
-
-    // Check if button is enabled or disabled
     const submitButton = page.locator('button[type="submit"]')
+    await submitButton.waitFor({ state: 'visible' })
     const isEnabled = await submitButton.isEnabled()
 
     if (isEnabled) {
@@ -66,11 +63,7 @@ test.describe('Authentication', () => {
     await page.fill('input[name="email"]', 'test@example.com')
     await page.fill('input[name="password"]', 'password123')
 
-    // Wait for form validation to complete
-    await page.waitForTimeout(1000)
-
-    // Button should be enabled
-    await expect(submitButton).toBeEnabled()
+    await expect(submitButton).toBeEnabled({ timeout: 5000 })
   })
 
   test('should have sign up link', async ({ page }) => {
@@ -113,15 +106,12 @@ test.describe('Authentication', () => {
   })
 
   test('should show form labels when fields have content', async ({ page }) => {
-    // Initially labels should be hidden (floating label behavior)
     const emailInput = page.locator('input[name="email"]')
     const passwordInput = page.locator('input[name="password"]')
 
-    // Fill in fields to trigger label visibility
     await emailInput.fill('test@example.com')
     await passwordInput.fill('password123')
 
-    // Labels should now be visible
     await expect(page.locator('label:has-text("Email")')).toBeVisible()
     await expect(page.locator('label:has-text("Password")')).toBeVisible()
   })
@@ -134,12 +124,18 @@ test.describe('Authentication', () => {
     // Wait for form validation to complete
     await page.waitForTimeout(1000)
 
-    // Submit form
     await page.click('button[type="submit"]')
 
-    // Should either redirect or show success/error message
-    // We can't predict the exact behavior without a real backend
-    // So we just check that something happens (no timeout)
-    await page.waitForTimeout(2000)
+    // Success: navigate away from /auth. Failure: error visible. Backend down: neither (don't fail the test).
+    try {
+      await Promise.race([
+        page.waitForURL((url) => !url.pathname.includes('/auth'), { timeout: 15000 }),
+        page.locator('.error-message, [role="alert"], .toast--error').waitFor({ state: 'visible', timeout: 15000 }),
+      ])
+    } catch {
+      // Timeout: backend may be unavailable; assert we're still on auth and form is there (no crash)
+      await expect(page).toHaveURL(/\/auth/)
+      await expect(page.locator('input[name="email"]')).toBeVisible()
+    }
   })
 })

@@ -9,8 +9,8 @@ test.describe('Surf Spots', () => {
     // Navigate to surf spots - it should show map view
     await page.goto('/surf-spots')
 
-    // Wait for page to load
-    await page.waitForTimeout(2000)
+    // Wait for map to be visible (more reliable than fixed delay)
+    await page.waitForSelector('.map-container', { state: 'visible', timeout: 15000 })
 
     // Check if we're on surf-spots page (map view)
     const currentUrl = page.url()
@@ -37,27 +37,14 @@ test.describe('Surf Spots', () => {
   })
 
   test('should have view toggle functionality', async ({ page }) => {
-    // Navigate to map view
     await page.goto('/surf-spots')
+    await page.waitForSelector('.map-container', { state: 'visible', timeout: 15000 })
 
-    // Wait for page to load
-    await page.waitForTimeout(2000)
+    const viewSwitch = page.locator('.view-switch')
+    await expect(viewSwitch).toBeVisible()
+    await viewSwitch.click()
 
-    // Check if view toggle button exists in toolbar
-    const viewToggle = page.locator('.toolbar button')
-    await expect(viewToggle).toBeVisible()
-
-    // Click toggle and check if view changes
-    await viewToggle.click()
-
-    // Wait for navigation to complete
-    await page.waitForTimeout(2000)
-
-    // Check if URL changed (either to continents or stayed on surf-spots)
-    const currentUrl = page.url()
-    const hasChanged =
-      currentUrl.includes('/continents') || currentUrl.includes('/surf-spots')
-    expect(hasChanged).toBe(true)
+    await expect(page).toHaveURL(/\/surf-spots\/continents/, { timeout: 10000 })
   })
 
   test('should have filters functionality', async ({ page }) => {
@@ -73,12 +60,19 @@ test.describe('Surf Spots', () => {
     await expect(filtersDrawer).toBeVisible()
   })
 
+  // Skips when test backend has no surf spots for this region (empty .list-map)
   test('should show Webcams section on surf spot detail page', async ({
     page,
   }) => {
-    await page.goto(
-      '/surf-spots/africa/algeria/boumerdes/costa-da-caparica',
-    )
+    await page.goto('/surf-spots/africa/algeria/boumerdes')
+    await page.waitForLoadState('networkidle')
+    const firstSpot = page.locator('.surf-spots .list-map a').first()
+    const hasSpot = await firstSpot.isVisible().catch(() => false)
+    if (!hasSpot) {
+      test.skip(true, 'No surf spots in region (backend has no spots for this region)')
+      return
+    }
+    await firstSpot.click()
     await page.waitForLoadState('networkidle')
 
     await expect(page.getByRole('heading', { name: 'Webcams', level: 3 })).toBeVisible()
@@ -99,17 +93,17 @@ test.describe('Surf Spots', () => {
     await expect(page.locator('text=Standing Wave')).toBeVisible()
   })
 
+  // Skips when test backend has no surf spots for this region
   test('should show novelty wave chip on detail page when spot is river wave or wave pool', async ({
     page,
   }) => {
-    // Navigate to a region that has spots, then open the first spot detail
     await page.goto('/surf-spots/africa/algeria/boumerdes')
     await page.waitForLoadState('networkidle')
 
-    const firstSpotLink = page.locator('.list-map a').first()
+    const firstSpotLink = page.locator('.surf-spots .list-map a').first()
     const linkVisible = await firstSpotLink.isVisible().catch(() => false)
     if (!linkVisible) {
-      test.skip()
+      test.skip(true, 'No surf spots in region (backend has no spots for this region)')
       return
     }
 
@@ -129,26 +123,18 @@ test.describe('Surf Spots', () => {
     }
   })
 
+  // Skips when no surf spot is at click position (map uses canvas; test backend may have no spots)
   test('should show novelty wave chip in map preview drawer when spot is river wave or wave pool', async ({
     page,
   }) => {
     await page.goto('/surf-spots')
-    await page.waitForTimeout(2000)
+    await page.waitForSelector('.map-container', { state: 'visible', timeout: 15000 })
+    await page.locator('.map-container').click({ position: { x: 200, y: 200 } })
 
-    const marker = page.locator('.mapboxgl-marker').first()
-    const markerVisible = await marker.isVisible().catch(() => false)
-    if (!markerVisible) {
-      test.skip()
-      return
-    }
-
-    await marker.click()
-    await page.waitForTimeout(500)
-
-    const drawer = page.locator('.drawer')
-    const drawerVisible = await drawer.isVisible().catch(() => false)
-    if (!drawerVisible) {
-      test.skip()
+    const drawer = page.locator('.drawer').first()
+    const opened = await drawer.isVisible({ timeout: 8000 }).catch(() => false)
+    if (!opened) {
+      test.skip(true, 'No marker at click position or no spots on map (backend may have no spots)')
       return
     }
 
@@ -170,27 +156,17 @@ test.describe('Surf Spots', () => {
   })
 
   test('should navigate to continents view', async ({ page }) => {
-    // Navigate to continents view
     await page.goto('/surf-spots/continents')
 
-    // Check if continents page loads
     await expect(page).toHaveURL(/\/continents/)
-
-    // Check if continents are displayed
-    const continents = page.locator(
-      '.continent-item, [data-testid="continent-item"]',
-    )
-    if (await continents.first().isVisible()) {
-      await expect(continents.first()).toBeVisible()
-    }
+    await expect(page.locator('.breadcrumb')).toBeVisible()
+    await expect(page.locator('.list-item').first()).toBeVisible({ timeout: 10000 })
   })
 
   test('should handle map interactions', async ({ page }) => {
-    // Navigate to map view
     await page.goto('/surf-spots')
-
-    // Check if map is present - map container is rendered directly when in map view
     const map = page.locator('.map-container')
+    await map.waitFor({ state: 'visible', timeout: 15000 })
     await expect(map).toBeVisible()
 
     // Test map zoom controls if they exist
@@ -207,33 +183,27 @@ test.describe('Surf Spots', () => {
   })
 
   test('should display surf spot markers on map', async ({ page }) => {
-    // Navigate to map view
     await page.goto('/surf-spots')
-
-    // Check if surf spot markers are present
-    const markers = page.locator('.mapboxgl-marker')
-    if (await markers.first().isVisible()) {
-      await expect(markers.first()).toBeVisible()
-    }
+    await page.waitForSelector('.map-container', { state: 'visible', timeout: 15000 })
+    // Main map uses Mapbox symbol layer (canvas), not DOM .mapboxgl-marker elements
+    await expect(page.locator('.map-container')).toBeVisible()
+    await expect(page.locator('.mapboxgl-ctrl-zoom-in')).toBeVisible({ timeout: 10000 })
   })
 
+  // Skips when no surf spot is at click position (map uses canvas; test backend may have no spots)
   test('should show surf spot details when clicking marker', async ({
     page,
   }) => {
-    // Navigate to map view
     await page.goto('/surf-spots')
-
-    // Click on a surf spot marker
-    const marker = page.locator('.mapboxgl-marker').first()
-    if (await marker.isVisible()) {
-      await marker.click()
-
-      // Check if popup appears
-      const popup = page.locator('.mapboxgl-popup')
-      if (await popup.isVisible()) {
-        await expect(popup).toBeVisible()
-      }
+    await page.waitForSelector('.map-container', { state: 'visible', timeout: 15000 })
+    await page.locator('.map-container').click({ position: { x: 200, y: 200 } })
+    const drawer = page.locator('.drawer--open, .drawer').first()
+    const opened = await drawer.isVisible({ timeout: 8000 }).catch(() => false)
+    if (!opened) {
+      test.skip(true, 'No marker at click position (map uses canvas; backend may have no spots)')
+      return
     }
+    await expect(drawer).toBeVisible()
   })
 
   test('should have responsive design on mobile', async ({ page }) => {

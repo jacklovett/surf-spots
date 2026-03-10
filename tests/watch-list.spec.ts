@@ -19,50 +19,55 @@ test.describe('Watch List Page', () => {
     })
 
     test('should display watch list page title', async ({ page }) => {
-      await page.goto('/watch-list')
+      await page.goto('/watch-list', { waitUntil: 'domcontentloaded' })
 
-      // Check page title
-      await expect(page.locator('h1')).toContainText('Watch List')
+      await expect(page).toHaveURL(/\/watch-list/)
+      await expect(page.locator('h1')).toContainText('Watch List', { timeout: 15000 })
     })
 
     test('should show empty state when no spots are watched', async ({
       page,
     }) => {
-      await page.goto('/watch-list')
+      await page.goto('/watch-list', { waitUntil: 'domcontentloaded' })
 
-      // Look for empty state card
       const emptyState = page.locator('.empty-state')
+      await emptyState.waitFor({ state: 'visible', timeout: 15000 }).catch(() => {})
 
-      if (await emptyState.isVisible()) {
-        // Check empty state content
-        await expect(
-          page.locator('h3:has-text("Build Your Watch List")'),
-        ).toBeVisible()
-
-        // Check CTA button
-        await expect(
-          page.locator('.empty-state a:has-text("Explore Surf Spots")'),
-        ).toBeVisible()
+      if (!(await emptyState.isVisible())) {
+        test.skip(true, 'Watch list did not show empty state (may have spots, or API/loading issue)')
+        return
       }
+
+      await expect(
+        page.locator('h3:has-text("Build Your Watch List")'),
+      ).toBeVisible()
+
+      // EmptyState uses Button; match by role and label (button text)
+      await expect(
+        page.getByRole('button', { name: /Explore Surf Spots/i }),
+      ).toBeVisible()
     })
 
     test('should have Explore Surf Spots link in empty state', async ({
       page,
     }) => {
-      await page.goto('/watch-list')
+      await page.goto('/watch-list', { waitUntil: 'domcontentloaded' })
 
       const emptyState = page.locator('.empty-state')
+      await emptyState.waitFor({ state: 'visible', timeout: 15000 }).catch(() => {})
 
-      if (await emptyState.isVisible()) {
-        const exploreLink = page.locator(
-          '.empty-state a:has-text("Explore Surf Spots")',
-        )
-        await expect(exploreLink).toBeVisible()
-
-        // Click and verify navigation
-        await exploreLink.click()
-        await expect(page).toHaveURL(/\/surf-spots/)
+      if (!(await emptyState.isVisible())) {
+        test.skip(true, 'Watch list did not show empty state (may have spots, or API/loading issue)')
+        return
       }
+
+      const exploreBtn = page.getByRole('button', {
+        name: /Explore Surf Spots/i,
+      })
+      await expect(exploreBtn).toBeVisible()
+
+      await exploreBtn.click()
+      await expect(page).toHaveURL(/\/surf-spots/)
     })
 
     test('should display content when spots are watched', async ({ page }) => {
