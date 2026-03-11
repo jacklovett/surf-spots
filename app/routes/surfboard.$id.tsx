@@ -19,6 +19,7 @@ import {
   Details,
   ErrorBoundary,
   MediaGallery,
+  SafeLink,
 } from '~/components'
 import { requireSessionCookie } from '~/services/session.server'
 import { cacheControlHeader, get, getDisplayMessage } from '~/services/networkService'
@@ -375,13 +376,7 @@ export default function SurfboardDetail() {
           {surfboard.modelUrl && (
             <p className="mb">
               <strong>Model:</strong>{' '}
-              <a
-                href={surfboard.modelUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                View on Shaper/Shop
-              </a>
+              <SafeLink url={surfboard.modelUrl}>View on Shaper/Shop</SafeLink>
             </p>
           )}
 

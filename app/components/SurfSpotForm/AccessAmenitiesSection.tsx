@@ -9,6 +9,10 @@ import { SurfSpotFormState } from '~/types/surfSpots'
 import { UrlLinkItem } from '~/components/UrlLinkList'
 import { kmToMiles } from '~/utils/unitUtils'
 import {
+  MAX_FORECASTS,
+  MAX_WEBCAMS,
+} from '~/constants/surfSpotLimits'
+import {
   Availability,
   PARKING_OPTIONS,
   ACCOMMODATION_TYPES,
@@ -97,7 +101,7 @@ export const AccessAmenitiesSection = ({
       <div className="pv">
         <p className='bold'>Forecast Links</p>
         <p className="mb">
-          Add forecast sites you know for this surf spot. (Maximum of 3)
+          Add forecast sites you know for this surf spot. (Maximum of {MAX_FORECASTS})
         </p>
         <UrlLinkList
           links={formState.forecastLinks}
@@ -105,13 +109,14 @@ export const AccessAmenitiesSection = ({
           inputName="forecasts"
           linkLabel="Forecast Link"
           addButtonText="Add Forecast Link"
+          maxLinks={MAX_FORECASTS}
         />
       </div>
       {/* Webcam Links */}
       <div className="pv">
         <p className='bold'>Webcam Links</p>
         <p className="mb">
-          Add webcam links for live views of this surf spot. (Maximum of 3)
+          Add webcam links for live views of this surf spot. (Maximum of {MAX_WEBCAMS})
         </p>
         <UrlLinkList
           links={formState.webcamLinks}
@@ -119,6 +124,7 @@ export const AccessAmenitiesSection = ({
           inputName="webcams"
           linkLabel="Webcam Link"
           addButtonText="Add Webcam Link"
+          maxLinks={MAX_WEBCAMS}
         />
       </div>
       {/* Amenities */}
@@ -170,10 +176,7 @@ export const AccessAmenitiesSection = ({
               options={FOOD_OPTIONS}
               selected={food.options}
               onChange={(selected) =>
-                onFoodChange({
-                  ...food,
-                  options: selected,
-                })
+                onFoodChange({ ...food, options: selected })
               }
             />
           </div>

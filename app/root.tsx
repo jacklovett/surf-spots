@@ -1,5 +1,7 @@
 import { useEffect } from 'react'
 import {
+  data,
+  HeadersFunction,
   Links,
   LinksFunction,
   LoaderFunction,
@@ -34,11 +36,19 @@ interface LoaderData {
   user: User | null
 }
 
+const securityHeaders: Record<string, string> = {
+  'X-Frame-Options': 'DENY',
+  'X-Content-Type-Options': 'nosniff',
+  'Referrer-Policy': 'strict-origin-when-cross-origin',
+}
+
 export const loader: LoaderFunction = async ({ request }) => {
   const session = await getSession(request.headers.get('Cookie'))
   const user = session.get('user')
-  return { user: user ?? null }
+  return data({ user: user ?? null }, { headers: securityHeaders })
 }
+
+export const headers: HeadersFunction = ({ loaderHeaders }) => loaderHeaders
 
 export const links: LinksFunction = () => [
   { rel: 'preconnect', href: 'https://fonts.googleapis.com' },

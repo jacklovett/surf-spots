@@ -60,6 +60,7 @@ import TripPlannerButton from './TripPlannerButton'
 import SurfboardSelectionModal from './SurfboardSelectionModal'
 import TripSelectionModal from './TripSelectionModal'
 import SelectionModal from './SelectionModal'
+import SafeLink from './SafeLink'
 
 export {
   AuthPage,
@@ -99,6 +100,7 @@ export {
   NavButton,
   Page,
   Rating,
+  SafeLink,
   SignInOptions,
   SignUpPromptModal,
   SkeletonLoader,

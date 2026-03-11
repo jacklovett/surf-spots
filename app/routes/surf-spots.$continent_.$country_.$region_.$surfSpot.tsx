@@ -22,6 +22,7 @@ import {
   ErrorBoundary,
   InfoMessage,
   Rating,
+  SafeLink,
   SurfHeightIcon,
   SurfMap,
   SurfSpotActions,
@@ -542,14 +543,9 @@ if (error || !surfSpotDetails) {
                   <div className="column mv">
                     {/* TODO: add icons/logos for well known forecasting sites */}
                     {forecasts.map((forecast) => (
-                      <a
-                        key={forecast}
-                        href={forecast}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                      >
+                      <SafeLink key={forecast} url={forecast}>
                         {forecast}
-                      </a>
+                      </SafeLink>
                     ))}
                   </div>
                 </>
@@ -569,14 +565,9 @@ if (error || !surfSpotDetails) {
                   </p>
                   <div className="column mv">
                     {webcams.map((webcam) => (
-                      <a
-                        key={webcam}
-                        href={webcam}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                      >
+                      <SafeLink key={webcam} url={webcam}>
                         {webcam}
-                      </a>
+                      </SafeLink>
                     ))}
                   </div>
                 </>
@@ -596,14 +587,9 @@ if (error || !surfSpotDetails) {
               website:
             </p>
             <div className="mv">
-              <a
-                href={wavepoolUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="wavepool-website-link"
-              >
+              <SafeLink url={wavepoolUrl} className="wavepool-website-link">
                 {wavepoolUrl}
-              </a>
+              </SafeLink>
             </div>
           </section>
         )}

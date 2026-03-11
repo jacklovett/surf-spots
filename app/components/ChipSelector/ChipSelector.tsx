@@ -16,10 +16,11 @@ export const ChipSelector = ({
 }: ChipSelectorProps) => {
   const toggleSelection = (option: Option) => {
     const isSelected = selected.some((item) => item.key === option.key)
-    const updatedSelection = isSelected
-      ? selected.filter((item) => item.key !== option.key)
-      : [...selected, option]
-    onChange(updatedSelection)
+    if (isSelected) {
+      onChange(selected.filter((item) => item.key !== option.key))
+      return
+    }
+    onChange([...selected, option])
   }
 
   return (

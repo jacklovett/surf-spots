@@ -71,6 +71,9 @@ export const ERROR_POPULATE_LOCATION = 'Unable to populate location drop-down me
 export const ERROR_SIGN_IN = 'Unable to sign in. Please try again.'
 export const ERROR_SIGN_UP = 'Unable to sign up. Please try again.'
 export const ERROR_RETRIEVE_PROFILE = 'Unable to retrieve your profile. Please try again.'
+export const ERROR_OAUTH_SIGN_IN_FAILED = 'Sign in failed. Please try again.'
+export const ERROR_FACEBOOK_EMAIL_REQUIRED =
+  'Email access is required. Please allow email access in Facebook settings and try again.'
 
 // Settings
 export const ERROR_UPDATE_SETTINGS = 'Unable to update settings. Please try again later.'
@@ -89,6 +92,7 @@ const INTERNAL_INDICATORS = [
   'fetch failed',
   'failed to fetch',
   'network request failed',
+  'token',
 ]
 
 /**

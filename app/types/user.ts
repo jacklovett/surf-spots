@@ -2,6 +2,9 @@ export const usersEndpoint = 'api/users'
 
 export type AuthProvider = 'EMAIL' | 'FACEBOOK' | 'GOOGLE'
 
+/** OAuth provider id used in routes/callbacks (lowercase). */
+export type OAuthProvider = 'google' | 'facebook'
+
 export interface AuthRequest {
   email: string
   password?: string

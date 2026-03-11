@@ -6,6 +6,7 @@ import {
   getNotificationLabel,
   getDefaultImage,
 } from './index'
+import { safeLinkHref } from '~/utils/commonUtils'
 import { formatTimeAgo } from '~/utils/dateUtils'
 
 interface FeedItemProps {
@@ -28,11 +29,12 @@ export const FeedItem = ({ notification }: FeedItemProps) => {
   const bannerImage = imageUrl || getDefaultImage(type)
   const timeAgo = formatTimeAgo(createdAt)
 
+  const safeHref = safeLinkHref(link)
   return (
     <article className="feed-item animate-on-scroll" data-type={type}>
-      {link ? (
+      {safeHref ? (
         <a
-          href={link}
+          href={safeHref}
           target="_blank"
           rel="noopener noreferrer"
           className="feed-item-link-wrapper"

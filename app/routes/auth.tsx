@@ -9,7 +9,7 @@ import {
 import { authenticateWithCredentials, validate } from '~/services/auth.server'
 import { AuthPage, FormComponent, FormInput, SignInOptions } from '~/components'
 import { getDisplayMessage } from '~/services/networkService'
-import { DEFAULT_ERROR_MESSAGE, ERROR_SIGN_IN } from '~/utils/errorUtils'
+import { DEFAULT_ERROR_MESSAGE, ERROR_SIGN_IN, messageForDisplay } from '~/utils/errorUtils'
 
 import { useFormValidation, useSubmitStatus } from '~/hooks'
 import { validateEmail, validatePassword } from '~/hooks/useFormValidation'
@@ -35,8 +35,13 @@ export const loader: LoaderFunction = async ({ request }) => {
   const passwordReset = url.searchParams.get('passwordReset')
 
   if (errorParam && messageParam) {
-    const errorMessage = decodeURIComponent(messageParam)
-    // Return error data - URL cleanup will happen in component
+    let decoded: string
+    try {
+      decoded = decodeURIComponent(messageParam)
+    } catch {
+      decoded = ''
+    }
+    const errorMessage = messageForDisplay(decoded, DEFAULT_ERROR_MESSAGE)
     return data({
       submitStatus: errorMessage,
       hasError: true,

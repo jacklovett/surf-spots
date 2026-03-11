@@ -1,9 +1,51 @@
+import { randomBytes } from 'node:crypto'
 import { data, redirect } from 'react-router'
-import { AuthRequest, User } from '~/types/user'
+import type { Session } from 'react-router'
+import { AuthRequest, OAuthProvider, User } from '~/types/user'
 import { getSession, commitSession } from '~/services/session.server'
 import { post, isNetworkError, getDisplayMessage } from './networkService'
 import { validateEmail, validatePassword } from '~/hooks/useFormValidation'
-import { ERROR_SIGN_IN, ERROR_RETRIEVE_PROFILE } from '~/utils/errorUtils'
+import {
+  ERROR_FACEBOOK_EMAIL_REQUIRED,
+  ERROR_OAUTH_SIGN_IN_FAILED,
+  ERROR_RETRIEVE_PROFILE,
+  ERROR_SIGN_IN,
+} from '~/utils/errorUtils'
+
+const OAUTH_STATE_KEY = 'oauth_state'
+
+/** Build redirect response with OAuth state stored in session. Use for Google/Facebook init. */
+export const createOAuthRedirectWithState = async (
+  request: Request,
+  buildAuthUrl: (state: string) => string,
+) => {
+  const state = randomBytes(32).toString('hex')
+  const session = await getSession(request.headers.get('Cookie'))
+  session.set(OAUTH_STATE_KEY, state)
+  const cookie = await commitSession(session)
+  return redirect(buildAuthUrl(state), { headers: { 'Set-Cookie': cookie } })
+}
+
+/**
+ * Verify OAuth callback state and return session (with state cleared).
+ * On failure returns redirect to auth with error.
+ */
+export const verifyOAuthStateAndGetSession = async (
+  request: Request,
+  searchParams: URLSearchParams,
+  provider: OAuthProvider,
+): Promise<{ session: Session } | Response> => {
+  const stateFromProvider = searchParams.get('state')
+  const session = await getSession(request.headers.get('Cookie'))
+  const storedState = session.get(OAUTH_STATE_KEY)
+
+  if (!stateFromProvider || storedState !== stateFromProvider) {
+    return handleOAuthError(new Error('Invalid OAuth state'), provider)
+  }
+
+  session.unset(OAUTH_STATE_KEY)
+  return { session }
+}
 
 export interface AuthErrors {
   email?: string
@@ -85,8 +127,9 @@ export const authenticateWithCredentials = async (request: Request) => {
 export const setSessionCookieAndRedirect = async (
   request: Request,
   user: User,
+  existingSession?: Session,
 ) => {
-  const session = await getSession(request.headers.get('Cookie'))
+  const session = existingSession ?? (await getSession(request.headers.get('Cookie')))
   session.set('user', user)
   const cookie = await commitSession(session)
 
@@ -124,12 +167,13 @@ export const verifyLogin = async (email: string, password: string) => {
 export const registerUser = async (
   authRequest: AuthRequest,
   request: Request,
+  existingSession?: Session,
 ) => {
   const user = await post<AuthRequest, User>('auth/register', authRequest)
   if (!user) {
     throw new Error('Failed to register user')
   }
-  return await setSessionCookieAndRedirect(request, user)
+  return await setSessionCookieAndRedirect(request, user, existingSession)
 }
 
 export const validate = (email: string, password: string) => {
@@ -143,29 +187,35 @@ export const validate = (email: string, password: string) => {
   return Object.keys(errors).length ? errors : null
 }
 
-export const handleOAuthError = (
+const getOAuthErrorMessage = (
   error: unknown,
-  provider: 'facebook' | 'google',
-) => {
-  console.error(`${provider} OAuth error:`, error)
-
-  const fallback = 'Sign in failed. Please try again.'
-  let errorMessage = fallback
-
-  if (error instanceof Error) {
-    if (
-      provider === 'facebook' &&
-      error.message.includes('Email is required')
-    ) {
-      errorMessage =
-        'Email access is required. Please allow email access in Facebook settings and try again.'
-    } else if (error.message.includes(`Failed to get ${provider} profile`)) {
-      errorMessage = ERROR_RETRIEVE_PROFILE
-    } else {
-      errorMessage = getDisplayMessage(error, fallback)
-    }
+  provider: OAuthProvider,
+): string => {
+  if (!(error instanceof Error)) {
+    return ERROR_OAUTH_SIGN_IN_FAILED
   }
 
+  const msg = error.message
+
+  if (provider === 'facebook' && msg.includes('Email is required')) {
+    return ERROR_FACEBOOK_EMAIL_REQUIRED
+  }
+
+  if (msg.includes('Failed to get') && msg.includes('profile')) {
+    return ERROR_RETRIEVE_PROFILE
+  }
+
+  // Tokens, network, API failures: generic message only
+  return ERROR_OAUTH_SIGN_IN_FAILED
+}
+
+export const handleOAuthError = (
+  error: unknown,
+  provider: OAuthProvider,
+): Response => {
+  console.error(`${provider} OAuth error:`, error)
+
+  const errorMessage = getOAuthErrorMessage(error, provider)
   const searchParams = new URLSearchParams({
     error: provider,
     message: encodeURIComponent(errorMessage),

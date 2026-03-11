@@ -1,6 +1,9 @@
-import { redirect } from 'react-router'
 import { AuthRequest } from '~/types/user'
-import { registerUser } from './auth.server'
+import {
+  registerUser,
+  createOAuthRedirectWithState,
+  verifyOAuthStateAndGetSession,
+} from './auth.server'
 
 const facebookConfig = {
   clientId: process.env.FACEBOOK_CLIENT_ID!,
@@ -13,17 +16,22 @@ export const authenticateWithFacebook = async (request: Request) => {
   const code = searchParams.get('code')
 
   if (!code) {
-    const url = new URL('https://www.facebook.com/v18.0/dialog/oauth')
-    url.searchParams.set('client_id', facebookConfig.clientId)
-    url.searchParams.set('redirect_uri', facebookConfig.callbackUrl)
-    url.searchParams.set('response_type', 'code')
-    url.searchParams.set('scope', 'public_profile,email')
-
-    return redirect(url.toString())
+    return createOAuthRedirectWithState(request, (state) => {
+      const url = new URL('https://www.facebook.com/v18.0/dialog/oauth')
+      url.searchParams.set('client_id', facebookConfig.clientId)
+      url.searchParams.set('redirect_uri', facebookConfig.callbackUrl)
+      url.searchParams.set('response_type', 'code')
+      url.searchParams.set('scope', 'public_profile,email')
+      url.searchParams.set('state', state)
+      return url.toString()
+    })
   }
 
+  const verified = await verifyOAuthStateAndGetSession(request, searchParams, 'facebook')
+  if (verified instanceof Response) return verified
+  const { session } = verified
+
   try {
-    // Handle OAuth callback
     const tokens = await getFacebookTokens(code)
     const profile = await getFacebookProfile(tokens.access_token)
     const { name, email, id } = profile
@@ -35,7 +43,7 @@ export const authenticateWithFacebook = async (request: Request) => {
       providerId: id,
     }
 
-    return await registerUser(authRequest, request)
+    return await registerUser(authRequest, request, session)
   } catch (error) {
     console.log(`Failed to authenticate with Facebook: ${error}`)
     throw error

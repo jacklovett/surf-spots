@@ -1,32 +1,39 @@
 import { redirect } from 'react-router'
 import { AuthRequest } from '~/types/user'
-import { registerUser } from './auth.server'
+import {
+  registerUser,
+  handleOAuthError,
+  createOAuthRedirectWithState,
+  verifyOAuthStateAndGetSession,
+} from './auth.server'
 
-// Google OAuth configuration
 const googleConfig = {
   clientId: process.env.GOOGLE_CLIENT_ID!,
   clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
   callbackUrl: process.env.GOOGLE_CALLBACK_URL!,
 }
 
-// TODO: Catch google errors when attempting login without first sign up
-
 export const authenticateWithGoogle = async (request: Request) => {
   const { searchParams } = new URL(request.url)
   const code = searchParams.get('code')
 
   if (!code) {
-    const url = new URL('https://accounts.google.com/o/oauth2/v2/auth')
-    url.searchParams.set('client_id', googleConfig.clientId)
-    url.searchParams.set('redirect_uri', googleConfig.callbackUrl)
-    url.searchParams.set('response_type', 'code')
-    url.searchParams.set('scope', 'openid profile email')
-
-    return redirect(url.toString())
+    return createOAuthRedirectWithState(request, (state) => {
+      const url = new URL('https://accounts.google.com/o/oauth2/v2/auth')
+      url.searchParams.set('client_id', googleConfig.clientId)
+      url.searchParams.set('redirect_uri', googleConfig.callbackUrl)
+      url.searchParams.set('response_type', 'code')
+      url.searchParams.set('scope', 'openid profile email')
+      url.searchParams.set('state', state)
+      return url.toString()
+    })
   }
 
+  const verified = await verifyOAuthStateAndGetSession(request, searchParams, 'google')
+  if (verified instanceof Response) return verified
+  const { session } = verified
+
   try {
-    // Handle OAuth callback
     const tokens = await getGoogleTokens(code)
     const profile = await getGoogleProfile(tokens.access_token)
     const { name, email, sub } = profile
@@ -38,7 +45,7 @@ export const authenticateWithGoogle = async (request: Request) => {
       providerId: sub,
     }
 
-    return await registerUser(authRequest, request)
+    return await registerUser(authRequest, request, session)
   } catch (error) {
     console.log(`Failed to authenticate with Google: ${error}`)
     throw error
