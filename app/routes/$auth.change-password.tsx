@@ -1,16 +1,18 @@
-import {
-  ActionFunctionArgs,
-  MetaFunction,
-  data,
-  Link,
-  redirect,
-} from 'react-router'
+import { ActionFunctionArgs, MetaFunction, data, Link, redirect } from 'react-router'
 
 import { FormComponent, FormInput, Page } from '~/components'
 import { edit, getDisplayMessage } from '~/services/networkService'
-import { getSession, requireSessionCookie } from '~/services/session.server'
+import {
+  getSession,
+  requireSessionCookie,
+  destroySession,
+} from '~/services/session.server'
 import { useFormValidation, useSubmitStatus } from '~/hooks'
 import { validatePassword } from '~/hooks/useFormValidation'
+import {
+  ERROR_NEW_PASSWORDS_DONT_MATCH,
+  SUCCESS_PASSWORD_UPDATED,
+} from '~/utils/errorUtils'
 
 export const meta: MetaFunction = () => {
   return [
@@ -43,7 +45,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
   // Validate input fields
   if (newPassword !== repeatedNewPassword) {
     return data(
-      { submitStatus: 'New passwords do not match!', hasError: true },
+      { submitStatus: ERROR_NEW_PASSWORDS_DONT_MATCH, hasError: true },
       { status: 400 },
     )
   }
@@ -57,9 +59,13 @@ export const action = async ({ request }: ActionFunctionArgs) => {
       },
     })
 
+    // Invalidate the current session after a successful password change
+    const headers = new Headers()
+    headers.append('Set-Cookie', await destroySession(session))
+
     return data(
-      { submitStatus: 'Password updated successfully' },
-      { status: 200 },
+      { submitStatus: SUCCESS_PASSWORD_UPDATED },
+      { status: 200, headers },
     )
   } catch (e) {
     const submitError = getDisplayMessage(e)

@@ -13,6 +13,10 @@ import { ContentStatus, FormComponent, FormInput, Page } from '~/components'
 import { post, getDisplayMessage } from '~/services/networkService'
 import { useFormValidation, useSubmitStatus } from '~/hooks'
 import { validatePassword } from '~/hooks/useFormValidation'
+import {
+  ERROR_NEW_PASSWORDS_DONT_MATCH,
+  ERROR_RESET_TOKEN_INVALID_OR_MISSING,
+} from '~/utils/errorUtils'
 
 export const meta: MetaFunction = () => {
   return [
@@ -28,7 +32,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
 
   if (!token) {
     return data(
-      { submitStatus: 'Invalid or missing token', hasError: true },
+      { submitStatus: ERROR_RESET_TOKEN_INVALID_OR_MISSING, hasError: true },
       { status: 400 },
     )
   }
@@ -39,7 +43,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
   // Validate input fields
   if (newPassword !== repeatedNewPassword) {
     return data(
-      { submitStatus: 'New passwords do not match!', hasError: true },
+      { submitStatus: ERROR_NEW_PASSWORDS_DONT_MATCH, hasError: true },
       { status: 400 },
     )
   }

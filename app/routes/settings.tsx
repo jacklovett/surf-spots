@@ -18,7 +18,10 @@ import {
 import { SelectOption } from '~/components/FormInput'
 import { useSettingsContext, useUserContext } from '~/contexts'
 import { units } from '~/contexts/SettingsContext'
-import { ERROR_UPDATE_SETTINGS } from '~/utils/errorUtils'
+import {
+  ERROR_UPDATE_SETTINGS,
+  SUCCESS_SETTINGS_UPDATED,
+} from '~/utils/errorUtils'
 import { edit } from '~/services/networkService'
 import {
   requireSessionCookie,
@@ -50,7 +53,7 @@ export const action: ActionFunction = async ({ request }) => {
   } catch {
     // Non-logged-in user - save to localStorage in component
     return data(
-      { submitStatus: 'Settings updated successfully', hasError: false },
+      { submitStatus: SUCCESS_SETTINGS_UPDATED, hasError: false },
       { status: 200 },
     )
   }
@@ -86,7 +89,7 @@ export const action: ActionFunction = async ({ request }) => {
     })
 
     return data(
-      { submitStatus: 'Settings updated successfully', hasError: false },
+      { submitStatus: SUCCESS_SETTINGS_UPDATED, hasError: false },
       {
         status: 200,
         headers: { 'Set-Cookie': await commitSession(session) },

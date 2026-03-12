@@ -11,7 +11,10 @@ import { requireSessionCookie } from '~/services/session.server'
 import { createSurfSpotFromFormData } from '~/services/surfSpot.server'
 
 import { Continent, SurfSpot } from '~/types/surfSpots'
-import { ERROR_EDIT_SURF_SPOT } from '~/utils/errorUtils'
+import {
+  ERROR_EDIT_SURF_SPOT,
+  ERROR_SURF_SPOT_ID_REQUIRED,
+} from '~/utils/errorUtils'
 import SurfSpotForm, { LoaderData } from '~/components/SurfSpotForm'
 
 export const loader: LoaderFunction = async ({ request, params }) => {
@@ -67,7 +70,7 @@ export const action: ActionFunction = async ({ request, params }) => {
 
   if (!id) {
     return data(
-      { submitStatus: 'Surf spot ID is required', hasError: true },
+      { submitStatus: ERROR_SURF_SPOT_ID_REQUIRED, hasError: true },
       { status: 400 },
     )
   }

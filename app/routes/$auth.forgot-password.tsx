@@ -9,6 +9,7 @@ import { AuthPage, FormComponent, FormInput } from '~/components'
 import { post, getDisplayMessage } from '~/services/networkService'
 import { useFormValidation, useSubmitStatus } from '~/hooks'
 import { validateEmail } from '~/hooks/useFormValidation'
+import { SUCCESS_FORGOT_PASSWORD_EMAIL_SENT } from '~/utils/errorUtils'
 
 export const meta: MetaFunction = () => {
   return [
@@ -45,9 +46,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
       },
     )
     return data(
-      {
-        submitStatus: 'Check your emails. Password reset instructions sent.',
-      },
+      { submitStatus: SUCCESS_FORGOT_PASSWORD_EMAIL_SENT },
       { status: 200 },
     )
   } catch (e) {

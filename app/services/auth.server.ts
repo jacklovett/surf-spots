@@ -6,6 +6,8 @@ import { getSession, commitSession } from '~/services/session.server'
 import { post, isNetworkError, getDisplayMessage } from './networkService'
 import { validateEmail, validatePassword } from '~/hooks/useFormValidation'
 import {
+  ERROR_ACCOUNT_CANT_SIGN_IN,
+  ERROR_CREDENTIALS_DONT_MATCH,
   ERROR_FACEBOOK_EMAIL_REQUIRED,
   ERROR_OAUTH_SIGN_IN_FAILED,
   ERROR_RETRIEVE_PROFILE,
@@ -79,11 +81,7 @@ export const authenticateWithCredentials = async (request: Request) => {
     const user = await verifyLogin(email, password)
     if (!user) {
       return data(
-        {
-          submitStatus:
-            "That email and password didn't match. Try again or use Forgot password.",
-          hasError: true,
-        },
+        { submitStatus: ERROR_CREDENTIALS_DONT_MATCH, hasError: true },
         { status: 401 },
       )
     }
@@ -95,18 +93,10 @@ export const authenticateWithCredentials = async (request: Request) => {
     if (isNetworkError(error) && error.status !== undefined) {
       const status = error.status
       if (status === 401 || status === 404) {
-        return {
-          submitStatus:
-            "That email and password didn't match. Try again or use Forgot password.",
-          hasError: true,
-        }
+        return { submitStatus: ERROR_CREDENTIALS_DONT_MATCH, hasError: true }
       }
       if (status === 403) {
-        return {
-          submitStatus:
-            "This account can't sign in. Contact support if you need help.",
-          hasError: true,
-        }
+        return { submitStatus: ERROR_ACCOUNT_CANT_SIGN_IN, hasError: true }
       }
       // status 0 = no response (connection/CORS/offline) – user-friendly sign-in message, not technical
       if (status === 0) {

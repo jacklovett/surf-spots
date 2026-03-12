@@ -42,9 +42,13 @@ import useFormValidation, {
 } from '~/hooks/useFormValidation'
 import { GENDER_OPTIONS, USER_SKILL_LEVEL_OPTIONS } from '~/types/formData/profile'
 import {
-  ERROR_POPULATE_LOCATION,
+  ERROR_AGE_RANGE,
   ERROR_DELETE_ACCOUNT,
+  ERROR_INVALID_HEIGHT,
+  ERROR_INVALID_WEIGHT,
+  ERROR_POPULATE_LOCATION,
   ERROR_UPDATE_PROFILE,
+  SUCCESS_PROFILE_UPDATED,
 } from '~/utils/errorUtils'
 import {
   convertHeightToDisplay,
@@ -130,10 +134,7 @@ export const action: ActionFunction = async ({ request }) => {
   const age = ageStr ? parseInt(ageStr, 10) : undefined
   if (age !== undefined && (isNaN(age) || age < 13 || age > 120)) {
     return data(
-      {
-        submitStatus: 'Age must be between 13 and 120 years',
-        hasError: true,
-      },
+      { submitStatus: ERROR_AGE_RANGE, hasError: true },
       { status: 400 },
     )
   }
@@ -148,7 +149,10 @@ export const action: ActionFunction = async ({ request }) => {
   const heightResult = validateAndConvertHeight(heightDisplay, preferredUnits)
   if (!heightResult.isValid) {
     return data(
-      { submitStatus: heightResult.error || 'Please enter a valid height', hasError: true },
+      {
+        submitStatus: heightResult.error || ERROR_INVALID_HEIGHT,
+        hasError: true,
+      },
       { status: 400 },
     )
   }
@@ -159,7 +163,10 @@ export const action: ActionFunction = async ({ request }) => {
   const weightResult = validateAndConvertWeight(weightDisplay, preferredUnits)
   if (!weightResult.isValid) {
     return data(
-      { submitStatus: weightResult.error || 'Please enter a valid weight', hasError: true },
+      {
+        submitStatus: weightResult.error || ERROR_INVALID_WEIGHT,
+        hasError: true,
+      },
       { status: 400 },
     )
   }
@@ -194,7 +201,7 @@ export const action: ActionFunction = async ({ request }) => {
     session.set('user', updateUser)
 
     return data(
-      { submitStatus: 'Profile updated successfully', hasError: false },
+      { submitStatus: SUCCESS_PROFILE_UPDATED, hasError: false },
       {
         status: 200,
         headers: {

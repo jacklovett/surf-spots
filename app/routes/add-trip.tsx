@@ -23,7 +23,12 @@ import {
   addMembersToTrip,
 } from '~/components/TripForm'
 import { ActionData } from '~/types/api'
-import { ERROR_CREATE_TRIP } from '~/utils/errorUtils'
+import {
+  ERROR_CREATE_TRIP,
+  ERROR_INVALID_MEMBER_EMAILS,
+  ERROR_LOGIN_REQUIRED_CREATE_TRIP,
+  ERROR_TITLE_REQUIRED,
+} from '~/utils/errorUtils'
 
 export const loader: LoaderFunction = async ({ request }) => {
   try {
@@ -31,7 +36,7 @@ export const loader: LoaderFunction = async ({ request }) => {
     return data({})
   } catch (error) {
     return data(
-      { error: 'You must be logged in to create trips' },
+      { error: ERROR_LOGIN_REQUIRED_CREATE_TRIP },
       { status: 401 },
     )
   }
@@ -41,7 +46,7 @@ export const action: ActionFunction = async ({ request }) => {
   const user = await requireSessionCookie(request)
   if (!user?.id) {
     return data(
-      { error: 'You must be logged in to create trips' },
+      { error: ERROR_LOGIN_REQUIRED_CREATE_TRIP },
       { status: 401 },
     )
   }
@@ -54,10 +59,7 @@ export const action: ActionFunction = async ({ request }) => {
   // Validate required fields
   if (!title || title.length === 0) {
     return data(
-      {
-        submitStatus: 'Title is required',
-        hasError: true,
-      },
+      { submitStatus: ERROR_TITLE_REQUIRED, hasError: true },
       { status: 400 },
     )
   }
@@ -76,7 +78,7 @@ export const action: ActionFunction = async ({ request }) => {
   if (emailErrors.length > 0) {
     return data(
       {
-        submitStatus: 'Please enter valid email addresses for all members.',
+        submitStatus: ERROR_INVALID_MEMBER_EMAILS,
         hasError: true,
       },
       { status: 400 },

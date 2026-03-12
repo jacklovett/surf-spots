@@ -11,7 +11,11 @@ import { CreateSurfboardRequest, Surfboard } from '~/types/surfboard'
 import { post, getDisplayMessage } from '~/services/networkService'
 import { useSubmitStatus } from '~/hooks'
 import { parseLength, parseDimension } from '~/utils/surfboardUtils'
-import { ERROR_CREATE_SURFBOARD } from '~/utils/errorUtils'
+import {
+  ERROR_CREATE_SURFBOARD,
+  ERROR_LOGIN_REQUIRED_ADD_SURFBOARD,
+  ERROR_NAME_REQUIRED,
+} from '~/utils/errorUtils'
 
 export const loader: LoaderFunction = async ({ request }) => {
   try {
@@ -19,7 +23,7 @@ export const loader: LoaderFunction = async ({ request }) => {
     return data({})
   } catch (error) {
     return data(
-      { error: 'You must be logged in to add surfboards' },
+      { error: ERROR_LOGIN_REQUIRED_ADD_SURFBOARD },
       { status: 401 },
     )
   }
@@ -30,7 +34,7 @@ export const action: ActionFunction = async ({ request }) => {
   if (!user?.id) {
     return data(
       {
-        submitStatus: 'You must be logged in to add surfboards',
+        submitStatus: ERROR_LOGIN_REQUIRED_ADD_SURFBOARD,
         hasError: true,
       },
       { status: 401 },
@@ -42,10 +46,7 @@ export const action: ActionFunction = async ({ request }) => {
 
   if (!name || name.length === 0) {
     return data(
-      {
-        submitStatus: 'Name is required',
-        hasError: true,
-      },
+      { submitStatus: ERROR_NAME_REQUIRED, hasError: true },
       { status: 400 },
     )
   }

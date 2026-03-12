@@ -7,7 +7,7 @@ import { createSurfSpotFromFormData } from '~/services/surfSpot.server'
 import SurfSpotForm, { LoaderData } from '~/components/SurfSpotForm'
 import { Continent } from '~/types/surfSpots'
 import { Page, ErrorBoundary } from '~/components'
-import { ERROR_ADD_SURF_SPOT } from '~/utils/errorUtils'
+import { ERROR_ADD_SURF_SPOT, SUCCESS_SURF_SPOT_ADDED } from '~/utils/errorUtils'
 
 export const loader: LoaderFunction = async ({ request }) => {
   await requireSessionCookie(request)
@@ -47,7 +47,7 @@ export const action: ActionFunction = async ({ request }) => {
     })
 
     return data(
-      { submitStatus: 'Surf spot added successfully', hasError: false },
+      { submitStatus: SUCCESS_SURF_SPOT_ADDED, hasError: false },
       { status: 201 },
     )
   } catch (error) {

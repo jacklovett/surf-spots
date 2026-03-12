@@ -24,7 +24,14 @@ import { updateTrip } from '~/services/trip'
 import { Trip, UpdateTripRequest } from '~/types/trip'
 import { cacheControlHeader, get, getDisplayMessage } from '~/services/networkService'
 import { ActionData } from '~/types/api'
-import { ERROR_ADD_MEMBERS, ERROR_UPDATE_TRIP } from '~/utils/errorUtils'
+import {
+  ERROR_ADD_MEMBERS,
+  ERROR_INVALID_MEMBER_EMAILS,
+  ERROR_METHOD_NOT_ALLOWED,
+  ERROR_TITLE_REQUIRED,
+  ERROR_TRIP_NOT_FOUND,
+  ERROR_UPDATE_TRIP,
+} from '~/utils/errorUtils'
 
 interface LoaderData {
   trip: Trip
@@ -38,7 +45,7 @@ export const loader: LoaderFunction = async ({ request, params }) => {
 
   if (!tripId) {
     return data<LoaderData>(
-      { error: 'Trip not found', trip: {} as Trip },
+      { error: ERROR_TRIP_NOT_FOUND, trip: {} as Trip },
       { status: 404 },
     )
   }
@@ -77,7 +84,7 @@ export const action: ActionFunction = async ({ params, request }) => {
   // Only handle PUT requests for updates
   if (request.method !== 'PUT') {
     return data<ActionData>(
-      { submitStatus: 'Method not allowed', hasError: true },
+      { submitStatus: ERROR_METHOD_NOT_ALLOWED, hasError: true },
       { status: 405 },
     )
   }
@@ -87,7 +94,7 @@ export const action: ActionFunction = async ({ params, request }) => {
 
   if (!tripId || !user?.id) {
     return data<ActionData>(
-      { submitStatus: 'Trip not found', hasError: true },
+      { submitStatus: ERROR_TRIP_NOT_FOUND, hasError: true },
       { status: 404 },
     )
   }
@@ -100,10 +107,7 @@ export const action: ActionFunction = async ({ params, request }) => {
   // Validate required fields
   if (!title || title.length === 0) {
     return data<ActionData>(
-      {
-        submitStatus: 'Title is required',
-        hasError: true,
-      },
+      { submitStatus: ERROR_TITLE_REQUIRED, hasError: true },
       { status: 400 },
     )
   }
@@ -122,7 +126,7 @@ export const action: ActionFunction = async ({ params, request }) => {
   if (emailErrors.length > 0) {
     return data<ActionData>(
       {
-        submitStatus: 'Please enter valid email addresses for all members.',
+        submitStatus: ERROR_INVALID_MEMBER_EMAILS,
         hasError: true,
       },
       { status: 400 },

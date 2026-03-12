@@ -32,9 +32,26 @@ export const validatePassword: ValidationFn<string> = (
     return requiredError
   }
 
-  return password.length < 8
-    ? `${fieldName} must be at least 8 characters long.`
-    : ''
+  if (password.length < 8) {
+    return `${fieldName} must be at least 8 characters long.`
+  }
+
+  const hasLower = /[a-z]/.test(password)
+  const hasUpper = /[A-Z]/.test(password)
+  const hasDigit = /\d/.test(password)
+  const hasSymbol = /[^A-Za-z0-9]/.test(password)
+
+  const categories =
+    (hasLower ? 1 : 0) +
+    (hasUpper ? 1 : 0) +
+    (hasDigit ? 1 : 0) +
+    (hasSymbol ? 1 : 0)
+
+  if (categories < 3) {
+    return `${fieldName} must include at least three of the following: lowercase letters, uppercase letters, numbers, and symbols.`
+  }
+
+  return ''
 }
 
 export const validateDirection = (

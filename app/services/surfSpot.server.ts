@@ -3,7 +3,14 @@ import { post, deleteData, getDisplayMessage } from './networkService'
 import { getSession, commitSession } from './session.server'
 import { requireSessionCookie } from './session.server'
 import { SurfSpotStatus } from '~/types/surfSpots'
-import { ERROR_UPDATE_TRIP } from '~/utils/errorUtils'
+import {
+  ERROR_LOGIN_REQUIRED,
+  ERROR_MISSING_REQUIRED_FIELDS,
+  ERROR_TRIP_AND_SPOT_IDS_REQUIRED,
+  ERROR_TRIP_AND_TRIP_SPOT_IDS_REQUIRED,
+  ERROR_UPDATE_TRIP,
+  ERROR_USER_NOT_AUTHENTICATED,
+} from '~/utils/errorUtils'
 import { safeLinkHref } from '~/utils/commonUtils'
 import {
   MAX_ACCOMMODATION_OPTIONS,
@@ -68,7 +75,7 @@ export const surfSpotAction: ActionFunction = async ({ request }) => {
     try {
       const user = await requireSessionCookie(request)
       if (!user?.id) {
-        return data({ error: 'You must be logged in' }, { status: 401 })
+        return data({ error: ERROR_LOGIN_REQUIRED }, { status: 401 })
       }
 
       const cookie = request.headers.get('Cookie') || ''
@@ -79,7 +86,7 @@ export const surfSpotAction: ActionFunction = async ({ request }) => {
       if (intent === 'add-spot') {
         if (!tripId || !spotSurfSpotId) {
           return data(
-            { error: 'Trip ID and surf spot ID are required' },
+            { error: ERROR_TRIP_AND_SPOT_IDS_REQUIRED },
             { status: 400 },
           )
         }
@@ -94,7 +101,7 @@ export const surfSpotAction: ActionFunction = async ({ request }) => {
       if (intent === 'remove-spot') {
         if (!tripId || !tripSpotId) {
           return data(
-            { error: 'Trip ID and trip spot ID are required' },
+            { error: ERROR_TRIP_AND_TRIP_SPOT_IDS_REQUIRED },
             { status: 400 },
           )
         }
@@ -127,7 +134,10 @@ export const surfSpotAction: ActionFunction = async ({ request }) => {
       target,
       surfSpotId,
     })
-    return data({ error: 'Missing required fields' }, { status: 400 })
+    return data(
+      { error: ERROR_MISSING_REQUIRED_FIELDS },
+      { status: 400 },
+    )
   }
 
   try {
@@ -135,7 +145,10 @@ export const surfSpotAction: ActionFunction = async ({ request }) => {
     const userId = user.id
 
     if (!userId) {
-      return data({ error: 'User not authenticated' }, { status: 401 })
+      return data(
+        { error: ERROR_USER_NOT_AUTHENTICATED },
+        { status: 401 },
+      )
     }
 
     const endpoint =

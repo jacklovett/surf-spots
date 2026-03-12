@@ -38,9 +38,16 @@ import { useUserContext, useSettingsContext, useLayoutContext, useToastContext, 
 import { getDisplayMessage } from '~/services/networkService'
 import {
   DEFAULT_ERROR_MESSAGE,
-  getSafeFetcherErrorMessage,
+  ERROR_INVALID_SURF_SPOT_ID,
+  ERROR_INVALID_TRIP_ACTION,
   ERROR_SAVE_NOTE,
   ERROR_SOMETHING_WENT_WRONG,
+  ERROR_SURF_SPOT_ID_REQUIRED,
+  ERROR_TRIP_AND_SPOT_IDS_REQUIRED,
+  ERROR_TRIP_AND_TRIP_SPOT_IDS_REQUIRED,
+  ERROR_MISSING_REQUIRED_FIELDS,
+  SUCCESS_NOTE_SAVED,
+  getSafeFetcherErrorMessage,
 } from '~/utils/errorUtils'
 import { formatSurfHeightRange, formatSeason, getNoveltyWaveLabel } from '~/utils/surfSpotUtils'
 
@@ -77,7 +84,7 @@ const handleSaveNote = async (
   const surfSpotId = formData.get('surfSpotId') as string
 
   if (!surfSpotId) {
-    return createErrorResponse('Surf spot ID is required', 400)
+    return createErrorResponse(ERROR_SURF_SPOT_ID_REQUIRED, 400)
   }
 
   const noteText = (formData.get('noteText') as string)?.trim() || ''
@@ -101,7 +108,7 @@ const handleSaveNote = async (
 
   return data<ActionData & { note: SurfSpotNote }>({
     success: true,
-    submitStatus: 'Note saved successfully',
+    submitStatus: SUCCESS_NOTE_SAVED,
     hasError: false,
     note: savedNote,
   })
@@ -122,7 +129,10 @@ const handleTripAction = async (
 
   if (intent === 'add-spot') {
     if (!tripId || !spotSurfSpotId) {
-      return data({ error: 'Trip ID and surf spot ID are required' }, { status: 400 })
+      return data(
+        { error: ERROR_TRIP_AND_SPOT_IDS_REQUIRED },
+        { status: 400 },
+      )
     }
     const newTripSpotId = await post<undefined, string>(
       `trips/${tripId}/spots/${spotSurfSpotId}?userId=${userId}`,
@@ -134,7 +144,10 @@ const handleTripAction = async (
 
   if (intent === 'remove-spot') {
     if (!tripId || !tripSpotId) {
-      return data({ error: 'Trip ID and trip spot ID are required' }, { status: 400 })
+      return data(
+        { error: ERROR_TRIP_AND_TRIP_SPOT_IDS_REQUIRED },
+        { status: 400 },
+      )
     }
     await deleteData(
       `trips/${tripId}/spots/${tripSpotId}?userId=${userId}`,
@@ -143,7 +156,7 @@ const handleTripAction = async (
     return data({ success: true })
   }
 
-  return data({ error: 'Invalid trip action' }, { status: 400 })
+  return data({ error: ERROR_INVALID_TRIP_ACTION }, { status: 400 })
 }
 
 /**
@@ -158,7 +171,10 @@ const handleSurfSpotAction = async (
 ): Promise<ReturnType<typeof data>> => {
   const surfSpotIdNumber = Number(surfSpotId)
   if (isNaN(surfSpotIdNumber)) {
-    return data({ error: 'Invalid surf spot ID' }, { status: 400 })
+    return data(
+      { error: ERROR_INVALID_SURF_SPOT_ID },
+      { status: 400 },
+    )
   }
 
   const endpoint =
@@ -208,7 +224,10 @@ export const action: ActionFunction = async ({ request }) => {
 
     // Handle surf spot actions (watch list / surfed spots)
     if (!actionType || !target || !surfSpotId) {
-      return data({ error: 'Missing required fields' }, { status: 400 })
+      return data(
+        { error: ERROR_MISSING_REQUIRED_FIELDS },
+        { status: 400 },
+      )
     }
 
     return await handleSurfSpotAction(actionType, target, surfSpotId, userId, cookie)
@@ -347,7 +366,7 @@ export default function SurfSpotDetails() {
         const successMsg =
           typeof noteFetcher.data.submitStatus === 'string' && noteFetcher.data.submitStatus.trim()
             ? noteFetcher.data.submitStatus.trim()
-            : 'Note saved successfully'
+            : SUCCESS_NOTE_SAVED
         showSuccess(successMsg)
         // Update context directly with saved note
         if (surfSpotDetails?.id && noteFetcher.data.note) {

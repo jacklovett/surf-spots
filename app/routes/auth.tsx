@@ -9,7 +9,14 @@ import {
 import { authenticateWithCredentials, validate } from '~/services/auth.server'
 import { AuthPage, FormComponent, FormInput, SignInOptions } from '~/components'
 import { getDisplayMessage } from '~/services/networkService'
-import { DEFAULT_ERROR_MESSAGE, ERROR_SIGN_IN, messageForDisplay } from '~/utils/errorUtils'
+import {
+  DEFAULT_ERROR_MESSAGE,
+  ERROR_CREDENTIALS_DONT_MATCH,
+  ERROR_SIGN_IN,
+  ERROR_VALIDATION_FIX,
+  SUCCESS_PASSWORD_RESET,
+  messageForDisplay,
+} from '~/utils/errorUtils'
 
 import { useFormValidation, useSubmitStatus } from '~/hooks'
 import { validateEmail, validatePassword } from '~/hooks/useFormValidation'
@@ -50,7 +57,7 @@ export const loader: LoaderFunction = async ({ request }) => {
 
   if (passwordReset === 'true') {
     return data({
-      submitStatus: 'Password reset successful. Please sign in with your new password.',
+      submitStatus: SUCCESS_PASSWORD_RESET,
       hasError: false,
     })
   }
@@ -67,8 +74,8 @@ export const action: ActionFunction = async ({ request }) => {
   const errors = validate(email, password)
 
   if (errors) {
-    // Return validation errors as submitStatus for inline form display
-    const errorMessage = errors.email || errors.password || 'Please fix the errors above'
+    const errorMessage =
+      errors.email || errors.password || ERROR_VALIDATION_FIX
     return data(
       { submitStatus: errorMessage, hasError: true },
       { status: 400 },
@@ -84,9 +91,7 @@ export const action: ActionFunction = async ({ request }) => {
       return data(
         {
           submitStatus:
-            status === 401
-              ? "That email and password didn't match. Try again or use Forgot password."
-              : DEFAULT_ERROR_MESSAGE,
+            status === 401 ? ERROR_CREDENTIALS_DONT_MATCH : DEFAULT_ERROR_MESSAGE,
           hasError: true,
         },
         { status },

@@ -19,7 +19,12 @@ import { cacheControlHeader, get } from '~/services/networkService'
 import { parseLength, parseDimension } from '~/utils/surfboardUtils'
 import { useSubmitStatus } from '~/hooks'
 import { ActionData } from '~/types/api'
-import { ERROR_UPDATE_SURFBOARD } from '~/utils/errorUtils'
+import {
+  ERROR_METHOD_NOT_ALLOWED,
+  ERROR_NAME_REQUIRED,
+  ERROR_SURFBOARD_NOT_FOUND,
+  ERROR_UPDATE_SURFBOARD,
+} from '~/utils/errorUtils'
 
 interface LoaderData {
   surfboard: Surfboard
@@ -33,7 +38,7 @@ export const loader: LoaderFunction = async ({ request, params }) => {
 
   if (!surfboardId) {
     return data<LoaderData>(
-      { error: 'Surfboard not found', surfboard: {} as Surfboard },
+      { error: ERROR_SURFBOARD_NOT_FOUND, surfboard: {} as Surfboard },
       { status: 404 },
     )
   }
@@ -70,7 +75,7 @@ export const action: ActionFunction = async ({ params, request }) => {
   // Only handle PUT requests for updates
   if (request.method !== 'PUT') {
     return data<ActionData>(
-      { submitStatus: 'Method not allowed', hasError: true },
+      { submitStatus: ERROR_METHOD_NOT_ALLOWED, hasError: true },
       { status: 405 },
     )
   }
@@ -80,7 +85,7 @@ export const action: ActionFunction = async ({ params, request }) => {
 
   if (!surfboardId || !user?.id) {
     return data<ActionData>(
-      { submitStatus: 'Surfboard not found', hasError: true },
+      { submitStatus: ERROR_SURFBOARD_NOT_FOUND, hasError: true },
       { status: 404 },
     )
   }
@@ -90,10 +95,7 @@ export const action: ActionFunction = async ({ params, request }) => {
 
   if (!name || name.length === 0) {
     return data<ActionData>(
-      {
-        submitStatus: 'Name is required',
-        hasError: true,
-      },
+      { submitStatus: ERROR_NAME_REQUIRED, hasError: true },
       { status: 400 },
     )
   }
