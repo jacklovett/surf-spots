@@ -32,7 +32,7 @@ import { useSubmitStatus } from '~/hooks'
 
 export const meta: MetaFunction = () => [
   { title: 'Surf Spots - Settings' },
-  { name: 'description', content: 'Settings controls' },
+  { name: 'description', content: 'Your preferences and notifications' },
 ]
 
 const unitOptions: SelectOption[] = [
@@ -203,7 +203,7 @@ export default function Settings() {
                     <CheckboxOption
                       name="newSurfSpots"
                       title="New Surf Spots"
-                      description="Be notified when new spots are discovered and added to the platform"
+                      description="Get notified when new spots are added to the map"
                       checked={emailSettings.newSurfSpots}
                       onChange={() => toggleEmailSetting('newSurfSpots')}
                     />
@@ -226,15 +226,15 @@ export default function Settings() {
                     />
                     <CheckboxOption
                       name="events"
-                      title="Event & Contests"
-                      description="Stay up to date on contests and events at your watched spots."
+                      title="Events and Contests"
+                      description="Get updates on contests and events at spots you follow."
                       checked={emailSettings.events}
                       onChange={() => toggleEmailSetting('events')}
                     />
                     <CheckboxOption
                       name="promotions"
-                      title="Deals & Promotions"
-                      description="Receive deals and promotions related to the surf spots you follow. (i.e. flights, surf camps etc.)."
+                      title="Deals and Promotions"
+                      description="Receive deals on flights, surf camps, and more for spots you follow."
                       checked={emailSettings.promotions}
                       onChange={() => toggleEmailSetting('promotions')}
                     />
@@ -243,7 +243,7 @@ export default function Settings() {
               </>
             ) : (
               <div className="mt pt">
-                <p>Sign in to manage more settings</p>
+                <p>Sign in to update more preferences</p>
               </div>
             )}
           </div>

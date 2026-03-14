@@ -3,6 +3,7 @@ import { useNavigation, useLocation } from 'react-router'
 import classNames from 'classnames'
 
 import { Drawer, ErrorBoundary, Footer, Header } from '../index'
+import { ERROR_BOUNDARY_SECTION } from '~/utils/errorUtils'
 import { renderContent } from './index'
 
 interface IProps {
@@ -41,7 +42,7 @@ export const Page = (props: IProps) => {
         })}
       >
         <section className="content-container">
-          <ErrorBoundary message="Unable to display page content">
+          <ErrorBoundary message={ERROR_BOUNDARY_SECTION}>
             {renderContent(children, loading, error)}
           </ErrorBoundary>
         </section>

@@ -68,7 +68,7 @@ interface LoaderData {
 
 export const meta: MetaFunction = () => [
   { title: 'Surf Spots - Profile' },
-  { name: 'description', content: 'User profile page' },
+  { name: 'description', content: 'Your profile' },
 ]
 
 export const loader: LoaderFunction = async ({ request }) => {

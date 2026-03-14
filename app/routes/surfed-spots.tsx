@@ -18,6 +18,7 @@ import {
   SurfMap,
   SurfSpotList,
 } from '~/components'
+import { ERROR_BOUNDARY_MAP, ERROR_BOUNDARY_SURF_SPOT_LIST } from '~/utils/errorUtils'
 import { useScrollReveal, useSurfSpotActions } from '~/hooks'
 import { cacheControlHeader, get } from '~/services/networkService'
 import { requireSessionCookie } from '~/services/session.server'
@@ -52,7 +53,7 @@ export const loader: LoaderFunction = async ({ request }) => {
     console.error('Error fetching surf spots:', error)
     return data<LoaderData>(
       {
-        error: `We couldn't find the surf spots right now. Please try again later.`,
+        error: `We could not load your surfed spots right now. Please try again later.`,
       },
       {
         status: 500,
@@ -242,18 +243,18 @@ export default function SurfedSpots() {
         {/* Map Section */}
         <h2>Your Surf Journey Map</h2>
         <div className="map-wrapper center">
-          <ErrorBoundary message="Uh-oh! Something went wrong displaying the map!">
+          <ErrorBoundary message={ERROR_BOUNDARY_MAP}>
             <SurfMap surfSpots={surfSpots} onFetcherSubmit={onFetcherSubmit} />
           </ErrorBoundary>
         </div>
         {/* All Surf Spots List */}
         <div className="spots-section mt-l">
           <h2>All Surfed Spots</h2>
-          <ErrorBoundary message="Unable to load surf spot list">
+          <ErrorBoundary message={ERROR_BOUNDARY_SURF_SPOT_LIST}>
             {!surfedSpotsFound && (
               <EmptyState
                 title="Start Your Surf Journey"
-                description="You haven't surfed any spots yet. Start tracking your surf journey by adding your first surfed spot!"
+                description="No surfed spots recorded. Explore spots and add your first one to start your surf map."
                 ctaText="Explore Surf Spots"
                 onCtaClick={() => navigate('/surf-spots')}
               />

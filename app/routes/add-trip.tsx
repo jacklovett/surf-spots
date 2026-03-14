@@ -24,6 +24,7 @@ import {
 } from '~/components/TripForm'
 import { ActionData } from '~/types/api'
 import {
+  ERROR_BOUNDARY_SECTION,
   ERROR_CREATE_TRIP,
   ERROR_INVALID_MEMBER_EMAILS,
   ERROR_LOGIN_REQUIRED_CREATE_TRIP,
@@ -160,7 +161,7 @@ export default function AddTrip() {
 
   return (
     <Page showHeader>
-      <ErrorBoundary message="Something went wrong loading the trip form">
+      <ErrorBoundary message={ERROR_BOUNDARY_SECTION}>
         <div className="info-page-content mv">
         <TripForm
           actionType="Add"

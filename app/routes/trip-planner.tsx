@@ -8,7 +8,7 @@ export const meta: MetaFunction = () => {
     {
       name: 'description',
       content:
-        'Trip Planner - Coming soon. Get personalized AI-powered surf destination recommendations based on your surfed spots and watch list.',
+        'Trip Planner – Coming soon. Get personalized surf destination ideas based on your surfed spots and watch list.',
     },
   ]
 }
@@ -27,16 +27,14 @@ export default function TripPlanner() {
         </div>
 
         <p className="mb">
-          We're excited to announce that we're working on an AI-powered trip
-          planner that will help you discover your next perfect surf
-          destination!
+          We are building a trip planner to help you discover your next surf
+          destination based on your surf history and watch list.
         </p>
 
         <section>
-          <h2 className="mb">How It Works</h2>
+          <h2 className="mb">How It Will Work</h2>
           <p className="mb">
-            Our AI trip planner analyzes your personal surf data to provide
-            personalized recommendations:
+            The trip planner will use your surf history to suggest places to explore:
           </p>
           <ul className="benefits-list mb">
             <li>
@@ -59,9 +57,8 @@ export default function TripPlanner() {
             </li>
           </ul>
           <p className="mb">
-            The more spots you add to your surfed spots, trips and watch list, the
-            better the model can understand your preferences and provide tailored
-            recommendations!
+            The more spots you add to your surfed spots, trips, and watch list, the
+            better the recommendations.
           </p>
         </section>
 
@@ -69,15 +66,13 @@ export default function TripPlanner() {
           <div className="mt">
             <p className="mb bold">Join the waitlist for Trip Planner</p>
             <p className="mb font-small">
-              Be among the first to experience AI-powered surf trip planning.
-              Create an account to join the waitlist and start building your
-              surfed spots and watch list now. The more data you add, the better
-              your personalized recommendations will be when Trip Planner
-              launches!
+              Be among the first to try the trip planner. Create an account to join
+              the waitlist and start adding your surfed spots and watch list. The
+              more you track, the better your recommendations when it launches.
             </p>
             <div className="mb column center-vertical gap">
               <Button
-                label="Create an Account"
+                label="Create account"
                 onClick={() => navigate('/auth/sign-up')}
                 variant="primary"
                 ariaLabel="Create an account to join the Trip Planner waitlist"
@@ -92,10 +87,10 @@ export default function TripPlanner() {
         {isLoggedIn && (
           <div className="mt">
             <p className="mb bold">
-              Thank you for being part of our community!
+              Thanks for being part of the community.
             </p>
             <p className="font-small">
-              We'll notify you as soon as Trip Planner is ready. Stay tuned!
+              We will notify you when Trip Planner is ready.
             </p>
             <p className="font-small mt">
               Start building your surfed spots and watch list now to get the

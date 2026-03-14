@@ -22,7 +22,7 @@ test.describe('Trips Feature', () => {
     ])
     const hasTrips = (await page.locator('.trips-grid .card').count()) > 0
     if (!hasTrips) {
-      await expect(page.locator('.trips-empty')).toContainText('No trips yet')
+      await expect(page.locator('.trips-empty')).toContainText('No trips')
     }
   })
 

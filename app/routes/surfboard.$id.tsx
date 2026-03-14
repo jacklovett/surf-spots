@@ -26,6 +26,7 @@ import { cacheControlHeader, get, getDisplayMessage } from '~/services/networkSe
 import {
   UPLOAD_ERROR_MEDIA_UNAVAILABLE,
   getSafeFetcherErrorMessage,
+  ERROR_BOUNDARY_MEDIA,
   ERROR_DELETE_MEDIA,
   ERROR_DELETE_SURFBOARD,
   ERROR_SOMETHING_WENT_WRONG,
@@ -380,7 +381,7 @@ export default function SurfboardDetail() {
             </p>
           )}
 
-          <ErrorBoundary message="Unable to load media">
+          <ErrorBoundary message={ERROR_BOUNDARY_MEDIA}>
             <section className="animate-on-scroll">
               <h3>Media</h3>
               <MediaGallery

@@ -47,13 +47,11 @@ export const loader: LoaderFunction = async ({ request }) => {
   }
 }
 
-import { ActionData } from '~/types/api'
-
 export const action: ActionFunction = async ({ request }) => {
   const user = await requireSessionCookie(request)
   if (!user?.id) {
     return data<ActionData>(
-      { error: 'You must be logged in' },
+      { error: 'Sign in to view your trips' },
       { status: 401 },
     )
   }
@@ -110,7 +108,7 @@ export default function Trips() {
           <div className="trips-empty">
             <p className="mv bold">No trips yet</p>
             <p className="text-secondary">
-              Create your first trip to start planning your surf adventures
+              Create your first trip to plan your next surf adventure
             </p>
           </div>
         ) : (

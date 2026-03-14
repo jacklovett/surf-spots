@@ -52,7 +52,7 @@ export const ERROR_TITLE_REQUIRED = 'Title is required'
 export const ERROR_INVALID_MEMBER_EMAILS =
   'Please enter valid email addresses for all members.'
 export const ERROR_LOGIN_REQUIRED_CREATE_TRIP =
-  'You must be logged in to create trips'
+  'Sign in to create trips'
 
 // Surfboards
 export const ERROR_DELETE_SURFBOARD = 'Failed to delete surfboard. Please try again.'
@@ -61,7 +61,7 @@ export const ERROR_UPDATE_SURFBOARD = 'Failed to update surfboard. Please try ag
 export const ERROR_LOAD_SURFBOARDS = 'Failed to load surfboards.'
 export const ERROR_SURFBOARD_NOT_FOUND = 'Surfboard not found'
 export const ERROR_LOGIN_REQUIRED_ADD_SURFBOARD =
-  'You must be logged in to add surfboards'
+  'Sign in to add surfboards'
 
 // Surf spots
 export const ERROR_SAVE_NOTE = 'Failed to save note. Please try again.'
@@ -71,7 +71,7 @@ export const ERROR_LOAD_MAP_SPOTS = "We couldn't load the map. Please try again.
 export const ERROR_ADD_SURF_SPOT = 'Unable to add surf spot. Please try again later.'
 export const ERROR_EDIT_SURF_SPOT = 'Unable to update surf spot. Please try again later.'
 export const ERROR_SURF_SPOT_ID_REQUIRED = 'Surf spot ID is required'
-export const SUCCESS_SURF_SPOT_ADDED = 'Surf spot added successfully'
+export const SUCCESS_SURF_SPOT_ADDED = 'Surf spot added'
 export const SUCCESS_NOTE_SAVED = 'Note saved successfully'
 
 // Profile & account
@@ -81,7 +81,7 @@ export const ERROR_POPULATE_LOCATION = 'Unable to populate location drop-down me
 export const ERROR_AGE_RANGE = 'Age must be between 13 and 120 years'
 export const ERROR_INVALID_HEIGHT = 'Please enter a valid height'
 export const ERROR_INVALID_WEIGHT = 'Please enter a valid weight'
-export const SUCCESS_PROFILE_UPDATED = 'Profile updated successfully'
+export const SUCCESS_PROFILE_UPDATED = 'Profile updated'
 
 // Auth
 export const ERROR_SIGN_IN = 'Unable to sign in. Please try again.'
@@ -105,17 +105,25 @@ export const SUCCESS_FORGOT_PASSWORD_EMAIL_SENT =
 
 // Settings
 export const ERROR_UPDATE_SETTINGS = 'Unable to update settings. Please try again later.'
-export const SUCCESS_SETTINGS_UPDATED = 'Settings updated successfully'
+export const SUCCESS_SETTINGS_UPDATED = 'Settings updated'
 
 // Location
 export const ERROR_DETERMINE_REGION =
   'Unable to determine region for this location. Please try entering manually.'
 
+// Error boundary fallbacks (React ErrorBoundary message prop – shown when a component tree throws)
+export const ERROR_BOUNDARY_GENERIC = 'Something went wrong.'
+export const ERROR_BOUNDARY_MAP = 'Something went wrong loading the map.'
+export const ERROR_BOUNDARY_SURF_SPOT_LIST = 'Unable to load surf spot list.'
+export const ERROR_BOUNDARY_MEDIA = 'Unable to load media.'
+export const ERROR_BOUNDARY_SECTION = 'Something went wrong loading this section.'
+export const ERROR_BOUNDARY_APP = 'Application error. Please refresh the page.'
+
 // Generic (validation / HTTP)
 export const ERROR_METHOD_NOT_ALLOWED = 'Method not allowed'
 export const ERROR_NAME_REQUIRED = 'Name is required'
 export const ERROR_VALIDATION_FIX = 'Please fix the errors above'
-export const ERROR_LOGIN_REQUIRED = 'You must be logged in'
+export const ERROR_LOGIN_REQUIRED = 'Sign in to continue'
 export const ERROR_USER_NOT_AUTHENTICATED = 'User not authenticated'
 export const ERROR_TRIP_AND_SPOT_IDS_REQUIRED =
   'Trip ID and surf spot ID are required'

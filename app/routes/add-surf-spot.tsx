@@ -7,6 +7,7 @@ import { createSurfSpotFromFormData } from '~/services/surfSpot.server'
 import SurfSpotForm, { LoaderData } from '~/components/SurfSpotForm'
 import { Continent } from '~/types/surfSpots'
 import { Page, ErrorBoundary } from '~/components'
+import { ERROR_BOUNDARY_GENERIC } from '~/utils/errorUtils'
 import { ERROR_ADD_SURF_SPOT, SUCCESS_SURF_SPOT_ADDED } from '~/utils/errorUtils'
 
 export const loader: LoaderFunction = async ({ request }) => {
@@ -27,7 +28,7 @@ export const loader: LoaderFunction = async ({ request }) => {
     return data<LoaderData>(
       {
         continents: [],
-        error: `We're having trouble finding continents data right now. Please try again later.`,
+        error: `We could not load continent data right now. Please try again later.`,
       },
       {
         status: 500,
@@ -67,7 +68,7 @@ export default function AddSurfSpot() {
 
   return (
     <Page showHeader>
-      <ErrorBoundary message="Something went wrong">
+      <ErrorBoundary message={ERROR_BOUNDARY_GENERIC}>
         <SurfSpotForm actionType="Add" onCancel={() => navigate(-1)} />
       </ErrorBoundary>
     </Page>

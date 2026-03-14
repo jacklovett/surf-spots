@@ -21,6 +21,11 @@ import {
   SurfMap,
   SurfSpotList,
 } from '~/components'
+import {
+  ERROR_BOUNDARY_MAP,
+  ERROR_BOUNDARY_SECTION,
+  ERROR_BOUNDARY_SURF_SPOT_LIST,
+} from '~/utils/errorUtils'
 import { WatchedSurfSpotsSummary } from '~/types/watchedSurfSpotsSummary'
 import { cacheControlHeader, get } from '~/services/networkService'
 import { useScrollReveal, useSurfSpotActions } from '~/hooks'
@@ -53,7 +58,7 @@ export const loader: LoaderFunction = async ({ request }) => {
   } catch (error) {
     return data<LoaderData>(
       {
-        error: `We couldn't find the updates on watched surf spots right now. Please try again later.`,
+        error: `We could not load updates for your watched spots right now. Please try again later.`,
       },
       {
         status: 500,
@@ -123,7 +128,7 @@ export default function Watchlist() {
               deals for the spots you're following.
             </p>
 
-            <ErrorBoundary message="Uh-oh! Something went wrong displaying the latest updates">
+            <ErrorBoundary message={ERROR_BOUNDARY_SECTION}>
               {hasNotifications ? (
                 <div className="watchlist-feed">
                   <h2 className="feed-section-title">Latest Updates</h2>
@@ -138,21 +143,21 @@ export default function Watchlist() {
                 </div>
               ) : (
                 <p className="text-secondary mt-l">
-                  No updates yet. We'll notify you when there's news about your
+                  No updates. We'll notify you when there's news about your
                   watched spots.
                 </p>
               )}
             </ErrorBoundary>
 
             <div id="watchlist-map" className="map-wrapper center mt-l">
-              <ErrorBoundary message="Uh-oh! Something went wrong displaying the map!">
+              <ErrorBoundary message={ERROR_BOUNDARY_MAP}>
                 <SurfMap surfSpots={surfSpots} onFetcherSubmit={onFetcherSubmit} />
               </ErrorBoundary>
             </div>
 
             <div id="watched-spots" className="mt-l">
               <h2 className="watched-spots-title">Your Watched Surf Spots</h2>
-              <ErrorBoundary message="Unable to load surf spot list">
+              <ErrorBoundary message={ERROR_BOUNDARY_SURF_SPOT_LIST}>
                 <SurfSpotList surfSpots={surfSpots} />
               </ErrorBoundary>
             </div>
@@ -162,7 +167,7 @@ export default function Watchlist() {
             <div className="mt-l animate-on-scroll">
               <EmptyState
                 title="Build Your Watch List"
-                description="Follow surf spots you're interested in to get alerts about swell seasons, events, and travel deals. Use the map below to find spots to watch."
+                description="Follow spots you are interested in to get updates on swell seasons, events, and travel deals. Use the map below to find spots to add."
                 ctaText="Explore Surf Spots"
                 onCtaClick={() => navigate('/surf-spots')}
               />

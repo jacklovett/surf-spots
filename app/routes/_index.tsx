@@ -10,7 +10,7 @@ export const meta: MetaFunction = () => {
     {
       name: 'description',
       content:
-        "Map every surf spot you've surfed, discover new waves, plan epic trips with friends, catalog your surfboards, and build your surf collection. Monitor conditions, track your journey, and never miss the perfect session.",
+        "Map every surf spot you have surfed, discover new waves, plan trips with friends, manage your surfboards, and build your surf history. Track your journey and remember every session.",
     },
   ]
 }
@@ -46,10 +46,9 @@ export default function Index() {
               </div>
               <div className="hero-text">
                 <h1>Never Forget a Wave</h1>
-                <p>
-                  Track every spot you've surfed, discover thousands of breaks
-                  worldwide, and plan trips with friends. Your complete surf
-                  companion from first paddle out to epic adventures.
+                <p className="hero-tagline">
+                  Map every spot you have surfed, manage your quiver and plan
+                  your next surf adventure. All in one place.
                 </p>
                 <div className="hero-cta">
                   <NavButton
@@ -80,10 +79,10 @@ export default function Index() {
                 <div className="feature-icon" aria-hidden="true">
                   <Icon iconKey="pin" useAccentColor />
                 </div>
-                <h3>Your Surf Map</h3>
+                <h3>Surf Map</h3>
                 <p>
-                  Log every session with ratings and notes. Watch your
-                  collection grow across the globe.
+                  Add every spot you have surfed and watch your surf history
+                  grow across the globe.
                 </p>
               </div>
 
@@ -91,7 +90,7 @@ export default function Index() {
                 <div className="feature-icon" aria-hidden="true">
                   <Icon iconKey="surfboard" useAccentColor />
                 </div>
-                <h3>Your Stats</h3>
+                <h3>Stats</h3>
                 <p>
                   How many spots? Which countries? What wave types? Track your
                   surf journey.
@@ -102,7 +101,7 @@ export default function Index() {
                 <div className="feature-icon" aria-hidden="true">
                   <Icon iconKey="plus" useAccentColor />
                 </div>
-                <h3>Your Discoveries</h3>
+                <h3>Discoveries</h3>
                 <p>
                   Found a new break? Add it public or private. Keep your secret
                   spots secret.
@@ -113,10 +112,10 @@ export default function Index() {
                 <div className="feature-icon" aria-hidden="true">
                   <Icon iconKey="surfboard" useAccentColor />
                 </div>
-                <h3>Your Quiver</h3>
+                <h3>Quiver</h3>
                 <p>
-                  Catalog your surfboards in one place. Plan which boards to
-                  bring on trips and track your full setup.
+                  Manage your boards and setup. See which you rode where and
+                  plan which to bring on your next trip.
                 </p>
               </div>
             </div>
@@ -175,8 +174,8 @@ export default function Index() {
                 </div>
                 <h3>Trip Planner</h3>
                 <p>
-                  Optimize your route between spots. Get the best order to hit
-                  your surfed list, watch list, or trip destinations.
+                  Plan your route between spots. Find the best order for your
+                  surfed spots, watch list, or trip destinations.
                 </p>
               </div>
             </div>
@@ -196,7 +195,7 @@ export default function Index() {
                 <div className="step-number">1</div>
                 <h3>Explore</h3>
                 <p>
-                  Browse spots worldwide—no signup required to discover new
+                  Browse spots worldwide. No signup required to discover new
                   locations.
                 </p>
               </div>
@@ -205,8 +204,8 @@ export default function Index() {
                 <div className="step-number">2</div>
                 <h3>Track</h3>
                 <p>
-                  Sign up free to log sessions, rate spots, and build your
-                  personal collection.
+                  Sign up free to record sessions, rate spots, and build your
+                  personal surf history.
                 </p>
               </div>
 
@@ -227,7 +226,7 @@ export default function Index() {
           <div className="container">
             <h2>Ready to Never Forget a Wave?</h2>
             <p>
-              Join surfers worldwide mapping their sessions and planning their
+              Join surfers worldwide tracking their sessions and planning their
               next adventure.
             </p>
             <div className="cta-buttons">

@@ -5,6 +5,7 @@ import { MapMouseEvent } from 'mapbox-gl'
 import { useLayoutContext, useUserContext } from '~/contexts'
 import { SurfSpot } from '~/types/surfSpots'
 import { ErrorBoundary, SurfSpotPreview, SurfSpotActions } from '~/components'
+import { ERROR_BOUNDARY_SECTION } from '~/utils/errorUtils'
 import { FetcherSubmitParams } from '~/types/api'
 export const useMapDrawer = (
   onFetcherSubmit?: (params: FetcherSubmitParams) => void,
@@ -32,7 +33,7 @@ export const useMapDrawer = (
 
         // Open drawer with surf spot content
         const drawerContent = (
-          <ErrorBoundary message="Unable to display surf spot preview">
+          <ErrorBoundary message={ERROR_BOUNDARY_SECTION}>
             <SurfSpotPreview
               surfSpot={surfSpot}
               user={user}

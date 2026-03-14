@@ -161,8 +161,8 @@ export const SurfboardSelectionModal = ({
         removingItemId: removingSurfboardId,
       }}
       emptyState={{
-        title: "No available surfboards to add.",
-        description: "Create a surfboard first to add it to this trip.",
+        title: "No boards in your quiver",
+        description: "Add a surfboard to your quiver first, then add it to this trip.",
         ctaText: "Go to Surfboards",
         ctaAction: handleGoToSurfboards,
       }}

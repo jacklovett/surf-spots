@@ -24,6 +24,7 @@ import {
   ERROR_NAME_REQUIRED,
   ERROR_SURFBOARD_NOT_FOUND,
   ERROR_UPDATE_SURFBOARD,
+  ERROR_BOUNDARY_SECTION,
 } from '~/utils/errorUtils'
 
 interface LoaderData {
@@ -158,7 +159,7 @@ export default function EditSurfboard() {
 
   return (
     <Page showHeader>
-      <ErrorBoundary message="Something went wrong loading the surfboard form">
+      <ErrorBoundary message={ERROR_BOUNDARY_SECTION}>
         <div className="info-page-content mv">
           <h1>Edit Surfboard</h1>
           <SurfboardForm

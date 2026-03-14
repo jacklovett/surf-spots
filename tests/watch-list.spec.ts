@@ -123,7 +123,7 @@ test.describe('Watch List Page', () => {
         // Should show either feed items or "no updates" message
         const hasFeed = await page.locator('.watchlist-feed').isVisible()
         const hasNoUpdates = await page
-          .locator('text=No updates yet')
+          .locator('text=No updates')
           .isVisible()
 
         expect(hasFeed || hasNoUpdates).toBe(true)

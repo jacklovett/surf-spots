@@ -31,6 +31,7 @@ import {
   ERROR_TITLE_REQUIRED,
   ERROR_TRIP_NOT_FOUND,
   ERROR_UPDATE_TRIP,
+  ERROR_BOUNDARY_SECTION,
 } from '~/utils/errorUtils'
 
 interface LoaderData {
@@ -205,7 +206,7 @@ export default function EditTrip() {
 
   return (
     <Page showHeader>
-      <ErrorBoundary message="Something went wrong loading the trip form">
+      <ErrorBoundary message={ERROR_BOUNDARY_SECTION}>
         <div className="info-page-content mv">
           <TripForm
             actionType="Edit"

@@ -42,33 +42,33 @@ export const SignUpPromptProvider = ({
     switch (feature) {
       case 'watch-list':
         return {
-          title: 'Sign Up to Build Your Custom Watchlist',
+          title: 'Sign Up to Build Your Watch List',
           content: (
             <>
-              <p>With a watchlist, you could receive:</p>
+              <p>With a watch list, you can receive:</p>
               <ul className="benefits-list">
-                <li>Tailored surf travel ideas</li>
-                <li>Exclusive offers on accommodation and flights</li>
+                <li>Surf travel ideas tailored to you</li>
                 <li>Updates on local events and conditions</li>
+                <li>Offers on accommodation and flights</li>
               </ul>
-              <p>Ensure you never miss a thing!</p>
+              <p>Never miss an update on the spots you follow.</p>
             </>
           ),
         }
       case 'surfed-spots':
         return {
-          title: 'Sign Up to Record Your Surfed Spots',
+          title: 'Sign Up to Track Your Surfed Spots',
           content: (
             <>
               <p>
-                Record your surfed spots and build a personal record of your surf
-                achievements.
+                Record every spot you have surfed and build your personal surf
+                history.
               </p>
               <ul className="benefits-list">
-                <li>Capture every spot you've surfed.</li>
-                <li>Monitor your exploration progress around the globe.</li>
-                <li>Discover your surf trends and favorite wave types.</li>
-                <li>Share your journey with others!</li>
+                <li>Capture every spot you have surfed.</li>
+                <li>Track your exploration across the globe.</li>
+                <li>Discover your favorite wave types and breaks.</li>
+                <li>Share your journey with others.</li>
               </ul>
             </>
           ),
@@ -79,13 +79,12 @@ export const SignUpPromptProvider = ({
           content: (
             <>
               <p>
-                Join our community and contribute by adding new surf spots for
-                others to discover.
+                Add new surf spots for others to explore and discover.
               </p>
               <ul className="benefits-list">
-                <li>Share your favorite surf spots with the community</li>
-                <li>Help other surfers discover new waves</li>
-                <li>Build your reputation as a surf spot contributor</li>
+                <li>Share your favorite spots with other surfers</li>
+                <li>Help others discover new waves</li>
+                <li>Add spots and grow the map</li>
                 <li>Keep your secret spots private if you prefer</li>
               </ul>
             </>
@@ -97,16 +96,13 @@ export const SignUpPromptProvider = ({
           content: (
             <>
               <p>
-                Create trip itineraries, plan your surf adventures, and share
-                them with friends.
+                Create trips, plan surf adventures, and share them with friends.
               </p>
               <ul className="benefits-list">
-                <li>Plan epic surf trips with multiple spots</li>
+                <li>Plan trips with multiple spots</li>
                 <li>Invite friends to join your trips</li>
                 <li>Share photos and memories from your adventures</li>
-                <li>
-                  Organize everything for your next surf trip in one place
-                </li>
+                <li>Keep your next surf trip in one place</li>
               </ul>
             </>
           ),
@@ -132,13 +128,13 @@ export const SignUpPromptProvider = ({
           content: (
             <>
               <p>
-                Save personal notes about surf spots to remember your experiences
-                and preferences and start building your own local knowledge base.
+                Save notes about surf spots to remember your experiences and
+                preferences.
               </p>
               <ul className="benefits-list">
-                <li>Write personal notes about each surf spot</li>
-                <li>Remember your preferred conditions, tides, and board choices</li>
-                <li>Keep private insights that only you can see</li>
+                <li>Write personal notes about each spot</li>
+                <li>Remember conditions, tides, and board choices</li>
+                <li>Keep private notes that only you can see</li>
               </ul>
             </>
           ),
@@ -146,7 +142,7 @@ export const SignUpPromptProvider = ({
       default:
         return {
           title: 'Sign Up to Get Started',
-          content: <p>Create an account to access this feature.</p>,
+          content: <p>Create an account to get started.</p>,
         }
     }
   }
@@ -162,7 +158,7 @@ export const SignUpPromptProvider = ({
           </div>
           <div className="modal-footer">
             <Button
-              label="Create an account"
+              label="Create account"
               onClick={() => {
                 setModalState(initialModalState)
                 navigate('/auth/sign-up')

@@ -21,6 +21,11 @@ import {
   Toolbar,
   TripPlannerButton,
 } from '~/components'
+import {
+  ERROR_BOUNDARY_SECTION,
+  ERROR_BOUNDARY_MAP,
+  ERROR_BOUNDARY_GENERIC,
+} from '~/utils/errorUtils'
 import { BreadcrumbItem } from '~/components/Breadcrumb'
 import { getAppliedFiltersCount } from '~/components/Filters'
 
@@ -85,7 +90,7 @@ export default function SurfSpots() {
 
   const handleOpenFilters = () => {
     const filtersContent = (
-      <ErrorBoundary message="Unable to display filters">
+      <ErrorBoundary message={ERROR_BOUNDARY_SECTION}>
         <Filters />
       </ErrorBoundary>
     )
@@ -177,7 +182,7 @@ export default function SurfSpots() {
           loadingComponent
         ) : (
           <div className="center column h-full map-wrapper">
-            <ErrorBoundary message="Uh-oh! Something went wrong displaying the map!">
+            <ErrorBoundary message={ERROR_BOUNDARY_MAP}>
               <SurfMap onFetcherSubmit={onFetcherSubmit} />
             </ErrorBoundary>
           </div>
@@ -188,7 +193,7 @@ export default function SurfSpots() {
           {loading ? (
             loadingComponent
           ) : (
-            <ErrorBoundary message="Uh-oh! Something went wrong!">
+            <ErrorBoundary message={ERROR_BOUNDARY_GENERIC}>
               <div className="mt">
                 <Outlet />
               </div>

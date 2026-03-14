@@ -6,6 +6,7 @@ import {
   TextButton,
   ErrorBoundary,
 } from '~/components'
+import { ERROR_BOUNDARY_MAP } from '~/utils/errorUtils'
 import { Continent, SurfSpotFormState } from '~/types/surfSpots'
 import type { LocationSelection } from '~/hooks/useLocationSelection'
 
@@ -82,7 +83,7 @@ export const LocationSection = ({
       </div>
       {findOnMap && (
         <div className="find-spot-map">
-          <ErrorBoundary message="Uh-oh! Something went wrong displaying the map!">
+          <ErrorBoundary message={ERROR_BOUNDARY_MAP}>
             <AddSurfSpotMap
               onLocationUpdate={handleLocationUpdate}
               initialCoordinates={

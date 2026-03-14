@@ -9,7 +9,7 @@ export const meta: MetaFunction = () => {
     {
       name: 'description',
       content:
-        'Get in touch with the Surf Spots team for support, feedback, or questions.',
+        'Get in touch for support, feedback, or questions.',
     },
   ]
 }

@@ -243,7 +243,7 @@ export const TripSelectionModal = ({
       }}
       emptyState={{
         title: "No trips yet",
-        description: "Create a trip to start planning your surf adventures and add spots like this one.",
+        description: "Create a trip to plan your surf adventure and add spots like this one.",
         ctaText: "Create Trip",
         ctaAction: handleCreateTrip,
       }}

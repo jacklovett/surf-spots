@@ -1,5 +1,5 @@
 /**
- * useFileUpload — hook used on trip and surfboard pages to add photos/videos.
+ * useFileUpload: hook used on trip and surfboard pages to add photos/videos.
  *
  * Flow: 1) GET presigned URL from our API (no file sent). 2) PUT file to S3 from the browser.
  * 3) POST add-media (mediaId, s3Url, mediaType) to the page action so the backend records it.

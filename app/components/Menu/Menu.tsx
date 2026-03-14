@@ -6,6 +6,7 @@ import {
   collectionMenuItems,
 } from './index'
 import { ErrorBoundary } from '../index'
+import { ERROR_BOUNDARY_SECTION } from '~/utils/errorUtils'
 import { MenuSection } from './MenuSection'
 import { useLayoutContext, useUserContext, useSignUpPromptContext } from '~/contexts'
 
@@ -42,7 +43,7 @@ const Menu = () => {
 
   const renderMenuContent = () => (
     <div className="menu-drawer-content">
-      <ErrorBoundary message="Unable to display menu">
+      <ErrorBoundary message={ERROR_BOUNDARY_SECTION}>
         <MenuSection
           title="Spots"
           items={spotsMenuItems}

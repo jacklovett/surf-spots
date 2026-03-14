@@ -46,6 +46,8 @@ import {
   ERROR_REMOVE_MEMBER,
   ERROR_CANCEL_INVITATION,
   ERROR_DELETE_MEDIA,
+  ERROR_BOUNDARY_MEDIA,
+  ERROR_BOUNDARY_SECTION,
 } from '~/utils/errorUtils'
 import { ActionData as BaseActionData } from '~/types/api'
 
@@ -421,10 +423,10 @@ export default function TripDetail() {
   useEffect(() => {
     const success = searchParams.get('success')
     if (success === 'created') {
-      showSuccess('Trip created successfully')
+      showSuccess('Trip created')
       navigate(location.pathname, { replace: true })
     } else if (success === 'updated') {
-      showSuccess('Trip updated successfully')
+      showSuccess('Trip updated')
       navigate(location.pathname, { replace: true })
     }
   }, []) // eslint-disable-line react-hooks/exhaustive-deps -- run once on mount; navigate clears query
@@ -440,7 +442,7 @@ export default function TripDetail() {
           media: [...(prev.media || []), newMedia],
         }
       })
-      showSuccess('Media uploaded successfully!')
+      showSuccess('Media uploaded')
     }
   }, [fetcherData, showSuccess])
 
@@ -546,7 +548,7 @@ export default function TripDetail() {
             <p className="description">{currentTrip.description}</p>
           )}
 
-          <ErrorBoundary message="Unable to load members">
+          <ErrorBoundary message={ERROR_BOUNDARY_SECTION}>
             <section className="animate-on-scroll">
               <h3>Members</h3>
               {currentTrip.members && currentTrip.members.length > 0 ? (
@@ -606,8 +608,8 @@ export default function TripDetail() {
                 </div>
               ) : (
                 <EmptyState
-                  title="No Members"
-                  description="No members have been added to this trip yet."
+                  title="No Members Yet"
+                  description="Add friends to this trip so you can plan and share the adventure together."
                   ctaText="Add Members"
                   onCtaClick={() => navigate(`/edit-trip/${currentTrip.id}`)}
                 />
@@ -615,7 +617,7 @@ export default function TripDetail() {
             </section>
           </ErrorBoundary>
 
-          <ErrorBoundary message="Unable to load surf spots">
+          <ErrorBoundary message={ERROR_BOUNDARY_SECTION}>
             <section className="animate-on-scroll">
               <h3>Surf Spots</h3>
               {currentTrip.spots && currentTrip.spots.length > 0 ? (
@@ -661,8 +663,8 @@ export default function TripDetail() {
                 </div>
               ) : (
                 <EmptyState
-                  title="No Surf Spots"
-                  description="No surf spots have been added to this trip yet."
+                  title="No Surf Spots Yet"
+                  description="Add spots you want to surf on this trip."
                   ctaText="Explore Surf Spots"
                   onCtaClick={() => navigate('/surf-spots')}
                 />
@@ -670,7 +672,7 @@ export default function TripDetail() {
             </section>
           </ErrorBoundary>
 
-          <ErrorBoundary message="Unable to load surfboards">
+          <ErrorBoundary message={ERROR_BOUNDARY_SECTION}>
             <section className="animate-on-scroll">
               <h3>Surfboards</h3>
               {currentTrip.isOwner && (
@@ -731,7 +733,7 @@ export default function TripDetail() {
             </section>
           </ErrorBoundary>
 
-          <ErrorBoundary message="Unable to load media">
+          <ErrorBoundary message={ERROR_BOUNDARY_MEDIA}>
             <section className="animate-on-scroll">
               <h3>Media</h3>
               <MediaGallery
@@ -768,7 +770,7 @@ export default function TripDetail() {
 
               {currentTrip.isOwner && (
                 <div className="media-upload-container">
-                  {isUploading && <p className="mb">Uploading media...</p>}
+                  {isUploading && <p className="mb">Uploading...</p>}
                   <MediaUpload
                     onFilesSelected={(files) => {
                       if (!user?.id || !currentTrip?.id) return

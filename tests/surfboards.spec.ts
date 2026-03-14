@@ -22,7 +22,7 @@ test.describe('Surfboards Feature', () => {
 
     const emptyState = page.locator('.surfboards-empty')
     if (await emptyState.isVisible()) {
-      await expect(emptyState).toContainText('No surfboards yet')
+      await expect(emptyState).toContainText('No boards in your quiver')
     }
   })
 

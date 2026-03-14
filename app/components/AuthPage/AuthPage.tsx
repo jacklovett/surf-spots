@@ -3,6 +3,7 @@ import { useNavigation } from 'react-router'
 import classNames from 'classnames'
 
 import { ErrorBoundary } from '../index'
+import { ERROR_BOUNDARY_SECTION } from '~/utils/errorUtils'
 import { renderContent } from '../Page'
 import { COPYRIGHT_TEXT } from '../Footer'
 
@@ -21,7 +22,7 @@ export const AuthPage = (props: IProps) => {
 
   return (
     <main className="page">
-      <ErrorBoundary message="Unable to display page content">
+      <ErrorBoundary message={ERROR_BOUNDARY_SECTION}>
         <div
           className={classNames({
             'auth-layout': true,

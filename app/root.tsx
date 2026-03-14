@@ -24,6 +24,7 @@ import {
   SignUpPromptProvider,
 } from './contexts'
 import { ErrorBoundary as AppErrorBoundary, ToastContainer, SignUpPromptModal } from './components'
+import { ERROR_BOUNDARY_APP } from './utils/errorUtils'
 
 export { ErrorBoundary } from './RootErrorBoundary'
 
@@ -131,7 +132,7 @@ export default function App() {
   }, [])
 
   return (
-    <AppErrorBoundary message="Application error - please refresh the page">
+    <AppErrorBoundary message={ERROR_BOUNDARY_APP}>
       <UserProvider {...{ user }}>
         <LayoutProvider>
           <SettingsProvider>

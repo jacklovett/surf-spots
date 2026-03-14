@@ -87,9 +87,9 @@ export default function Surfboards() {
 
         {surfboardsList.length === 0 ? (
           <div className="surfboards-empty">
-            <p className="mv bold">No surfboards yet</p>
+            <p className="mv bold">No boards in your quiver</p>
             <p className="text-secondary">
-              Add your first surfboard to start tracking your collection
+              Add your first board to start managing your quiver
             </p>
           </div>
         ) : (

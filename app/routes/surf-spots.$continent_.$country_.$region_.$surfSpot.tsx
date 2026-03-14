@@ -38,6 +38,8 @@ import { useUserContext, useSettingsContext, useLayoutContext, useToastContext, 
 import { getDisplayMessage } from '~/services/networkService'
 import {
   DEFAULT_ERROR_MESSAGE,
+  ERROR_BOUNDARY_MAP,
+  ERROR_BOUNDARY_SECTION,
   ERROR_INVALID_SURF_SPOT_ID,
   ERROR_INVALID_TRIP_ACTION,
   ERROR_SAVE_NOTE,
@@ -412,7 +414,7 @@ export default function SurfSpotDetails() {
     }
 
     const drawerContent = (
-      <ErrorBoundary message="Something went wrong loading the note form">
+      <ErrorBoundary message={ERROR_BOUNDARY_SECTION}>
         <SurfSpotNoteForm
           key={`note-form-${surfSpotDetails.id}`}
           surfSpotId={surfSpotDetails.id.toString()}
@@ -473,7 +475,7 @@ if (error || !surfSpotDetails) {
             {noveltyLabel && <Chip label={noveltyLabel} isFilled={false} />}
           </div>
           <div className="spot-actions">
-            <ErrorBoundary message="Unable to display surf spot actions">
+            <ErrorBoundary message={ERROR_BOUNDARY_SECTION}>
               <SurfSpotActions
                 {...{
                   surfSpot: surfSpotDetails,
@@ -500,7 +502,7 @@ if (error || !surfSpotDetails) {
           <Details label="Skill Level" value={skillLevel} />
         </div>
       </div>
-      <ErrorBoundary message="Uh-oh! Something went wrong displaying the map!">
+      <ErrorBoundary message={ERROR_BOUNDARY_MAP}>
         <div className="map-wrapper mv">
           <SurfMap surfSpots={[surfSpotDetails]} disableInteractions />
         </div>
