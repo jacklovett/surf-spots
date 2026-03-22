@@ -11,17 +11,9 @@
 export const DEFAULT_ERROR_MESSAGE =
   'An unexpected error occurred. Please try again.'
 
-/** Generic fallback when we don't know the cause (e.g. fetcher/action with no status). */
-export const ERROR_SOMETHING_WENT_WRONG =
-  'Something went wrong. Please try again.'
-
 /** Shown for 4xx when the API did not return a specific message (suggests user can fix something). */
 export const ERROR_CHECK_INPUT =
   'Something went wrong. Check the details and try again.'
-
-/** Shown for 5xx or network failure when the API did not return a specific message. */
-export const ERROR_OUR_PROBLEM =
-  'Something went wrong. Please try again later.'
 
 /** Shown when a request times out (e.g. cold start or slow network). */
 export const ERROR_REQUEST_TIMEOUT =
@@ -70,6 +62,7 @@ export const ERROR_LOAD_CONTINENTS = "We couldn't load the continents. Please tr
 export const ERROR_LOAD_MAP_SPOTS = "We couldn't load the map. Please try again."
 export const ERROR_ADD_SURF_SPOT = 'Unable to add surf spot. Please try again later.'
 export const ERROR_EDIT_SURF_SPOT = 'Unable to update surf spot. Please try again later.'
+export const SUCCESS_SURF_SPOT_UPDATED = 'Surf spot updated'
 export const ERROR_SURF_SPOT_ID_REQUIRED = 'Surf spot ID is required'
 export const SUCCESS_SURF_SPOT_ADDED = 'Surf spot added'
 export const SUCCESS_NOTE_SAVED = 'Note saved successfully'
@@ -133,6 +126,21 @@ export const ERROR_MISSING_REQUIRED_FIELDS = 'Missing required fields'
 export const ERROR_INVALID_TRIP_ACTION = 'Invalid trip action'
 export const ERROR_INVALID_SURF_SPOT_ID = 'Invalid surf spot ID'
 
+/**
+ * Status code for `data(..., { status })` in an action `catch` after `post`/`patch` throws
+ * (e.g. `NetworkError` with `.status`). Forwards 400–599 when present; otherwise 500.
+ */
+export const httpStatusFromActionError = (error: unknown): number => {
+  if (error == null || typeof error !== 'object' || !('status' in error)) {
+    return 500
+  }
+  const code = (error as { status?: number }).status
+  if (typeof code === 'number' && code >= 400 && code < 600) {
+    return code
+  }
+  return 500
+}
+
 const MAX_DISPLAY_LENGTH = 300
 // Patterns that must never be shown to users (technical/implementation details).
 const INTERNAL_INDICATORS = [
@@ -185,6 +193,46 @@ export const getSafeFetcherErrorMessage = (
     (typeof o.error === 'string' && o.error.trim() ? o.error.trim() : null) ??
     (typeof o.submitStatus === 'string' && o.submitStatus.trim() ? o.submitStatus.trim() : null)
   return messageForDisplay(msg ?? undefined, fallback)
+}
+
+/** Shape returned by add-surf-spot / edit-surf-spot style actions */
+export interface FetcherSubmitStatus {
+  message: string
+  isError: boolean
+}
+
+/** Normalizes `useFetcher().data` when the action result is nested under `.data`. */
+export const unwrapFetcherActionPayload = (
+  fetcherData: unknown,
+): Record<string, unknown> | null => {
+  if (fetcherData == null || typeof fetcherData !== 'object') return null
+  const root = fetcherData as Record<string, unknown>
+  if (
+    'data' in root &&
+    root.data != null &&
+    typeof root.data === 'object'
+  ) {
+    return root.data as Record<string, unknown>
+  }
+  return root
+}
+
+/**
+ * Extract submit status from fetcher.data for form actions that return { submitStatus, hasError }.
+ * Always returns a safe user-facing message (never raw payload or serialized data).
+ * Handles wrapped payload (e.g. .data) and weird shapes by using getSafeFetcherErrorMessage.
+ */
+export const getFetcherSubmitStatus = (
+  fetcherData: unknown,
+  fallbackMessage: string = DEFAULT_ERROR_MESSAGE,
+): FetcherSubmitStatus | null => {
+  if (fetcherData == null) return null
+  const payload = unwrapFetcherActionPayload(fetcherData)
+  if (payload == null) return null
+  const message = getSafeFetcherErrorMessage(payload, fallbackMessage)
+  const isError =
+    typeof payload.hasError === 'boolean' ? payload.hasError : true
+  return { message, isError }
 }
 
 /**

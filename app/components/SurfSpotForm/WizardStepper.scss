@@ -1,0 +1,149 @@
+/* WizardStepper – form progress stepper and nav */
+
+.surf-spot-wizard-stepper {
+  margin-top: $spacing-large;
+  margin-bottom: $spacing-unit;
+  width: 100%;
+
+  /* Mobile styles */
+  @media (max-width: 768px) {
+    padding: 0 $spacing-small;
+  }
+}
+
+.surf-spot-wizard-stepper-nodes {
+  @extend %flex-base;
+  align-items: flex-start;
+  width: 100%;
+  min-width: 100%;
+}
+
+.surf-spot-wizard-stepper-slot,
+.surf-spot-wizard-stepper-sep {
+  flex: 1;
+  min-width: 0;
+}
+
+.surf-spot-wizard-stepper-slot {
+  @extend %flex-center;
+}
+
+.surf-spot-wizard-stepper-sep {
+  @extend %flex-base;
+  align-items: center;
+  align-self: flex-start;
+  margin-top: 11px;
+}
+
+.surf-spot-wizard-stepper-sep-line {
+  width: 100%;
+  height: 2px;
+  background: $outline-color;
+  opacity: 0.6;
+  margin: 0 $spacing-small;
+  box-sizing: border-box;
+}
+
+.surf-spot-wizard-stepper-node {
+  @extend %flex-column;
+  align-items: center;
+  gap: $spacing-small;
+  flex-shrink: 0;
+}
+
+.surf-spot-wizard-stepper-node-circle {
+  @extend %flex-center;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: $background-color;
+  border: 2px solid $outline-color;
+  color: $text-secondary;
+  font-size: $font-size-x-small;
+  flex-shrink: 0;
+  transition: border-color 0.2s ease, background 0.2s ease, color 0.2s ease;
+
+  svg {
+    width: 12px;
+    height: 12px;
+  }
+}
+
+.surf-spot-wizard-stepper-node.completed .surf-spot-wizard-stepper-node-circle {
+  border-color: $primary-color;
+  background: $primary-color;
+  color: $background-color;
+}
+
+.surf-spot-wizard-stepper-node.current .surf-spot-wizard-stepper-node-circle {
+  border-color: $primary-color;
+  background: $primary-color;
+  color: $background-color;
+  box-shadow: 0 0 0 3px $background-color, 0 0 0 5px $primary-color;
+}
+
+.surf-spot-wizard-stepper-node-label {
+  font-size: $font-size-x-small;
+  color: $text-color;
+  font-weight: normal;
+
+  .surf-spot-wizard-stepper-node.current & {
+    font-weight: bold;
+  }
+
+  /* On mobile, only the current step shows its label to avoid overlap */
+  @media (max-width: 767px) {
+    .surf-spot-wizard-stepper-node:not(.current) & {
+      display: none;
+    }
+  }
+}
+
+.surf-spot-form-basics-spacer {
+  margin-top: $spacing-large;
+}
+
+.surf-spot-wizard-nav {
+  @extend %flex-space-between;
+  gap: $spacing-unit;
+  margin-top: $spacing-large;
+  margin-bottom: $spacing-large;
+}
+
+.surf-spot-wizard-arrow {
+  min-width: 48px;
+  min-height: 48px;
+  padding: 0;
+  border-radius: 50%;
+  border: 2px solid $primary-color;
+  background: transparent;
+  color: $primary-color;
+
+  .button-content {
+    @extend %flex-center;
+  }
+
+  &:hover:not(:disabled) {
+    background: $primary-color;
+    color: $background-color;
+
+    svg {
+      stroke: $background-color;
+    }
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    background: transparent !important;
+    color: $primary-color !important;
+  }
+}
+
+.surf-spot-wizard-arrow-next {
+  margin-left: auto;
+}
+
+.surf-spot-wizard-arrow-back {
+  margin-right: auto;
+}

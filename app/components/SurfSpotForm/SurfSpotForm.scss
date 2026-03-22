@@ -1,0 +1,92 @@
+/* SurfSpotForm – spot type step badge */
+
+.spot-type {
+  .type-badge {
+    background: $primary-color;
+    color: $white;
+    padding: $spacing-small $spacing-unit;
+    border-radius: 20px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+}
+
+/* Success step (add flow) – centered in viewport */
+.surf-spot-form-success-page {
+  @extend %flex-column;
+  min-height: 100vh;
+}
+
+.surf-spot-form-success-wrapper {
+  @extend %flex-column;
+  flex: 1;
+  justify-content: center;
+}
+
+.surf-spot-form-success {
+  @extend %flex-center;
+  gap: $spacing-large;
+
+  .surf-spot-form-success-icon {
+    color: $success;
+
+    svg {
+      transform: scale(2);
+    }
+  }
+
+  .surf-spot-form-success-message {
+    margin: 0;
+    text-align: center;
+  }
+
+  .surf-spot-form-success-subtext {
+    margin: 0;
+    text-align: center;
+    color: $text-secondary;
+  }
+
+  .surf-spot-form-success-actions {
+    @extend %flex-center;
+    flex-wrap: wrap;
+    gap: $spacing-unit;
+    margin-top: $spacing-unit;
+
+    .button {
+      width: auto;
+      flex: 0 0 auto;
+    }
+  }
+}
+
+/* Error state when spot was created but path unavailable – same layout as success, smaller icon, centered, normal text */
+.surf-spot-form-error-state {
+  &.surf-spot-form-success {
+    gap: $spacing-large;
+  }
+}
+
+.surf-spot-form-error-state-icon {
+  color: $error;
+
+  svg {
+    transform: scale(1);
+  }
+}
+
+.surf-spot-form-error-state-message {
+  margin: 0;
+  text-align: center;
+}
+
+.surf-spot-form-error-state-actions {
+  @extend %flex-center;
+  flex-wrap: wrap;
+  gap: $spacing-unit;
+  margin-top: $spacing-unit;
+
+  .button {
+    width: auto;
+    flex: 0 0 auto;
+  }
+}

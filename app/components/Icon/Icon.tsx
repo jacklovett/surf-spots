@@ -341,8 +341,9 @@ export const Icon = (props: IProps) => {
         )
       case 'success':
         return (
-          <svg {...commonIconStyles} strokeWidth="3">
-            <polyline points="20 6 9 17 4 12" />
+          <svg {...commonIconStyles} strokeWidth={2.5}>
+            <circle cx="12" cy="12" r="9" />
+            <polyline points="8 12 11 15 16 9" />
           </svg>
         )
       default:

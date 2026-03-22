@@ -15,6 +15,7 @@ import {
   convertFiltersToBackendFormat,
   type BackendFilterFormat,
 } from '~/utils/filterUtils'
+import { roundCoordinate } from '~/utils/coordinateUtils'
 
 export const MAP_ACCESS_TOKEN = import.meta.env.VITE_MAP_ACCESS_TOKEN
 export const ICON_IMAGE_PATH = `/images/png/pin.png`
@@ -199,13 +200,15 @@ export const getRegionAndCountryFromCoordinates = async (
   latitude: number,
 ): Promise<RegionCountryLookupResponse> => {
   try {
+    const lng = roundCoordinate(longitude)
+    const lat = roundCoordinate(latitude)
     // Step 1: Use Mapbox to get country name (fast, accurate, helps with country borders)
-    const mapboxResult = await reverseGeocodeWithMapbox(longitude, latitude)
+    const mapboxResult = await reverseGeocodeWithMapbox(lng, lat)
 
     if (!mapboxResult?.country) {
       // No country from Mapbox - return null for both
       console.warn(
-        `[Region Lookup] Mapbox returned no country for ${longitude}, ${latitude}`,
+        `[Region Lookup] Mapbox returned no country for ${lng}, ${lat}`,
       )
       return { region: null, country: null, continent: null }
     }
@@ -224,8 +227,8 @@ export const getRegionAndCountryFromCoordinates = async (
         },
         RegionCountryLookupResponse
       >('regions/by-coordinates', {
-        longitude,
-        latitude,
+        longitude: lng,
+        latitude: lat,
         countryName,
       })
 

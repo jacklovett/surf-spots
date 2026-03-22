@@ -29,6 +29,8 @@ interface BestConditionsSectionProps {
   onSwellDirectionChange: (directions: string[]) => void
   onWindDirectionChange: (directions: string[]) => void
   onChange: FormChangeHandler
+  /** When true, swell and wind direction are required (e.g. natural break, not wavepool) */
+  swellWindRequired?: boolean
 }
 
 export const BestConditionsSection = ({
@@ -40,9 +42,10 @@ export const BestConditionsSection = ({
   onSwellDirectionChange,
   onWindDirectionChange,
   onChange,
+  swellWindRequired = true,
 }: BestConditionsSectionProps) => {
   return (
-    <div className="pv">
+    <div>
       <h3>Best Conditions</h3>
       <DirectionSelectors
         swellDirectionArray={swellDirectionArray}
@@ -59,6 +62,8 @@ export const BestConditionsSection = ({
         windFormName="windDirection"
         swellError={errors.swellDirection}
         windError={errors.windDirection}
+        swellRequired={swellWindRequired}
+        windRequired={swellWindRequired}
       />
       <FormInput
         field={{

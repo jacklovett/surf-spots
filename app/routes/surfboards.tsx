@@ -122,7 +122,7 @@ export default function Surfboards() {
                     </p>
                   )}
                   {surfboard.volume && (
-                    <p className="surfboard-volume">{surfboard.volume}L</p>
+                    <p className="surfboard-volume bold">{surfboard.volume}L</p>
                   )}
                 </Card>
               ))}

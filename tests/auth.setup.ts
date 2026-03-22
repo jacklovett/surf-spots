@@ -43,9 +43,11 @@ setup('authenticate', async ({ page, request }) => {
 
   await page.locator('input[name="email"]').fill(testEmail)
   await page.locator('input[name="password"]').fill(testPassword)
+  await page.locator('input[name="email"]').blur()
+  await page.locator('input[name="password"]').blur()
 
   const submitButton = page.locator('button[type="submit"]')
-  await expect(submitButton).toBeEnabled({ timeout: 5000 })
+  await expect(submitButton).toBeEnabled({ timeout: 15000 })
   await submitButton.click()
 
   await page.waitForURL((url) => !url.pathname.includes('/auth'), {

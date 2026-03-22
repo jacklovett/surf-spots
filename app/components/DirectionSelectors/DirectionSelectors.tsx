@@ -10,6 +10,8 @@ interface DirectionSelectorsProps {
   windFormName?: string
   swellError?: string
   windError?: string
+  swellRequired?: boolean
+  windRequired?: boolean
 }
 
 export const DirectionSelectors = ({
@@ -21,10 +23,19 @@ export const DirectionSelectors = ({
   windFormName = 'windDirection',
   swellError,
   windError,
+  swellRequired,
+  windRequired,
 }: DirectionSelectorsProps) => (
     <div className="form-inline">
       <div className="direction-selector-wrapper">
-        <label className="form-label bold">Swell Direction</label>
+        <label className="form-label bold">
+          Swell Direction
+          {swellRequired && (
+            <span className="form-label-required" aria-hidden="true">
+              *
+            </span>
+          )}
+        </label>
         <p className="direction-selector-help">
           Click a direction, then click another to select a range
         </p>
@@ -41,7 +52,14 @@ export const DirectionSelectors = ({
         {swellError && <p className="form-error">{swellError}</p>}
       </div>
       <div className="direction-selector-wrapper">
-        <label className="form-label bold">Wind Direction</label>
+        <label className="form-label bold">
+          Wind Direction
+          {windRequired && (
+            <span className="form-label-required" aria-hidden="true">
+              *
+            </span>
+          )}
+        </label>
         <p className="direction-selector-help">
           Click a direction, then click another to select a range
         </p>

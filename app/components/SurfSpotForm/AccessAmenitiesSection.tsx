@@ -69,7 +69,7 @@ export const AccessAmenitiesSection = ({
 }: AccessAmenitiesSectionProps) => {
   return (
     <>
-      <h3>Access & Amenities</h3>
+      <h3>Amenities & Access</h3>
       {/* Access */}
       <div className="pv">
         {/* Parking */}

@@ -1,0 +1,9 @@
+/* Error boundary fallback – centered in page */
+.error-boundary-fallback {
+  @extend %flex-column;
+  @extend %flex-center;
+  flex: 1;
+  min-height: 40vh;
+  text-align: center;
+  padding: 0 $spacing-unit;
+}

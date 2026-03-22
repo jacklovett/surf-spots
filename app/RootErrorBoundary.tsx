@@ -56,7 +56,7 @@ body:has(.root-error-page) {
 }
 .root-error-page__title {
   font-size: 1.25rem;
-  font-weight: 600;
+  font-weight: bold;
   margin: 0 0 1rem;
   color: #333;
 }
@@ -76,6 +76,7 @@ body:has(.root-error-page) {
 .root-error-page__btn {
   display: inline-flex;
   width: auto !important;
+  align-items: center;
   flex: 0 0 auto;
   padding: 10px 20px;
   min-height: 56px;

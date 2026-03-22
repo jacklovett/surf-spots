@@ -9,6 +9,7 @@
 @import './../components/DirectionSelectors/DirectionSelectors.scss';
 @import './../components//Details/Details.scss';
 @import './../components/Drawer/Drawer.scss';
+@import './../components/ErrorBoundary/ErrorBoundary.scss';
 @import './../components/Footer/Footer.scss';
 @import './../components/Filters/Filters.scss';
 @import './../components//Header/Header.scss';
@@ -26,6 +27,8 @@
 @import './../components/SurfSpotActions/SurfSpotActions.scss';
 @import './../components/SurfSpotNoteForm/SurfSpotNoteForm.scss';
 @import './../components/SelectionModal/SelectionModal.scss';
+@import './../components/SurfSpotForm/WizardStepper.scss';
+@import './../components/SurfSpotForm/SurfSpotForm.scss';
 @import './../components/SurfSpotList/SurfSpotList.scss';
 @import './../components/SurfSpotPreview/SurfSpotPreview.scss';
 @import './../components/TextButton/TextButton.scss';

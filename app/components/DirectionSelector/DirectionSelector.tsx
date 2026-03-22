@@ -223,7 +223,7 @@ const DirectionSelector = memo(
               <button
                 key={direction}
                 type="button"
-                className={`direction-selector-button ${isStart ? 'start' : ''} ${
+                className={`direction-selector-button bold ${isStart ? 'start' : ''} ${
                   isEnd ? 'end' : ''
                 } ${isInRange ? 'in-range' : ''}`}
                 style={

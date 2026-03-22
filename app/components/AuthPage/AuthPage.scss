@@ -90,3 +90,50 @@
   font-size: $font-size-small;
   margin-bottom: $spacing-unit;
 }
+
+.page-content {
+  h1 {
+    @extend .bold;
+    font-size: 2.5rem;
+    margin-bottom: $spacing-unit;
+    text-align: center;
+  }
+
+  h2 {
+    font-size: 1.75rem;
+    margin: $spacing-large 0 $spacing-unit;
+  }
+
+  h3 {
+    font-size: $font-size-large;
+    margin: $spacing-large 0 $spacing-small;
+  }
+
+  p {
+    color: $text-secondary;
+    line-height: 1.6;
+    margin-bottom: $spacing-unit;
+  }
+
+  ul,
+  ol {
+    color: $text-secondary;
+    line-height: 1.6;
+    margin-bottom: $spacing-unit;
+    padding-left: $spacing-large;
+  }
+
+  li {
+    margin-bottom: $spacing-small;
+  }
+
+  a {
+    color: $primary-color;
+    text-decoration: none;
+    transition: color 0.3s ease;
+
+    &:hover {
+      color: darken($primary-color, 10%);
+    }
+  }
+}

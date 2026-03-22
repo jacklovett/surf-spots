@@ -150,7 +150,6 @@ export const SurfSpotActions = memo((props: IProps) => {
             onError={showInfoModal}
             surfSpot={surfSpotState}
             userId={user.id}
-            onFetcherSubmit={onFetcherSubmit}
           />
       )}
       <InfoModal

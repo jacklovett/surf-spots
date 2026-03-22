@@ -5,7 +5,11 @@ import { useTripContext, useLayoutContext } from '~/contexts'
 import { Trip } from '~/types/trip'
 import { SurfSpot } from '~/types/surfSpots'
 import { formatDate } from '~/utils/dateUtils'
-import { getSafeFetcherErrorMessage, ERROR_LOAD_TRIPS, ERROR_SOMETHING_WENT_WRONG } from '~/utils/errorUtils'
+import {
+  getSafeFetcherErrorMessage,
+  ERROR_LOAD_TRIPS,
+  DEFAULT_ERROR_MESSAGE,
+} from '~/utils/errorUtils'
 import { SelectionItem } from '../SelectionModal'
 import { FetcherSubmitParams } from '~/types/api'
 
@@ -15,7 +19,6 @@ interface TripSelectionModalProps {
   onError: (title: string, message: string) => void
   surfSpot: SurfSpot
   userId: string
-  onFetcherSubmit?: (params: FetcherSubmitParams) => void
   trips?: Trip[]
 }
 
@@ -25,7 +28,6 @@ export const TripSelectionModal = ({
   onError,
   surfSpot,
   userId,
-  onFetcherSubmit,
   trips: tripsFromProps,
 }: TripSelectionModalProps) => {
   const navigate = useNavigate()
@@ -115,7 +117,10 @@ export const TripSelectionModal = ({
       setRemovingFromTripId(null)
       
       if (actionFetcher.data.error) {
-        onError('Error', getSafeFetcherErrorMessage(actionFetcher.data, ERROR_SOMETHING_WENT_WRONG))
+        onError(
+          'Error',
+          getSafeFetcherErrorMessage(actionFetcher.data, DEFAULT_ERROR_MESSAGE),
+        )
       }
     }
   }, [actionFetcher.state, actionFetcher.data, onError])

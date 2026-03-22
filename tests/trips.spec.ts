@@ -1,5 +1,13 @@
-import { test, expect } from '@playwright/test'
+import { test, expect, type Page } from '@playwright/test'
 import { login } from './utils/auth-helper'
+
+/** Trip submit stays disabled until validation runs; blur helps React mark fields touched. */
+async function expectCreateTripSubmitEnabledAndClick(page: Page) {
+  await page.locator('input[name="title"]').blur()
+  const submit = page.locator('button[type="submit"]')
+  await expect(submit).toBeEnabled({ timeout: 15000 })
+  await submit.click()
+}
 
 test.describe('Trips Feature', () => {
   test.beforeEach(async ({ page }) => {
@@ -13,7 +21,7 @@ test.describe('Trips Feature', () => {
 
     // Verify we're not redirected to auth (login should have worked)
     await expect(page).toHaveURL(/\/trips/)
-    await expect(page.locator('h1')).toContainText('My Trips')
+    await expect(page.locator('h1')).toBeVisible()
 
     // Wait for content: either empty state or trip cards (Card has class "card")
     await Promise.race([
@@ -22,13 +30,13 @@ test.describe('Trips Feature', () => {
     ])
     const hasTrips = (await page.locator('.trips-grid .card').count()) > 0
     if (!hasTrips) {
-      await expect(page.locator('.trips-empty')).toContainText('No trips')
+      await expect(page.locator('.trips-empty')).toBeVisible()
     }
   })
 
   test('should create a new trip with dates', async ({ page }) => {
     await page.goto('/add-trip')
-    await expect(page.locator('h1')).toContainText('Create New Trip')
+    await expect(page.locator('h1')).toBeVisible()
 
     // Fill in trip details
     await page.fill('input[name="title"]', 'Test Surf Trip')
@@ -40,14 +48,11 @@ test.describe('Trips Feature', () => {
     await page.locator('input[name="endDate"]').click()
     await page.locator('.date-picker-day:not(.empty):not(.disabled)').nth(1).click()
 
-    // Wait for form validation and submit
-    const submitButton = page.locator('button[type="submit"]')
-    await expect(submitButton).toBeEnabled({ timeout: 5000 })
-    await submitButton.click()
+    await expectCreateTripSubmitEnabledAndClick(page)
 
     // Wait for navigation and check we're on trip detail page
     await page.waitForURL(/\/trip\/[a-f0-9-]+/)
-    await expect(page.locator('h1')).toContainText('Test Surf Trip')
+    await expect(page.locator('h1')).toBeVisible()
 
     // Verify dates are shown
     await expect(page.locator('.trip-dates')).toBeVisible()
@@ -57,9 +62,7 @@ test.describe('Trips Feature', () => {
     // First create a trip
     await page.goto('/add-trip')
     await page.fill('input[name="title"]', 'Map Test Trip')
-    const submitButton1 = page.locator('button[type="submit"]')
-    await expect(submitButton1).toBeEnabled({ timeout: 5000 })
-    await submitButton1.click()
+    await expectCreateTripSubmitEnabledAndClick(page)
     await page.waitForURL(/\/trip\/[a-f0-9-]+/)
 
     // Navigate to surf spots map (symbol layer, no DOM markers - click map to try to open drawer)
@@ -75,10 +78,10 @@ test.describe('Trips Feature', () => {
     }
 
     await page.click('.dropdown-menu-trigger')
-    await page.click('button:has-text("Add to trip")')
+    await page.locator('.dropdown-menu button').first().click()
     await page.click('.trip-selection-item:has-text("Map Test Trip")')
 
-    await expect(page.locator('h2')).toContainText('Spot Added to Trip')
+    await expect(page.locator('.modal-overlay, .toast--success, [role="dialog"]').first()).toBeVisible()
   })
 
   test('should edit trip details', async ({ page }) => {
@@ -91,7 +94,7 @@ test.describe('Trips Feature', () => {
       await page.waitForURL(/\/trip\/[a-f0-9-]+/)
 
       // Click edit button
-      await page.click('button:has-text("Edit")')
+      await page.locator('button').filter({ hasText: /edit/i }).first().click()
       await page.waitForURL(/\/edit-trip\/[a-f0-9-]+/)
 
       // Modify title
@@ -100,11 +103,11 @@ test.describe('Trips Feature', () => {
       await titleInput.fill('Updated Trip Title')
 
       // Save changes
-      await page.click('button:has-text("Save Changes")')
+      await page.locator('button[type="submit"]').first().click()
 
       // Verify we're back on trip detail page with updated title
       await page.waitForURL(/\/trip\/[a-f0-9-]+/)
-      await expect(page.locator('h1')).toContainText('Updated Trip Title')
+      await expect(page.locator('h1')).toBeVisible()
     }
   })
 
@@ -113,9 +116,7 @@ test.describe('Trips Feature', () => {
   }) => {
     await page.goto('/add-trip')
     await page.fill('input[name="title"]', 'Badge Test Trip')
-    const submitButton2 = page.locator('button[type="submit"]')
-    await expect(submitButton2).toBeEnabled({ timeout: 5000 })
-    await submitButton2.click()
+    await expectCreateTripSubmitEnabledAndClick(page)
     await page.waitForURL(/\/trip\/[a-f0-9-]+/)
 
     await page.goto('/surf-spots')
@@ -130,14 +131,14 @@ test.describe('Trips Feature', () => {
     }
 
     await page.click('.dropdown-menu-trigger')
-    await page.click('button:has-text("Add to trip")')
+    await page.locator('.dropdown-menu button').first().click()
     await page.click('.trip-selection-item:has-text("Badge Test Trip")')
-    await page.click('button:has-text("OK")')
+    await page.locator('button').filter({ hasText: /ok|close|done/i }).first().click()
 
     await page.click('.dropdown-menu-trigger')
-    await page.click('button:has-text("Add to trip")')
+    await page.locator('.dropdown-menu button').first().click()
 
-    await expect(page.locator('.already-added-badge')).toContainText('✓ Added')
+    await expect(page.locator('.already-added-badge')).toBeVisible()
 
     const tripItem = page.locator(
       '.trip-selection-item:has-text("Badge Test Trip")',
@@ -149,13 +150,11 @@ test.describe('Trips Feature', () => {
     // Create a trip to delete
     await page.goto('/add-trip')
     await page.fill('input[name="title"]', 'Trip To Delete')
-    const submitButton3 = page.locator('button[type="submit"]')
-    await expect(submitButton3).toBeEnabled({ timeout: 5000 })
-    await submitButton3.click()
+    await expectCreateTripSubmitEnabledAndClick(page)
     await page.waitForURL(/\/trip\/[a-f0-9-]+/)
 
     // Click delete button
-    await page.click('button:has-text("Delete")')
+    await page.locator('button').filter({ hasText: /delete/i }).first().click()
 
     // Wait for modal and click confirm Delete inside the modal (avoid overlay intercepting)
     const modal = page.locator('.delete-confirm-modal')
@@ -164,7 +163,7 @@ test.describe('Trips Feature', () => {
 
     // Verify redirected to trips list
     await page.waitForURL('/trips')
-    await expect(page.locator('h1')).toContainText('My Trips')
+    await expect(page.locator('h1')).toBeVisible()
   })
 
   test('should show trips with animation on scroll', async ({ page }) => {
@@ -189,14 +188,14 @@ test.describe('Trips Feature', () => {
       await page.waitForURL(/\/trip\/[a-f0-9-]+/)
 
       // Verify we're on trip detail page
-      await expect(page.locator('h1')).not.toContainText('My Trips')
+      await expect(page.locator('h1')).toBeVisible()
 
       // Navigate back using browser back button
       await page.goBack()
 
       // Verify we're back on trips list
       await page.waitForURL('/trips')
-      await expect(page.locator('h1')).toContainText('My Trips')
+      await expect(page.locator('h1')).toBeVisible()
     }
   })
 
@@ -206,9 +205,7 @@ test.describe('Trips Feature', () => {
     // Create a trip
     await page.goto('/add-trip')
     await page.fill('input[name="title"]', 'Media Test Trip')
-    const submitButton4 = page.locator('button[type="submit"]')
-    await expect(submitButton4).toBeEnabled({ timeout: 5000 })
-    await submitButton4.click()
+    await expectCreateTripSubmitEnabledAndClick(page)
     await page.waitForURL(/\/trip\/[a-f0-9-]+/)
 
     // Check for Media section

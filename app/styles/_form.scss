@@ -111,6 +111,10 @@ select:focus {
   font-size: $font-size-small;
 }
 
+.form-label-required {
+  color: $error;
+}
+
 .form-inline {
   @extend %flex-base;
   align-items: flex-start;

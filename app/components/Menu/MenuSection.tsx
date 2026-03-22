@@ -49,7 +49,7 @@ export const MenuSection = ({
         aria-expanded={isOpen}
         type="button"
       >
-        <span className="menu-section-title">{title}</span>
+        <span className="menu-section-title bold">{title}</span>
         <span className={`menu-section-icon ${isOpen ? 'open' : ''}`}>
           <Icon iconKey="chevron-down" useCurrentColor />
         </span>

@@ -13,6 +13,7 @@ import {
 import type { AddSurfSpotMapRef } from '~/components/SurfMap/AddSurfSpotMap'
 import { useToastContext } from '~/contexts'
 import { ERROR_DETERMINE_REGION } from '~/utils/errorUtils'
+import { roundCoordinate } from '~/utils/coordinateUtils'
 
 type FormChangeHandler = <K extends keyof SurfSpotFormState>(
   field: K,
@@ -400,8 +401,8 @@ export const useLocationSelection = ({
   }, [findOnMap, longitude, latitude, continent, country, region])
 
   const handleLocationUpdate = useCallback((coordinates: Coordinates) => {
-    onLocationChangeRef.current('longitude', coordinates.longitude)
-    onLocationChangeRef.current('latitude', coordinates.latitude)
+    onLocationChangeRef.current('longitude', roundCoordinate(coordinates.longitude))
+    onLocationChangeRef.current('latitude', roundCoordinate(coordinates.latitude))
   }, [])
 
   const handleUseMyLocation = useCallback(() => {
@@ -411,8 +412,8 @@ export const useLocationSelection = ({
       navigator.geolocation.getCurrentPosition(
         (position) => {
           const coords: Coordinates = {
-            longitude: position.coords.longitude,
-            latitude: position.coords.latitude,
+            longitude: roundCoordinate(position.coords.longitude),
+            latitude: roundCoordinate(position.coords.latitude),
           }
 
           // Log accuracy info for debugging

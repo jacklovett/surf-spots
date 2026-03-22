@@ -1,14 +1,18 @@
 import { ActionFunction, data, LoaderFunction, useNavigate } from 'react-router'
 
 import { requireSessionCookie } from '~/services/session.server'
-import { cacheControlHeader, get, post } from '~/services/networkService'
+import { cacheControlHeader, get, post, getDisplayMessage } from '~/services/networkService'
 import { createSurfSpotFromFormData } from '~/services/surfSpot.server'
 
 import SurfSpotForm, { LoaderData } from '~/components/SurfSpotForm'
-import { Continent } from '~/types/surfSpots'
+import { Continent, SurfSpot } from '~/types/surfSpots'
 import { Page, ErrorBoundary } from '~/components'
-import { ERROR_BOUNDARY_GENERIC } from '~/utils/errorUtils'
-import { ERROR_ADD_SURF_SPOT, SUCCESS_SURF_SPOT_ADDED } from '~/utils/errorUtils'
+import {
+  ERROR_BOUNDARY_GENERIC,
+  ERROR_ADD_SURF_SPOT,
+  SUCCESS_SURF_SPOT_ADDED,
+  httpStatusFromActionError,
+} from '~/utils/errorUtils'
 
 export const loader: LoaderFunction = async ({ request }) => {
   await requireSessionCookie(request)
@@ -42,23 +46,31 @@ export const action: ActionFunction = async ({ request }) => {
     const newSurfSpot = await createSurfSpotFromFormData(request)
     // Forward cookies for authentication
     const cookie = request.headers.get('Cookie') || ''
-    // Send the new surf spot to the backend management endpoint
-    await post('surf-spots/management', newSurfSpot, {
+    // POST returns SurfSpotDTO; `networkService` unwraps ApiResponse so `path` is top-level.
+    const created = (await post('surf-spots/management', newSurfSpot, {
       headers: { Cookie: cookie },
-    })
+    })) as SurfSpot
+
+    const hasPathError =
+      typeof created.path !== 'string' || created.path === ''
 
     return data(
-      { submitStatus: SUCCESS_SURF_SPOT_ADDED, hasError: false },
-      { status: 201 },
+      {
+        submitStatus: hasPathError ? ERROR_ADD_SURF_SPOT : SUCCESS_SURF_SPOT_ADDED,
+        hasError: hasPathError,
+        surfSpot: created,
+      },
+      { status: hasPathError ? 500 : 201 },
     )
   } catch (error) {
     console.error('Unable to add surf spot: ', error)
+    const message = getDisplayMessage(error, ERROR_ADD_SURF_SPOT)
     return data(
       {
-        submitStatus: ERROR_ADD_SURF_SPOT,
+        submitStatus: message,
         hasError: true,
       },
-      { status: 500 },
+      { status: httpStatusFromActionError(error) },
     )
   }
 }

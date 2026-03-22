@@ -7,6 +7,7 @@ import {
   ErrorBoundary,
 } from '~/components'
 import { ERROR_BOUNDARY_MAP } from '~/utils/errorUtils'
+import { roundCoordinate } from '~/utils/coordinateUtils'
 import { Continent, SurfSpotFormState } from '~/types/surfSpots'
 import type { LocationSelection } from '~/hooks/useLocationSelection'
 
@@ -119,6 +120,7 @@ export const LocationSection = ({
           onChange={(e) => onLocationChange('continent', e.target.value)}
           errorMessage={errors.continent || ''}
           showLabel={!!formState.continent}
+          required
         />
       )}
       <div className="form-inline">
@@ -184,6 +186,7 @@ export const LocationSection = ({
               errorMessage={errors.country || ''}
               showLabel={!!formState.country}
               disabled={!formState.continent}
+              required
             />
             <FormInput
               field={{
@@ -208,6 +211,7 @@ export const LocationSection = ({
               errorMessage={errors.region || ''}
               showLabel={!!formState.region}
               disabled={!formState.country}
+              required
             />
           </>
         )}
@@ -232,12 +236,16 @@ export const LocationSection = ({
           }}
           value={formState.longitude}
           onChange={(e) =>
-            onLocationChange('longitude', parseFloat(e.target.value))
+            onLocationChange(
+              'longitude',
+              roundCoordinate(parseFloat(e.target.value)),
+            )
           }
           errorMessage={errors.longitude || ''}
           showLabel={!!formState.longitude}
           disabled={findOnMap}
           readOnly={findOnMap}
+          required
         />
         <FormInput
           field={{
@@ -247,12 +255,16 @@ export const LocationSection = ({
           }}
           value={formState.latitude}
           onChange={(e) =>
-            onLocationChange('latitude', parseFloat(e.target.value))
+            onLocationChange(
+              'latitude',
+              roundCoordinate(parseFloat(e.target.value)),
+            )
           }
           errorMessage={errors.latitude || ''}
           showLabel={!!formState.latitude}
           disabled={findOnMap}
           readOnly={findOnMap}
+          required
         />
       </div>
     </>

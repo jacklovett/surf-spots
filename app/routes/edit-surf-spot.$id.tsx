@@ -6,30 +6,37 @@ import {
   useLoaderData,
   useNavigate,
 } from 'react-router'
-import { cacheControlHeader, edit, get } from '~/services/networkService'
+import { cacheControlHeader, get, patch, getDisplayMessage } from '~/services/networkService'
 import { requireSessionCookie } from '~/services/session.server'
 import { createSurfSpotFromFormData } from '~/services/surfSpot.server'
 
 import { Continent, SurfSpot } from '~/types/surfSpots'
 import {
   ERROR_EDIT_SURF_SPOT,
+  ERROR_BOUNDARY_GENERIC,
   ERROR_SURF_SPOT_ID_REQUIRED,
+  SUCCESS_SURF_SPOT_UPDATED,
+  httpStatusFromActionError,
 } from '~/utils/errorUtils'
 import SurfSpotForm, { LoaderData } from '~/components/SurfSpotForm'
+import { ErrorBoundary, Page } from '~/components'
 
 export const loader: LoaderFunction = async ({ request, params }) => {
   try {
     const user = await requireSessionCookie(request)
 
-    const { id } = params
+    const { id: routeParam } = params
 
-    if (!id) {
+    if (!routeParam) {
       console.error('No id parameter found in route')
       throw new Error('Surf spot ID is required')
     }
 
+    const isNumericId = /^\d+$/.test(routeParam)
     const surfSpot = await get<SurfSpot>(
-      `surf-spots/id/${id}?userId=${user.id}`,
+      isNumericId
+        ? `surf-spots/id/${routeParam}?userId=${user.id}`
+        : `surf-spots/${routeParam}?userId=${user.id}`,
     )
 
     if (!surfSpot) {
@@ -66,9 +73,22 @@ export const loader: LoaderFunction = async ({ request, params }) => {
 }
 
 export const action: ActionFunction = async ({ request, params }) => {
-  const { id } = params
+  const { id: routeParam } = params
 
-  if (!id) {
+  if (!routeParam) {
+    return data(
+      { submitStatus: ERROR_SURF_SPOT_ID_REQUIRED, hasError: true },
+      { status: 400 },
+    )
+  }
+
+  const requestForIdLookup = request.clone()
+  const routeIsNumericId = /^\d+$/.test(routeParam)
+  const actionFormData = await requestForIdLookup.formData()
+  const surfSpotIdFromBody = actionFormData.get('surfSpotId')?.toString() || null
+  const targetSurfSpotId = routeIsNumericId ? routeParam : surfSpotIdFromBody
+
+  if (!targetSurfSpotId) {
     return data(
       { submitStatus: ERROR_SURF_SPOT_ID_REQUIRED, hasError: true },
       { status: 400 },
@@ -79,20 +99,43 @@ export const action: ActionFunction = async ({ request, params }) => {
   try {
     // Forward cookies for authentication
     const cookie = request.headers.get('Cookie') || ''
-    // Send the updated surf spot to the backend management endpoint
-    await edit(`surf-spots/management/${id}`, updatedSurfSpot, {
-      headers: { Cookie: cookie },
-    })
+    // PATCH the updated surf spot to the backend management endpoint
+    const updated = (await patch(
+      `surf-spots/management/${targetSurfSpotId}`,
+      updatedSurfSpot,
+      {
+        headers: { Cookie: cookie },
+      },
+    )) as SurfSpot
 
-    return redirect(`/surf-spots/id/${id}?success`)
-  } catch (error) {
-    console.error('Unable to edit surf spot: ', error)
+    const hasValidPath =
+      typeof updated.path === 'string' && updated.path !== ''
+
+    if (!hasValidPath) {
+      return data(
+        {
+          submitStatus: ERROR_EDIT_SURF_SPOT,
+          hasError: true,
+          surfSpot: null,
+        },
+        { status: 500 },
+      )
+    }
+
     return data(
       {
-        submitStatus: ERROR_EDIT_SURF_SPOT,
-        hasError: true,
+        submitStatus: SUCCESS_SURF_SPOT_UPDATED,
+        hasError: false,
+        surfSpot: updated,
       },
-      { status: 500 },
+      { status: 200 },
+    )
+  } catch (error) {
+    console.error('Unable to edit surf spot: ', error)
+    const message = getDisplayMessage(error, ERROR_EDIT_SURF_SPOT)
+    return data(
+      { submitStatus: message, hasError: true },
+      { status: httpStatusFromActionError(error) },
     )
   }
 }
@@ -102,12 +145,15 @@ export default function EditSurfSpot() {
   const navigate = useNavigate()
 
   const handleCancel = () => {
-    if (surfSpot?.id) {
-      navigate(`/surf-spots/id/${surfSpot.id}`)
-    } else {
-      navigate(-1)
-    }
+    if (surfSpot?.path) return navigate(surfSpot.path)
+    navigate(-1)
   }
 
-  return <SurfSpotForm actionType="Edit" onCancel={handleCancel} />
+  return (
+    <Page showHeader>
+      <ErrorBoundary message={ERROR_BOUNDARY_GENERIC}>
+        <SurfSpotForm actionType="Edit" onCancel={handleCancel} />
+      </ErrorBoundary>
+    </Page>
+  )
 }

@@ -33,7 +33,7 @@ export class ErrorBoundary extends Component<
   render() {
     if (this.state.hasError) {
       return (
-        <div className="center center-text column ph">
+        <div className="error-boundary-fallback">
           <Icon iconKey="error" useAccentColor />
           <h4 className="mt">
             {this.props.message ?? ERROR_BOUNDARY_GENERIC}

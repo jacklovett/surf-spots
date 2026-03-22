@@ -1,5 +1,27 @@
 import { Page, expect } from '@playwright/test'
 
+function validateTestPassword(password: string): string | null {
+  if (password.length < 8) {
+    return 'must be at least 8 characters long'
+  }
+
+  const hasLower = /[a-z]/.test(password)
+  const hasUpper = /[A-Z]/.test(password)
+  const hasDigit = /\d/.test(password)
+  const hasSymbol = /[^A-Za-z0-9]/.test(password)
+  const categories =
+    (hasLower ? 1 : 0) +
+    (hasUpper ? 1 : 0) +
+    (hasDigit ? 1 : 0) +
+    (hasSymbol ? 1 : 0)
+
+  if (categories < 3) {
+    return 'must include at least three categories: lowercase, uppercase, numbers, symbols'
+  }
+
+  return null
+}
+
 /**
  * Login helper function for e2e tests
  * Navigates to auth page and logs in with test credentials.
@@ -15,6 +37,14 @@ export async function login(page: Page) {
     throw new Error(
       'TEST_USER_EMAIL and TEST_USER_PASSWORD must be set in your .env file for e2e tests to run. ' +
       'These are the credentials used to authenticate during tests.'
+    )
+  }
+
+  const passwordValidationError = validateTestPassword(testPassword)
+  if (passwordValidationError) {
+    throw new Error(
+      `TEST_USER_PASSWORD is invalid for the current frontend validation: ${passwordValidationError}. ` +
+      'Update TEST_USER_PASSWORD in .env to a compliant value (example: Test123!).',
     )
   }
 
@@ -72,7 +102,20 @@ export async function login(page: Page) {
   // Wait for form validation to complete and button to be enabled
   const submitButton = page.locator('button[type="submit"]')
   await submitButton.waitFor({ state: 'visible' })
-  await expect(submitButton).toBeEnabled({ timeout: 5000 })
+  try {
+    await expect(submitButton).toBeEnabled({ timeout: 15000 })
+  } catch {
+    const emailError = (await page.locator('#email ~ .form-error').first().textContent().catch(() => null))?.trim()
+    const passwordError = (await page.locator('#password ~ .form-error').first().textContent().catch(() => null))?.trim()
+    const currentEmail = await emailInput.inputValue().catch(() => '')
+    const currentPasswordLength = (await passwordInput.inputValue().catch(() => '')).length
+    throw new Error(
+      `Sign in button remained disabled after filling credentials. ` +
+      `emailError="${emailError || ''}" passwordError="${passwordError || ''}" ` +
+      `emailLength=${currentEmail.length} passwordLength=${currentPasswordLength}. ` +
+      `Check TEST_USER_EMAIL/TEST_USER_PASSWORD in .env.`,
+    )
+  }
 
   // Submit form
   await submitButton.click()

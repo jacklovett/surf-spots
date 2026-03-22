@@ -30,7 +30,7 @@ export default function Contact() {
           <form className="contact-form" method="post">
             <div className="form-row">
               <div className="form-item">
-                <label htmlFor="name">Name</label>
+                <label htmlFor="name" className="bold">Name</label>
                 <input
                   type="text"
                   id="name"
@@ -41,7 +41,7 @@ export default function Contact() {
               </div>
 
               <div className="form-item">
-                <label htmlFor="email">Email</label>
+                <label htmlFor="email" className="bold">Email</label>
                 <input
                   type="email"
                   id="email"
@@ -53,7 +53,7 @@ export default function Contact() {
             </div>
 
             <div className="form-item">
-              <label htmlFor="subject">Subject</label>
+              <label htmlFor="subject" className="bold">Subject</label>
               <input
                 type="text"
                 id="subject"
@@ -64,7 +64,7 @@ export default function Contact() {
             </div>
 
             <div className="form-item">
-              <label htmlFor="message">Message</label>
+              <label htmlFor="message" className="bold">Message</label>
               <textarea
                 id="message"
                 name="message"

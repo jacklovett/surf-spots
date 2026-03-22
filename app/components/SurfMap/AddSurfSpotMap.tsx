@@ -15,6 +15,7 @@ import 'mapbox-gl/dist/mapbox-gl.css'
 import SkeletonLoader from '../SkeletonLoader'
 import { Coordinates } from '~/types/surfSpots'
 import { initializeMap, createPinElement } from '~/services/mapService'
+import { roundCoordinate } from '~/utils/coordinateUtils'
 
 interface AddSurfSpotMapProps {
   onLocationUpdate: (coordinates: Coordinates) => void
@@ -110,8 +111,8 @@ export const AddSurfSpotMap = memo(
           document.body.style.touchAction = ''
           const lngLat = marker.getLngLat()
           const newCoords: Coordinates = {
-            longitude: lngLat.lng,
-            latitude: lngLat.lat,
+            longitude: roundCoordinate(lngLat.lng),
+            latitude: roundCoordinate(lngLat.lat),
           }
           onLocationUpdate(newCoords)
         })
@@ -163,8 +164,8 @@ export const AddSurfSpotMap = memo(
         if (!initialCoordinates) {
           const center = mapInstance.getCenter()
           const coords: Coordinates = {
-            longitude: center.lng,
-            latitude: center.lat,
+            longitude: roundCoordinate(center.lng),
+            latitude: roundCoordinate(center.lat),
           }
           onLocationUpdate(coords)
           addPinToMap(coords)
@@ -174,8 +175,8 @@ export const AddSurfSpotMap = memo(
       // Handle map click to place pin
       mapInstance.on('click', (e) => {
         const coords: Coordinates = {
-          longitude: e.lngLat.lng,
-          latitude: e.lngLat.lat,
+          longitude: roundCoordinate(e.lngLat.lng),
+          latitude: roundCoordinate(e.lngLat.lat),
         }
         onLocationUpdate(coords)
         addPinToMap(coords)

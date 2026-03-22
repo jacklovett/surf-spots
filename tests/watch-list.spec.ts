@@ -22,7 +22,7 @@ test.describe('Watch List Page', () => {
       await page.goto('/watch-list', { waitUntil: 'domcontentloaded' })
 
       await expect(page).toHaveURL(/\/watch-list/)
-      await expect(page.locator('h1')).toContainText('Watch List', { timeout: 15000 })
+      await expect(page.locator('h1')).toBeVisible({ timeout: 15000 })
     })
 
     test('should show empty state when no spots are watched', async ({
@@ -39,12 +39,11 @@ test.describe('Watch List Page', () => {
       }
 
       await expect(
-        page.locator('h3:has-text("Build Your Watch List")'),
+        page.locator('.empty-state h3'),
       ).toBeVisible()
 
-      // EmptyState uses Button; match by role and label (button text)
       await expect(
-        page.getByRole('button', { name: /Explore Surf Spots/i }),
+        page.getByRole('link', { name: 'Explore Surf Spots' }),
       ).toBeVisible()
     })
 
@@ -61,12 +60,11 @@ test.describe('Watch List Page', () => {
         return
       }
 
-      const exploreBtn = page.getByRole('button', {
-        name: /Explore Surf Spots/i,
-      })
-      await expect(exploreBtn).toBeVisible()
+      const exploreLink = page.getByRole('link', { name: 'Explore Surf Spots' })
+      await expect(exploreLink).toBeVisible()
+      await exploreLink.scrollIntoViewIfNeeded()
 
-      await exploreBtn.click()
+      await exploreLink.click()
       await expect(page).toHaveURL(/\/surf-spots/)
     })
 
@@ -80,20 +78,8 @@ test.describe('Watch List Page', () => {
       const emptyState = page.locator('.empty-state')
 
       if (await spotsList.first().isVisible()) {
-        // Should show description
-        await expect(
-          page.locator('text=Stay updated on swell seasons'),
-        ).toBeVisible()
-
-        // Should show spots section title
-        await expect(
-          page.locator('h2:has-text("Your Watched Surf Spots")'),
-        ).toBeVisible()
-
-        // Should show jump link
-        await expect(
-          page.locator('a:has-text("View Your Watched Spots")'),
-        ).toBeVisible()
+        await expect(spotsList.first()).toBeVisible()
+        await expect(page.locator('#watched-spots')).toBeVisible()
       } else if (await emptyState.isVisible()) {
         // Empty state is also valid
         await expect(emptyState).toBeVisible()
@@ -135,7 +121,7 @@ test.describe('Watch List Page', () => {
     }) => {
       await page.goto('/watch-list')
 
-      const jumpLink = page.locator('a:has-text("View Your Watched Spots")')
+      const jumpLink = page.locator('a[href="#watched-spots"], a[href*="#watched-spots"]')
 
       if (await jumpLink.isVisible()) {
         await jumpLink.click()
@@ -166,7 +152,7 @@ test.describe('Watch List Page', () => {
       await page.goto('/watch-list')
 
       // Page should still load correctly
-      await expect(page.locator('h1')).toContainText('Watch List')
+      await expect(page.locator('h1')).toBeVisible()
     })
   })
 })

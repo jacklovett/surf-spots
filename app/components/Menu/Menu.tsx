@@ -70,17 +70,17 @@ const Menu = () => {
   return (
     <nav className="menu" aria-label="Main navigation">
       {/* Hamburger Icon (Always visible) */}
-      <button
-        className="hamburger-icon"
+        <button
+          className="hamburger-icon"
         onClick={() => openDrawer(renderMenuContent(), 'right', '')
         }
-        aria-label="Open menu"
-        type="button"
-      >
-        <span></span>
-        <span></span>
-        <span></span>
-      </button>
+          aria-label="Open menu"
+          type="button"
+        >
+          <span></span>
+          <span></span>
+          <span></span>
+        </button>
     </nav>
   )
 }

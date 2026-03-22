@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react'
-import { useLoaderData } from 'react-router'
+import { useState, useEffect, useCallback, FormEvent } from 'react'
+import { useLoaderData, useFetcher, useNavigate } from 'react-router'
 
 import { useSettingsContext } from '~/contexts'
 import { defaultMapCenter } from '~/services/mapService'
@@ -8,29 +8,35 @@ import {
   useSubmitStatus,
   useFormValidation,
   useLocationSelection,
+  useSurfSpotWizard,
 } from '~/hooks'
-import {
-  validateRequired,
-  validateLongitude,
-  validateLatitude,
-  validateDirection,
-  validateUrl,
-} from '~/hooks/useFormValidation'
-import { SurfSpotStatus, SurfSpotFormState } from '~/types/surfSpots'
+import { validateUrl } from '~/hooks/useFormValidation'
+import { SurfSpot, SurfSpotStatus, SurfSpotFormState } from '~/types/surfSpots'
 import {
   directionStringToArray,
   directionArrayToString,
 } from '~/utils/surfSpotUtils'
 import { determineInitialOptions, LoaderData } from './index'
 import {
+  Button,
   CheckboxOption,
   FormComponent,
   FormInput,
+  Icon,
   InfoMessage,
   Rating,
 } from '~/components'
 import { Option } from '~/components/FormInput'
 import { UrlLinkItem } from '../UrlLinkList'
+import { getSurfSpotStepValidators } from '~/utils/surfSpotWizardValidation'
+import {
+  getFetcherSubmitStatus,
+  unwrapFetcherActionPayload,
+  ERROR_ADD_SURF_SPOT,
+} from '~/utils/errorUtils'
+import { roundCoordinate } from '~/utils/coordinateUtils'
+import { buildSurfSpotFormData } from '~/utils/buildSurfSpotFormData'
+import { WizardStepper } from './WizardStepper'
 import { LocationSection } from './LocationSection'
 import { SpotDetailsSection } from './SpotDetailsSection'
 import { BestConditionsSection } from './BestConditionsSection'
@@ -48,6 +54,10 @@ interface SurfSpotFormProps {
   onCancel?: () => void
 }
 
+/** Uses `path` as returned by the API (normalization is server-side). */
+const pathFromSurfSpot = (spot: SurfSpot | undefined): string | null =>
+  typeof spot?.path === 'string' && spot.path !== '' ? spot.path : null
+
 export const SurfSpotForm = (props: SurfSpotFormProps) => {
   const { actionType, onCancel } = props
 
@@ -59,27 +69,35 @@ export const SurfSpotForm = (props: SurfSpotFormProps) => {
   const distanceUnits = preferredUnits === 'metric' ? 'km' : 'mi'
   const waveUnits = preferredUnits === 'metric' ? 'm' : 'ft'
 
-  const submitStatus = useSubmitStatus()
+  const fetcher = useFetcher()
+  const actionSubmitStatus = useSubmitStatus()
+  const fetcherSubmitStatus = getFetcherSubmitStatus(
+    fetcher.data,
+    ERROR_ADD_SURF_SPOT,
+  )
+  const submitStatus =
+    fetcherSubmitStatus != null ? fetcherSubmitStatus : actionSubmitStatus
 
   const [findOnMap, setFindOnMap] = useState(true)
+  const isAddMode = actionType === 'Add'
 
   // Fetch user's location immediately for "Add" mode
   // Start with default, then update when user location is fetched
   const [initialUserCoords, setInitialUserCoords] = useState<Coordinates>(
-    actionType === 'Add' && !surfSpot
+    isAddMode && !surfSpot
       ? defaultMapCenter
       : { longitude: 0, latitude: 0 },
   )
 
   useEffect(() => {
-    if (actionType === 'Edit' || surfSpot) return
+    if (!isAddMode || surfSpot) return
 
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
         (position) => {
           const coords: Coordinates = {
-            longitude: position.coords.longitude,
-            latitude: position.coords.latitude,
+            longitude: roundCoordinate(position.coords.longitude),
+            latitude: roundCoordinate(position.coords.latitude),
           }
 
           setInitialUserCoords(coords)
@@ -144,14 +162,14 @@ export const SurfSpotForm = (props: SurfSpotFormProps) => {
   const getInitialCoordinates = () => {
     if (surfSpot?.longitude && surfSpot?.latitude) {
       return {
-        longitude: surfSpot.longitude,
-        latitude: surfSpot.latitude,
+        longitude: roundCoordinate(surfSpot.longitude),
+        latitude: roundCoordinate(surfSpot.latitude),
       }
     }
     // For "Add" mode, use initialUserCoords (starts as default, updates to user location)
     return {
-      longitude: initialUserCoords.longitude,
-      latitude: initialUserCoords.latitude,
+      longitude: roundCoordinate(initialUserCoords.longitude),
+      latitude: roundCoordinate(initialUserCoords.latitude),
     }
   }
 
@@ -187,25 +205,11 @@ export const SurfSpotForm = (props: SurfSpotFormProps) => {
         wavepoolUrl: surfSpot?.wavepoolUrl || '',
       } as SurfSpotFormState,
       validationFunctions: {
-        continent: validateRequired,
-        country: validateRequired,
-        region: validateRequired,
-        longitude: validateLongitude,
-        latitude: validateLatitude,
-        name: validateRequired,
-        description: (value) => {
-          // Description is only required for public spots (not private)
-          if (isPrivateSpot) return ''
-          return validateRequired(value, 'Description')
-        },
-        swellDirection: (value) => {
-          if (isNoveltyWave) return '' // Not required for wavepools/river waves
-          return validateDirection(value, 'Swell Direction')
-        },
-        windDirection: (value) => {
-          if (isNoveltyWave) return '' // Not required for wavepools/river waves
-          return validateDirection(value, 'Wind Direction')
-        },
+        ...getSurfSpotStepValidators({
+          isPrivateSpot,
+          isWavepool,
+          isNoveltyWave,
+        }),
         forecastLinks: (links) => {
           if (!Array.isArray(links)) return 'Invalid data format'
 
@@ -236,13 +240,6 @@ export const SurfSpotForm = (props: SurfSpotFormProps) => {
 
           return ''
         },
-        wavepoolUrl: (value) => {
-          if (!isWavepool) return '' // Not required if not a wavepool
-          if (!value || value.trim() === '') {
-            return 'Official website is required for wavepools'
-          }
-          return validateUrl(value, 'Official Website')
-        },
       },
     })
 
@@ -265,8 +262,8 @@ export const SurfSpotForm = (props: SurfSpotFormProps) => {
       if (isDefaultLocation) {
         // Update both coordinates at once to ensure they're set together
         // This will trigger the map to update via initialCoordinates prop
-        handleChange('longitude', initialUserCoords.longitude)
-        handleChange('latitude', initialUserCoords.latitude)
+        handleChange('longitude', roundCoordinate(initialUserCoords.longitude))
+        handleChange('latitude', roundCoordinate(initialUserCoords.latitude))
       }
     }
   }, [
@@ -295,27 +292,148 @@ export const SurfSpotForm = (props: SurfSpotFormProps) => {
         : null,
   })
 
+  const {
+    wizardSteps,
+    currentStep,
+    stepId,
+    totalSteps,
+    canProceedToNext,
+    goNext,
+    goBack,
+  } = useSurfSpotWizard({
+    isNoveltyWave,
+    isPrivateSpot,
+    isWavepool,
+    formState,
+  })
+
+  const handleFormSubmit = useCallback(
+    (e: FormEvent<HTMLFormElement>) => {
+      e.preventDefault()
+      const formData = buildSurfSpotFormData({
+        formState,
+        isPrivateSpot,
+        foodNearby: food.nearby,
+        accommodationNearby: accommodation.nearby,
+        isBoatRequired,
+        isWavepool,
+        wavepoolUrl,
+        isRiverWave,
+        foodOptions: food.options,
+        accommodationOptions: accommodation.options,
+        facilities,
+        hazards,
+      })
+      if (!isAddMode && surfSpot?.id) {
+        formData.append('surfSpotId', String(surfSpot.id))
+      }
+      fetcher.submit(formData, { method: isAddMode ? 'post' : 'patch' })
+    },
+    [
+      fetcher,
+      formState,
+      isPrivateSpot,
+      food.nearby,
+      food.options,
+      accommodation.nearby,
+      accommodation.options,
+      isBoatRequired,
+      isWavepool,
+      wavepoolUrl,
+      isRiverWave,
+      facilities,
+      hazards,
+      isAddMode,
+      surfSpot?.id,
+    ],
+  )
+
+  const navigate = useNavigate()
+  const fetcherPayload = unwrapFetcherActionPayload(fetcher.data)
+  const surfSpotFromAction = fetcherPayload?.surfSpot as SurfSpot | undefined
+
+  const surfSpotPathFromAction = pathFromSurfSpot(surfSpotFromAction)
+  const isSubmitOk =
+    fetcherPayload != null && fetcherPayload.hasError !== true
+  const resolvedViewPath =
+    surfSpotPathFromAction ?? pathFromSurfSpot(surfSpot)
+  const isSubmitSuccess =
+    isSubmitOk &&
+    (isAddMode ? !!surfSpotPathFromAction : !!resolvedViewPath)
+
+  const afterSuccessLabel = isAddMode ? 'Add another' : 'Back to spot details'
+  const afterSuccessPath = isAddMode ? '/add-surf-spot' : resolvedViewPath
+
   return (
-    <div className="info-page-content mv map-content">
+    <div
+      className={`info-page-content mv map-content ${
+        isSubmitSuccess ? 'surf-spot-form-success-page' : ''
+      }`}
+    >
+      {!isSubmitSuccess && currentStep > 0 && (
+        <div className="back-nav">
+          <Button
+            type="button"
+            variant="icon"
+            icon={{ name: 'chevron-left' }}
+            onClick={goBack}
+            ariaLabel="Back"
+          />
+        </div>
+      )}
       <h1>{`${actionType} Surf Spot`}</h1>
-      <InfoMessage message="Public surf spots are reviewed and, if approved, become visible to everyone." />
+
+      <WizardStepper
+        steps={wizardSteps}
+        currentStep={
+          isSubmitSuccess ? wizardSteps.length - 1 : currentStep
+        }
+        isComplete={isSubmitSuccess}
+      />
+
+      {isSubmitSuccess ? (
+        <div className="surf-spot-form-success-wrapper">
+          <div className="surf-spot-form-success column">
+            <div className="ph center column">
+              <div className="surf-spot-form-success-icon mb">
+                <Icon iconKey="success" useCurrentColor />
+              </div>
+              <p className="surf-spot-form-success-message bold">
+                {submitStatus?.message}
+              </p>
+              <p className="surf-spot-form-success-subtext">
+                {isAddMode ? 'You can now view the spot or add another.' : 'Your changes have been saved.'}
+              </p>
+              <div className="surf-spot-form-success-actions">
+                <Button
+                  label={isAddMode ? 'View surf spot' : 'View spot'}
+                  onClick={() => navigate(resolvedViewPath!)}
+                />
+                {isAddMode && (
+                  <Button
+                    label={afterSuccessLabel}
+                    variant="secondary"
+                    onClick={() => {
+                      if (afterSuccessPath) navigate(afterSuccessPath)
+                    }}
+                  />
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+      ) : (
       <FormComponent
         isDisabled={!isFormValid}
         submitStatus={submitStatus}
-        method={actionType === 'Edit' ? 'patch' : 'post'}
+        method={isAddMode ? 'post' : 'patch'}
         onCancel={onCancel}
+        hideSubmitButton={currentStep < totalSteps - 1}
+        onSubmit={handleFormSubmit}
+        isSubmitting={fetcher.state === 'submitting'}
       >
-        <CheckboxOption
-          name="isPrivate"
-          title="Keep Private"
-          description="Only you will be able to see this spot. Your secret is safe with us!"
-          checked={isPrivateSpot}
-          onChange={() =>
-            setSpotStatus(
-              isPrivateSpot ? SurfSpotStatus.PENDING : SurfSpotStatus.PRIVATE,
-            )
-          }
-        />
+        {stepId === 'basics' && (
+        <>
         <FormInput
           field={{
             label: 'Name',
@@ -326,6 +444,7 @@ export const SurfSpotForm = (props: SurfSpotFormProps) => {
           onChange={(e) => handleChange('name', e.target.value)}
           errorMessage={errors.name || ''}
           showLabel={!!formState.name}
+          required
         />
         <FormInput
           field={{
@@ -337,7 +456,25 @@ export const SurfSpotForm = (props: SurfSpotFormProps) => {
           value={formState.description}
           errorMessage={errors.description || ''}
           showLabel={!!formState.description}
+          required={!isPrivateSpot}
         />
+        <div className="surf-spot-form-basics-spacer" />
+        <InfoMessage message="Public surf spots are reviewed and, if approved, become visible to everyone." />
+        <CheckboxOption
+          name="isPrivate"
+          title="Keep Private"
+          description="Only you will be able to see this spot. Your secret is safe with us!"
+          checked={isPrivateSpot}
+          onChange={() =>
+            setSpotStatus(
+              isPrivateSpot ? SurfSpotStatus.PENDING : SurfSpotStatus.PRIVATE,
+            )
+          }
+        />
+        </>
+        )}
+
+        {stepId === 'location' && (
         <LocationSection
           findOnMap={findOnMap}
           onToggleView={() => setFindOnMap(!findOnMap)}
@@ -359,8 +496,12 @@ export const SurfSpotForm = (props: SurfSpotFormProps) => {
           locationSelection={locationSelection}
           onLocationChange={handleChange}
         />
+        )}
+
+        {stepId === 'spot-type' && (
+        <>
         <h3 className="mt pt">Tell us about the spot</h3>
-        <div className="pv">
+        <>
           <CheckboxOption
             name="isWavepool"
             title="Wavepool?"
@@ -391,27 +532,31 @@ export const SurfSpotForm = (props: SurfSpotFormProps) => {
               onBlur={() => handleBlur('wavepoolUrl')}
               errorMessage={errors.wavepoolUrl || ''}
               showLabel={!!wavepoolUrl}
+              required
             />
           )}
-        </div>
+        </>
         {!isNoveltyWave && (
-          <>
-            <SpotDetailsSection
-              formState={{
-                type: formState.type,
-                beachBottomType: formState.beachBottomType,
-                skillLevel: formState.skillLevel,
-                waveDirection: formState.waveDirection,
-              }}
-              errors={{
-                type: errors.type,
-                beachBottomType: errors.beachBottomType,
-                skillLevel: errors.skillLevel,
-                waveDirection: errors.waveDirection,
-              }}
-              onChange={handleChange}
-            />
-            <div className="pv">
+          <SpotDetailsSection
+            formState={{
+              type: formState.type,
+              beachBottomType: formState.beachBottomType,
+              skillLevel: formState.skillLevel,
+              waveDirection: formState.waveDirection,
+            }}
+            errors={{
+              type: errors.type,
+              beachBottomType: errors.beachBottomType,
+              skillLevel: errors.skillLevel,
+              waveDirection: errors.waveDirection,
+            }}
+            onChange={handleChange}
+          />
+        )}
+        </>
+        )}
+
+        {stepId === 'details' && !isNoveltyWave && (
             <BestConditionsSection
               formState={{
                 swellDirection: formState.swellDirection,
@@ -434,9 +579,9 @@ export const SurfSpotForm = (props: SurfSpotFormProps) => {
               onWindDirectionChange={setWindDirectionArray}
               onChange={handleChange}
             />
-            </div>
-          </>
         )}
+
+        {stepId === 'access' && (
         <AccessAmenitiesSection
           isBoatRequired={isBoatRequired}
           onBoatRequiredChange={setIsBoatRequired}
@@ -461,6 +606,10 @@ export const SurfSpotForm = (props: SurfSpotFormProps) => {
           distanceUnits={distanceUnits}
           onChange={handleChange}
         />
+        )}
+
+        {stepId === 'rating' && (
+        <>
         <h3 className="mv">How would you rate this spot?</h3>
         <div className="rating-container">
           <Rating
@@ -472,7 +621,21 @@ export const SurfSpotForm = (props: SurfSpotFormProps) => {
             vibe. Focus on the spot itself, not just a single session.
           </p>
         </div>
+        </>
+        )}
+
+        {currentStep < totalSteps - 1 && (
+          <div className="center-horizontal form-submit">
+            <Button
+              type="button"
+              label="Continue"
+              onClick={goNext}
+              disabled={!canProceedToNext}
+            />
+          </div>
+        )}
       </FormComponent>
+      )}
     </div>
   )
 }

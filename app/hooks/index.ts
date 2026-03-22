@@ -12,6 +12,7 @@ import { useStaticMap } from './useStaticMap'
 import { useSubmitStatus } from './useSubmitStatus'
 import { useFormSubmission } from './useFormSubmission'
 import { useSurfSpotActions } from './useSurfSpotActions'
+import { useSurfSpotWizard } from './useSurfSpotWizard'
 
 export {
   useActionFetcher,
@@ -28,4 +29,5 @@ export {
   useStaticMap,
   useSubmitStatus,
   useSurfSpotActions,
+  useSurfSpotWizard,
 }

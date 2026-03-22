@@ -84,7 +84,7 @@ export const MediaUpload = ({
         <div className="media-upload-icon">
           <Icon iconKey="plus" />
         </div>
-        <p className="media-upload-text">
+        <p className="media-upload-text bold">
           {isDragging ? 'Drop files here' : 'Click to upload or drag and drop'}
         </p>
         <p className="media-upload-hint">

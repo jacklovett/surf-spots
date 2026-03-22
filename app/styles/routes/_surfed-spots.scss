@@ -4,7 +4,6 @@
 
     &.value {
       font-size: $font-size-x-large;
-      font-weight: 600;
     }
   }
 }
@@ -82,7 +81,6 @@
 
 .stat-label {
   font-size: $font-size-large;
-  font-weight: 600;
 }
 
 /* Wave Preferences */
@@ -134,7 +132,6 @@
 }
 
 .preference-label {
-  font-weight: 600;
   color: $text-secondary;
   font-size: $font-size-base;
   text-align: center;
@@ -201,7 +198,6 @@
   flex: 1;
 
   h4 {
-    font-weight: 600;
     margin-bottom: $spacing-small;
     color: $text-heading;
   }

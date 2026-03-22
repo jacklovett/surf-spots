@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { useActionData, useLoaderData } from 'react-router'
 import { SubmitStatus } from '~/components/FormComponent'
 import { ActionData } from '~/types/api'
-import { messageForDisplay, ERROR_SOMETHING_WENT_WRONG } from '~/utils/errorUtils'
+import { messageForDisplay, DEFAULT_ERROR_MESSAGE } from '~/utils/errorUtils'
 
 export const useSubmitStatus = () => {
   const actionData = useActionData<ActionData>()
@@ -13,8 +13,9 @@ export const useSubmitStatus = () => {
   useEffect(() => {
     const actionMessage =
       actionData?.submitStatus != null && typeof actionData.submitStatus === 'string'
-        ? messageForDisplay(actionData.submitStatus.trim(), ERROR_SOMETHING_WENT_WRONG)
+        ? messageForDisplay(actionData.submitStatus.trim(), DEFAULT_ERROR_MESSAGE)
         : null
+        
     if (actionMessage) {
       const status: SubmitStatus = {
         message: actionMessage,
@@ -31,7 +32,7 @@ export const useSubmitStatus = () => {
     
     const loaderMessage =
       loaderData?.submitStatus != null && typeof loaderData.submitStatus === 'string'
-        ? messageForDisplay(loaderData.submitStatus.trim(), ERROR_SOMETHING_WENT_WRONG)
+        ? messageForDisplay(loaderData.submitStatus.trim(), DEFAULT_ERROR_MESSAGE)
         : null
     if (loaderMessage) {
       const status: SubmitStatus = {

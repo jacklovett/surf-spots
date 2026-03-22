@@ -11,7 +11,7 @@ import {
 
 import { cacheControlHeader, get, post, deleteData } from '~/services/networkService'
 import { requireSessionCookie, getSession, commitSession } from '~/services/session.server'
-import { SurfSpot, SurfSpotNote, Tide, SkillLevel } from '~/types/surfSpots'
+import { SurfSpot, SurfSpotNote, Tide, SkillLevel, SurfSpotStatus } from '~/types/surfSpots'
 
 import {
   CalendarIcon,
@@ -43,7 +43,6 @@ import {
   ERROR_INVALID_SURF_SPOT_ID,
   ERROR_INVALID_TRIP_ACTION,
   ERROR_SAVE_NOTE,
-  ERROR_SOMETHING_WENT_WRONG,
   ERROR_SURF_SPOT_ID_REQUIRED,
   ERROR_TRIP_AND_SPOT_IDS_REQUIRED,
   ERROR_TRIP_AND_TRIP_SPOT_IDS_REQUIRED,
@@ -398,7 +397,7 @@ export default function SurfSpotDetails() {
         submitFetcher(params, fetcher, location.pathname)
       } catch (error) {
         console.error('Error submitting fetcher:', error)
-        showError(ERROR_SOMETHING_WENT_WRONG)
+        showError(DEFAULT_ERROR_MESSAGE)
       }
     },
     [fetcher, showError, location.pathname],
@@ -466,6 +465,13 @@ if (error || !surfSpotDetails) {
   const isNoveltyWave = isWavepool || isRiverWave
   const noveltyLabel = getNoveltyWaveLabel({ isWavepool, isRiverWave })
 
+  const viewerUserId = user?.id
+  const isCreator = !!viewerUserId && viewerUserId === surfSpotDetails.createdBy
+  const isPendingVisibleToCreator =
+    isCreator && surfSpotDetails.status === SurfSpotStatus.PENDING
+  const showReportIssueMessage =
+    !isCreator && surfSpotDetails.status === SurfSpotStatus.APPROVED
+
   return (
     <div className="mb-l">
       <div className="content column">
@@ -494,6 +500,9 @@ if (error || !surfSpotDetails) {
             iconKey="clipboard"
           />
         </div>
+        {isPendingVisibleToCreator && (
+          <InfoMessage message="This spot is pending approval and is only visible to you until it is approved." />
+        )}
         <p className="description">{description}</p>
         <div className="row spot-details gap mb pv">
           <Details label="Break Type" value={type} />
@@ -701,7 +710,9 @@ if (error || !surfSpotDetails) {
             <Rating value={rating} readOnly />
           </div>
         </section>
-        <InfoMessage message="See something not right? Let us know so we can get it fixed" />
+        {showReportIssueMessage && (
+          <InfoMessage message="See something not right? Let us know so we can get it fixed" />
+        )}
       </div>
     </div>
   )

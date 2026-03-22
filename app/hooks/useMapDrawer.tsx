@@ -7,6 +7,7 @@ import { SurfSpot } from '~/types/surfSpots'
 import { ErrorBoundary, SurfSpotPreview, SurfSpotActions } from '~/components'
 import { ERROR_BOUNDARY_SECTION } from '~/utils/errorUtils'
 import { FetcherSubmitParams } from '~/types/api'
+
 export const useMapDrawer = (
   onFetcherSubmit?: (params: FetcherSubmitParams) => void,
 ) => {

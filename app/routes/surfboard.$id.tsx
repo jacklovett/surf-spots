@@ -29,7 +29,7 @@ import {
   ERROR_BOUNDARY_MEDIA,
   ERROR_DELETE_MEDIA,
   ERROR_DELETE_SURFBOARD,
-  ERROR_SOMETHING_WENT_WRONG,
+  DEFAULT_ERROR_MESSAGE,
 } from '~/utils/errorUtils'
 import { Surfboard, SurfboardMedia } from '~/types/surfboard'
 import {
@@ -193,7 +193,7 @@ export const action: ActionFunction = async ({ request, params }) => {
       '[surfboard.$id action] Unhandled error. message=' + (e.message ?? String(error)) + '\nStack:\n' + (e.stack ?? '(no stack)'),
     )
     return data<ActionData>(
-      { error: getDisplayMessage(error, ERROR_SOMETHING_WENT_WRONG) },
+      { error: getDisplayMessage(error, DEFAULT_ERROR_MESSAGE) },
       { status: 500 },
     )
   }

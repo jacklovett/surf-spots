@@ -163,19 +163,19 @@ export default function SurfedSpots() {
         {/* Stats Overview */}
         <div className="stats-overview mt-l">
           <div className="stat-card primary">
-            <div className="stat-label">Total Spots Surfed</div>
+            <div className="stat-label bold">Total Spots Surfed</div>
             <div className="stat-value">{totalCount}</div>
           </div>
           <div className="stat-card">
-            <div className="stat-label">Countries</div>
+            <div className="stat-label bold">Countries</div>
             <div className="stat-value">{countryCount}</div>
           </div>
           <div className="stat-card">
-            <div className="stat-label">Continents</div>
+            <div className="stat-label bold">Continents</div>
             <div className="stat-value">{continentCount}</div>
           </div>
           <div className="stat-card">
-            <div className="stat-label">Explorer Level</div>
+            <div className="stat-label bold">Explorer Level</div>
             <div className="stat-value">
               {getSurfExplorerLevel(countryCount)}
             </div>
@@ -190,19 +190,19 @@ export default function SurfedSpots() {
             className="preferences-list"
           >
             <div className="preference-card animate-on-scroll">
-              <span className="preference-label">Favorite Break</span>
+              <span className="preference-label bold">Favorite Break</span>
               <span className="preference-value">
                 {mostSurfedSpotType || '-'}
               </span>
             </div>
             <div className="preference-card animate-on-scroll">
-              <span className="preference-label">Beach Type</span>
+              <span className="preference-label bold">Beach Type</span>
               <span className="preference-value">
                 {mostSurfedBeachBottomType || '-'}
               </span>
             </div>
             <div className="preference-card animate-on-scroll">
-              <span className="preference-label">Favorite Direction</span>
+              <span className="preference-label bold">Favorite Direction</span>
               <span className="preference-value">
                 {favoriteWaveDirection || '-'}
               </span>
@@ -225,7 +225,7 @@ export default function SurfedSpots() {
                   onClick={() => navigate(spot.path)}
                 >
                   <div className="spot-info">
-                    <h4>{spot.name}</h4>
+                    <h4 className="bold">{spot.name}</h4>
                     <p className="spot-location">
                       {spot.country?.name}, {spot.continent?.name}
                     </p>

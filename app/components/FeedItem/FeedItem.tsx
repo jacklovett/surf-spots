@@ -59,7 +59,7 @@ export const FeedItem = ({ notification }: FeedItemProps) => {
               </div>
               <div className="feed-item-meta">
                 {(surfSpotName || location) && (
-                  <span className="feed-item-location">
+                  <span className="feed-item-location bold">
                     {surfSpotName || location}
                   </span>
                 )}
@@ -97,7 +97,7 @@ export const FeedItem = ({ notification }: FeedItemProps) => {
               </div>
               <div className="feed-item-meta">
                 {(surfSpotName || location) && (
-                  <span className="feed-item-location">
+                  <span className="feed-item-location bold">
                     {surfSpotName || location}
                   </span>
                 )}

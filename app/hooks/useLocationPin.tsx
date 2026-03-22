@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import mapboxgl from 'mapbox-gl'
 import { Coordinates } from '~/types/surfSpots'
+import { roundCoordinate } from '~/utils/coordinateUtils'
 
 interface UseLocationPinProps {
   map: mapboxgl.Map | null
@@ -29,8 +30,8 @@ export const useLocationPin = ({
     navigator.geolocation.getCurrentPosition(
       (position) => {
         const coords: Coordinates = {
-          longitude: position.coords.longitude,
-          latitude: position.coords.latitude,
+          longitude: roundCoordinate(position.coords.longitude),
+          latitude: roundCoordinate(position.coords.latitude),
         }
         setUserLocation(coords)
         setPinLocation(coords)
@@ -120,8 +121,8 @@ export const useLocationPin = ({
       marker.on('dragend', () => {
         const lngLat = marker.getLngLat()
         const newCoords: Coordinates = {
-          longitude: lngLat.lng,
-          latitude: lngLat.lat,
+          longitude: roundCoordinate(lngLat.lng),
+          latitude: roundCoordinate(lngLat.lat),
         }
         setPinLocation(newCoords)
         onLocationUpdate(newCoords)

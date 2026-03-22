@@ -19,8 +19,8 @@
   }
 
   .filters-content-title {
+    @extend .bold;
     font-size: $font-size-small;
-    font-weight: 600;
     margin-bottom: $spacing-unit;
     color: $text-color;
     border-bottom: 1px solid $outline-color;

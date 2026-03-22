@@ -47,6 +47,66 @@
   }
 }
 
+/* Notification cards (watch list updates) */
+.notifications-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: $spacing-large;
+
+  @media (max-width: 640px) {
+    grid-template-columns: 1fr;
+    gap: $spacing-unit;
+  }
+}
+
+.notification-card {
+  @extend .card;
+  border: 1px solid $border-light;
+  overflow: hidden;
+  margin: 0;
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+  }
+}
+
+.notification-header {
+  background: linear-gradient(
+    135deg,
+    $primary-color,
+    darken($primary-color, 10%)
+  );
+  color: $white;
+  padding: $spacing-large;
+}
+
+.notification-header h3 {
+  margin: 0;
+}
+
+.notification-content {
+  padding: $spacing-large;
+}
+
+.notification-content p {
+  color: $text-secondary;
+  line-height: 1.6;
+  margin-bottom: $spacing-unit;
+}
+
+.notification-link {
+  color: $primary-color;
+  text-decoration: none;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
 @media (max-width: 768px) {
   .feed-container {
     max-width: 100%;

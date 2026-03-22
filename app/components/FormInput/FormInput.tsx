@@ -12,6 +12,8 @@ interface IProps {
   showLabel?: boolean
   readOnly?: boolean
   placeholder?: string
+  /** When true, appends a visual " *" to the label for required fields */
+  required?: boolean
 }
 
 export const FormInput = (props: IProps) => {
@@ -25,10 +27,17 @@ export const FormInput = (props: IProps) => {
     showLabel,
     readOnly,
     placeholder,
+    required,
   } = props
   const { label, name, type, options } = field
 
-  const inputPlaceholder = placeholder ?? label
+  // Keep inputs controlled for the full component lifetime.
+  // Some parent components intentionally clear numeric fields by setting the value to `undefined`.
+  // React treats `value={undefined}` as uncontrolled and warns, so we normalize to an empty string.
+  const safeValue = value ?? ''
+
+  const inputPlaceholder =
+    placeholder ?? (required ? `${label}*` : label)
 
   return (
     <div
@@ -37,12 +46,19 @@ export const FormInput = (props: IProps) => {
         error: !!errorMessage,
       })}
     >
-      <label className={showLabel ? 'visible' : ''}>{label}</label>
+      <label className={showLabel ? 'visible' : ''}>
+        {label}
+        {required && (
+          <span className="form-label-required" aria-hidden="true">
+            *
+          </span>
+        )}
+      </label>
       {type === 'textarea' ? (
         <textarea
           id={name}
           name={name}
-          value={value as string}
+          value={safeValue as string}
           onChange={onChange}
           onBlur={onBlur}
           placeholder={inputPlaceholder}
@@ -54,7 +70,7 @@ export const FormInput = (props: IProps) => {
         <select
           id={name}
           name={name}
-          value={value as string}
+          value={safeValue as string}
           onChange={onChange}
           onBlur={onBlur}
           disabled={disabled || readOnly}
@@ -71,7 +87,7 @@ export const FormInput = (props: IProps) => {
           type={type}
           id={name}
           name={name}
-          value={value as string | number}
+          value={safeValue as string | number}
           onChange={onChange}
           onBlur={onBlur}
           placeholder={inputPlaceholder}

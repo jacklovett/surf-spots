@@ -1,4 +1,4 @@
-import { ReactNode, RefObject } from 'react'
+import { ReactNode, RefObject, FormEvent } from 'react'
 import { Form, useFetcher, FetcherWithComponents } from 'react-router'
 import { Button, ErrorBoundary } from '../index'
 import { SubmitStatus } from './index'
@@ -20,6 +20,10 @@ interface IProps {
   submitButtonClassName?: string
   formId?: string
   formRef?: RefObject<HTMLFormElement>
+  /** When set, form uses this handler instead of native submit (e.g. submit built FormData via fetcher). */
+  onSubmit?: (e: FormEvent<HTMLFormElement>) => void
+  /** Override when using custom onSubmit (e.g. fetcher.state === 'submitting'). */
+  isSubmitting?: boolean
 }
 
 export const FormComponent = (props: IProps) => {
@@ -35,17 +39,29 @@ export const FormComponent = (props: IProps) => {
     action,
     hideSubmitButton = false,
     submitButtonClassName,
+    onSubmit: customOnSubmit,
+    isSubmitting: isSubmittingOverride,
   } = props
 
   const defaultFetcher = useFetcher()
   const fetcher = propFetcher ?? defaultFetcher
   const { isFormSubmitting } = useFormSubmission()
-  const isSubmitting = propFetcher ? fetcher.state === 'submitting' : isFormSubmitting
+  const isSubmitting =
+    isSubmittingOverride ?? (propFetcher ? fetcher.state === 'submitting' : isFormSubmitting)
 
-  const FormElement = propFetcher ? fetcher.Form : Form
-  const formProps = propFetcher && action 
-    ? { method, noValidate: true, action, id: props.formId, ref: props.formRef } 
-    : { method, noValidate: true, id: props.formId, ref: props.formRef }
+  const handleSubmit = customOnSubmit
+    ? (e: FormEvent<HTMLFormElement>) => {
+        e.preventDefault()
+        customOnSubmit(e)
+      }
+    : undefined
+
+  const FormElement = customOnSubmit ? 'form' : (propFetcher ? fetcher.Form : Form)
+  const formProps = customOnSubmit
+    ? { noValidate: true, onSubmit: handleSubmit, id: props.formId, ref: props.formRef }
+    : propFetcher && action
+      ? { method, noValidate: true, action, id: props.formId, ref: props.formRef }
+      : { method, noValidate: true, id: props.formId, ref: props.formRef }
 
   return (
     <ErrorBoundary>

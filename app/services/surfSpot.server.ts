@@ -12,6 +12,7 @@ import {
   ERROR_USER_NOT_AUTHENTICATED,
 } from '~/utils/errorUtils'
 import { safeLinkHref } from '~/utils/commonUtils'
+import { roundCoordinate } from '~/utils/coordinateUtils'
 import {
   MAX_ACCOMMODATION_OPTIONS,
   MAX_DESCRIPTION_LENGTH,
@@ -272,9 +273,13 @@ export const createSurfSpotFromFormData = async (request: Request) => {
     throw new Response('Region is required', { status: 400 })
   }
 
-  // ——— Coords + short text fields ———
-  const longitude = parseFloat(formData.get('longitude')?.toString() || '0')
-  const latitude = parseFloat(formData.get('latitude')?.toString() || '0')
+  // ——— Coords + short text fields (5 decimal places) ———
+  const longitude = roundCoordinate(
+    parseFloat(formData.get('longitude')?.toString() || '0'),
+  )
+  const latitude = roundCoordinate(
+    parseFloat(formData.get('latitude')?.toString() || '0'),
+  )
 
   const shortFieldKeys = [
     'type',
@@ -358,7 +363,7 @@ export const createSurfSpotFromFormData = async (request: Request) => {
     isWavepool,
     wavepoolUrl: wavepoolUrlValid,
     isRiverWave,
-    parking,
+    parking: parking || undefined,
     foodNearby,
     foodOptions,
     accommodationNearby,

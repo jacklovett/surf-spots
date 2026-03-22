@@ -2,7 +2,6 @@ import {
   messageForDisplay,
   DEFAULT_ERROR_MESSAGE,
   ERROR_CHECK_INPUT,
-  ERROR_OUR_PROBLEM,
   ERROR_REQUEST_TIMEOUT,
 } from '~/utils/errorUtils'
 
@@ -55,12 +54,14 @@ export function getDisplayMessage(
   if (isNetworkError(error)) {
     const status = error.status
     // status 0 = no response (connection/CORS/network) – never show raw message to user
-    if (status === 0) return ERROR_OUR_PROBLEM
+    if (status === 0) return DEFAULT_ERROR_MESSAGE
     if (status !== undefined) {
-      if (status >= 400 && status < 500) return ERROR_CHECK_INPUT
-      if (status >= 500) return ERROR_OUR_PROBLEM
+      if (status >= 500) return DEFAULT_ERROR_MESSAGE
+      // For 4xx, use API message when present (e.g. validation "Name is required"), else generic
+      if (status >= 400 && status < 500) {
+        return messageForDisplay(error.message, ERROR_CHECK_INPUT)
+      }
     }
-    // Only show API message if we have a real status and it's not a technical leak
     return messageForDisplay(error.message, fallback)
   }
   const msg = error instanceof Error ? error.message : undefined
@@ -249,6 +250,12 @@ export const edit = async <T, R = void>(
   body: T,
   options: RequestOptions = {},
 ): Promise<R> => request<R, T>(endpoint, { ...options, method: 'PUT' }, body)
+
+export const patch = async <T, R = void>(
+  endpoint: string,
+  body: T,
+  options: RequestOptions = {},
+): Promise<R> => request<R, T>(endpoint, { ...options, method: 'PATCH' }, body)
 
 export const deleteData = async (
   endpoint: string,

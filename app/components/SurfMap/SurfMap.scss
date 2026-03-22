@@ -101,6 +101,30 @@ ellipse {
   }
 }
 
+/* Spots fetch failed: overlay so map stays visible and usable */
+.map-spots-error-overlay {
+  @extend %flex-center;
+  position: absolute;
+  inset: 0;
+  z-index: 10;
+  background: rgba(255, 255, 255, 0.92);
+  padding: $spacing-unit;
+  text-align: center;
+
+  .ph {
+    max-width: 280px;
+  }
+}
+
+.map-error-retry-wrap {
+  @extend %flex-base;
+  justify-content: center;
+
+  .button {
+    width: auto;
+  }
+}
+
 // Map instructions overlay
 .map-instructions-overlay {
   position: absolute;
