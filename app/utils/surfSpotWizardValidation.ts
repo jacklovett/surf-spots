@@ -5,7 +5,7 @@ import {
   validateDirection,
   validateUrl,
 } from '~/hooks/useFormValidation'
-import type { SurfSpotFormState } from '~/types/surfSpots'
+import { SurfSpotStatus, type SurfSpotFormState } from '~/types/surfSpots'
 
 export type SurfSpotWizardStepId =
   | 'basics'
@@ -19,11 +19,6 @@ export interface SurfSpotWizardValidationContext {
   isWavepool: boolean
   isNoveltyWave: boolean
 }
-
-export {
-  isPublicListingComplete,
-  isPublicSurfSpotPayloadComplete,
-} from './surfSpotPublicPayload'
 
 export const getStepRequiredFields = (
   stepId: SurfSpotWizardStepId | undefined,
@@ -106,3 +101,97 @@ export const getSurfSpotStepValidators = (
     },
   }
 }
+
+export type SurfSpotPublicListingFields = {
+  status: SurfSpotStatus
+  description: string
+  isWavepool: boolean
+  isRiverWave: boolean
+  wavepoolUrl?: string | null
+  type?: string | null
+  beachBottomType?: string | null
+  skillLevel?: string | null
+  waveDirection?: string | null
+  swellDirection?: string | null
+  windDirection?: string | null
+}
+
+const hasNonWhitespaceText = (value?: string | null): boolean =>
+  value != null && String(value).trim() !== ''
+
+export const isPublicSurfSpotPayloadComplete = (
+  payload: SurfSpotPublicListingFields,
+): boolean => {
+  if (payload.isWavepool && payload.isRiverWave) {
+    return false
+  }
+  if (payload.status === SurfSpotStatus.PRIVATE) {
+    return true
+  }
+  if (!hasNonWhitespaceText(payload.description)) {
+    return false
+  }
+
+  const isWavePoolOrRiverWave = payload.isWavepool || payload.isRiverWave
+  if (isWavePoolOrRiverWave) {
+    return publicNoveltySpotIsComplete(payload)
+  }
+
+  return publicOceanBreakSpotIsComplete(payload)
+}
+
+const publicNoveltySpotIsComplete = (payload: SurfSpotPublicListingFields): boolean => {
+  if (payload.isWavepool && !hasNonWhitespaceText(payload.wavepoolUrl)) {
+    return false
+  }
+  return true
+}
+
+const publicOceanBreakSpotIsComplete = (payload: SurfSpotPublicListingFields): boolean => {
+  const hasCoreBreakFields =
+    Boolean(payload.type) &&
+    Boolean(payload.beachBottomType) &&
+    Boolean(payload.skillLevel) &&
+    Boolean(payload.waveDirection)
+
+  if (!hasCoreBreakFields) {
+    return false
+  }
+
+  return (
+    hasNonWhitespaceText(payload.swellDirection) &&
+    hasNonWhitespaceText(payload.windDirection)
+  )
+}
+
+export const isPublicListingComplete = (wizard: {
+  isPrivateSpot: boolean
+  isWavepool: boolean
+  isRiverWave: boolean
+  wavepoolUrl: string
+  formState: Pick<
+    SurfSpotFormState,
+    | 'description'
+    | 'type'
+    | 'beachBottomType'
+    | 'skillLevel'
+    | 'waveDirection'
+    | 'swellDirection'
+    | 'windDirection'
+  >
+}): boolean =>
+  isPublicSurfSpotPayloadComplete({
+    status: wizard.isPrivateSpot
+      ? SurfSpotStatus.PRIVATE
+      : SurfSpotStatus.PENDING,
+    description: wizard.formState.description ?? '',
+    isWavepool: wizard.isWavepool,
+    isRiverWave: wizard.isRiverWave,
+    wavepoolUrl: wizard.wavepoolUrl,
+    type: wizard.formState.type,
+    beachBottomType: wizard.formState.beachBottomType,
+    skillLevel: wizard.formState.skillLevel,
+    waveDirection: wizard.formState.waveDirection,
+    swellDirection: wizard.formState.swellDirection,
+    windDirection: wizard.formState.windDirection,
+  })
