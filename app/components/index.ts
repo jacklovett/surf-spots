@@ -110,7 +110,7 @@ export {
   SurfSpotForm,
   SurfboardForm,
   SurfSpotNoteForm,
-  SurfSessionFeedbackModal,
+  // SurfSessionFeedbackModal,
   SurfSpotPreview,
   SurfSpotList,
   TextButton,
@@ -125,3 +125,5 @@ export {
   UrlLinkList,
   ViewSwitch,
 }
+
+export type { SurfSpotActionsHandle } from './SurfSpotActions'
