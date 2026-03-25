@@ -3,14 +3,7 @@ import { useFetcher, useLocation } from 'react-router'
 import { useToastContext } from '~/contexts'
 import { submitFetcher } from '~/components/SurfSpotActions'
 import { messageForDisplay, DEFAULT_ERROR_MESSAGE } from '~/utils/errorUtils'
-import { FetcherSubmitParams } from '~/types/api'
-
-interface FetcherData {
-  error?: string
-  submitStatus?: string
-  hasError?: boolean
-  success?: boolean
-}
+import { ActionData, FetcherSubmitParams } from '~/types/api'
 
 /**
  * Shared hook for handling surf spot actions (add/remove from watch list or surfed spots)
@@ -22,20 +15,20 @@ interface FetcherData {
 export const useSurfSpotActions = (actionRoute?: string) => {
   const { pathname } = useLocation()
   const { showError } = useToastContext()
-  const fetcher = useFetcher<FetcherData>()
+  const fetcher = useFetcher<ActionData>()
 
-  // Handle fetcher errors - show toast messages
+  // Handle fetcher errors. Success toasts for remove are shown optimistically in SurfSpotActions.
   useEffect(() => {
-    if (fetcher.state === 'idle' && fetcher.data) {
-      const data = fetcher.data
-      if (data.error || (data.hasError && data.submitStatus)) {
-        const rawMessage = data.error || data.submitStatus
-        const errorMessage = messageForDisplay(
-          typeof rawMessage === 'string' ? rawMessage : undefined,
-          DEFAULT_ERROR_MESSAGE,
-        )
-        showError(errorMessage)
-      }
+    if (fetcher.state !== 'idle' || !fetcher.data) return
+    const data = fetcher.data
+    if (data.error || (data.hasError && data.submitStatus)) {
+      const rawMessage = data.error || data.submitStatus
+      const errorMessage = messageForDisplay(
+        typeof rawMessage === 'string' ? rawMessage : undefined,
+        DEFAULT_ERROR_MESSAGE,
+      )
+      showError(errorMessage)
+      return
     }
   }, [fetcher.data, fetcher.state, showError])
 
@@ -53,5 +46,5 @@ export const useSurfSpotActions = (actionRoute?: string) => {
     [fetcher, showError, pathname, actionRoute],
   )
 
-  return { onFetcherSubmit }
+  return { fetcher, onFetcherSubmit }
 }

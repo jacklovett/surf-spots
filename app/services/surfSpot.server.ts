@@ -316,9 +316,6 @@ export const createSurfSpotFromFormData = async (request: Request) => {
     ? parseFloat(maxSurfHeightFormValue)
     : undefined
 
-  const ratingFormValue = formData.get('rating')?.toString()
-  const rating = ratingFormValue ? parseFloat(ratingFormValue) : undefined
-
   // ——— Parking ———
   const parkingRaw = formData.get('parking')?.toString() || ''
   const parking = parkingRaw.trim().slice(0, MAX_PARKING_LENGTH)
@@ -342,38 +339,55 @@ export const createSurfSpotFromFormData = async (request: Request) => {
   }
 
   // ——— Build payload ———
-  const newSurfSpot = {
+  const payload = {
     name,
     description,
     regionId,
     longitude,
     latitude,
-    type,
-    beachBottomType,
-    swellDirection,
-    windDirection,
-    tide,
-    waveDirection,
+    type: type || null,
+    beachBottomType: beachBottomType || null,
+    swellDirection: swellDirection || null,
+    windDirection: windDirection || null,
+    tide: tide || null,
+    waveDirection: waveDirection || null,
     minSurfHeight,
     maxSurfHeight,
-    skillLevel,
+    skillLevel: skillLevel || null,
     forecasts,
     webcams,
     boatRequired,
     isWavepool,
     wavepoolUrl: wavepoolUrlValid,
     isRiverWave,
-    parking: parking || undefined,
+    parking: parking || null,
     foodNearby,
     foodOptions,
     accommodationNearby,
     accommodationOptions,
     facilities,
     hazards,
-    rating,
     status: isPrivate ? SurfSpotStatus.PRIVATE : SurfSpotStatus.PENDING,
     userId,
   }
 
-  return newSurfSpot
+  if (
+    !isPublicSurfSpotPayloadComplete({
+      status: payload.status,
+      description: payload.description,
+      isWavepool: payload.isWavepool,
+      isRiverWave: payload.isRiverWave,
+      wavepoolUrl: payload.wavepoolUrl,
+      type: payload.type,
+      beachBottomType: payload.beachBottomType,
+      skillLevel: payload.skillLevel,
+      waveDirection: payload.waveDirection,
+      swellDirection: payload.swellDirection,
+      windDirection: payload.windDirection,
+    })
+  ) {
+    throw new Response(ERROR_CHECK_INPUT, { status: 400 })
+  }
+
+  return payload
 }

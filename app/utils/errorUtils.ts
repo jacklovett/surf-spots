@@ -38,7 +38,8 @@ export const ERROR_REMOVE_SPOT_FROM_TRIP = 'Failed to remove spot. Please try ag
 export const ERROR_REMOVE_MEMBER = 'Failed to remove member. Please try again.'
 export const ERROR_CANCEL_INVITATION = 'Failed to cancel invitation. Please try again.'
 export const ERROR_DELETE_MEDIA = 'Failed to delete media. Please try again.'
-export const ERROR_LOAD_TRIPS = 'Failed to load trips.'
+export const ERROR_LOAD_TRIPS =
+  "We couldn't load your trips right now. Please try again later."
 export const ERROR_TRIP_NOT_FOUND = 'Trip not found'
 export const ERROR_TITLE_REQUIRED = 'Title is required'
 export const ERROR_INVALID_MEMBER_EMAILS =
@@ -50,13 +51,18 @@ export const ERROR_LOGIN_REQUIRED_CREATE_TRIP =
 export const ERROR_DELETE_SURFBOARD = 'Failed to delete surfboard. Please try again.'
 export const ERROR_CREATE_SURFBOARD = 'Failed to create surfboard. Please try again.'
 export const ERROR_UPDATE_SURFBOARD = 'Failed to update surfboard. Please try again.'
-export const ERROR_LOAD_SURFBOARDS = 'Failed to load surfboards.'
+export const ERROR_LOAD_SURFBOARDS =
+  "We couldn't load your surfboards right now. Please try again later."
 export const ERROR_SURFBOARD_NOT_FOUND = 'Surfboard not found'
 export const ERROR_LOGIN_REQUIRED_ADD_SURFBOARD =
   'Sign in to add surfboards'
 
 // Surf spots
 export const ERROR_SAVE_NOTE = 'Failed to save note. Please try again.'
+export const ERROR_SAVE_SESSION_FEEDBACK =
+  'Could not save session feedback. Please try again.'
+export const SUCCESS_SESSION_FEEDBACK_SAVED =
+  'Thanks for sharing your session feedback.'
 export const ERROR_LOAD_REGION_DATA = 'Failed to load region data. Please try again later.'
 export const ERROR_LOAD_CONTINENTS = "We couldn't load the continents. Please try again."
 export const ERROR_LOAD_MAP_SPOTS = "We couldn't load the map. Please try again."
@@ -66,6 +72,14 @@ export const SUCCESS_SURF_SPOT_UPDATED = 'Surf spot updated'
 export const ERROR_SURF_SPOT_ID_REQUIRED = 'Surf spot ID is required'
 export const SUCCESS_SURF_SPOT_ADDED = 'Surf spot added'
 export const SUCCESS_NOTE_SAVED = 'Note saved successfully'
+
+/** Loader: GET user surf spots failed (any cause; details only in server logs). */
+export const ERROR_LOAD_SURFED_SPOTS =
+  'We could not load your surfed spots right now. Please try again later.'
+
+/** Loader: GET watch list summary failed (any cause; details only in server logs). */
+export const ERROR_LOAD_WATCH_LIST =
+  'We could not load updates for your watched spots right now. Please try again later.'
 
 // Profile & account
 export const ERROR_DELETE_ACCOUNT = 'Unable to delete account. Please try again later.'
@@ -152,6 +166,19 @@ const INTERNAL_INDICATORS = [
   'failed to fetch',
   'network request failed',
   'token',
+  // Config / infra (never expose to users)
+  'vite_api',
+  'environment variable',
+  'sessioncookiefilter',
+  'springframework',
+  'hibernate',
+  // JS runtime (never show raw V8/SpiderMonkey text to users)
+  'cannot read properties',
+  'cannot read property',
+  'undefined is not',
+  'null is not',
+  'is not a function',
+  'is not iterable',
 ]
 
 /**

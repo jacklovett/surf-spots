@@ -14,13 +14,16 @@ import {
   TripPlannerButton,
   Loading,
   Page,
-  Rating,
   SurfMap,
   SurfSpotList,
 } from '~/components'
-import { ERROR_BOUNDARY_MAP, ERROR_BOUNDARY_SURF_SPOT_LIST } from '~/utils/errorUtils'
+import {
+  ERROR_BOUNDARY_MAP,
+  ERROR_BOUNDARY_SURF_SPOT_LIST,
+  ERROR_LOAD_SURFED_SPOTS,
+} from '~/utils/errorUtils'
 import { useScrollReveal, useSurfSpotActions } from '~/hooks'
-import { cacheControlHeader, get } from '~/services/networkService'
+import { cacheControlHeader, get, isNetworkError } from '~/services/networkService'
 import { requireSessionCookie } from '~/services/session.server'
 import { surfSpotAction } from '~/services/surfSpot.server'
 import { SurfedSpotsSummary } from '~/types/surfedSpotsSummary'
@@ -50,13 +53,17 @@ export const loader: LoaderFunction = async ({ request }) => {
       },
     )
   } catch (error) {
-    console.error('Error fetching surf spots:', error)
+    const status = isNetworkError(error) ? error.status : undefined
+    console.error('Surfed spots loader: user spots fetch failed', {
+      status,
+      responseSummary: isNetworkError(error) ? error.responseSummary : undefined,
+      message: error instanceof Error ? error.message : String(error),
+    })
+
     return data<LoaderData>(
+      { error: ERROR_LOAD_SURFED_SPOTS },
       {
-        error: `We could not load your surfed spots right now. Please try again later.`,
-      },
-      {
-        status: 500,
+        status: status && status >= 400 && status < 600 ? status : 500,
       },
     )
   }
@@ -117,7 +124,7 @@ export default function SurfedSpots() {
   if (error) {
     return (
       <Page showHeader>
-        <ContentStatus>
+        <ContentStatus isError>
           <p>{error}</p>
         </ContentStatus>
       </Page>
@@ -230,9 +237,6 @@ export default function SurfedSpots() {
                       {spot.country?.name}, {spot.continent?.name}
                     </p>
                     <p>{`Added: ${new Date().toLocaleDateString()}`}</p>
-                    <div className="spot-rating">
-                      <Rating value={spot.rating} readOnly />
-                    </div>
                   </div>
                 </div>
               ))}

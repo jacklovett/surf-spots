@@ -24,11 +24,11 @@ import {
   FormInput,
   Icon,
   InfoMessage,
-  Rating,
 } from '~/components'
 import { Option } from '~/components/FormInput'
 import { UrlLinkItem } from '../UrlLinkList'
 import { getSurfSpotStepValidators } from '~/utils/surfSpotWizardValidation'
+import { isPublicListingComplete } from '~/utils/surfSpotPublicPayload'
 import {
   getFetcherSubmitStatus,
   unwrapFetcherActionPayload,
@@ -55,8 +55,12 @@ interface SurfSpotFormProps {
 }
 
 /** Uses `path` as returned by the API (normalization is server-side). */
-const pathFromSurfSpot = (spot: SurfSpot | undefined): string | null =>
-  typeof spot?.path === 'string' && spot.path !== '' ? spot.path : null
+const pathFromSurfSpot = (spot: SurfSpot | null): string | null =>
+  spot != null &&
+  typeof spot.path === 'string' &&
+  spot.path !== ''
+    ? spot.path
+    : null
 
 export const SurfSpotForm = (props: SurfSpotFormProps) => {
   const { actionType, onCancel } = props
@@ -118,9 +122,34 @@ export const SurfSpotForm = (props: SurfSpotFormProps) => {
     surfSpot?.status || SurfSpotStatus.PENDING,
   )
   const [isBoatRequired, setIsBoatRequired] = useState(!!surfSpot?.boatRequired)
-  const [isWavepool, setIsWavepool] = useState(!!surfSpot?.isWavepool)
+  const isWavepoolInitial = !!surfSpot?.isWavepool
+  const isRiverWaveInitial = !!surfSpot?.isRiverWave
+  const isBothNoveltyInitial = isWavepoolInitial && isRiverWaveInitial
+  const [isWavepool, setIsWavepool] = useState(isWavepoolInitial)
   const [wavepoolUrl, setWavepoolUrl] = useState(surfSpot?.wavepoolUrl || '')
-  const [isRiverWave, setIsRiverWave] = useState(!!surfSpot?.isRiverWave)
+  const [isRiverWave, setIsRiverWave] = useState(
+    isBothNoveltyInitial ? false : isRiverWaveInitial,
+  )
+
+  useEffect(() => {
+    if (!surfSpot || isAddMode) return
+    setSpotStatus(surfSpot.status || SurfSpotStatus.PENDING)
+    setIsBoatRequired(!!surfSpot.boatRequired)
+    const nextIsWavepool = !!surfSpot.isWavepool
+    const nextIsRiverWave = !!surfSpot.isRiverWave
+    const nextIsBothNovelty = nextIsWavepool && nextIsRiverWave
+    setIsWavepool(nextIsWavepool)
+    setIsRiverWave(nextIsBothNovelty ? false : nextIsRiverWave)
+    setWavepoolUrl(surfSpot.wavepoolUrl || '')
+  }, [
+    isAddMode,
+    surfSpot?.id,
+    surfSpot?.status,
+    surfSpot?.boatRequired,
+    surfSpot?.isWavepool,
+    surfSpot?.wavepoolUrl,
+    surfSpot?.isRiverWave,
+  ])
 
   const [accommodation, setAccommodation] = useState<Availability>({
     nearby: !!surfSpot?.accommodationNearby,
@@ -189,7 +218,6 @@ export const SurfSpotForm = (props: SurfSpotFormProps) => {
         latitude: initialCoords.latitude,
         swellDirection: directionArrayToString(initialSwellDirection),
         windDirection: directionArrayToString(initialWindDirection),
-        rating: surfSpot?.rating ?? '',
         tide: surfSpot?.tide || '',
         waveDirection: surfSpot?.waveDirection || '',
         minSurfHeight: surfSpot?.minSurfHeight ?? '',
@@ -310,6 +338,17 @@ export const SurfSpotForm = (props: SurfSpotFormProps) => {
   const handleFormSubmit = useCallback(
     (e: FormEvent<HTMLFormElement>) => {
       e.preventDefault()
+      if (
+        !isPublicListingComplete({
+          isPrivateSpot,
+          isWavepool,
+          isRiverWave,
+          wavepoolUrl,
+          formState,
+        })
+      ) {
+        return
+      }
       const formData = buildSurfSpotFormData({
         formState,
         isPrivateSpot,
@@ -333,14 +372,14 @@ export const SurfSpotForm = (props: SurfSpotFormProps) => {
       fetcher,
       formState,
       isPrivateSpot,
+      isWavepool,
+      isRiverWave,
+      wavepoolUrl,
       food.nearby,
       food.options,
       accommodation.nearby,
       accommodation.options,
       isBoatRequired,
-      isWavepool,
-      wavepoolUrl,
-      isRiverWave,
       facilities,
       hazards,
       isAddMode,
@@ -350,13 +389,15 @@ export const SurfSpotForm = (props: SurfSpotFormProps) => {
 
   const navigate = useNavigate()
   const fetcherPayload = unwrapFetcherActionPayload(fetcher.data)
-  const surfSpotFromAction = fetcherPayload?.surfSpot as SurfSpot | undefined
+  const surfSpotRaw = fetcherPayload?.surfSpot
+  const surfSpotFromAction: SurfSpot | null =
+    surfSpotRaw != null ? (surfSpotRaw as SurfSpot) : null
 
   const surfSpotPathFromAction = pathFromSurfSpot(surfSpotFromAction)
   const isSubmitOk =
     fetcherPayload != null && fetcherPayload.hasError !== true
   const resolvedViewPath =
-    surfSpotPathFromAction ?? pathFromSurfSpot(surfSpot)
+    surfSpotPathFromAction ?? pathFromSurfSpot(surfSpot ?? null)
   const isSubmitSuccess =
     isSubmitOk &&
     (isAddMode ? !!surfSpotPathFromAction : !!resolvedViewPath)
@@ -507,14 +548,26 @@ export const SurfSpotForm = (props: SurfSpotFormProps) => {
             title="Wavepool?"
             description="Is this a wavepool?"
             checked={isWavepool}
-            onChange={() => setIsWavepool(!isWavepool)}
+            onChange={() => {
+              const next = !isWavepool
+              setIsWavepool(next)
+              if (next) setIsRiverWave(false)
+            }}
           />
           <CheckboxOption
             name="isRiverWave"
             title="River wave?"
             description="Is this a river wave (standing wave / river break)?"
             checked={isRiverWave}
-            onChange={() => setIsRiverWave(!isRiverWave)}
+            onChange={() => {
+              const next = !isRiverWave
+              setIsRiverWave(next)
+              if (next) {
+                setIsWavepool(false)
+                setWavepoolUrl('')
+                handleChange('wavepoolUrl', '')
+              }
+            }}
           />
           {isWavepool && (
             <FormInput
@@ -606,22 +659,6 @@ export const SurfSpotForm = (props: SurfSpotFormProps) => {
           distanceUnits={distanceUnits}
           onChange={handleChange}
         />
-        )}
-
-        {stepId === 'rating' && (
-        <>
-        <h3 className="mv">How would you rate this spot?</h3>
-        <div className="rating-container">
-          <Rating
-            value={formState.rating}
-            onChange={(value) => handleChange('rating', value)}
-          />
-          <p className="rating-description">
-            Rate this spot based on wave quality, amenities, safety, and overall
-            vibe. Focus on the spot itself, not just a single session.
-          </p>
-        </div>
-        </>
         )}
 
         {currentStep < totalSteps - 1 && (

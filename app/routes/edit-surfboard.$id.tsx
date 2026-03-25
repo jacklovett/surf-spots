@@ -25,6 +25,7 @@ import {
   ERROR_SURFBOARD_NOT_FOUND,
   ERROR_UPDATE_SURFBOARD,
   ERROR_BOUNDARY_SECTION,
+  ERROR_LOAD_SURFBOARDS,
 } from '~/utils/errorUtils'
 
 interface LoaderData {
@@ -64,7 +65,7 @@ export const loader: LoaderFunction = async ({ request, params }) => {
     console.error('Error fetching surfboard:', error)
     return data<LoaderData>(
       {
-        error: `We couldn't load this surfboard right now. Please try again later.`,
+        error: ERROR_LOAD_SURFBOARDS,
         surfboard: {} as Surfboard,
       },
       { status: 500 },

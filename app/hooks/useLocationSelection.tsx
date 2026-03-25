@@ -292,7 +292,7 @@ export const useLocationSelection = ({
           : ''
         const targetRegionId = fetchedRegion?.id ? String(fetchedRegion.id) : ''
 
-        console.log('[LocationSelection] Extracted IDs:', {
+        console.log('Location selection: extracted IDs:', {
           targetCountryId,
           targetRegionId,
           countryName: fetchedCountry?.name,

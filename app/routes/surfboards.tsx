@@ -11,6 +11,7 @@ import { cacheControlHeader, get } from '~/services/networkService'
 import { Surfboard } from '~/types/surfboard'
 import { useScrollReveal } from '~/hooks'
 import { formatLength, formatDimension } from '~/utils/surfboardUtils'
+import { ERROR_LOAD_SURFBOARDS } from '~/utils/errorUtils'
 
 interface LoaderData {
   surfboards: Surfboard[]
@@ -35,11 +36,9 @@ export const loader: LoaderFunction = async ({ request }) => {
     )
   } catch (error: any) {
     console.error('Error fetching surfboards:', error)
-    const errorMessage = `We couldn't load your surfboards right now. Please try again later.`
-
     return data<LoaderData>(
       {
-        error: errorMessage,
+        error: ERROR_LOAD_SURFBOARDS,
         surfboards: [],
       },
       { status: 500 },

@@ -178,7 +178,7 @@ export const reverseGeocodeWithMapbox = async (
       continent: continentName,
     }
   } catch (e) {
-    console.error('[Mapbox Reverse Geocoding] Error:', e)
+    console.error('Mapbox reverse geocoding failed:', e)
     return null
   }
 }
@@ -239,7 +239,7 @@ export const getRegionAndCountryFromCoordinates = async (
       const networkError = error as NetworkError
 
       // Enhanced error logging for production debugging
-      console.error('[Region Lookup] Backend API call failed:', {
+      console.error('Region lookup: backend API call failed:', {
         url: 'regions/by-coordinates',
         mapboxCountry: mapboxResult.country,
         normalizedCountry: countryName,

@@ -1,0 +1,13 @@
+.content-status {
+  margin-top: $spacing-x-large;
+
+  .column.error {
+    gap: $spacing-unit;
+  }
+}
+
+// Less margin on surf-spots routes because toolbar takes up space
+.surf-spots-list-view .content-status,
+.content-container > .content-status {
+  margin-top: $spacing-large;
+}

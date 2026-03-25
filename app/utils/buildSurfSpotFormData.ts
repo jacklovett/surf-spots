@@ -20,7 +20,6 @@ export interface SurfSpotFormSubmitPayload {
     skillLevel?: string
     minSurfHeight?: number | string
     maxSurfHeight?: number | string
-    rating?: number | string
     parking?: string
     forecastLinks?: { url: string }[]
     webcamLinks?: { url: string }[]
@@ -80,7 +79,6 @@ export const buildSurfSpotFormData = (
   fd.append('skillLevel', formState.skillLevel ?? '')
   fd.append('minSurfHeight', String(formState.minSurfHeight ?? ''))
   fd.append('maxSurfHeight', String(formState.maxSurfHeight ?? ''))
-  fd.append('rating', String(formState.rating ?? ''))
   fd.append('parking', formState.parking ?? '')
   if (isPrivateSpot) fd.append('isPrivate', 'on')
   if (foodNearby) fd.append('foodNearby', 'on')

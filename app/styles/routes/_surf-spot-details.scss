@@ -181,16 +181,34 @@
 
 .content > .row.space-between {
   flex-wrap: nowrap;
-  
-  > h1 {
+
+  > .page-title-with-status {
     flex: 1;
     min-width: 0;
     margin-right: $spacing-unit;
-    word-break: break-word;
-    overflow-wrap: break-word;
+
+    h1 {
+      word-break: break-word;
+      overflow-wrap: break-word;
+    }
   }
 
   > .spot-actions {
+    flex-shrink: 0;
+  }
+}
+
+/* Novelty chip + Add notes on one row; chip width fits label */
+.content > .surf-spot-detail-meta-row {
+  flex-wrap: wrap;
+  gap: $spacing-unit;
+
+  .surf-spot-novelty-chip-wrap {
+    flex: 0 1 auto;
+    min-width: 0;
+  }
+
+  .surf-spot-detail-meta-row__notes {
     flex-shrink: 0;
   }
 }

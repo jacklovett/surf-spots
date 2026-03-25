@@ -154,10 +154,14 @@ const request = async <T, B = undefined>(
   const fullUrl = isFullUrl ? endpoint : `${API_URL}/${endpoint}`
 
   if (!isFullUrl && !API_URL) {
-    const error = new Error(
-      'VITE_API_URL is not configured. Please set it in your environment variables.',
-    ) as NetworkError
+    const error = new Error(DEFAULT_ERROR_MESSAGE) as NetworkError
     error.status = 500
+    error.responseSummary = {
+      status: 500,
+      statusText: 'Config',
+      contentType: 'none',
+      reason: 'VITE_API_URL is not set (server-side or client env).',
+    }
     throw error
   }
 

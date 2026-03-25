@@ -39,7 +39,7 @@ export const loader: LoaderFunction = async ({ request, params }) => {
       mediaId: result.mediaId,
     })
   } catch (error) {
-    console.error('[api.surfboard.upload-url] getSurfboardMediaUploadUrl failed', {
+    console.error('Surfboard upload URL API: getSurfboardMediaUploadUrl failed', {
       surfboardId,
       userId: user.id,
       error,

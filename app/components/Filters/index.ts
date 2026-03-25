@@ -2,7 +2,7 @@ import { Filters } from './Filters'
 import { SurfSpotFilters } from '~/types/surfSpots'
 
 /**
- * Helper to count applied filters (excluding empty arrays, zero rating, etc.)
+ * Helper to count applied filters (excluding empty arrays and falsey values)
  * @param filters
  * @returns number - count of applied filters
  */

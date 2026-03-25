@@ -41,7 +41,6 @@ import InfoMessage from './InfoMessage'
 import LocationSelector from './LocationSelector'
 import SignInOptions from './SignInOptions'
 import CheckboxOption from './CheckboxOption'
-import Rating from './Rating'
 import Chip from './Chip'
 import ChipSelector from './ChipSelector'
 import DirectionSelector from './DirectionSelector'
@@ -99,7 +98,6 @@ export {
   Modal,
   NavButton,
   Page,
-  Rating,
   SafeLink,
   SignInOptions,
   SignUpPromptModal,
@@ -112,6 +110,7 @@ export {
   SurfSpotForm,
   SurfboardForm,
   SurfSpotNoteForm,
+  SurfSessionFeedbackModal,
   SurfSpotPreview,
   SurfSpotList,
   TextButton,

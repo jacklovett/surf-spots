@@ -161,7 +161,7 @@ export const goToAddSurfSpotAmenitiesStep = async (
   const ok = await fillLocationFromSelects(page)
   if (!ok) return false
 
-  // Steps (private, non-novelty wavepool): Basics -> Location -> Type -> Amenities -> Rating
+  // Steps (private, non-novelty wavepool): Basics -> Location -> Type -> Amenities
   // We stop on Amenities so webcam/forecast inputs are visible.
   await clickWizardContinue(page) // Location -> Type
   await clickWizardContinue(page) // Type -> Amenities

@@ -19,7 +19,6 @@ import {
   MediaUpload,
   Modal,
   Page,
-  Rating,
   SurfboardSelectionModal,
   TextButton,
 } from '~/components'
@@ -35,7 +34,6 @@ import {
 import { Trip, TripMedia } from '~/types/trip'
 import { recordMedia } from '~/services/trip'
 import { useScrollReveal, useFileUpload, useActionFetcher } from '~/hooks'
-import { InfoModal } from '~/components/Modal'
 import { formatDate } from '~/utils/dateUtils'
 import {
   UPLOAD_ERROR_MEDIA_UNAVAILABLE,
@@ -115,7 +113,7 @@ export const action: ActionFunction = async ({ request, params }) => {
       })
       return redirect('/trips')
     } catch (error) {
-      console.error('[trip.$id action] Error deleting trip:', {
+      console.error('Trip action: Error deleting trip:', {
         error,
         message: error instanceof Error ? error.message : String(error),
         status: error instanceof Response ? error.status : undefined,
@@ -133,7 +131,7 @@ export const action: ActionFunction = async ({ request, params }) => {
   if (intent === 'add-surfboard') {
     const surfboardId = formData.get('surfboardId') as string
     if (!surfboardId) {
-      console.error('[trip.$id action] Missing surfboardId for add-surfboard')
+      console.error('Trip action: Missing surfboardId for add-surfboard')
       return data<ActionData>(
         { error: 'Surfboard ID is required' },
         { status: 400 },
@@ -147,7 +145,7 @@ export const action: ActionFunction = async ({ request, params }) => {
       )
       return data<ActionData>({ success: true })
     } catch (error) {
-      console.error('[trip.$id action] Error adding surfboard:', {
+      console.error('Trip action: Error adding surfboard:', {
         error,
         message: error instanceof Error ? error.message : String(error),
         status: error instanceof Response ? error.status : undefined,
@@ -167,7 +165,7 @@ export const action: ActionFunction = async ({ request, params }) => {
     const tripSurfboardId = formData.get('tripSurfboardId') as string
     if (!tripSurfboardId) {
       console.error(
-        '[trip.$id action] Missing tripSurfboardId for remove-surfboard',
+        'Trip action: Missing tripSurfboardId for remove-surfboard',
       )
       return data<ActionData>(
         { error: 'Trip surfboard ID is required' },
@@ -181,7 +179,7 @@ export const action: ActionFunction = async ({ request, params }) => {
       )
       return data<ActionData>({ success: true })
     } catch (error) {
-      console.error('[trip.$id action] Error removing surfboard:', {
+      console.error('Trip action: Error removing surfboard:', {
         error,
         message: error instanceof Error ? error.message : String(error),
         status: error instanceof Response ? error.status : undefined,
@@ -200,7 +198,7 @@ export const action: ActionFunction = async ({ request, params }) => {
   if (intent === 'remove-spot') {
     const tripSpotId = formData.get('tripSpotId') as string
     if (!tripSpotId) {
-      console.error('[trip.$id action] Missing tripSpotId for remove-spot')
+      console.error('Trip action: Missing tripSpotId for remove-spot')
       return data<ActionData>(
         { error: 'Trip spot ID is required' },
         { status: 400 },
@@ -213,7 +211,7 @@ export const action: ActionFunction = async ({ request, params }) => {
       )
       return data<ActionData>({ success: true })
     } catch (error) {
-      console.error('[trip.$id action] Error removing spot:', {
+      console.error('Trip action: Error removing spot:', {
         error,
         message: error instanceof Error ? error.message : String(error),
         status: error instanceof Response ? error.status : undefined,
@@ -232,7 +230,7 @@ export const action: ActionFunction = async ({ request, params }) => {
   if (intent === 'remove-member') {
     const memberUserId = formData.get('memberUserId') as string
     if (!memberUserId) {
-      console.error('[trip.$id action] Missing memberUserId for remove-member')
+      console.error('Trip action: Missing memberUserId for remove-member')
       return data<ActionData>(
         { error: 'Member user ID is required' },
         { status: 400 },
@@ -245,7 +243,7 @@ export const action: ActionFunction = async ({ request, params }) => {
       )
       return data<ActionData>({ success: true })
     } catch (error) {
-      console.error('[trip.$id action] Error removing member:', {
+      console.error('Trip action: Error removing member:', {
         error,
         message: error instanceof Error ? error.message : String(error),
         status: error instanceof Response ? error.status : undefined,
@@ -265,7 +263,7 @@ export const action: ActionFunction = async ({ request, params }) => {
     const invitationId = formData.get('invitationId') as string
     if (!invitationId) {
       console.error(
-        '[trip.$id action] Missing invitationId for cancel-invitation',
+        'Trip action: Missing invitationId for cancel-invitation',
       )
       return data<ActionData>(
         { error: 'Invitation ID is required' },
@@ -279,7 +277,7 @@ export const action: ActionFunction = async ({ request, params }) => {
       )
       return data<ActionData>({ success: true })
     } catch (error) {
-      console.error('[trip.$id action] Error canceling invitation:', {
+      console.error('Trip action: Error canceling invitation:', {
         error,
         message: error instanceof Error ? error.message : String(error),
         status: error instanceof Response ? error.status : undefined,
@@ -298,7 +296,7 @@ export const action: ActionFunction = async ({ request, params }) => {
   if (intent === 'delete-media') {
     const mediaId = formData.get('mediaId') as string
     if (!mediaId) {
-      console.error('[trip.$id action] Missing mediaId for delete-media')
+      console.error('Trip action: Missing mediaId for delete-media')
       return data<ActionData>(
         { error: 'Media ID is required' },
         { status: 400 },
@@ -310,7 +308,7 @@ export const action: ActionFunction = async ({ request, params }) => {
       })
       return data<ActionData>({ success: true })
     } catch (error) {
-      console.error('[trip.$id action] Error deleting media:', {
+      console.error('Trip action: Error deleting media:', {
         error,
         message: error instanceof Error ? error.message : String(error),
         status: error instanceof Response ? error.status : undefined,
@@ -355,7 +353,7 @@ export const action: ActionFunction = async ({ request, params }) => {
         } as TripMedia,
       })
     } catch (error) {
-      console.error('[trip.$id action] add-media failed', { tripId, mediaId, error })
+      console.error('Trip action: add-media failed', { tripId, mediaId, error })
       return data<ActionData>(
         { error: getDisplayMessage(error, UPLOAD_ERROR_MEDIA_UNAVAILABLE) },
         { status: 500 },
@@ -468,7 +466,7 @@ export default function TripDetail() {
     return (
       <Page showHeader>
         <ContentStatus isError>
-          <p>{error || 'Trip not found'}</p>
+          <p>{error ?? 'Trip not found'}</p>
         </ContentStatus>
       </Page>
     )
@@ -628,11 +626,6 @@ export default function TripDetail() {
                         <a href={`/surf-spots/id/${spot.surfSpotId}`}>
                           <h4>{spot.surfSpotName}</h4>
                         </a>
-                        {spot.surfSpotRating && (
-                          <div className="spot-rating">
-                            <Rating value={spot.surfSpotRating} readOnly />
-                          </div>
-                        )}
                       </div>
                       {currentTrip.isOwner && (
                         <TextButton

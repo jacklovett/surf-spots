@@ -95,38 +95,20 @@ export const action: ActionFunction = async ({ request, params }) => {
     )
   }
 
-  const updatedSurfSpot = await createSurfSpotFromFormData(request)
   try {
-    // Forward cookies for authentication
+    const payload = await createSurfSpotFromFormData(request)
     const cookie = request.headers.get('Cookie') || ''
-    // PATCH the updated surf spot to the backend management endpoint
-    const updated = (await patch(
+    const updatedSurfSpot = (await patch(
       `surf-spots/management/${targetSurfSpotId}`,
-      updatedSurfSpot,
-      {
-        headers: { Cookie: cookie },
-      },
+      payload,
+      { headers: { Cookie: cookie } },
     )) as SurfSpot
-
-    const hasValidPath =
-      typeof updated.path === 'string' && updated.path !== ''
-
-    if (!hasValidPath) {
-      return data(
-        {
-          submitStatus: ERROR_EDIT_SURF_SPOT,
-          hasError: true,
-          surfSpot: null,
-        },
-        { status: 500 },
-      )
-    }
 
     return data(
       {
         submitStatus: SUCCESS_SURF_SPOT_UPDATED,
         hasError: false,
-        surfSpot: updated,
+        surfSpot: updatedSurfSpot,
       },
       { status: 200 },
     )

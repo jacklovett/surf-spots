@@ -18,7 +18,6 @@ export interface Trip {
 export interface NewTripSpot {
   surfSpotId: number
   surfSpotName: string
-  surfSpotRating?: number
   addedAt: string
 }
 

@@ -44,7 +44,7 @@ export default function Continents() {
   if (error || continents.length === 0) {
     return (
       <ContentStatus isError>
-        <p>{error ?? 'Continent list not found.'}</p>
+        <p>{error ?? ERROR_LOAD_CONTINENTS}</p>
       </ContentStatus>
     )
   }

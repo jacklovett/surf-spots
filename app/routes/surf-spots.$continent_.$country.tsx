@@ -2,6 +2,7 @@ import { data, Link, useLoaderData, useParams } from 'react-router'
 import { ContentStatus, Icon } from '~/components'
 import { cacheControlHeader, get } from '~/services/networkService'
 import type { Country, Region } from '~/types/surfSpots'
+import { ERROR_LOAD_REGION_DATA } from '~/utils/errorUtils'
 
 interface LoaderData {
   regions: Region[]
@@ -30,7 +31,7 @@ export const loader = async ({ params }: { params: LoaderParams }) => {
     return data<LoaderData>(
       {
         regions: [],
-        error: `We can't seem to locate the regions. Please try again later.`,
+        error: ERROR_LOAD_REGION_DATA,
       },
       {
         status: 500,

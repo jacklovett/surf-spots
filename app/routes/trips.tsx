@@ -13,6 +13,7 @@ import { Trip } from '~/types/trip'
 import { useScrollReveal } from '~/hooks'
 import { formatDate } from '~/utils/dateUtils'
 import { ActionData } from '~/types/api'
+import { ERROR_LOAD_TRIPS } from '~/utils/errorUtils'
 
 interface LoaderData {
   trips: Trip[]
@@ -39,7 +40,7 @@ export const loader: LoaderFunction = async ({ request }) => {
     console.error('Error fetching trips:', error)
     return data<LoaderData>(
       {
-        error: `We couldn't load your trips right now. Please try again later.`,
+        error: ERROR_LOAD_TRIPS,
         trips: [],
       },
       { status: 500 },

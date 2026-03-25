@@ -1,6 +1,10 @@
 @use 'sass:color';
 
 .chip {
+  display: inline-block;
+  width: fit-content;
+  max-width: 100%;
+  box-sizing: border-box;
   padding: 4px $spacing-unit;
   border: 2px solid $accent-color;
   border-radius: $button-border-radius;

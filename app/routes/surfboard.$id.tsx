@@ -30,6 +30,8 @@ import {
   ERROR_DELETE_MEDIA,
   ERROR_DELETE_SURFBOARD,
   DEFAULT_ERROR_MESSAGE,
+  ERROR_SURFBOARD_NOT_FOUND,
+  ERROR_LOAD_SURFBOARDS,
 } from '~/utils/errorUtils'
 import { Surfboard, SurfboardMedia } from '~/types/surfboard'
 import {
@@ -82,7 +84,7 @@ export const loader: LoaderFunction = async ({ request, params }) => {
     console.error('Error fetching surfboard:', error)
     return data<LoaderData>(
       {
-        error: `We couldn't load this surfboard right now. Please try again later.`,
+        error: ERROR_LOAD_SURFBOARDS,
         surfboard: {} as Surfboard,
       },
       { status: 500 },
@@ -108,7 +110,7 @@ const handleDeleteMedia = async (
     })
     return data<ActionData>({ success: true })
   } catch (error) {
-    console.error('[surfboard.$id action] Error deleting media:', error)
+    console.error('Surfboard detail action: error deleting media:', error)
     return data<ActionData>(
       { error: getDisplayMessage(error, ERROR_DELETE_MEDIA) },
       { status: 500 },
@@ -127,7 +129,7 @@ const handleDeleteSurfboard = async (
     })
     return redirect('/surfboards')
   } catch (error) {
-    console.error('[surfboard.$id action] Error deleting surfboard:', error)
+    console.error('Surfboard detail action: error deleting surfboard:', error)
     return data<ActionData>(
       { error: getDisplayMessage(error, ERROR_DELETE_SURFBOARD) },
       { status: 500 },
@@ -166,7 +168,7 @@ export const action: ActionFunction = async ({ request, params }) => {
         )
         return data<ActionData>({ success: true, media })
       } catch (err) {
-        console.error('[surfboard.$id action] add-media failed', { surfboardId, err })
+        console.error('Surfboard detail action: add media failed', { surfboardId, err })
         return data<ActionData>(
           { error: getDisplayMessage(err, UPLOAD_ERROR_MEDIA_UNAVAILABLE) },
           { status: 500 },
@@ -190,7 +192,9 @@ export const action: ActionFunction = async ({ request, params }) => {
     }
     const e = error as Error
     console.error(
-      '[surfboard.$id action] Unhandled error. message=' + (e.message ?? String(error)) + '\nStack:\n' + (e.stack ?? '(no stack)'),
+      'Surfboard detail action: unhandled error\n\n' +
+        `Message: ${e.message ?? String(error)}\n\n` +
+        `Stack:\n${e.stack ?? '(no stack)'}`,
     )
     return data<ActionData>(
       { error: getDisplayMessage(error, DEFAULT_ERROR_MESSAGE) },
@@ -307,7 +311,7 @@ export default function SurfboardDetail() {
     return (
       <Page showHeader>
         <ContentStatus isError>
-          <p>{error || 'Surfboard not found'}</p>
+          <p>{error ?? ERROR_SURFBOARD_NOT_FOUND}</p>
         </ContentStatus>
       </Page>
     )

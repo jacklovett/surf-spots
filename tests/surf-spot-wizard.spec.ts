@@ -18,7 +18,6 @@ const STEP_LABELS = {
   type: 'Type',
   conditions: 'Conditions',
   amenities: 'Amenities',
-  rating: 'Rating',
 } as const
 
 function wizardProgressNav(page: Page) {
@@ -40,6 +39,42 @@ async function assertWizardStepIndex(page: Page, oneBasedStep: number) {
   )
 }
 
+/** Public wizard through Location to Type step (returns false if seed data missing). */
+async function goPublicThroughLocationToTypeStep(
+  page: Page,
+  spotName: string,
+): Promise<boolean> {
+  await page.goto('/add-surf-spot', { waitUntil: 'domcontentloaded' })
+  await page.locator('input[name="name"]').waitFor({ state: 'visible', timeout: 15000 })
+  await fillPublicBasics(
+    page,
+    spotName,
+    'E2E validation gate description',
+  )
+  await clickWizardContinue(page)
+  const seeded = await fillLocationFromSelects(page)
+  if (!seeded) return false
+  await clickWizardContinue(page)
+  await assertWizardCurrentStepLabel(page, STEP_LABELS.type)
+  return true
+}
+
+/** Public non-novelty: through Type with ocean selects filled, stops on Conditions. */
+async function goPublicToConditionsStep(
+  page: Page,
+  spotName: string,
+): Promise<boolean> {
+  const ok = await goPublicThroughLocationToTypeStep(page, spotName)
+  if (!ok) return false
+  await page.locator('select[name="type"]').selectOption({ index: 1 })
+  await page.locator('select[name="beachBottomType"]').selectOption({ index: 1 })
+  await page.locator('select[name="skillLevel"]').selectOption({ index: 1 })
+  await page.locator('select[name="waveDirection"]').selectOption({ index: 1 })
+  await clickWizardContinue(page)
+  await assertWizardCurrentStepLabel(page, STEP_LABELS.conditions)
+  return true
+}
+
 async function continueUntilSubmitVisible(page: Page) {
   const submitButton = page.locator('button[type="submit"]')
   for (let i = 0; i < 12; i++) {
@@ -49,8 +84,8 @@ async function continueUntilSubmitVisible(page: Page) {
   await expect(submitButton).toBeVisible({ timeout: 15000 })
 }
 
-/** Public spot: every wizard step including Conditions; ends on Rating with submit visible. */
-async function walkFullPublicWizardThroughRating(page: Page, spotName: string) {
+/** Public spot: every wizard step including Conditions; ends on Amenities with submit visible. */
+async function walkFullPublicWizardToSubmit(page: Page, spotName: string) {
   await page.goto('/add-surf-spot', { waitUntil: 'domcontentloaded' })
 
   await page.locator('input[name="name"]').waitFor({ state: 'visible', timeout: 15000 })
@@ -98,12 +133,6 @@ async function walkFullPublicWizardThroughRating(page: Page, spotName: string) {
   await clickWizardContinue(page)
   await assertWizardStepIndex(page, 5)
   await assertWizardCurrentStepLabel(page, STEP_LABELS.amenities)
-
-  await clickWizardContinue(page)
-  await assertWizardStepIndex(page, 6)
-  await assertWizardCurrentStepLabel(page, STEP_LABELS.rating)
-
-  await page.locator('.rating .star').nth(3).click()
 
   await expect(page.locator('button[type="submit"]')).toBeVisible({ timeout: 15000 })
   return true
@@ -170,6 +199,101 @@ test.describe('Surf Spot Wizard (Add/Edit Contract)', () => {
     await expect(continueBtn).toBeEnabled()
   })
 
+  test('public Basics: clearing description disables Continue and shows required error', async ({
+    page,
+  }) => {
+    await page.goto('/add-surf-spot', { waitUntil: 'domcontentloaded' })
+    await page.locator('input[name="name"]').waitFor({ state: 'visible', timeout: 15000 })
+
+    await fillPublicBasics(
+      page,
+      'E2E Description Gate',
+      'Will clear this',
+    )
+    const continueBtn = page.getByRole('button', { name: 'Continue' })
+    await expect(continueBtn).toBeEnabled()
+
+    await page.locator('textarea[name="description"]').fill('')
+    await page.locator('textarea[name="description"]').blur()
+
+    await expect(continueBtn).toBeDisabled({ timeout: 15000 })
+    await expect(page.getByText('Description is required.')).toBeVisible({
+      timeout: 15000,
+    })
+  })
+
+  test('public Type step: Continue disabled until break type, beach, skill, and wave direction are set', async ({
+    page,
+  }) => {
+    const ok = await goPublicThroughLocationToTypeStep(
+      page,
+      `E2E Type Gate ${Date.now()}`,
+    )
+    if (!ok) {
+      test.skip(true, 'No seeded continent/country/region lookup data for e2e')
+      return
+    }
+
+    const continueBtn = page.getByRole('button', { name: 'Continue' })
+    await expect(continueBtn).toBeDisabled()
+
+    await page.locator('select[name="type"]').selectOption({ index: 1 })
+    await expect(continueBtn).toBeDisabled()
+    await page.locator('select[name="beachBottomType"]').selectOption({ index: 1 })
+    await expect(continueBtn).toBeDisabled()
+    await page.locator('select[name="skillLevel"]').selectOption({ index: 1 })
+    await expect(continueBtn).toBeDisabled()
+    await page.locator('select[name="waveDirection"]').selectOption({ index: 1 })
+    await expect(continueBtn).toBeEnabled({ timeout: 15000 })
+  })
+
+  test('public wavepool: Continue disabled until official website URL is valid', async ({
+    page,
+  }) => {
+    const ok = await goPublicThroughLocationToTypeStep(
+      page,
+      `E2E Wavepool URL Gate ${Date.now()}`,
+    )
+    if (!ok) {
+      test.skip(true, 'No seeded continent/country/region lookup data for e2e')
+      return
+    }
+
+    const continueBtn = page.getByRole('button', { name: 'Continue' })
+    await page.locator('input[name="isWavepool"] + .custom-checkbox').click()
+    await expect(continueBtn).toBeDisabled({ timeout: 15000 })
+
+    await page.locator('input[name="wavepoolUrl"]').fill('https://wavepool.example.com/e2e')
+    await page.locator('input[name="wavepoolUrl"]').blur()
+    await expect(continueBtn).toBeEnabled({ timeout: 15000 })
+  })
+
+  test('public Conditions step: Continue disabled until swell and wind directions are chosen', async ({
+    page,
+  }) => {
+    const ok = await goPublicToConditionsStep(page, `E2E Conditions Gate ${Date.now()}`)
+    if (!ok) {
+      test.skip(true, 'No seeded continent/country/region lookup data for e2e')
+      return
+    }
+
+    const continueBtn = page.getByRole('button', { name: 'Continue' })
+    await expect(continueBtn).toBeDisabled()
+
+    const directionWrappers = page.locator('.direction-selector-wrapper')
+    await directionWrappers
+      .nth(0)
+      .getByRole('button', { name: 'Select N direction' })
+      .click()
+    await expect(continueBtn).toBeDisabled()
+
+    await directionWrappers
+      .nth(1)
+      .getByRole('button', { name: 'Select SW direction' })
+      .click()
+    await expect(continueBtn).toBeEnabled({ timeout: 15000 })
+  })
+
   test('Location step Continue stays disabled until location fields are complete', async ({
     page,
   }) => {
@@ -219,9 +343,9 @@ test.describe('Surf Spot Wizard (Add/Edit Contract)', () => {
     await assertWizardCurrentStepLabel(page, STEP_LABELS.basics)
   })
 
-  test('full public wizard visits every step in order through Rating', async ({ page }) => {
+  test('full public wizard visits every step in order to submit', async ({ page }) => {
     const spotName = `E2E Full Wizard ${Date.now()}`
-    const ok = await walkFullPublicWizardThroughRating(page, spotName)
+    const ok = await walkFullPublicWizardToSubmit(page, spotName)
     if (!ok) {
       test.skip(true, 'No seeded continent/country/region lookup data for e2e')
       return
@@ -232,15 +356,15 @@ test.describe('Surf Spot Wizard (Add/Edit Contract)', () => {
     const progress = wizardProgressNav(page)
     await expect(progress).toBeVisible({ timeout: 15000 })
     await expect(progress).toHaveAttribute('aria-valuemin', '1')
-    await expect(progress).toHaveAttribute('aria-valuemax', '6')
-    await expect(progress).toHaveAttribute('aria-valuenow', '6')
+    await expect(progress).toHaveAttribute('aria-valuemax', '5')
+    await expect(progress).toHaveAttribute('aria-valuenow', '5')
     await assertWizardCurrentStepLabel(page, 'Completed')
 
     await expect(page.locator('.surf-spot-form-success-message')).toBeVisible()
     await expect(page.getByRole('button', { name: /View surf spot/i })).toBeVisible()
   })
 
-  test('wavepool path skips Conditions step and reaches Rating in five steps', async ({
+  test('wavepool path skips Conditions step and reaches submit in four steps', async ({
     page,
   }) => {
     await page.goto('/add-surf-spot', { waitUntil: 'domcontentloaded' })
@@ -271,16 +395,48 @@ test.describe('Surf Spot Wizard (Add/Edit Contract)', () => {
     await assertWizardStepIndex(page, 4)
     await assertWizardCurrentStepLabel(page, STEP_LABELS.amenities)
 
-    await expect(wizardProgressNav(page)).toHaveAttribute('aria-valuemax', '5')
-
-    await clickWizardContinue(page)
-    await assertWizardCurrentStepLabel(page, STEP_LABELS.rating)
-
-    await page.locator('.rating .star').nth(2).click()
+    await expect(wizardProgressNav(page)).toHaveAttribute('aria-valuemax', '4')
     await expect(page.locator('button[type="submit"]')).toBeVisible({ timeout: 15000 })
     await page.locator('button[type="submit"]').click()
 
-    await expect(wizardProgressNav(page)).toHaveAttribute('aria-valuenow', '5')
+    await expect(wizardProgressNav(page)).toHaveAttribute('aria-valuenow', '4')
+    await assertWizardCurrentStepLabel(page, 'Completed')
+    await expect(page.getByRole('button', { name: /View surf spot/i })).toBeVisible()
+  })
+
+  test('river wave (novelty, not wavepool) skips Conditions and submits without break-type fields', async ({
+    page,
+  }) => {
+    await page.goto('/add-surf-spot', { waitUntil: 'domcontentloaded' })
+    await page.locator('input[name="name"]').waitFor({ state: 'visible', timeout: 15000 })
+
+    const spotName = `E2E River Wave Wizard ${Date.now()}`
+    await fillPublicBasics(page, spotName, 'E2E river wave novelty path')
+
+    await clickWizardContinue(page)
+    const seeded = await fillLocationFromSelects(page)
+    if (!seeded) {
+      test.skip(true, 'No seeded continent/country/region lookup data for e2e')
+      return
+    }
+
+    await clickWizardContinue(page)
+    await assertWizardCurrentStepLabel(page, STEP_LABELS.type)
+
+    await page.locator('input[name="isRiverWave"] + .custom-checkbox').click()
+    await expect(page.getByRole('button', { name: 'Continue' })).toBeEnabled({
+      timeout: 15000,
+    })
+
+    await clickWizardContinue(page)
+    await assertWizardStepIndex(page, 4)
+    await assertWizardCurrentStepLabel(page, STEP_LABELS.amenities)
+
+    await expect(wizardProgressNav(page)).toHaveAttribute('aria-valuemax', '4')
+    await expect(page.locator('button[type="submit"]')).toBeVisible({ timeout: 15000 })
+    await page.locator('button[type="submit"]').click()
+
+    await expect(wizardProgressNav(page)).toHaveAttribute('aria-valuenow', '4')
     await assertWizardCurrentStepLabel(page, 'Completed')
     await expect(page.getByRole('button', { name: /View surf spot/i })).toBeVisible()
   })

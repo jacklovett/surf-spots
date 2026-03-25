@@ -47,6 +47,7 @@ import {
   ERROR_INVALID_HEIGHT,
   ERROR_INVALID_WEIGHT,
   ERROR_POPULATE_LOCATION,
+  ERROR_RETRIEVE_PROFILE,
   ERROR_UPDATE_PROFILE,
   SUCCESS_PROFILE_UPDATED,
 } from '~/utils/errorUtils'
@@ -299,7 +300,7 @@ const Profile = () => {
     return (
       <Page showHeader>
         <ContentStatus isError>
-          <p>{error || 'No user profile data found'}</p>
+          <p>{error ?? ERROR_RETRIEVE_PROFILE}</p>
         </ContentStatus>
       </Page>
     )

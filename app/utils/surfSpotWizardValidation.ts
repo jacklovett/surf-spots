@@ -13,7 +13,6 @@ export type SurfSpotWizardStepId =
   | 'spot-type'
   | 'details'
   | 'access'
-  | 'rating'
 
 export interface SurfSpotWizardValidationContext {
   isPrivateSpot: boolean
@@ -21,24 +20,33 @@ export interface SurfSpotWizardValidationContext {
   isNoveltyWave: boolean
 }
 
+export {
+  isPublicListingComplete,
+  isPublicSurfSpotPayloadComplete,
+} from './surfSpotPublicPayload'
+
 export const getStepRequiredFields = (
   stepId: SurfSpotWizardStepId | undefined,
   context: SurfSpotWizardValidationContext,
 ): (keyof SurfSpotFormState)[] => {
   if (!stepId) return []
-  const { isPrivateSpot, isWavepool } = context
+  const { isPrivateSpot, isWavepool, isNoveltyWave } = context
   switch (stepId) {
     case 'basics':
       return isPrivateSpot ? ['name'] : ['name', 'description']
     case 'location':
       return ['continent', 'country', 'region', 'longitude', 'latitude']
     case 'spot-type':
-      return isWavepool ? ['wavepoolUrl'] : []
+      if (isWavepool) return ['wavepoolUrl']
+      // Public ocean spots need break details; novelty (river/wavepool) omits these on the API.
+      if (!isNoveltyWave && !isPrivateSpot) {
+        return ['type', 'beachBottomType', 'skillLevel', 'waveDirection']
+      }
+      return []
     case 'details':
       // Private spots can omit detail fields; public spots require them.
       return isPrivateSpot ? [] : ['swellDirection', 'windDirection']
     case 'access':
-    case 'rating':
       return []
     default:
       return []
@@ -80,5 +88,21 @@ export const getSurfSpotStepValidators = (
         : !v || (v as string).toString().trim() === ''
           ? 'Official website is required for wavepools'
           : validateUrl((v as string).toString(), 'Official Website'),
+    type: (v) => {
+      if (isNoveltyWave || isPrivateSpot) return ''
+      return validateRequired(v as string, 'Break type')
+    },
+    beachBottomType: (v) => {
+      if (isNoveltyWave || isPrivateSpot) return ''
+      return validateRequired(v as string, 'Beach bottom type')
+    },
+    skillLevel: (v) => {
+      if (isNoveltyWave || isPrivateSpot) return ''
+      return validateRequired(v as string, 'Skill level')
+    },
+    waveDirection: (v) => {
+      if (isNoveltyWave || isPrivateSpot) return ''
+      return validateRequired(v as string, 'Wave direction')
+    },
   }
 }

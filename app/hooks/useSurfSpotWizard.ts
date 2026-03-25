@@ -32,7 +32,6 @@ export const useSurfSpotWizard = ({
     { id: 'spot-type', title: 'Type' },
     ...(isNoveltyWave ? [] : [{ id: 'details' as const, title: 'Conditions' }]),
     { id: 'access', title: 'Amenities' },
-    { id: 'rating', title: 'Rating' },
   ]
 
   const [currentStep, setCurrentStep] = useState(0)

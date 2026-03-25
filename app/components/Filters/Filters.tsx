@@ -3,7 +3,6 @@ import { memo, useState } from 'react'
 import {
   Button,
   CheckboxOption,
-  Rating,
   ChipSelector,
   DirectionSelector,
 } from '../index'
@@ -100,13 +99,6 @@ export const Filters = memo(() => {
     setSelectedFilters((prev) => ({
       ...prev,
       seasons: selected.map((opt) => opt.value),
-    }))
-
-  // Set the rating filter (number)
-  const handleRatingChange = (rating?: number) =>
-    setSelectedFilters((prev) => ({
-      ...prev,
-      rating: rating || 0,
     }))
 
   // Handle wavepool filter change (boolean)
@@ -265,22 +257,6 @@ export const Filters = memo(() => {
               )}
               onChange={handleSeasonFilterChange}
             />
-          </div>
-        </div>
-
-        <div className="filters-content-section">
-          <h3 className="filters-content-title">Minimum Rating</h3>
-          <div className="filters-content-rating">
-            <Rating
-              value={selectedFilters.rating}
-              onChange={handleRatingChange}
-              readOnly={false}
-            />
-            <span className="rating-label">
-              {selectedFilters.rating > 0
-                ? `${selectedFilters.rating}+ stars`
-                : 'Any rating'}
-            </span>
           </div>
         </div>
 

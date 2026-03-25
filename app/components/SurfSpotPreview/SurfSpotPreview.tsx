@@ -4,7 +4,6 @@ import { User } from '~/types/user'
 import { SurfSpot } from '~/types/surfSpots'
 
 import Details from '../Details'
-import Rating from '../Rating'
 import Chip from '../Chip'
 import { useLayoutContext, useSettingsContext } from '~/contexts'
 import { FetcherSubmitParams } from '~/types/api'
@@ -38,7 +37,6 @@ export const SurfSpotPreview = memo((props: IProps) => {
     minSurfHeight,
     maxSurfHeight,
     swellSeason,
-    rating,
     isWavepool,
     isRiverWave,
   } = surfSpot
@@ -115,11 +113,6 @@ export const SurfSpotPreview = memo((props: IProps) => {
             </div>
           )}
 
-          {/* Rating */}
-          <div className="preview-section">
-            <h4 className="preview-subtitle">Rating</h4>
-            <Rating value={rating} readOnly />
-          </div>
         </div>
         <a
           className="surf-spot-preview-link"

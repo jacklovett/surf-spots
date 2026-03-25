@@ -20,8 +20,6 @@ export interface BackendFilterFormat {
   waveDirection?: string[]
   minSurfHeight?: number
   maxSurfHeight?: number
-  minRating?: number
-  maxRating?: number
   swellDirection?: string[]
   windDirection?: string[]
   parking?: string[]
@@ -79,10 +77,6 @@ export const convertFiltersToBackendFormat = (
   // Wind direction - send array, backend will handle OR logic with substring matching
   if (filters.windDirection?.length > 0) {
     backendFilters.windDirection = filters.windDirection
-  }
-
-  if (filters.rating && filters.rating > 0) {
-    backendFilters.minRating = filters.rating
   }
 
   if (filters.isWavepool !== undefined) {

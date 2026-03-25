@@ -39,7 +39,7 @@ export const loader: LoaderFunction = async ({ request, params }) => {
       mediaId: result.mediaId,
     })
   } catch (error) {
-    console.error('[api.trip.upload-url] getUploadUrl failed', { tripId, userId: user.id, error })
+    console.error('Trip upload URL API: getUploadUrl failed', { tripId, userId: user.id, error })
     return data<LoaderData>(
       { uploadUrl: '', mediaId: '', error: getDisplayMessage(error, UPLOAD_ERROR_MEDIA_UNAVAILABLE) },
       { status: 503 },

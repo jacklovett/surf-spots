@@ -170,7 +170,6 @@ export interface NewSurfSpot extends Coordinates {
   accommodationTypes: string[]
   facilities: string[]
   hazards: string[]
-  rating: number
   forecasts: string[]
   webcams: string[]
 }
@@ -188,7 +187,6 @@ export interface SurfSpotFormState {
   swellDirection: string
   windDirection: string
   rating?: number
-  tide?: Tide
   waveDirection?: WaveDirection
   minSurfHeight?: number
   maxSurfHeight?: number
@@ -209,7 +207,6 @@ export interface SurfSpotFilters {
   swellDirection: string[]
   windDirection: string[]
   rating: number
-  parking: Option[]
   foodOptions: Option[]
   accommodationOptions: Option[]
   hazards: Option[]
@@ -227,7 +224,6 @@ export const defaultSurfSpotFilters: SurfSpotFilters = {
   waveDirection: [],
   swellDirection: [],
   windDirection: [],
-  rating: 0,
   parking: [],
   foodOptions: [],
   accommodationOptions: [],

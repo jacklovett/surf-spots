@@ -41,16 +41,6 @@ h2 {
   }
 }
 
-.content-status {
-  margin-top: 30vh;
-}
-
-// Less margin on surf-spots routes because toolbar takes up space
-.surf-spots-list-view .content-status,
-.content-container > .content-status {
-  margin-top: 15vh;
-}
-
 /* Info Pages Styling */
 .info-page-content {
   padding: $spacing-large $spacing-unit;

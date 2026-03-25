@@ -2,7 +2,6 @@ import { memo } from 'react'
 import { useNavigate } from 'react-router'
 
 import { SurfSpot } from '~/types/surfSpots'
-import Rating from '../Rating'
 
 interface IProps {
   surfSpots: SurfSpot[]
@@ -53,13 +52,12 @@ const SurfSpotList = memo((props: IProps): JSX.Element => {
                       <th>Name</th>
                       <th>Region</th>
                       <th>Type</th>
-                      <th>Rating</th>
                     </tr>
                   </thead>
                   <tbody>
                     {/* Iterate over surf spots in the country */}
                     {groupedSurfSpots[continent][country].map((spot) => {
-                      const { id, name, rating, region, type } = spot
+                      const { id, name, region, type } = spot
                       return (
                         <tr
                           key={id}
@@ -69,9 +67,6 @@ const SurfSpotList = memo((props: IProps): JSX.Element => {
                           <td>{name}</td>
                           <td>{region?.name}</td>
                           <td>{type}</td>
-                          <td>
-                            {rating ? <Rating value={rating} readOnly /> : '-'}
-                          </td>
                         </tr>
                       )
                     })}

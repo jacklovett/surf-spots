@@ -43,24 +43,19 @@ export const loader: LoaderFunction = async ({ request }) => {
 
 export const action: ActionFunction = async ({ request }) => {
   try {
-    const newSurfSpot = await createSurfSpotFromFormData(request)
-    // Forward cookies for authentication
+    const payload = await createSurfSpotFromFormData(request)
     const cookie = request.headers.get('Cookie') || ''
-    // POST returns SurfSpotDTO; `networkService` unwraps ApiResponse so `path` is top-level.
-    const created = (await post('surf-spots/management', newSurfSpot, {
+    const createdSurfSpot = (await post('surf-spots/management', payload, {
       headers: { Cookie: cookie },
     })) as SurfSpot
 
-    const hasPathError =
-      typeof created.path !== 'string' || created.path === ''
-
     return data(
       {
-        submitStatus: hasPathError ? ERROR_ADD_SURF_SPOT : SUCCESS_SURF_SPOT_ADDED,
-        hasError: hasPathError,
-        surfSpot: created,
+        submitStatus: SUCCESS_SURF_SPOT_ADDED,
+        hasError: false,
+        surfSpot: createdSurfSpot,
       },
-      { status: hasPathError ? 500 : 201 },
+      { status: 201 },
     )
   } catch (error) {
     console.error('Unable to add surf spot: ', error)
