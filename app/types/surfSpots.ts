@@ -132,6 +132,7 @@ export enum SurfSessionWaveSize {
   SMALL = 'SMALL',
   CHEST_SHOULDER = 'CHEST_SHOULDER',
   HEAD_PLUS = 'HEAD_PLUS',
+  GIANT = 'GIANT',
 }
 
 /** Surf session log only (API enum names). */
@@ -154,7 +155,8 @@ export enum WaveQuality {
 export const SURF_SESSION_WAVE_SIZE_LABELS: Record<SurfSessionWaveSize, string> = {
   [SurfSessionWaveSize.SMALL]: 'Waist high or smaller',
   [SurfSessionWaveSize.CHEST_SHOULDER]: 'Chest to shoulder high',
-  [SurfSessionWaveSize.HEAD_PLUS]: 'Head high or bigger',
+  [SurfSessionWaveSize.HEAD_PLUS]: 'Head high to overhead',
+  [SurfSessionWaveSize.GIANT]: 'Giant (double overhead or larger)',
 }
 
 export const SURF_SESSION_CROWD_LABELS: Record<SurfSessionCrowdLevel, string> = {
