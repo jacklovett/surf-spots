@@ -20,6 +20,10 @@ interface IProps {
   submitButtonClassName?: string
   formId?: string
   formRef?: RefObject<HTMLFormElement>
+  /** Class name on the `<form>` element. */
+  formClassName?: string
+  /** Class name on the cancel `Button` when `onCancel` is set. */
+  cancelButtonClassName?: string
   /** When set, form uses this handler instead of native submit (e.g. submit built FormData via fetcher). */
   onSubmit?: (e: FormEvent<HTMLFormElement>) => void
   /** Override when using custom onSubmit (e.g. fetcher.state === 'submitting'). */
@@ -39,6 +43,8 @@ export const FormComponent = (props: IProps) => {
     action,
     hideSubmitButton = false,
     submitButtonClassName,
+    formClassName,
+    cancelButtonClassName,
     onSubmit: customOnSubmit,
     isSubmitting: isSubmittingOverride,
   } = props
@@ -58,10 +64,29 @@ export const FormComponent = (props: IProps) => {
 
   const FormElement = customOnSubmit ? 'form' : (propFetcher ? fetcher.Form : Form)
   const formProps = customOnSubmit
-    ? { noValidate: true, onSubmit: handleSubmit, id: props.formId, ref: props.formRef }
+    ? {
+        noValidate: true,
+        onSubmit: handleSubmit,
+        id: props.formId,
+        ref: props.formRef,
+        className: formClassName,
+      }
     : propFetcher && action
-      ? { method, noValidate: true, action, id: props.formId, ref: props.formRef }
-      : { method, noValidate: true, id: props.formId, ref: props.formRef }
+      ? {
+          method,
+          noValidate: true,
+          action,
+          id: props.formId,
+          ref: props.formRef,
+          className: formClassName,
+        }
+      : {
+          method,
+          noValidate: true,
+          id: props.formId,
+          ref: props.formRef,
+          className: formClassName,
+        }
 
   return (
     <ErrorBoundary>
@@ -95,6 +120,7 @@ export const FormComponent = (props: IProps) => {
               onClick={() => onCancel()}
               variant="cancel"
               disabled={isSubmitting}
+              className={cancelButtonClassName}
             />
           </div>
         )}

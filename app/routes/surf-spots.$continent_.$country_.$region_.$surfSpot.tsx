@@ -10,8 +10,17 @@ import {
 } from 'react-router'
 
 import { cacheControlHeader, get, post, deleteData } from '~/services/networkService'
+import { handleSaveSessionFeedback } from '~/services/surfSpot.server'
 import { requireSessionCookie, getSession, commitSession } from '~/services/session.server'
-import { SurfSpot, SurfSpotNote, Tide, SkillLevel, SurfSpotStatus } from '~/types/surfSpots'
+import {
+  SurfSpot,
+  SurfSpotNote,
+  Tide,
+  SkillLevel,
+  SurfSpotStatus,
+  SurfSessionSummary,
+} from '~/types/surfSpots'
+import { Surfboard } from '~/types/surfboard'
 
 import {
   CalendarIcon,
@@ -21,7 +30,6 @@ import {
   DirectionIcon,
   ErrorBoundary,
   InfoMessage,
-  Rating,
   SafeLink,
   SurfHeightIcon,
   SurfMap,
@@ -50,11 +58,18 @@ import {
   SUCCESS_NOTE_SAVED,
   getSafeFetcherErrorMessage,
 } from '~/utils/errorUtils'
-import { formatSurfHeightRange, formatSeason, getNoveltyWaveLabel } from '~/utils/surfSpotUtils'
+import {
+  formatSurfHeightRange,
+  formatSeason,
+  getNoveltyWaveLabel,
+  resolveSurfSpotActionUrl,
+} from '~/utils/surfSpotUtils'
 
 interface LoaderData {
   surfSpotDetails?: SurfSpot
   note?: SurfSpotNote | null
+  sessionSummary?: SurfSessionSummary | null
+  surfboards: Surfboard[]
   error?: string
 }
 
@@ -169,6 +184,7 @@ const handleSurfSpotAction = async (
   surfSpotId: string,
   userId: string,
   cookie: string,
+  surfSpotNameForFeedback: string,
 ): Promise<ReturnType<typeof data>> => {
   const surfSpotIdNumber = Number(surfSpotId)
   if (isNaN(surfSpotIdNumber)) {
@@ -196,7 +212,13 @@ const handleSurfSpotAction = async (
   }
 
   return data(
-    { success: true },
+    {
+      success: true,
+      surfSpotAction: { actionType, target },
+      addedToSurfedSpots: actionType === 'add' && target === 'user-spots',
+      surfSpotIdForFeedback: surfSpotId,
+      surfSpotNameForFeedback: surfSpotNameForFeedback.trim() || undefined,
+    },
     { headers: { 'Set-Cookie': await commitSession(session) } },
   )
 }
@@ -218,6 +240,10 @@ export const action: ActionFunction = async ({ request }) => {
       return await handleSaveNote(formData, userId, cookie)
     }
 
+    if (intent === 'saveSessionFeedback') {
+      return await handleSaveSessionFeedback(formData, userId, cookie)
+    }
+
     // Handle trip actions
     if (intent === 'add-spot' || intent === 'remove-spot') {
       return await handleTripAction(intent, formData, userId, cookie)
@@ -231,7 +257,15 @@ export const action: ActionFunction = async ({ request }) => {
       )
     }
 
-    return await handleSurfSpotAction(actionType, target, surfSpotId, userId, cookie)
+    const surfSpotName = (formData.get('surfSpotName') as string) || ''
+    return await handleSurfSpotAction(
+      actionType,
+      target,
+      surfSpotId,
+      userId,
+      cookie,
+      surfSpotName,
+    )
   } catch (error) {
     console.error('Error in action:', error)
 
@@ -261,37 +295,93 @@ const loadUserNote = async (
     )
     return note
   } catch (error) {
-    // 404 means note doesn't exist yet, which is fine
-    if (!(error instanceof Error && error.message.includes('404'))) {
-      console.error('[LOAD_USER_NOTE] Error fetching note:', error)
+    // 404 means note doesn't exist yet, which is fine.
+    // Use status when available because display messages are sanitized.
+    const status =
+      error instanceof Error && 'status' in error
+        ? (error as { status?: number }).status
+        : undefined
+    if (status !== 404) {
+      console.error('Error fetching surf spot note:', error)
     }
     return null
   }
 }
 
+/**
+ * Session summary is optional; failures do not block the detail page.
+ */
+const loadSessionSummaryForSpot = async (
+  spotId: string | undefined,
+  userId: string,
+  cookie: string,
+): Promise<SurfSessionSummary | null> => {
+  if (!spotId) return null
+  try {
+    return await get<SurfSessionSummary>(
+      `surf-spots/${spotId}/sessions?userId=${encodeURIComponent(userId)}`,
+      { headers: { Cookie: cookie } },
+    )
+  } catch (error) {
+    console.error('Error fetching session summary for surf spot:', error)
+    return null
+  }
+}
+
+const loadSurfboardsForUser = async (
+  userId: string,
+  cookie: string,
+): Promise<Surfboard[]> => {
+  try {
+    return await get<Surfboard[]>(`surfboards?userId=${userId}`, {
+      headers: { Cookie: cookie },
+    })
+  } catch {
+    return []
+  }
+}
+
 export const loader: LoaderFunction = async ({ request, params }) => {
-  const { surfSpot: surfSpotSlug } = params
+  const { surfSpot: surfSpotSlug, country: countrySlug, region: regionSlug } = params
   try {
     const session = await getSession(request.headers.get('Cookie'))
     const user = session.get('user')
     const userId = user?.id
 
     // Build API URL with optional userId
-    const url = userId
-      ? `surf-spots/${surfSpotSlug}?userId=${userId}`
+    const queryParams = new URLSearchParams()
+    if (userId) queryParams.set('userId', userId)
+    if (countrySlug) queryParams.set('countrySlug', countrySlug)
+    if (regionSlug) queryParams.set('regionSlug', regionSlug)
+    const queryString = queryParams.toString()
+    const url = queryString
+      ? `surf-spots/${surfSpotSlug}?${queryString}`
       : `surf-spots/${surfSpotSlug}`
 
-    const surfSpotDetails = await get<SurfSpot>(url)
+    const cookie = request.headers.get('Cookie') || ''
+    const surfSpotDetails = await get<SurfSpot>(
+      url,
+      userId ? { headers: { Cookie: cookie } } : {},
+    )
 
-    // Load note if user is authenticated
-    let note: SurfSpotNote | null = null
-    if (userId && surfSpotDetails?.id) {
-      const cookie = request.headers.get('Cookie') || ''
-      note = await loadUserNote(surfSpotDetails.id, userId, cookie)
-    }
+    const spotId = surfSpotDetails?.id
+
+    // Authenticated-only fetches in parallel (note + session summary + quiver).
+    const emptyAuth: readonly [null, null, Surfboard[]] = [null, null, []]
+    const authenticatedDataPromise = userId
+      ? Promise.all([
+          spotId
+            ? loadUserNote(spotId, userId, cookie)
+            : Promise.resolve(null),
+          loadSessionSummaryForSpot(spotId, userId, cookie),
+          loadSurfboardsForUser(userId, cookie),
+        ])
+      : Promise.resolve(emptyAuth)
+
+    const [note, sessionSummary, surfboards] = await authenticatedDataPromise
 
     return data<LoaderData>(
-      { surfSpotDetails, note },
+      { surfSpotDetails, note, sessionSummary, surfboards },
       {
         headers: cacheControlHeader,
       },
@@ -300,6 +390,7 @@ export const loader: LoaderFunction = async ({ request, params }) => {
     console.error('Error fetching surf spot details: ', error)
     return data<LoaderData>(
       {
+        surfboards: [],
         error: `We can't seem to locate this surf spot. Please try again later.`,
       },
       {
@@ -310,7 +401,8 @@ export const loader: LoaderFunction = async ({ request, params }) => {
 }
 
 export default function SurfSpotDetails() {
-  const { surfSpotDetails, note, error } = useLoaderData<LoaderData>()
+  const { surfSpotDetails, note, sessionSummary, surfboards, error } =
+    useLoaderData<LoaderData>()
   const { user } = useUserContext()
   const { settings } = useSettingsContext()
   const { preferredUnits } = settings
@@ -342,12 +434,15 @@ export default function SurfSpotDetails() {
     }
   }, [surfSpotDetails?.id, note])
 
-  // Surf spot actions fetcher: on error show toast with safe message
+  // Surf spot actions fetcher: toast on error
   useEffect(() => {
     if (fetcher.state === 'idle' && fetcher.data && fetcher.data !== lastFetcherDataRef.current) {
       lastFetcherDataRef.current = fetcher.data
-      const data = fetcher.data as ActionData
-      if (data.error || (data.hasError && data.submitStatus)) {
+      const actionResult = fetcher.data as ActionData
+      const hadError =
+        !!actionResult.error ||
+        !!(actionResult.hasError && actionResult.submitStatus)
+      if (hadError) {
         const errorMessage = getSafeFetcherErrorMessage(fetcher.data, DEFAULT_ERROR_MESSAGE)
         showError(errorMessage)
       }
@@ -393,8 +488,11 @@ export default function SurfSpotDetails() {
   const onFetcherSubmit = useCallback(
     (params: FetcherSubmitParams) => {
       try {
-        // Submit to current route (detail page) which has the action handler
-        submitFetcher(params, fetcher, location.pathname)
+        submitFetcher(
+          params,
+          fetcher,
+          resolveSurfSpotActionUrl(location.pathname),
+        )
       } catch (error) {
         console.error('Error submitting fetcher:', error)
         showError(DEFAULT_ERROR_MESSAGE)
@@ -437,7 +535,6 @@ if (error || !surfSpotDetails) {
     beachBottomType,
     description,
     name,
-    rating,
     skillLevel,
     type,
     tide,
@@ -478,27 +575,31 @@ if (error || !surfSpotDetails) {
         <div className="row space-between">
           <div className="page-title-with-status">
             <h1>{name}</h1>
-            {noveltyLabel && <Chip label={noveltyLabel} isFilled={false} />}
           </div>
           <div className="spot-actions">
             <ErrorBoundary message={ERROR_BOUNDARY_SECTION}>
               <SurfSpotActions
-                {...{
-                  surfSpot: surfSpotDetails,
-                  navigate,
-                  user,
-                  onFetcherSubmit,
-                }}
+                surfSpot={surfSpotDetails}
+                navigate={navigate}
+                user={user}
+                onFetcherSubmit={onFetcherSubmit}
+                surfActionFetcher={fetcher}
+                surfboards={surfboards}
               />
             </ErrorBoundary>
           </div>
         </div>
-        <div className="row flex-end mb">
-          <TextButton
-            text={note ? "Show Notes" : "Add Notes"}
-            onClick={handleOpenNotesDrawer}
-            iconKey="clipboard"
-          />
+        <div className="row space-between mb surf-spot-detail-meta-row">
+          <div className="surf-spot-novelty-chip-wrap">
+            {noveltyLabel && <Chip label={noveltyLabel} isFilled={false} />}
+          </div>
+          <div className="surf-spot-detail-meta-row-notes row gap">
+            <TextButton
+              text={note ? "Show Notes" : "Add Notes"}
+              onClick={handleOpenNotesDrawer}
+              iconKey="clipboard"
+            />
+          </div>
         </div>
         {isPendingVisibleToCreator && (
           <InfoMessage message="This spot is pending approval and is only visible to you until it is approved." />
@@ -704,12 +805,23 @@ if (error || !surfSpotDetails) {
             </div>
           </div>
         </section>
-        <section>
-          <b>Overall Rating</b>
-          <div className="row gap pt">
-            <Rating value={rating} readOnly />
-          </div>
-        </section>
+        {sessionSummary && sessionSummary.sampleSize > 0 && (
+          <section>
+            <h3>Surfers like you</h3>
+            <div className="column gap">
+              <p className="bold">{sessionSummary.segmentHeadline}</p>
+              {sessionSummary.waveQualityTrendLine && (
+                <p>{sessionSummary.waveQualityTrendLine}</p>
+              )}
+              {sessionSummary.crowdTrendLine && (
+                <p>{sessionSummary.crowdTrendLine}</p>
+              )}
+              {sessionSummary.wouldSurfAgainLine && (
+                <p>{sessionSummary.wouldSurfAgainLine}</p>
+              )}
+            </div>
+          </section>
+        )}
         {showReportIssueMessage && (
           <InfoMessage message="See something not right? Let us know so we can get it fixed" />
         )}

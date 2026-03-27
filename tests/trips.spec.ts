@@ -1,5 +1,6 @@
 import { test, expect, type Page } from '@playwright/test'
 import { login } from './utils/auth-helper'
+import { getDrawer } from './utils/drawer'
 
 /** Trip submit stays disabled until validation runs; blur helps React mark fields touched. */
 async function expectCreateTripSubmitEnabledAndClick(page: Page) {
@@ -70,7 +71,7 @@ test.describe('Trips Feature', () => {
     await page.waitForSelector('.map-container', { state: 'visible', timeout: 15000 })
     await page.locator('.map-container').click({ position: { x: 400, y: 300 } })
 
-    const drawer = page.locator('.drawer--open')
+    const drawer = getDrawer(page)
     const drawerOpened = await drawer.isVisible().catch(() => false)
     if (!drawerOpened) {
       test.skip(true, 'No surf spots on map to open drawer (backend has no spots)')
@@ -123,7 +124,7 @@ test.describe('Trips Feature', () => {
     await page.waitForSelector('.map-container', { state: 'visible', timeout: 15000 })
     await page.locator('.map-container').click({ position: { x: 400, y: 300 } })
 
-    const drawer = page.locator('.drawer--open')
+    const drawer = getDrawer(page)
     const drawerOpened = await drawer.isVisible().catch(() => false)
     if (!drawerOpened) {
       test.skip(true, 'No surf spots on map to open drawer (backend has no spots)')

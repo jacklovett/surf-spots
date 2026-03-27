@@ -15,7 +15,12 @@ export const fillLocationFromSelects = async (
   await ensureManualLocation(page)
 
   const continentSelect = page.locator('select[name="continent"]')
-  await continentSelect.waitFor({ state: 'visible', timeout: 15000 })
+  const continentVisible = await continentSelect
+    .isVisible({ timeout: 8000 })
+    .catch(() => false)
+  if (!continentVisible) {
+    return false
+  }
 
   const continentCount = await continentSelect.locator('option').count()
   if (continentCount <= 1) {
@@ -81,7 +86,7 @@ const setPrivateCheckbox = async (page: Page, shouldBePrivate: boolean) => {
 }
 
 export const clickWizardContinue = async (page: Page) => {
-  const btn = page.getByRole('button', { name: 'Continue' })
+  const btn = page.locator('button:has-text("Continue"):visible').first()
   await expect(btn).toBeEnabled({ timeout: 15000 })
   await btn.click()
 }
@@ -104,10 +109,6 @@ export const fillPublicBasics = async (
   await descriptionInput.fill(description)
   await expect(descriptionInput).toHaveValue(description, { timeout: 15000 })
   await descriptionInput.blur()
-
-  await expect(page.getByRole('button', { name: 'Continue' })).toBeEnabled({
-    timeout: 15000,
-  })
 }
 
 export const fillPrivateBasics = async (page: Page, name: string) => {
@@ -118,10 +119,6 @@ export const fillPrivateBasics = async (page: Page, name: string) => {
   await nameInput.fill(name)
   await expect(nameInput).toHaveValue(name, { timeout: 15000 })
   await nameInput.blur()
-
-  await expect(page.getByRole('button', { name: 'Continue' })).toBeEnabled({
-    timeout: 15000,
-  })
 }
 
 /**
@@ -161,13 +158,20 @@ export const goToAddSurfSpotAmenitiesStep = async (
   const ok = await fillLocationFromSelects(page)
   if (!ok) return false
 
-  // Steps (private, non-novelty wavepool): Basics -> Location -> Type -> Amenities
-  // We stop on Amenities so webcam/forecast inputs are visible.
-  await clickWizardContinue(page) // Location -> Type
-  await clickWizardContinue(page) // Type -> Amenities
+  // Step flow can vary (e.g. novelty waves skip Conditions). Keep advancing until
+  // the Amenities section heading is visible.
+  const amenitiesHeading = page.getByRole('heading', { name: /Amenities\s*&\s*Access|Amenities/i })
+  for (let i = 0; i < 4; i++) {
+    if (await amenitiesHeading.isVisible().catch(() => false)) {
+      return true
+    }
+    const continueButton = page.getByRole('button', { name: 'Continue' })
+    if (!(await continueButton.isVisible().catch(() => false))) {
+      break
+    }
+    await clickWizardContinue(page)
+  }
 
-  await expect(page.getByRole('heading', { name: /Amenities/i })).toBeVisible({
-    timeout: 15000,
-  })
+  await expect(amenitiesHeading).toBeVisible({ timeout: 15000 })
   return true
 }

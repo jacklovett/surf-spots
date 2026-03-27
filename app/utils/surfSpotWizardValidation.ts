@@ -32,15 +32,21 @@ export const getStepRequiredFields = (
     case 'location':
       return ['continent', 'country', 'region', 'longitude', 'latitude']
     case 'spot-type':
-      if (isWavepool) return ['wavepoolUrl']
-      // Public ocean spots need break details; novelty (river/wavepool) omits these on the API.
-      if (!isNoveltyWave && !isPrivateSpot) {
-        return ['type', 'beachBottomType', 'skillLevel', 'waveDirection']
+      if (!isPrivateSpot) {
+        const required: (keyof SurfSpotFormState)[] = [
+          'type',
+          'beachBottomType',
+          'skillLevel',
+          'waveDirection',
+        ]
+        if (isWavepool) {
+          required.push('wavepoolUrl')
+        }
+        return required
       }
       return []
     case 'details':
-      // Private spots can omit detail fields; public spots require them.
-      return isPrivateSpot ? [] : ['swellDirection', 'windDirection']
+      return isPrivateSpot || isNoveltyWave ? [] : ['swellDirection', 'windDirection']
     case 'access':
       return []
     default:
@@ -84,19 +90,19 @@ export const getSurfSpotStepValidators = (
           ? 'Official website is required for wavepools'
           : validateUrl((v as string).toString(), 'Official Website'),
     type: (v) => {
-      if (isNoveltyWave || isPrivateSpot) return ''
+      if (isPrivateSpot) return ''
       return validateRequired(v as string, 'Break type')
     },
     beachBottomType: (v) => {
-      if (isNoveltyWave || isPrivateSpot) return ''
+      if (isPrivateSpot) return ''
       return validateRequired(v as string, 'Beach bottom type')
     },
     skillLevel: (v) => {
-      if (isNoveltyWave || isPrivateSpot) return ''
+      if (isPrivateSpot) return ''
       return validateRequired(v as string, 'Skill level')
     },
     waveDirection: (v) => {
-      if (isNoveltyWave || isPrivateSpot) return ''
+      if (isPrivateSpot) return ''
       return validateRequired(v as string, 'Wave direction')
     },
   }
@@ -132,22 +138,14 @@ export const isPublicSurfSpotPayloadComplete = (
     return false
   }
 
-  const isWavePoolOrRiverWave = payload.isWavepool || payload.isRiverWave
-  if (isWavePoolOrRiverWave) {
-    return publicNoveltySpotIsComplete(payload)
-  }
-
-  return publicOceanBreakSpotIsComplete(payload)
-}
-
-const publicNoveltySpotIsComplete = (payload: SurfSpotPublicListingFields): boolean => {
   if (payload.isWavepool && !hasNonWhitespaceText(payload.wavepoolUrl)) {
     return false
   }
-  return true
+
+  return publicCoreConditionsAreComplete(payload)
 }
 
-const publicOceanBreakSpotIsComplete = (payload: SurfSpotPublicListingFields): boolean => {
+const publicCoreConditionsAreComplete = (payload: SurfSpotPublicListingFields): boolean => {
   const hasCoreBreakFields =
     Boolean(payload.type) &&
     Boolean(payload.beachBottomType) &&
@@ -158,10 +156,12 @@ const publicOceanBreakSpotIsComplete = (payload: SurfSpotPublicListingFields): b
     return false
   }
 
-  return (
-    hasNonWhitespaceText(payload.swellDirection) &&
-    hasNonWhitespaceText(payload.windDirection)
-  )
+  const isNoveltyWave = payload.isWavepool || payload.isRiverWave
+  if (isNoveltyWave) {
+    return true
+  }
+
+  return hasNonWhitespaceText(payload.swellDirection) && hasNonWhitespaceText(payload.windDirection)
 }
 
 export const isPublicListingComplete = (wizard: {

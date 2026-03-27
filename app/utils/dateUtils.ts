@@ -12,6 +12,16 @@ export const formatDate = (dateString: string): string => {
 }
 
 /**
+ * Format a local calendar date for date inputs ("YYYY-MM-DD").
+ */
+export const formatDateForInput = (date: Date): string => {
+  const year = date.getFullYear()
+  const month = String(date.getMonth() + 1).padStart(2, '0')
+  const day = String(date.getDate()).padStart(2, '0')
+  return `${year}-${month}-${day}`
+}
+
+/**
  * Format a date as a relative time string (e.g., "5 minutes ago", "2 hours ago")
  * @param createdAt - ISO date string or undefined
  * @returns Formatted relative time string

@@ -26,6 +26,7 @@ import { ActionData } from '~/types/api'
 import {
   ERROR_BOUNDARY_SECTION,
   ERROR_CREATE_TRIP,
+  ERROR_TRIP_DATES_REQUIRED,
   ERROR_INVALID_MEMBER_EMAILS,
   ERROR_LOGIN_REQUIRED_CREATE_TRIP,
   ERROR_TITLE_REQUIRED,
@@ -64,12 +65,18 @@ export const action: ActionFunction = async ({ request }) => {
       { status: 400 },
     )
   }
+  if (!startDate || !endDate) {
+    return data(
+      { submitStatus: ERROR_TRIP_DATES_REQUIRED, hasError: true },
+      { status: 400 },
+    )
+  }
 
   const tripData: CreateTripRequest = {
     title,
     description: (formData.get('description') as string)?.trim() || undefined,
-    startDate: startDate || undefined,
-    endDate: endDate || undefined,
+    startDate,
+    endDate,
   }
 
   // Collect and validate member emails

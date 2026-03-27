@@ -200,15 +200,27 @@
 
 /* Novelty chip + Add notes on one row; chip width fits label */
 .content > .surf-spot-detail-meta-row {
-  flex-wrap: wrap;
+  @extend %flex-space-between;
+  align-items: center;
+  flex-wrap: nowrap;
   gap: $spacing-unit;
 
   .surf-spot-novelty-chip-wrap {
-    flex: 0 1 auto;
-    min-width: 0;
+    flex: 0 0 auto;
+    width: fit-content;
+    min-width: fit-content;
   }
 
-  .surf-spot-detail-meta-row__notes {
-    flex-shrink: 0;
+  .surf-spot-detail-meta-row-notes {
+    flex: 0 0 auto;
+    margin-left: auto;
+  }
+
+  @media (max-width: 560px) {
+    flex-wrap: wrap;
+
+    .surf-spot-detail-meta-row-notes {
+      margin-left: 0;
+    }
   }
 }

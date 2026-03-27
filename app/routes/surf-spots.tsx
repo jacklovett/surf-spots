@@ -12,7 +12,6 @@ import {
 
 import {
   Breadcrumb,
-  ContentStatus,
   ErrorBoundary,
   Filters,
   Loading,
@@ -28,8 +27,12 @@ import {
 } from '~/utils/errorUtils'
 import { BreadcrumbItem } from '~/components/Breadcrumb'
 import { getAppliedFiltersCount } from '~/components/Filters'
+import { resolveSurfSpotActionUrl } from '~/utils/surfSpotUtils'
 
+import { get } from '~/services/networkService'
+import { getSession } from '~/services/session.server'
 import { surfSpotAction } from '~/services/surfSpot.server'
+import { Surfboard } from '~/types/surfboard'
 import {
   useLayoutContext,
   useSurfSpotsContext,
@@ -39,7 +42,7 @@ import { useSurfSpotActions } from '~/hooks'
 
 interface LoaderData {
   isMapView: boolean
-  filters: { label: string }[]
+  surfboards: Surfboard[]
 }
 
 const checkIsMapView = (pathname: string) =>
@@ -47,8 +50,24 @@ const checkIsMapView = (pathname: string) =>
 
 export const loader: LoaderFunction = async ({ request }) => {
   const { pathname } = new URL(request.url)
+  
+  const cookie = request.headers.get('Cookie') ?? ''
+  const session = await getSession(cookie)
+  const user = session.get('user') as { id?: string } | undefined
+  
+  let surfboards: Surfboard[] = []
+  if (user?.id) {
+    try {
+      surfboards = await get<Surfboard[]>(`surfboards?userId=${user.id}`, {
+        headers: { Cookie: cookie },
+      })
+    } catch {
+      surfboards = []
+    }
+  }
   return {
     isMapView: checkIsMapView(pathname),
+    surfboards,
   }
 }
 
@@ -61,30 +80,20 @@ export default function SurfSpots() {
   const { pathname } = useLocation()
   const navigation = useNavigation()
   const navigatingTo = navigation.location?.pathname
-  
-  // Show loading when navigating within surf-spots routes (not navigating away)
-  const loading = 
-    navigation.state === 'loading' && 
+
+  const loading =
+    navigation.state === 'loading' &&
     (!navigatingTo || navigatingTo.startsWith('/surf-spots'))
 
-  // Determine the correct action route based on current pathname
-  // If we're on a detail page (child route), submit to that route
-  // Otherwise submit to the parent /surf-spots route
-  const actionRoute =
-    pathname.startsWith('/surf-spots/') &&
-    pathname !== '/surf-spots' &&
-    pathname !== '/surf-spots/'
-      ? pathname
-      : '/surf-spots'
+  const { fetcher, onFetcherSubmit } = useSurfSpotActions(
+    resolveSurfSpotActionUrl(pathname),
+  )
 
-  const { onFetcherSubmit } = useSurfSpotActions(actionRoute)
-
-  // Get the initial view from the loader data
-  const { isMapView: initialMapView } = useLoaderData<LoaderData>()
+  const { isMapView: initialMapView, surfboards } = useLoaderData<LoaderData>()
 
   const [isMapView, setIsMapView] = useState(initialMapView)
-  // Handle the toggle view logic
-  const handleToggleView = () => navigate(isMapView ? '/surf-spots/continents/' : '/surf-spots')
+  const handleToggleView = () =>
+    navigate(isMapView ? '/surf-spots/continents/' : '/surf-spots')
 
   const { filters } = useSurfSpotsContext()
 
@@ -97,13 +106,11 @@ export default function SurfSpots() {
     openDrawer(filtersContent, 'left', 'Filters')
   }
 
-  // Update isMapView when pathname changes
   useEffect(() => {
     setIsMapView(checkIsMapView(pathname))
   }, [pathname])
 
-  // Prevent map from rendering during transition to/from map view
-  const isMapViewTransition = 
+  const isMapViewTransition =
     navigation.state === 'loading' &&
     navigatingTo &&
     checkIsMapView(navigatingTo) !== checkIsMapView(pathname)
@@ -146,9 +153,7 @@ export default function SurfSpots() {
 
     return breadcrumbItems
   }, [continent, country, region, subRegion, surfSpot])
-  // Detect detail pages - check if pathname matches detail page route patterns
-  // Pattern 1: /surf-spots/{continent}/{country}/{region}/{surfSpot} (excludes ending in 'sub-regions' or 'continents')
-  // Pattern 2: /surf-spots/{continent}/{country}/{region}/sub-regions/{subRegion}/{surfSpot}
+
   const isDetailPage =
     !!surfSpot ||
     (/^\/surf-spots\/[^/]+\/[^/]+\/[^/]+\/[^/]+$/.test(pathname) &&
@@ -159,9 +164,9 @@ export default function SurfSpots() {
     )
 
   const loadingComponent = (
-    <ContentStatus>
+    <div className="page-loading-state">
       <Loading />
-    </ContentStatus>
+    </div>
   )
 
   return (
@@ -177,30 +182,38 @@ export default function SurfSpots() {
         hideToolbarBorder={isMapView && !loading && !isMapViewTransition}
       />
       <TripPlannerButton onOpenTripPlanner={() => navigate('/trip-planner')} />
-      {isMapView ? (
-        loading || isMapViewTransition ? (
-          loadingComponent
-        ) : (
-          <div className="center column h-full map-wrapper">
-            <ErrorBoundary message={ERROR_BOUNDARY_MAP}>
-              <SurfMap onFetcherSubmit={onFetcherSubmit} />
-            </ErrorBoundary>
-          </div>
-        )
-      ) : (
-        <div className="column surf-spots-list-view">
-          <Breadcrumb items={breadcrumbs} />
-          {loading ? (
+      <div className="surf-spots-content-body column flex-1">
+        {isMapView ? (
+          loading || isMapViewTransition ? (
             loadingComponent
           ) : (
-            <ErrorBoundary message={ERROR_BOUNDARY_GENERIC}>
-              <div className="mt">
-                <Outlet />
-              </div>
-            </ErrorBoundary>
-          )}
-        </div>
-      )}
+            <div className="center column h-full map-wrapper">
+              <ErrorBoundary message={ERROR_BOUNDARY_MAP}>
+                <SurfMap
+                  onFetcherSubmit={onFetcherSubmit}
+                  surfActionFetcher={fetcher}
+                  surfboards={surfboards}
+                />
+              </ErrorBoundary>
+            </div>
+          )
+        ) : (
+          <div className="column surf-spots-list-view flex-1">
+            <Breadcrumb items={breadcrumbs} />
+            <div className="surf-spots-list-content column flex-1">
+              {loading ? (
+                loadingComponent
+              ) : (
+                <ErrorBoundary message={ERROR_BOUNDARY_GENERIC}>
+                  <div className="mt">
+                    <Outlet />
+                  </div>
+                </ErrorBoundary>
+              )}
+            </div>
+          </div>
+        )}
+      </div>
     </Page>
   )
 }

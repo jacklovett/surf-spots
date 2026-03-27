@@ -1,4 +1,5 @@
 import { useRef, useState, memo, useEffect, useCallback } from 'react'
+import { FetcherWithComponents } from 'react-router'
 import classNames from 'classnames'
 import mapboxgl from 'mapbox-gl'
 
@@ -19,10 +20,11 @@ import {
   WITHIN_BOUNDS_TIMEOUT_MS,
 } from '~/services/mapService'
 import { getDisplayMessage } from '~/services/networkService'
-import { useSurfSpotsContext, useUserContext } from '~/contexts'
+import { useSurfSpotsContext, useToastContext, useUserContext } from '~/contexts'
 import { useMapDrawer, useResizeObserver } from '~/hooks'
 import { debounce } from '~/utils/commonUtils'
-import { FetcherSubmitParams } from '~/types/api'
+import { ActionData, FetcherSubmitParams } from '~/types/api'
+import { Surfboard } from '~/types/surfboard'
 import { ERROR_LOAD_MAP_SPOTS } from '~/utils/errorUtils'
 import { Button, ContentStatus } from '~/components'
 
@@ -30,10 +32,18 @@ interface IProps {
   surfSpots?: SurfSpot[]
   disableInteractions?: boolean
   onFetcherSubmit?: (params: FetcherSubmitParams) => void
+  surfActionFetcher?: FetcherWithComponents<ActionData>
+  surfboards?: Surfboard[]
 }
 
 export const SurfMap = memo((props: IProps) => {
-  const { surfSpots, disableInteractions, onFetcherSubmit } = props
+  const {
+    surfSpots,
+    disableInteractions,
+    onFetcherSubmit,
+    surfActionFetcher,
+    surfboards,
+  } = props
   const [loading, setLoading] = useState(true)
   const [loadError, setLoadError] = useState<string | null>(null)
   const [userLocation, setUserLocation] = useState<Coordinates | null>(null)
@@ -47,6 +57,7 @@ export const SurfMap = memo((props: IProps) => {
   const isPreloadedMode = !disableInteractions && surfSpots !== undefined
 
   const { user } = useUserContext()
+  const { showError } = useToastContext()
   const {
     filters,
     surfSpots: contextSurfSpots,
@@ -66,7 +77,11 @@ export const SurfMap = memo((props: IProps) => {
     contextSurfSpotsRef.current = contextSurfSpots
   }, [contextSurfSpots])
 
-  const { handleMarkerClick } = useMapDrawer(onFetcherSubmit)
+  const { handleMarkerClick } = useMapDrawer(
+    onFetcherSubmit,
+    surfActionFetcher,
+    surfboards,
+  )
 
   // Debounced fetch for dynamic mode; setError allows showing timeout/network errors in map area
   const debouncedFetchSurfSpots = useCallback(
@@ -86,7 +101,9 @@ export const SurfMap = memo((props: IProps) => {
           mergeSurfSpots(newSurfSpots)
         } catch (error) {
           console.error('Error fetching surf spots:', error)
-          setError?.(getDisplayMessage(error, ERROR_LOAD_MAP_SPOTS))
+          const msg = getDisplayMessage(error, ERROR_LOAD_MAP_SPOTS)
+          showError(msg)
+          setError?.(null)
         }
       },
       500,
@@ -110,7 +127,8 @@ export const SurfMap = memo((props: IProps) => {
       })
       .catch((error) => {
         console.error('Error fetching surf spots on filter change:', error)
-        setLoadError(getDisplayMessage(error, ERROR_LOAD_MAP_SPOTS))
+        showError(getDisplayMessage(error, ERROR_LOAD_MAP_SPOTS))
+        setLoadError(null)
       })
   }, [filters, user?.id, setSurfSpots, disableInteractions, isPreloadedMode])
 
@@ -260,19 +278,6 @@ export const SurfMap = memo((props: IProps) => {
     }
   }, [debouncedFetchSurfSpots])
 
-  if (loadError && !disableInteractions) {
-    return (
-      <div className="map-container border">
-        <ContentStatus isError>
-          <p>{loadError}</p>
-          <Button className="mt" onClick={handleRetryMapLoad}>
-            Try again
-          </Button>
-        </ContentStatus>
-      </div>
-    )
-  }
-
   return (
     <div className={classNames({ 'map-container': true, border: !loading })}>
       <div
@@ -284,6 +289,18 @@ export const SurfMap = memo((props: IProps) => {
         })}
       />
       {loading && <SkeletonLoader />}
+      {loadError && !disableInteractions && (
+        <div className="map-spots-error-overlay">
+          <div className="ph center column">
+            <ContentStatus isError>
+              <p>{loadError}</p>
+              <Button className="mt" onClick={handleRetryMapLoad}>
+                Try again
+              </Button>
+            </ContentStatus>
+          </div>
+        </div>
+      )}
     </div>
   )
 })

@@ -83,17 +83,17 @@ export const BREAK_TYPE_OPTIONS = [
   {
     key: SurfSpotType.POINT_BREAK,
     value: SurfSpotType.POINT_BREAK,
-    label: 'Point Break',
+    label: SurfSpotType.POINT_BREAK,
   },
   {
     key: SurfSpotType.REEF_BREAK,
     value: SurfSpotType.REEF_BREAK,
-    label: 'Reef Break',
+    label: SurfSpotType.REEF_BREAK,
   },
   {
     key: SurfSpotType.STANDING_WAVE,
     value: SurfSpotType.STANDING_WAVE,
-    label: 'Standing Wave',
+    label: SurfSpotType.STANDING_WAVE,
   },
 ]
 
@@ -102,17 +102,17 @@ export const BEACH_BOTTOM_OPTIONS = [
   {
     key: BeachBottomType.SAND,
     value: BeachBottomType.SAND,
-    label: 'Sand',
+    label: BeachBottomType.SAND,
   },
   {
     key: BeachBottomType.REEF,
     value: BeachBottomType.REEF,
-    label: 'Reef',
+    label: BeachBottomType.REEF,
   },
   {
     key: BeachBottomType.ROCK,
     value: BeachBottomType.ROCK,
-    label: 'Rock',
+    label: BeachBottomType.ROCK,
   },
 ]
 
@@ -158,27 +158,27 @@ export const BASE_SKILL_LEVEL_OPTIONS: Option[] = [
   {
     key: SkillLevel.BEGINNER,
     value: SkillLevel.BEGINNER,
-    label: 'Beginner',
+    label: SkillLevel.BEGINNER,
   },
   {
     key: SkillLevel.BEGINNER_INTERMEDIATE,
     value: SkillLevel.BEGINNER_INTERMEDIATE,
-    label: 'Beginner - Intermediate',
+    label: SkillLevel.BEGINNER_INTERMEDIATE,
   },
   {
     key: SkillLevel.INTERMEDIATE,
     value: SkillLevel.INTERMEDIATE,
-    label: 'Intermediate',
+    label: SkillLevel.INTERMEDIATE,
   },
   {
     key: SkillLevel.INTERMEDIATE_ADVANCED,
     value: SkillLevel.INTERMEDIATE_ADVANCED,
-    label: 'Intermediate - Advanced',
+    label: SkillLevel.INTERMEDIATE_ADVANCED,
   },
   {
     key: SkillLevel.ADVANCED,
     value: SkillLevel.ADVANCED,
-    label: 'Advanced',
+    label: SkillLevel.ADVANCED,
   },
 ]
 
@@ -189,7 +189,7 @@ export const SKILL_LEVEL_OPTIONS: Option[] = [
   {
     key: SkillLevel.ALL_LEVELS,
     value: SkillLevel.ALL_LEVELS,
-    label: 'All Levels',
+    label: SkillLevel.ALL_LEVELS,
   },
 ]
 
@@ -198,32 +198,32 @@ export const TIDE_OPTIONS = [
   {
     key: Tide.ANY,
     value: Tide.ANY,
-    label: 'Any',
+    label: Tide.ANY,
   },
   {
     key: Tide.LOW,
     value: Tide.LOW,
-    label: 'Low',
+    label: Tide.LOW,
   },
   {
     key: Tide.LOW_MID,
     value: Tide.LOW_MID,
-    label: 'Low - Mid',
+    label: Tide.LOW_MID,
   },
   {
     key: Tide.MID,
     value: Tide.MID,
-    label: 'Mid',
+    label: Tide.MID,
   },
   {
     key: Tide.MID_HIGH,
     value: Tide.MID_HIGH,
-    label: 'Mid - High',
+    label: Tide.MID_HIGH,
   },
   {
     key: Tide.HIGH,
     value: Tide.HIGH,
-    label: 'High',
+    label: Tide.HIGH,
   },
 ]
 
@@ -232,17 +232,17 @@ export const WAVE_DIRECTION_OPTIONS = [
   {
     key: WaveDirection.LEFT,
     value: WaveDirection.LEFT,
-    label: 'Left',
+    label: WaveDirection.LEFT,
   },
   {
     key: WaveDirection.RIGHT,
     value: WaveDirection.RIGHT,
-    label: 'Right',
+    label: WaveDirection.RIGHT,
   },
   {
     key: WaveDirection.LEFT_AND_RIGHT,
     value: WaveDirection.LEFT_AND_RIGHT,
-    label: 'Left and Right',
+    label: WaveDirection.LEFT_AND_RIGHT,
   },
 ]
 

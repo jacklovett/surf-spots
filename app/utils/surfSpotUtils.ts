@@ -144,3 +144,14 @@ export const getNoveltyWaveLabel = (spot: {
   if (spot.isRiverWave) return 'River wave'
   return null
 }
+
+/**
+ * Where to POST for `surfSpotAction` (watch/surfed, session feedback, etc.).
+ * On a `/surf-spots/...` URL other than the bare index, use that path; otherwise `/surf-spots`.
+ */
+export const resolveSurfSpotActionUrl = (pathname: string): string =>
+  pathname.startsWith('/surf-spots/') &&
+  pathname !== '/surf-spots' &&
+  pathname !== '/surf-spots/'
+    ? pathname
+    : '/surf-spots'

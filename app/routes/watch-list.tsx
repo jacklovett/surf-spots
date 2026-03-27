@@ -25,9 +25,10 @@ import {
   ERROR_BOUNDARY_MAP,
   ERROR_BOUNDARY_SECTION,
   ERROR_BOUNDARY_SURF_SPOT_LIST,
+  ERROR_LOAD_WATCH_LIST,
 } from '~/utils/errorUtils'
 import { WatchedSurfSpotsSummary } from '~/types/watchedSurfSpotsSummary'
-import { cacheControlHeader, get } from '~/services/networkService'
+import { cacheControlHeader, get, isNetworkError } from '~/services/networkService'
 import { useScrollReveal, useSurfSpotActions } from '~/hooks'
 import { surfSpotAction } from '~/services/surfSpot.server'
 
@@ -56,12 +57,17 @@ export const loader: LoaderFunction = async ({ request }) => {
       },
     )
   } catch (error) {
+    const status = isNetworkError(error) ? error.status : undefined
+    console.error('Watch list loader: watch summary fetch failed', {
+      status,
+      responseSummary: isNetworkError(error) ? error.responseSummary : undefined,
+      message: error instanceof Error ? error.message : String(error),
+    })
+
     return data<LoaderData>(
+      { error: ERROR_LOAD_WATCH_LIST },
       {
-        error: `We could not load updates for your watched spots right now. Please try again later.`,
-      },
-      {
-        status: 500,
+        status: status && status >= 400 && status < 600 ? status : 500,
       },
     )
   }
@@ -82,7 +88,7 @@ export default function Watchlist() {
   if (error) {
     return (
       <Page showHeader>
-        <ContentStatus>
+        <ContentStatus isError>
           <p>{error}</p>
         </ContentStatus>
       </Page>

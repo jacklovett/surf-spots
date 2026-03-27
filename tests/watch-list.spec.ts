@@ -43,7 +43,7 @@ test.describe('Watch List Page', () => {
       ).toBeVisible()
 
       await expect(
-        page.getByRole('link', { name: 'Explore Surf Spots' }),
+        page.getByRole('button', { name: 'Explore Surf Spots' }),
       ).toBeVisible()
     })
 
@@ -60,11 +60,11 @@ test.describe('Watch List Page', () => {
         return
       }
 
-      const exploreLink = page.getByRole('link', { name: 'Explore Surf Spots' })
-      await expect(exploreLink).toBeVisible()
-      await exploreLink.scrollIntoViewIfNeeded()
+      const exploreButton = page.getByRole('button', { name: 'Explore Surf Spots' })
+      await expect(exploreButton).toBeVisible()
+      await exploreButton.scrollIntoViewIfNeeded()
 
-      await exploreLink.click()
+      await exploreButton.click()
       await expect(page).toHaveURL(/\/surf-spots/)
     })
 

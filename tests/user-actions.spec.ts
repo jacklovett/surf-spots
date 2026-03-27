@@ -5,6 +5,7 @@ import {
   goToAddSurfSpotLocationStep,
   goToAddSurfSpotAmenitiesStep,
 } from './utils/addSurfSpotWizard'
+import { waitForDrawerVisible } from './utils/drawer'
 
 test.describe('User Actions', () => {
   test.beforeEach(async ({ page }) => {
@@ -43,13 +44,12 @@ test.describe('User Actions', () => {
     await page.locator('.toolbar button').first().click()
 
     // Filters open in a left drawer; wait for it to be visible (may animate in)
-    const filtersDrawer = page.locator('.drawer--left')
-    await filtersDrawer.waitFor({ state: 'visible', timeout: 10000 })
-    await expect(filtersDrawer).toBeVisible()
+    const filtersDrawer = await waitForDrawerVisible(page)
 
-    const filterOption = filtersDrawer.locator('input[type="checkbox"]').first()
-    if (await filterOption.isVisible()) {
-      await filterOption.click()
+    const firstFilterOption = filtersDrawer.locator('label.checkbox-option').first()
+    if (await firstFilterOption.isVisible()) {
+      // Click the label/container so pointer interception on nested text doesn't block the action.
+      await firstFilterOption.click()
       await filtersDrawer.locator('button').last().click()
     }
   })
@@ -111,15 +111,16 @@ test.describe('User Actions', () => {
     }
 
     await expect(
-      page.getByRole('heading', { name: /Amenities/i }),
+      page.getByRole('heading', { name: /Amenities\s*&\s*Access|Amenities/i }),
     ).toBeVisible({ timeout: 15000 })
 
+    const addWebcamButton = page.getByRole('button', { name: /Add Webcam Link/i })
+    await expect(addWebcamButton).toBeVisible({ timeout: 15000 })
+
+    await addWebcamButton.click()
     await expect(page.locator('input[name="webcams"]').first()).toBeVisible({
       timeout: 15000,
     })
-    await expect(
-      page.locator('button:has-text("Add"), button:has-text("Webcam")').first(),
-    ).toBeVisible()
   })
 
   test('should add and remove webcam link row when clicking Add Webcam Link', async ({
@@ -131,11 +132,8 @@ test.describe('User Actions', () => {
       return
     }
 
-    await expect(
-      page.locator('button:has-text("Add"), button:has-text("Webcam")').first(),
-    ).toBeVisible({ timeout: 15000 })
-
-    const addWebcamButton = page.locator('button:has-text("Add"), button:has-text("Webcam")').first()
+    const addWebcamButton = page.getByRole('button', { name: /Add Webcam Link/i })
+    await expect(addWebcamButton).toBeVisible({ timeout: 15000 })
     await addWebcamButton.click()
 
     const webcamInputs = page.locator('input[name="webcams"]')

@@ -28,6 +28,7 @@ import {
   ERROR_ADD_MEMBERS,
   ERROR_INVALID_MEMBER_EMAILS,
   ERROR_METHOD_NOT_ALLOWED,
+  ERROR_TRIP_DATES_REQUIRED,
   ERROR_TITLE_REQUIRED,
   ERROR_TRIP_NOT_FOUND,
   ERROR_UPDATE_TRIP,
@@ -112,12 +113,18 @@ export const action: ActionFunction = async ({ params, request }) => {
       { status: 400 },
     )
   }
+  if (!startDate || !endDate) {
+    return data<ActionData>(
+      { submitStatus: ERROR_TRIP_DATES_REQUIRED, hasError: true },
+      { status: 400 },
+    )
+  }
 
   const tripData: UpdateTripRequest = {
     title,
     description: (formData.get('description') as string)?.trim() || undefined,
-    startDate: startDate || undefined,
-    endDate: endDate || undefined,
+    startDate,
+    endDate,
   }
 
   // Collect and validate member emails

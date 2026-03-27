@@ -42,6 +42,7 @@ export const ERROR_LOAD_TRIPS =
   "We couldn't load your trips right now. Please try again later."
 export const ERROR_TRIP_NOT_FOUND = 'Trip not found'
 export const ERROR_TITLE_REQUIRED = 'Title is required'
+export const ERROR_TRIP_DATES_REQUIRED = 'Start date and end date are required'
 export const ERROR_INVALID_MEMBER_EMAILS =
   'Please enter valid email addresses for all members.'
 export const ERROR_LOGIN_REQUIRED_CREATE_TRIP =
@@ -205,62 +206,47 @@ export const toSafeMessage = (
   return messageForDisplay(msg, fallback)
 }
 
-/**
- * Returns a safe user-facing error string from fetcher/action data.
- * Reads `error` or `submitStatus` when present and string; otherwise fallback.
- * Use before setting state or calling showError/onError to avoid displaying raw payloads.
- */
-export const getSafeFetcherErrorMessage = (
-  data: unknown,
-  fallback: string = DEFAULT_ERROR_MESSAGE,
-): string => {
-  if (data == null || typeof data !== 'object') return fallback
-  const o = data as Record<string, unknown>
-  const msg =
-    (typeof o.error === 'string' && o.error.trim() ? o.error.trim() : null) ??
-    (typeof o.submitStatus === 'string' && o.submitStatus.trim() ? o.submitStatus.trim() : null)
-  return messageForDisplay(msg ?? undefined, fallback)
-}
-
 /** Shape returned by add-surf-spot / edit-surf-spot style actions */
 export interface FetcherSubmitStatus {
   message: string
   isError: boolean
 }
 
-/** Normalizes `useFetcher().data` when the action result is nested under `.data`. */
-export const unwrapFetcherActionPayload = (
-  fetcherData: unknown,
-): Record<string, unknown> | null => {
-  if (fetcherData == null || typeof fetcherData !== 'object') return null
-  const root = fetcherData as Record<string, unknown>
-  if (
-    'data' in root &&
-    root.data != null &&
-    typeof root.data === 'object'
-  ) {
-    return root.data as Record<string, unknown>
+/**
+ * User-facing error line from `fetcher.data` (same object your route `action` returned).
+ * Prefer `error`, else `submitStatus`; then `messageForDisplay` so internal junk never shows.
+ */
+export const getSafeFetcherErrorMessage = (
+  data: unknown,
+  fallback: string = DEFAULT_ERROR_MESSAGE,
+): string => {
+  if (data == null || typeof data !== 'object' || Array.isArray(data)) {
+    return fallback
   }
-  return root
+  const action = data as Record<string, unknown>
+  const fromError = typeof action.error === 'string' ? action.error.trim() : ''
+  const fromSubmitStatus =
+    typeof action.submitStatus === 'string' ? action.submitStatus.trim() : ''
+  return messageForDisplay(fromError || fromSubmitStatus || undefined, fallback)
 }
 
 /**
- * Extract submit status from fetcher.data for form actions that return { submitStatus, hasError }.
- * Always returns a safe user-facing message (never raw payload or serialized data).
- * Handles wrapped payload (e.g. .data) and weird shapes by using getSafeFetcherErrorMessage.
+ * Submit banner message + error flag from `fetcher.data`. Returns null when there is no object yet.
  */
 export const getFetcherSubmitStatus = (
-  fetcherData: unknown,
+  data: unknown,
   fallbackMessage: string = DEFAULT_ERROR_MESSAGE,
 ): FetcherSubmitStatus | null => {
-  if (fetcherData == null) return null
-  const payload = unwrapFetcherActionPayload(fetcherData)
-  if (payload == null) return null
-  const message = getSafeFetcherErrorMessage(payload, fallbackMessage)
+  if (data == null || typeof data !== 'object' || Array.isArray(data)) {
+    return null
+  }
+  const action = data as Record<string, unknown>
+  const message = getSafeFetcherErrorMessage(action, fallbackMessage)
   const isError =
-    typeof payload.hasError === 'boolean' ? payload.hasError : true
+    typeof action.hasError === 'boolean' ? action.hasError : true
   return { message, isError }
 }
+
 
 /**
  * Use the given message in the UI only if it looks user-facing; otherwise

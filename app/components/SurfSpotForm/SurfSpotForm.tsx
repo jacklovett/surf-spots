@@ -16,6 +16,7 @@ import {
   directionStringToArray,
   directionArrayToString,
 } from '~/utils/surfSpotUtils'
+import { ActionData } from '~/types/api'
 import { determineInitialOptions, LoaderData } from './index'
 import {
   Button,
@@ -27,11 +28,12 @@ import {
 } from '~/components'
 import { Option } from '~/components/FormInput'
 import { UrlLinkItem } from '../UrlLinkList'
-import { getSurfSpotStepValidators } from '~/utils/surfSpotWizardValidation'
-import { isPublicListingComplete } from '~/utils/surfSpotPublicPayload'
+import {
+  getSurfSpotStepValidators,
+  isPublicListingComplete,
+} from '~/utils/surfSpotWizardValidation'
 import {
   getFetcherSubmitStatus,
-  unwrapFetcherActionPayload,
   ERROR_ADD_SURF_SPOT,
 } from '~/utils/errorUtils'
 import { roundCoordinate } from '~/utils/coordinateUtils'
@@ -73,7 +75,7 @@ export const SurfSpotForm = (props: SurfSpotFormProps) => {
   const distanceUnits = preferredUnits === 'metric' ? 'km' : 'mi'
   const waveUnits = preferredUnits === 'metric' ? 'm' : 'ft'
 
-  const fetcher = useFetcher()
+  const fetcher = useFetcher<ActionData>()
   const actionSubmitStatus = useSubmitStatus()
   const fetcherSubmitStatus = getFetcherSubmitStatus(
     fetcher.data,
@@ -130,6 +132,7 @@ export const SurfSpotForm = (props: SurfSpotFormProps) => {
   const [isRiverWave, setIsRiverWave] = useState(
     isBothNoveltyInitial ? false : isRiverWaveInitial,
   )
+  const isNoveltyWave = isWavepool || isRiverWave
 
   useEffect(() => {
     if (!surfSpot || isAddMode) return
@@ -170,8 +173,6 @@ export const SurfSpotForm = (props: SurfSpotFormProps) => {
   )
 
   const isPrivateSpot = spotStatus === SurfSpotStatus.PRIVATE
-  const isNoveltyWave = isWavepool || isRiverWave
-
   // Convert direction strings to arrays for DirectionSelector
   const initialSwellDirection = directionStringToArray(
     surfSpot?.swellDirection || '',
@@ -329,9 +330,9 @@ export const SurfSpotForm = (props: SurfSpotFormProps) => {
     goNext,
     goBack,
   } = useSurfSpotWizard({
-    isNoveltyWave,
     isPrivateSpot,
     isWavepool,
+    isNoveltyWave,
     formState,
   })
 
@@ -388,14 +389,11 @@ export const SurfSpotForm = (props: SurfSpotFormProps) => {
   )
 
   const navigate = useNavigate()
-  const fetcherPayload = unwrapFetcherActionPayload(fetcher.data)
-  const surfSpotRaw = fetcherPayload?.surfSpot
-  const surfSpotFromAction: SurfSpot | null =
-    surfSpotRaw != null ? (surfSpotRaw as SurfSpot) : null
+  const surfSpotFromAction: SurfSpot | null = fetcher.data?.surfSpot ?? null
 
   const surfSpotPathFromAction = pathFromSurfSpot(surfSpotFromAction)
   const isSubmitOk =
-    fetcherPayload != null && fetcherPayload.hasError !== true
+    fetcher.data != null && fetcher.data.hasError !== true
   const resolvedViewPath =
     surfSpotPathFromAction ?? pathFromSurfSpot(surfSpot ?? null)
   const isSubmitSuccess =
@@ -589,27 +587,25 @@ export const SurfSpotForm = (props: SurfSpotFormProps) => {
             />
           )}
         </>
-        {!isNoveltyWave && (
-          <SpotDetailsSection
-            formState={{
-              type: formState.type,
-              beachBottomType: formState.beachBottomType,
-              skillLevel: formState.skillLevel,
-              waveDirection: formState.waveDirection,
-            }}
-            errors={{
-              type: errors.type,
-              beachBottomType: errors.beachBottomType,
-              skillLevel: errors.skillLevel,
-              waveDirection: errors.waveDirection,
-            }}
-            onChange={handleChange}
-          />
-        )}
+        <SpotDetailsSection
+          formState={{
+            type: formState.type,
+            beachBottomType: formState.beachBottomType,
+            skillLevel: formState.skillLevel,
+            waveDirection: formState.waveDirection,
+          }}
+          errors={{
+            type: errors.type,
+            beachBottomType: errors.beachBottomType,
+            skillLevel: errors.skillLevel,
+            waveDirection: errors.waveDirection,
+          }}
+          onChange={handleChange}
+        />
         </>
         )}
 
-        {stepId === 'details' && !isNoveltyWave && (
+        {stepId === 'details' && (
             <BestConditionsSection
               formState={{
                 swellDirection: formState.swellDirection,

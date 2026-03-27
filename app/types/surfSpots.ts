@@ -115,6 +115,62 @@ export enum WaveDirection {
   LEFT_AND_RIGHT = 'Left and Right',
 }
 
+export enum WaveSize {
+  SMALL = 'Small',
+  MEDIUM = 'Medium',
+  BIG = 'Big',
+}
+
+export enum CrowdLevel {
+  LOW = 'Low',
+  MEDIUM = 'Medium',
+  HIGH = 'High',
+}
+
+/** Surf session log only (API enum names). Distinct from filter WaveSize above. */
+export enum SurfSessionWaveSize {
+  SMALL = 'SMALL',
+  CHEST_SHOULDER = 'CHEST_SHOULDER',
+  HEAD_PLUS = 'HEAD_PLUS',
+}
+
+/** Surf session log only (API enum names). */
+export enum SurfSessionCrowdLevel {
+  EMPTY = 'EMPTY',
+  FEW = 'FEW',
+  BUSY = 'BUSY',
+  PACKED = 'PACKED',
+}
+
+/** Surf session log only (API enum names). */
+export enum WaveQuality {
+  POOR = 'POOR',
+  OKAY = 'OKAY',
+  FUN = 'FUN',
+  GREAT = 'GREAT',
+}
+
+/** Display strings for session log dropdowns (wire values stay the enum strings above). */
+export const SURF_SESSION_WAVE_SIZE_LABELS: Record<SurfSessionWaveSize, string> = {
+  [SurfSessionWaveSize.SMALL]: 'Waist high or smaller',
+  [SurfSessionWaveSize.CHEST_SHOULDER]: 'Chest to shoulder high',
+  [SurfSessionWaveSize.HEAD_PLUS]: 'Head high or bigger',
+}
+
+export const SURF_SESSION_CROWD_LABELS: Record<SurfSessionCrowdLevel, string> = {
+  [SurfSessionCrowdLevel.EMPTY]: 'Empty lineup',
+  [SurfSessionCrowdLevel.FEW]: 'A few surfers',
+  [SurfSessionCrowdLevel.BUSY]: 'Busy lineup',
+  [SurfSessionCrowdLevel.PACKED]: 'Packed',
+}
+
+export const SURF_SESSION_WAVE_QUALITY_LABELS: Record<WaveQuality, string> = {
+  [WaveQuality.POOR]: 'Weak / mushy',
+  [WaveQuality.OKAY]: 'Okay',
+  [WaveQuality.FUN]: 'Fun',
+  [WaveQuality.GREAT]: 'Really good',
+}
+
 export enum Direction {
   N = 'N',
   NE = 'NE',
@@ -186,7 +242,7 @@ export interface SurfSpotFormState {
   latitude?: number
   swellDirection: string
   windDirection: string
-  rating?: number
+  tide?: Tide
   waveDirection?: WaveDirection
   minSurfHeight?: number
   maxSurfHeight?: number
@@ -206,7 +262,7 @@ export interface SurfSpotFilters {
   waveDirection: string[]
   swellDirection: string[]
   windDirection: string[]
-  rating: number
+  parking: Option[]
   foodOptions: Option[]
   accommodationOptions: Option[]
   hazards: Option[]
@@ -243,4 +299,21 @@ export interface SurfSpotNote {
   preferredSwellRange?: string | null
   skillRequirement?: SkillLevel | null
   surfSpotId?: number
+}
+
+export interface SurfSessionSummary {
+  skillLevel?: SkillLevel
+  sampleSize: number
+  waveSizeDistribution: Record<string, number>
+  crowdDistribution: Record<string, number>
+  waveQualityDistribution: Record<string, number>
+  /** Counts of sessions where wouldSurfAgain was true vs false (per-session field is boolean). */
+  wouldSurfAgainTrueCount: number
+  wouldSurfAgainFalseCount: number
+  fallbackToAllSkills: boolean
+  /** Server-built copy for the "Surfers like you" block (keep in sync with API). */
+  segmentHeadline: string
+  waveQualityTrendLine: string | null
+  crowdTrendLine: string | null
+  wouldSurfAgainLine: string | null
 }

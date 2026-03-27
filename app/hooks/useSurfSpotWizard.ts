@@ -14,16 +14,16 @@ export interface WizardStep {
 }
 
 interface UseSurfSpotWizardParams {
-  isNoveltyWave: boolean
   isPrivateSpot: boolean
   isWavepool: boolean
+  isNoveltyWave: boolean
   formState: SurfSpotFormState
 }
 
 export const useSurfSpotWizard = ({
-  isNoveltyWave,
   isPrivateSpot,
   isWavepool,
+  isNoveltyWave,
   formState,
 }: UseSurfSpotWizardParams) => {
   const wizardSteps: readonly WizardStep[] = [

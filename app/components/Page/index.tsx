@@ -8,21 +8,20 @@ export const renderContent = (
   loading: boolean,
   error?: string | null,
 ) => {
-  if (loading || error) {
+  if (loading) {
     return (
-      <>
-        {loading && (
-          <ContentStatus>
-            <Loading />
-          </ContentStatus>
-        )}
-        {error && (
-          <ContentStatus isError>
-            <h1>Error</h1>
-            <p>{error}</p>
-          </ContentStatus>
-        )}
-      </>
+      <div className="page-loading-state">
+        <Loading />
+      </div>
+    )
+  }
+
+  if (error) {
+    return (
+      <ContentStatus isError>
+        <h1>Error</h1>
+        <p>{error}</p>
+      </ContentStatus>
     )
   }
 

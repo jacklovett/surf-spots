@@ -1,11 +1,17 @@
 import { useState, useEffect } from 'react'
-import { FormInput, FormComponent, DatePicker, TextButton } from '~/components'
+import {
+  DatePicker,
+  FormComponent,
+  FormInput,
+  TextButton,
+} from '~/components'
 import { SubmitStatus } from '~/components/FormComponent'
 import useFormValidation, {
   validateEmail,
   validateRequired,
 } from '~/hooks/useFormValidation'
 import { Trip } from '~/types/trip'
+import { formatDateForInput } from '~/utils/dateUtils'
 
 interface TripFormProps {
   actionType: 'Add' | 'Edit'
@@ -33,19 +39,26 @@ export const TripForm = ({
       },
       validationFunctions: {
         title: (value?: string) => validateRequired(value, 'Title'),
+        startDate: (value?: string) => validateRequired(value, 'Start Date'),
+        endDate: (value?: string) => validateRequired(value, 'End Date'),
       },
     })
 
-  // For edit mode, mark title as touched if it has a value
-  // This ensures the form is valid immediately when editing with existing data
+  // For edit mode, mark populated required fields as touched so validity reflects existing values.
   useEffect(() => {
-    if (actionType === 'Edit' && trip?.title && formState.title) {
-      // Trigger a blur on the title field to mark it as touched
-      // This will make the form valid if all fields are valid
-      handleBlur('title')
+    if (actionType === 'Edit') {
+      if (formState.title) {
+        handleBlur('title')
+      }
+      if (formState.startDate) {
+        handleBlur('startDate')
+      }
+      if (formState.endDate) {
+        handleBlur('endDate')
+      }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []) // Only run once on mount
+  }, [])
 
   const [memberEmails, setMemberEmails] = useState<string[]>([''])
   const [memberEmailErrors, setMemberEmailErrors] = useState<
@@ -117,10 +130,10 @@ export const TripForm = ({
           name="startDate"
           value={formState.startDate}
           onChange={(e) => handleChange('startDate', e.target.value)}
+          onBlur={() => handleBlur('startDate')}
+          errorMessage={errors.startDate}
           min={
-            actionType === 'Add'
-              ? new Date().toISOString().split('T')[0]
-              : undefined
+            actionType === 'Add' ? formatDateForInput(new Date()) : undefined
           }
           showLabel={!!formState.startDate}
         />
@@ -129,7 +142,11 @@ export const TripForm = ({
           name="endDate"
           value={formState.endDate}
           onChange={(e) => handleChange('endDate', e.target.value)}
-          min={formState.startDate || new Date().toISOString().split('T')[0]}
+          onBlur={() => handleBlur('endDate')}
+          errorMessage={errors.endDate}
+          min={
+            formState.startDate || formatDateForInput(new Date())
+          }
           showRangePreview
           showLabel={!!formState.endDate}
         />

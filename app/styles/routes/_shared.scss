@@ -20,6 +20,10 @@ h2 {
   margin-bottom: $spacing-unit;
 }
 
+.surf-spots-content-body, .surf-spots-list-content {
+  min-height: 0;
+}
+
 .content .surf-spots h2 {
   font-size: $font-size-large;
   margin: $spacing-large 0 $spacing-unit 0;
