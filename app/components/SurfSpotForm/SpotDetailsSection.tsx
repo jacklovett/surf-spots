@@ -3,6 +3,7 @@ import {
   BREAK_TYPE_OPTIONS,
   BEACH_BOTTOM_OPTIONS,
   SKILL_LEVEL_OPTIONS,
+  TYPICAL_CROWD_FORM_OPTIONS,
   WAVE_DIRECTION_OPTIONS,
 } from '~/types/formData/surfSpots'
 import {
@@ -24,12 +25,14 @@ interface SpotDetailsSectionProps {
     beachBottomType?: BeachBottomType
     skillLevel?: SkillLevel
     waveDirection?: WaveDirection
+    crowdLevel?: string
   }
   errors: {
     type?: string
     beachBottomType?: string
     skillLevel?: string
     waveDirection?: string
+    crowdLevel?: string
   }
   onChange: FormChangeHandler
 }
@@ -93,6 +96,18 @@ export const SpotDetailsSection = ({
         }
         errorMessage={errors.waveDirection || ''}
         value={formState.waveDirection || ''}
+        showLabel
+      />
+      <FormInput
+        field={{
+          label: 'Typical crowd',
+          name: 'crowdLevel',
+          type: 'select',
+          options: TYPICAL_CROWD_FORM_OPTIONS,
+        }}
+        onChange={(e) => onChange('crowdLevel', e.target.value)}
+        errorMessage={errors.crowdLevel || ''}
+        value={formState.crowdLevel || ''}
         showLabel
       />
     </>

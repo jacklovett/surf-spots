@@ -121,13 +121,7 @@ export enum WaveSize {
   BIG = 'Big',
 }
 
-export enum CrowdLevel {
-  LOW = 'Low',
-  MEDIUM = 'Medium',
-  HIGH = 'High',
-}
-
-/** Surf session log only (API enum names). Distinct from filter WaveSize above. */
+/** Surf session log and surf spot typical crowd (API enum names). */
 export enum SurfSessionWaveSize {
   SMALL = 'SMALL',
   CHEST_SHOULDER = 'CHEST_SHOULDER',
@@ -135,8 +129,8 @@ export enum SurfSessionWaveSize {
   GIANT = 'GIANT',
 }
 
-/** Surf session log only (API enum names). */
-export enum SurfSessionCrowdLevel {
+/** Crowd / lineup scale: session feedback and surf spot typical crowd (API enum names). */
+export enum CrowdLevel {
   EMPTY = 'EMPTY',
   FEW = 'FEW',
   BUSY = 'BUSY',
@@ -159,11 +153,11 @@ export const SURF_SESSION_WAVE_SIZE_LABELS: Record<SurfSessionWaveSize, string> 
   [SurfSessionWaveSize.GIANT]: 'Giant (double overhead or larger)',
 }
 
-export const SURF_SESSION_CROWD_LABELS: Record<SurfSessionCrowdLevel, string> = {
-  [SurfSessionCrowdLevel.EMPTY]: 'Empty lineup',
-  [SurfSessionCrowdLevel.FEW]: 'A few surfers',
-  [SurfSessionCrowdLevel.BUSY]: 'Busy lineup',
-  [SurfSessionCrowdLevel.PACKED]: 'Packed',
+export const CROWD_LEVEL_LABELS: Record<CrowdLevel, string> = {
+  [CrowdLevel.EMPTY]: 'Empty lineup',
+  [CrowdLevel.FEW]: 'A few surfers',
+  [CrowdLevel.BUSY]: 'Busy lineup',
+  [CrowdLevel.PACKED]: 'Packed',
 }
 
 export const SURF_SESSION_WAVE_QUALITY_LABELS: Record<WaveQuality, string> = {
@@ -213,6 +207,8 @@ export interface NewSurfSpot extends Coordinates {
   windDirection: Direction
   tide: Tide
   waveDirection: WaveDirection
+  /** Typical lineup; API enum string (EMPTY, FEW, BUSY, PACKED) or omitted. */
+  crowdLevel?: CrowdLevel | null
   minSurfHeight: number
   maxSurfHeight: number
   swellSeason?: SwellSeason
@@ -251,6 +247,8 @@ export interface SurfSpotFormState {
   parking: string
   foodNearby: boolean
   skillLevel?: SkillLevel
+  /** Typical crowd; API enum string or empty when unset. */
+  crowdLevel?: string
   forecastLinks: UrlLinkItem[]
   webcamLinks: UrlLinkItem[]
   wavepoolUrl?: string
@@ -262,6 +260,8 @@ export interface SurfSpotFilters {
   beachBottom: string[]
   tide: string[]
   waveDirection: string[]
+  /** Typical crowd filter; API enum names (EMPTY, FEW, BUSY, PACKED). */
+  crowdLevel: string[]
   swellDirection: string[]
   windDirection: string[]
   parking: Option[]
@@ -280,6 +280,7 @@ export const defaultSurfSpotFilters: SurfSpotFilters = {
   beachBottom: [],
   tide: [],
   waveDirection: [],
+  crowdLevel: [],
   swellDirection: [],
   windDirection: [],
   parking: [],

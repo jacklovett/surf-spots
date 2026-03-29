@@ -19,6 +19,8 @@ import {
   SkillLevel,
   SurfSpotStatus,
   SurfSessionSummary,
+  CrowdLevel,
+  CROWD_LEVEL_LABELS,
 } from '~/types/surfSpots'
 import { Surfboard } from '~/types/surfboard'
 
@@ -557,7 +559,14 @@ if (error || !surfSpotDetails) {
     facilities,
     forecasts,
     webcams,
+    crowdLevel,
   } = surfSpotDetails
+
+  const typicalCrowdDisplay =
+    crowdLevel != null &&
+    Object.values(CrowdLevel).includes(crowdLevel as CrowdLevel)
+      ? CROWD_LEVEL_LABELS[crowdLevel as CrowdLevel]
+      : null
 
   const isNoveltyWave = isWavepool || isRiverWave
   const noveltyLabel = getNoveltyWaveLabel({ isWavepool, isRiverWave })
@@ -610,6 +619,9 @@ if (error || !surfSpotDetails) {
           <Details label="Beach Bottom" value={beachBottomType} />
           <Details label="Wave Direction" value={waveDirection} />
           <Details label="Skill Level" value={skillLevel} />
+          {typicalCrowdDisplay != null && (
+            <Details label="Typical crowd" value={typicalCrowdDisplay} />
+          )}
         </div>
       </div>
       <ErrorBoundary message={ERROR_BOUNDARY_MAP}>

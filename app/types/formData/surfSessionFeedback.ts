@@ -1,8 +1,8 @@
 import { FormField, Option } from '~/components/FormInput'
 import {
-  SurfSessionCrowdLevel,
+  CrowdLevel,
+  CROWD_LEVEL_LABELS,
   SurfSessionWaveSize,
-  SURF_SESSION_CROWD_LABELS,
   SURF_SESSION_WAVE_QUALITY_LABELS,
   SURF_SESSION_WAVE_SIZE_LABELS,
   WaveQuality,
@@ -21,6 +21,17 @@ const optionsForEnum = <T extends string>(
     label: labels[value],
   }))
 
+/** Select options for crowd level: session feedback modal and surf spot form (same enum + labels). */
+export const buildCrowdLevelSelectOptions = (
+  placeholder: Option = CHOOSE,
+): Option[] => [
+  placeholder,
+  ...optionsForEnum(
+    Object.values(CrowdLevel) as CrowdLevel[],
+    CROWD_LEVEL_LABELS,
+  ),
+]
+
 export const SESSION_FEEDBACK_WAVE_SIZE_FIELD: FormField = {
   label: 'How big were the waves?',
   name: 'waveSize',
@@ -38,13 +49,7 @@ export const SESSION_FEEDBACK_CROWD_LEVEL_FIELD: FormField = {
   label: 'How crowded was the lineup?',
   name: 'crowdLevel',
   type: 'select',
-  options: [
-    CHOOSE,
-    ...optionsForEnum(
-      Object.values(SurfSessionCrowdLevel) as SurfSessionCrowdLevel[],
-      SURF_SESSION_CROWD_LABELS,
-    ),
-  ],
+  options: buildCrowdLevelSelectOptions(),
 }
 
 export const SESSION_FEEDBACK_WAVE_QUALITY_FIELD: FormField = {

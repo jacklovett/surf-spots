@@ -18,6 +18,7 @@ export interface BackendFilterFormat {
   skillLevel?: string[]
   tide?: string[]
   waveDirection?: string[]
+  crowdLevel?: string[]
   minSurfHeight?: number
   maxSurfHeight?: number
   swellDirection?: string[]
@@ -67,6 +68,10 @@ export const convertFiltersToBackendFormat = (
 
   if (filters.waveDirection?.length > 0) {
     backendFilters.waveDirection = filters.waveDirection
+  }
+
+  if (filters.crowdLevel?.length > 0) {
+    backendFilters.crowdLevel = filters.crowdLevel
   }
 
   // Swell direction - send array, backend will handle OR logic with substring matching

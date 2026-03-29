@@ -20,7 +20,7 @@ import {
   WITHIN_BOUNDS_TIMEOUT_MS,
 } from '~/services/mapService'
 import { getDisplayMessage } from '~/services/networkService'
-import { useSurfSpotsContext, useToastContext, useUserContext } from '~/contexts'
+import { useSurfSpotsContext, useUserContext } from '~/contexts'
 import { useMapDrawer, useResizeObserver } from '~/hooks'
 import { debounce } from '~/utils/commonUtils'
 import { ActionData, FetcherSubmitParams } from '~/types/api'
@@ -57,7 +57,6 @@ export const SurfMap = memo((props: IProps) => {
   const isPreloadedMode = !disableInteractions && surfSpots !== undefined
 
   const { user } = useUserContext()
-  const { showError } = useToastContext()
   const {
     filters,
     surfSpots: contextSurfSpots,
@@ -102,8 +101,7 @@ export const SurfMap = memo((props: IProps) => {
         } catch (error) {
           console.error('Error fetching surf spots:', error)
           const msg = getDisplayMessage(error, ERROR_LOAD_MAP_SPOTS)
-          showError(msg)
-          setError?.(null)
+          setError?.(msg)
         }
       },
       500,
@@ -127,8 +125,7 @@ export const SurfMap = memo((props: IProps) => {
       })
       .catch((error) => {
         console.error('Error fetching surf spots on filter change:', error)
-        showError(getDisplayMessage(error, ERROR_LOAD_MAP_SPOTS))
-        setLoadError(null)
+        setLoadError(getDisplayMessage(error, ERROR_LOAD_MAP_SPOTS))
       })
   }, [filters, user?.id, setSurfSpots, disableInteractions, isPreloadedMode])
 

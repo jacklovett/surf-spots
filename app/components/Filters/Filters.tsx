@@ -12,6 +12,8 @@ import {
   BeachBottomType,
   Tide,
   WaveDirection,
+  CrowdLevel,
+  CROWD_LEVEL_LABELS,
   SurfSpotFilters,
   defaultSurfSpotFilters,
 } from '~/types/surfSpots'
@@ -38,6 +40,7 @@ export const Filters = memo(() => {
   const beachBottoms = Object.values(BeachBottomType)
   const tides = Object.values(Tide)
   const waveDirections = Object.values(WaveDirection)
+  const typicalCrowdLevels = Object.values(CrowdLevel)
 
   const parkingOptions = [
     ...PARKING_OPTIONS.slice(1, PARKING_OPTIONS.length - 1),
@@ -205,6 +208,22 @@ export const Filters = memo(() => {
                 description=""
                 checked={selectedFilters.skillLevel.includes(level)}
                 onChange={() => handleFilterChange('skillLevel', level)}
+              />
+            ))}
+          </div>
+        </div>
+
+        <div className="filters-content-section">
+          <h3 className="filters-content-title">Typical Crowd</h3>
+          <div className="filters-content-options">
+            {typicalCrowdLevels.map((level) => (
+              <CheckboxOption
+                key={level}
+                name={`crowd-${level}`}
+                title={CROWD_LEVEL_LABELS[level]}
+                description=""
+                checked={selectedFilters.crowdLevel.includes(level)}
+                onChange={() => handleFilterChange('crowdLevel', level)}
               />
             ))}
           </div>

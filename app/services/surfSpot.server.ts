@@ -1,8 +1,8 @@
-import { ActionFunction, data } from 'react-router'
+import { ActionFunction, data, redirect } from 'react-router'
 import { post, deleteData, getDisplayMessage } from './networkService'
 import { getSession, commitSession } from './session.server'
 import { requireSessionCookie } from './session.server'
-import { SurfSpotStatus } from '~/types/surfSpots'
+import { CrowdLevel, SurfSpotStatus } from '~/types/surfSpots'
 import type { ActionData } from '~/types/api'
 import {
   ERROR_CHECK_INPUT,
@@ -301,7 +301,11 @@ export const surfSpotAction: ActionFunction = async ({ request }) => {
 
 export const createSurfSpotFromFormData = async (request: Request) => {
   const user = await requireSessionCookie(request)
-  const userId = user.id
+  const userId =
+    user.id != null && String(user.id).trim() !== '' ? String(user.id) : ''
+  if (!userId) {
+    throw redirect('/auth')
+  }
 
   const formData = await request.formData()
 
@@ -435,6 +439,16 @@ export const createSurfSpotFromFormData = async (request: Request) => {
     )
   }
 
+  const allowedCrowdLevels = new Set<string>(Object.values(CrowdLevel))
+  const crowdLevelRaw = (formData.get('crowdLevel')?.toString() || '').trim()
+  let crowdLevel: string | null = null
+  if (crowdLevelRaw !== '') {
+    if (!allowedCrowdLevels.has(crowdLevelRaw)) {
+      throw new Response('Invalid typical crowd value', { status: 400 })
+    }
+    crowdLevel = crowdLevelRaw
+  }
+
   // ——— Wavepool URL (optional, must be http(s) if present) ———
   let wavepoolUrlValid: string | null = null
   if (wavepoolUrl && wavepoolUrl.trim() !== '') {
@@ -463,6 +477,7 @@ export const createSurfSpotFromFormData = async (request: Request) => {
     minSurfHeight,
     maxSurfHeight,
     skillLevel: skillLevel || null,
+    crowdLevel,
     forecasts,
     webcams,
     boatRequired,

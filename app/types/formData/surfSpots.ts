@@ -1,4 +1,5 @@
 import { Option } from '~/components/FormInput'
+import { buildCrowdLevelSelectOptions } from './surfSessionFeedback'
 import {
   BeachBottomType,
   SkillLevel,
@@ -245,6 +246,10 @@ export const WAVE_DIRECTION_OPTIONS = [
     label: WaveDirection.LEFT_AND_RIGHT,
   },
 ]
+
+/** Typical lineup for a surf spot (optional); same options as session feedback. */
+export const TYPICAL_CROWD_FORM_OPTIONS: Option[] =
+  buildCrowdLevelSelectOptions(SELECT_OPTION)
 
 export const PARKING_OPTIONS: Option[] = [
   SELECT_OPTION,

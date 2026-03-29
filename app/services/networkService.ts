@@ -44,8 +44,12 @@ export const isNetworkError = (err: unknown): err is NetworkError => {
  * when returning error text to the client. API errors (NetworkError) are already
  * sanitized in handleResponse so we pass them through; when the API did not
  * return a specific message we use status to show a clearer fallback (check
- * input for 4xx, our problem for 5xx/network). Other errors are sanitized once
- * via messageForDisplay.
+ * input for 4xx, our problem for 5xx/network).
+ *
+ * Validation and bad input should come back as 4xx from the API; those hit the
+ * 4xx branch below (API message or ERROR_CHECK_INPUT). The 5xx branch is only
+ * for real server errors: then messageForDisplay uses the caller's fallback
+ * (e.g. ERROR_ADD_SURF_SPOT) when the API body is not safe to show.
  */
 export function getDisplayMessage(
   error: unknown,
@@ -56,7 +60,8 @@ export function getDisplayMessage(
     // status 0 = no response (connection/CORS/network) – never show raw message to user
     if (status === 0) return DEFAULT_ERROR_MESSAGE
     if (status !== undefined) {
-      if (status >= 500) return DEFAULT_ERROR_MESSAGE
+      // True server failures only (validation should be 4xx from the API).
+      if (status >= 500) return messageForDisplay(error.message, fallback)
       // For 4xx, use API message when present (e.g. validation "Name is required"), else generic
       if (status >= 400 && status < 500) {
         return messageForDisplay(error.message, ERROR_CHECK_INPUT)

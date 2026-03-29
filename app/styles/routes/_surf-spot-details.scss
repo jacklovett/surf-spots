@@ -198,29 +198,41 @@
   }
 }
 
-/* Novelty chip + Add notes on one row; chip width fits label */
+/* Novelty chip left, Add/Show notes pinned to the far right of the content row.
+   space-between is unreliable with an empty first column; margin-left: auto on notes works for both cases. */
 .content > .surf-spot-detail-meta-row {
-  @extend %flex-space-between;
+  @extend %flex-row;
+  width: 100%;
   align-items: center;
   flex-wrap: nowrap;
   gap: $spacing-unit;
+  justify-content: flex-start;
 
   .surf-spot-novelty-chip-wrap {
     flex: 0 0 auto;
-    width: fit-content;
-    min-width: fit-content;
+    min-width: 0;
+
+    &:empty {
+      display: none;
+    }
   }
 
   .surf-spot-detail-meta-row-notes {
     flex: 0 0 auto;
     margin-left: auto;
+    // .row sets width: 100%, which prevents margin-left:auto from pinning this column to the end
+    width: auto;
+    max-width: 100%;
   }
 
   @media (max-width: 560px) {
     flex-wrap: wrap;
 
     .surf-spot-detail-meta-row-notes {
+      flex: 1 1 100%;
       margin-left: 0;
+      width: 100%;
+      justify-content: flex-end;
     }
   }
 }

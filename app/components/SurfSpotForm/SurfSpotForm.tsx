@@ -226,6 +226,7 @@ export const SurfSpotForm = (props: SurfSpotFormProps) => {
         parking: surfSpot?.parking || '',
         foodNearby: !!surfSpot?.foodNearby,
         skillLevel: surfSpot?.skillLevel || '',
+        crowdLevel: surfSpot?.crowdLevel ?? '',
         forecastLinks: (surfSpot?.forecasts as unknown as UrlLinkItem[]) || [],
         webcamLinks: (surfSpot?.webcams ?? []).map((url) => ({
           url,
@@ -593,12 +594,14 @@ export const SurfSpotForm = (props: SurfSpotFormProps) => {
             beachBottomType: formState.beachBottomType,
             skillLevel: formState.skillLevel,
             waveDirection: formState.waveDirection,
+            crowdLevel: formState.crowdLevel,
           }}
           errors={{
             type: errors.type,
             beachBottomType: errors.beachBottomType,
             skillLevel: errors.skillLevel,
             waveDirection: errors.waveDirection,
+            crowdLevel: errors.crowdLevel,
           }}
           onChange={handleChange}
         />

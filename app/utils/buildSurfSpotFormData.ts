@@ -18,6 +18,7 @@ export interface SurfSpotFormSubmitPayload {
     tide?: string
     waveDirection?: string
     skillLevel?: string
+    crowdLevel?: string
     minSurfHeight?: number | string
     maxSurfHeight?: number | string
     parking?: string
@@ -77,6 +78,7 @@ export const buildSurfSpotFormData = (
   fd.append('tide', formState.tide ?? '')
   fd.append('waveDirection', formState.waveDirection ?? '')
   fd.append('skillLevel', formState.skillLevel ?? '')
+  fd.append('crowdLevel', formState.crowdLevel ?? '')
   fd.append('minSurfHeight', String(formState.minSurfHeight ?? ''))
   fd.append('maxSurfHeight', String(formState.maxSurfHeight ?? ''))
   fd.append('parking', formState.parking ?? '')
