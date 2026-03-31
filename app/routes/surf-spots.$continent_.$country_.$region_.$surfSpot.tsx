@@ -541,9 +541,9 @@ if (error || !surfSpotDetails) {
     isRiverWave,
     parking,
     foodNearby,
-    foodTypes,
+    foodOptions,
     accommodationNearby,
-    accommodationTypes,
+    accommodationOptions,
     hazards,
     facilities,
     forecasts,
@@ -552,12 +552,12 @@ if (error || !surfSpotDetails) {
   } = surfSpotDetails
 
   const typicalCrowdDisplay =
-    crowdLevel != null &&
-    Object.values(CrowdLevel).includes(crowdLevel as CrowdLevel)
-      ? CROWD_LEVEL_LABELS[crowdLevel as CrowdLevel]
+    crowdLevel != null
+      ? CROWD_LEVEL_LABELS[crowdLevel as CrowdLevel] ?? String(crowdLevel)
       : null
+  const foodLabels = foodOptions ?? []
+  const accommodationLabels = accommodationOptions ?? []
 
-  const isNoveltyWave = isWavepool || isRiverWave
   const noveltyLabel = getNoveltyWaveLabel({ isWavepool, isRiverWave })
 
   const viewerUserId = user?.id
@@ -618,10 +618,33 @@ if (error || !surfSpotDetails) {
         </div>
       </ErrorBoundary>
       <div className="content pt">
-        {(isNoveltyWave && swellSeason) && (
+        {!isWavepool && (
           <section>
             <h3>Best Conditions</h3>
             <div className="best-conditions">
+              <div className="best-conditions-item">
+                <DirectionIcon type="swell" directionRange={swellDirection} />
+                <Details label="Swell Direction" value={swellDirection} />
+              </div>
+              <div className="best-conditions-item">
+                <DirectionIcon type="wind" directionRange={windDirection} />
+                <Details label="Wind Direction" value={windDirection} />
+              </div>
+              <div className="best-conditions-item">
+                <TideIcon tide={tide} />
+                <Details label="Tides" value={tide} />
+              </div>
+              <div className="best-conditions-item">
+                <SurfHeightIcon />
+                <Details
+                  label="Surf Height"
+                  value={formatSurfHeightRange(
+                    preferredUnits,
+                    minSurfHeight,
+                    maxSurfHeight,
+                  )}
+                />
+              </div>
               <div className="best-conditions-item">
                 <CalendarIcon />
                 <Details label="Season" value={formatSeason(swellSeason)} />
@@ -629,87 +652,47 @@ if (error || !surfSpotDetails) {
             </div>
           </section>
         )}
-        {!isNoveltyWave && (
-          <>
-            <section>
-              <h3>Best Conditions</h3>
-              <div className="best-conditions">
-                <div className="best-conditions-item">
-                  <DirectionIcon type="swell" directionRange={swellDirection} />
-                  <Details label="Swell Direction" value={swellDirection} />
-                </div>
-                <div className="best-conditions-item">
-                  <DirectionIcon type="wind" directionRange={windDirection} />
-                  <Details label="Wind Direction" value={windDirection} />
-                </div>
-                <div className="best-conditions-item">
-                  <TideIcon tide={tide} />
-                  <Details label="Tides" value={tide} />
-                </div>
-                <div className="best-conditions-item">
-                  <SurfHeightIcon />
-                  <Details
-                    label="Surf Height"
-                    value={formatSurfHeightRange(
-                      preferredUnits,
-                      minSurfHeight,
-                      maxSurfHeight,
-                    )}
-                  />
-                </div>
-                <div className="best-conditions-item">
-                  <CalendarIcon />
-                  <Details label="Season" value={formatSeason(swellSeason)} />
-                </div>
+        <section>
+          <h3>Surf Forecasts</h3>
+          {forecasts && forecasts.length > 0 ? (
+            <>
+              <p>
+                Looking for real time conditions? Below is a list of forecasts
+                to check out
+              </p>
+              <div className="column">
+                {/* TODO: add icons/logos for well known forecasting sites */}
+                {forecasts.map((forecast) => (
+                  <SafeLink key={forecast} url={forecast}>
+                    {forecast}
+                  </SafeLink>
+                ))}
               </div>
-            </section>
-            <section>
-              <h3>Surf Forecasts</h3>
-              {forecasts && forecasts.length > 0 ? (
-                <>
-                  <p>
-                    Looking for real time conditions? Below is a list of
-                    forecasts to check out
-                  </p>
-                  <div className="column mv">
-                    {/* TODO: add icons/logos for well known forecasting sites */}
-                    {forecasts.map((forecast) => (
-                      <SafeLink key={forecast} url={forecast}>
-                        {forecast}
-                      </SafeLink>
-                    ))}
-                  </div>
-                </>
-              ) : (
-                <p>
-                  Know a reliable forecast for this spot? Let us know and share
-                  the love!
-                </p>
-              )}
-            </section>
-            <section>
-              <h3>Webcams</h3>
-              {webcams && webcams.length > 0 ? (
-                <>
-                  <p>
-                    Live views of the spot. Check the webcams before you go.
-                  </p>
-                  <div className="column mv">
-                    {webcams.map((webcam) => (
-                      <SafeLink key={webcam} url={webcam}>
-                        {webcam}
-                      </SafeLink>
-                    ))}
-                  </div>
-                </>
-              ) : (
-                <p>
-                  Know a webcam for this spot? Let us know and we can add it!
-                </p>
-              )}
-            </section>
-          </>
-        )}
+            </>
+          ) : (
+            <p>
+              Know a reliable forecast for this spot? Let us know and share the
+              love!
+            </p>
+          )}
+        </section>
+        <section>
+          <h3>Webcams</h3>
+          {webcams && webcams.length > 0 ? (
+            <>
+              <p>Live views of the spot. Check the webcams before you go.</p>
+              <div className="column">
+                {webcams.map((webcam) => (
+                  <SafeLink key={webcam} url={webcam}>
+                    {webcam}
+                  </SafeLink>
+                ))}
+              </div>
+            </>
+          ) : (
+            <p>Know a webcam for this spot? Let us know and we can add it!</p>
+          )}
+        </section>
         {isWavepool && wavepoolUrl && (
           <section>
             <h3>Official Website</h3>
@@ -756,13 +739,11 @@ if (error || !surfSpotDetails) {
               </div>
             </div>
 
-            {accommodationNearby &&
-              accommodationTypes &&
-              accommodationTypes.length > 0 && (
+            {accommodationNearby && accommodationLabels.length > 0 && (
                 <div className="amenities-section">
                   <h4>Accommodation Options</h4>
                   <div className="amenities-list">
-                    {accommodationTypes.map((accommodationType: string) => (
+                    {accommodationLabels.map((accommodationType: string) => (
                       <span key={accommodationType} className="amenities-item">
                         {accommodationType}
                       </span>
@@ -771,11 +752,11 @@ if (error || !surfSpotDetails) {
                 </div>
               )}
 
-            {foodNearby && foodTypes && foodTypes.length > 0 && (
+            {foodNearby && foodLabels.length > 0 && (
               <div className="amenities-section">
                 <h4>Food Options</h4>
                 <div className="amenities-list">
-                  {foodTypes.map((foodType: string) => (
+                  {foodLabels.map((foodType: string) => (
                     <span key={foodType} className="amenities-item">
                       {foodType}
                     </span>

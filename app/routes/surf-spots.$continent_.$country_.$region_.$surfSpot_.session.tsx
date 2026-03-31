@@ -13,8 +13,8 @@ import {
   get,
   getDisplayMessage,
 } from '~/services/networkService'
-import { handleSaveSessionFeedback } from '~/services/surfSpot.server'
 import { requireSessionCookie } from '~/services/session.server'
+import { handleSaveSessionFeedback } from '~/services/surfSpot.server'
 import { SurfSpot } from '~/types/surfSpots'
 import { Surfboard } from '~/types/surfboard'
 import { ActionData } from '~/types/api'
@@ -23,11 +23,13 @@ import {
   ERROR_BOUNDARY_GENERIC,
   ERROR_METHOD_NOT_ALLOWED,
   ERROR_SAVE_SESSION_FEEDBACK,
+  ERROR_SESSION_SKILL_LEVEL_REQUIRED,
 } from '~/utils/errorUtils'
 
 interface LoaderData {
   surfSpotDetails?: SurfSpot
   surfboards: Surfboard[]
+  requiresSkillLevel: boolean
   error?: string
 }
 
@@ -51,7 +53,7 @@ export const loader: LoaderFunction = async ({ request, params }) => {
 
   if (!surfSpotSlug) {
     return data<LoaderData>(
-      { error: 'Surf spot is required', surfboards: [] },
+      { error: 'Surf spot is required', surfboards: [], requiresSkillLevel: false },
       { status: 400 },
     )
   }
@@ -59,11 +61,9 @@ export const loader: LoaderFunction = async ({ request, params }) => {
   try {
     const queryParams = new URLSearchParams()
     queryParams.set('userId', user.id)
-    
     if (countrySlug) queryParams.set('countrySlug', countrySlug)
     if (regionSlug) queryParams.set('regionSlug', regionSlug)
-    
-      const queryString = queryParams.toString()
+    const queryString = queryParams.toString()
     const url = `surf-spots/${encodeURIComponent(surfSpotSlug)}?${queryString}`
 
     const cookie = request.headers.get('Cookie') || ''
@@ -73,7 +73,7 @@ export const loader: LoaderFunction = async ({ request, params }) => {
     ])
 
     return data<LoaderData>(
-      { surfSpotDetails, surfboards },
+      { surfSpotDetails, surfboards, requiresSkillLevel: !user.skillLevel },
       {
         headers: cacheControlHeader,
       },
@@ -83,6 +83,7 @@ export const loader: LoaderFunction = async ({ request, params }) => {
     return data<LoaderData>(
       {
         surfboards: [],
+        requiresSkillLevel: false,
         error: `We can't load this surf spot right now. Please try again later.`,
       },
       { status: 500 },
@@ -103,6 +104,22 @@ export const action: ActionFunction = async ({ request }) => {
   try {
     const user = await requireSessionCookie(request)
     const cookie = request.headers.get('Cookie') || ''
+    const submittedSkillLevel = formData.get('skillLevel')
+    const skillLevel =
+      user.skillLevel ??
+      (typeof submittedSkillLevel === 'string' ? submittedSkillLevel : undefined)
+
+    if (!skillLevel) {
+      return data<ActionData>(
+        {
+          submitStatus: ERROR_SESSION_SKILL_LEVEL_REQUIRED,
+          hasError: true,
+        },
+        { status: 400 },
+      )
+    }
+
+    formData.set('skillLevel', skillLevel)
     return await handleSaveSessionFeedback(formData, String(user.id), cookie)
   } catch (error) {
     console.error('Session log action failed', error)
@@ -118,7 +135,7 @@ export const action: ActionFunction = async ({ request }) => {
 }
 
 export default function SurfSpotSessionLogRoute() {
-  const { surfSpotDetails, surfboards, error } = useLoaderData<LoaderData>()
+  const { surfSpotDetails, surfboards, requiresSkillLevel, error } = useLoaderData<LoaderData>()
   const navigate = useNavigate()
   const location = useLocation()
   const fetcher = useFetcher<ActionData>()
@@ -147,6 +164,7 @@ export default function SurfSpotSessionLogRoute() {
           formActionPath={formActionPath}
           fetcher={fetcher}
           surfboards={surfboards}
+          requiresSkillLevel={requiresSkillLevel}
           onCancel={() => navigate(surfSpotDetails.path)}
         />
       </ErrorBoundary>

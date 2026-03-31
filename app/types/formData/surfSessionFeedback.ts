@@ -8,8 +8,7 @@ import {
   WaveQuality,
 } from '~/types/surfSpots'
 import { Surfboard } from '~/types/surfboard'
-
-const CHOOSE: Option = { key: '', value: '', label: 'Choose' }
+import { SELECT_OPTION } from './surfSpots'
 
 const optionsForEnum = <T extends string>(
   values: readonly T[],
@@ -21,23 +20,12 @@ const optionsForEnum = <T extends string>(
     label: labels[value],
   }))
 
-/** Select options for crowd level: session feedback form and surf spot form (same enum + labels). */
-export const buildCrowdLevelSelectOptions = (
-  placeholder: Option = CHOOSE,
-): Option[] => [
-  placeholder,
-  ...optionsForEnum(
-    Object.values(CrowdLevel) as CrowdLevel[],
-    CROWD_LEVEL_LABELS,
-  ),
-]
-
 export const SESSION_FEEDBACK_WAVE_SIZE_FIELD: FormField = {
   label: 'How big were the waves?',
   name: 'waveSize',
   type: 'select',
   options: [
-    CHOOSE,
+    SELECT_OPTION,
     ...optionsForEnum(
       Object.values(SurfSessionWaveSize) as SurfSessionWaveSize[],
       SURF_SESSION_WAVE_SIZE_LABELS,
@@ -49,7 +37,13 @@ export const SESSION_FEEDBACK_CROWD_LEVEL_FIELD: FormField = {
   label: 'How crowded was the lineup?',
   name: 'crowdLevel',
   type: 'select',
-  options: buildCrowdLevelSelectOptions(),
+  options: [
+    SELECT_OPTION,
+    ...optionsForEnum(
+      Object.values(CrowdLevel) as CrowdLevel[],
+      CROWD_LEVEL_LABELS,
+    ),
+  ],
 }
 
 export const SESSION_FEEDBACK_WAVE_QUALITY_FIELD: FormField = {
@@ -57,7 +51,7 @@ export const SESSION_FEEDBACK_WAVE_QUALITY_FIELD: FormField = {
   name: 'waveQuality',
   type: 'select',
   options: [
-    CHOOSE,
+    SELECT_OPTION,
     ...optionsForEnum(
       Object.values(WaveQuality) as WaveQuality[],
       SURF_SESSION_WAVE_QUALITY_LABELS,

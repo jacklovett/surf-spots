@@ -69,6 +69,11 @@ const detailsPagePathFromSurfSpot = (
   return path.trim()
 }
 
+const toUrlLinkItems = (urls?: string[]): UrlLinkItem[] =>
+  (urls ?? [])
+    .filter((url): url is string => typeof url === 'string' && url.trim() !== '')
+    .map((url) => ({ url: url.trim(), errorMessage: '' }))
+
 export const SurfSpotForm = (props: SurfSpotFormProps) => {
   const { actionType, onCancel } = props
 
@@ -163,12 +168,12 @@ export const SurfSpotForm = (props: SurfSpotFormProps) => {
     nearby: !!surfSpot?.accommodationNearby,
     options: determineInitialOptions(
       ACCOMMODATION_TYPES,
-      surfSpot?.accommodationTypes,
+      surfSpot?.accommodationOptions,
     ),
   })
   const [food, setFood] = useState<Availability>({
     nearby: !!surfSpot?.foodNearby,
-    options: determineInitialOptions(FOOD_OPTIONS, surfSpot?.foodTypes),
+    options: determineInitialOptions(FOOD_OPTIONS, surfSpot?.foodOptions),
   })
   const [facilities, setFacilities] = useState<Option[]>(
     determineInitialOptions(FACILITIES, surfSpot?.facilities),
@@ -232,8 +237,8 @@ export const SurfSpotForm = (props: SurfSpotFormProps) => {
         foodNearby: !!surfSpot?.foodNearby,
         skillLevel: surfSpot?.skillLevel || '',
         crowdLevel: surfSpot?.crowdLevel ?? '',
-        forecastLinks: (surfSpot?.forecasts as unknown as UrlLinkItem[]) || [],
-        webcamLinks: (surfSpot?.webcams as unknown as UrlLinkItem[]) || [],
+        forecastLinks: toUrlLinkItems(surfSpot?.forecasts),
+        webcamLinks: toUrlLinkItems(surfSpot?.webcams),
         wavepoolUrl: surfSpot?.wavepoolUrl || '',
       } as SurfSpotFormState,
       validationFunctions: {
@@ -408,7 +413,9 @@ export const SurfSpotForm = (props: SurfSpotFormProps) => {
     detailsPathFromSavedSpot ?? detailsPathFromLoaderSpot
 
   const showSuccessScreen = isAddMode
-    ? submitCompletedWithoutError && surfSpotFromActionResponse != null
+    ? submitCompletedWithoutError &&
+      surfSpotFromActionResponse != null &&
+      detailsPathFromSavedSpot != null
     : submitCompletedWithoutError && urlToOpenSurfSpotDetails != null
 
   const afterSuccessLabel = isAddMode ? 'Add another' : 'Back to spot details'

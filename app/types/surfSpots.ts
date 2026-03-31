@@ -194,7 +194,7 @@ export interface SwellSeason {
 }
 
 export interface NewSurfSpot extends Coordinates {
-  slug: string // URL slug for the surf spot - this needed for NewSurfSpotForm??
+  slug: string
   name: string
   description: string
   isPrivate: boolean
@@ -220,9 +220,9 @@ export interface NewSurfSpot extends Coordinates {
   isRiverWave: boolean
   parking: string
   foodNearby: boolean
-  foodTypes: string[]
+  foodOptions: string[]
   accommodationNearby: boolean
-  accommodationTypes: string[]
+  accommodationOptions: string[]
   facilities: string[]
   hazards: string[]
   forecasts: string[]

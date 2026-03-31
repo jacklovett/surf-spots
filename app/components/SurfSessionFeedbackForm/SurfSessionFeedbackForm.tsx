@@ -30,6 +30,7 @@ import {
   ERROR_SAVE_SESSION_FEEDBACK,
   getFetcherSubmitStatus,
 } from '~/utils/errorUtils'
+import { BASE_SKILL_LEVEL_OPTIONS, SELECT_OPTION } from '~/types/formData/surfSpots'
 
 const THANK_YOU_HEADLINE = 'Session saved.'
 const THANK_YOU_SUB =
@@ -44,6 +45,7 @@ interface SurfSessionFeedbackFormProps {
   formActionPath: string
   fetcher: ReturnType<typeof useFetcher<ActionData>>
   surfboards?: Surfboard[]
+  requiresSkillLevel?: boolean
   onCancel: () => void
 }
 
@@ -54,6 +56,7 @@ export const SurfSessionFeedbackForm = (props: SurfSessionFeedbackFormProps) => 
     formActionPath,
     fetcher,
     surfboards = [],
+    requiresSkillLevel = false,
     onCancel,
   } = props
   const [showThankYou, setShowThankYou] = useState(false)
@@ -63,6 +66,7 @@ export const SurfSessionFeedbackForm = (props: SurfSessionFeedbackFormProps) => 
   const [waveSize, setWaveSize] = useState('')
   const [crowdLevel, setCrowdLevel] = useState('')
   const [waveQuality, setWaveQuality] = useState('')
+  const [skillLevel, setSkillLevel] = useState('')
   const [wouldSurfAgain, setWouldSurfAgain] = useState(false)
   const [surfboardId, setSurfboardId] = useState('')
   const lastProcessedFetcherDataRef = useRef<typeof fetcher.data>(undefined)
@@ -80,18 +84,20 @@ export const SurfSessionFeedbackForm = (props: SurfSessionFeedbackFormProps) => 
 
   const isFormValid = useMemo(() => {
     return (
-      !!sessionDate.trim() &&
-      !!waveSize.trim() &&
-      !!crowdLevel.trim() &&
-      !!waveQuality.trim()
+      !!sessionDate &&
+      !!waveSize &&
+      !!crowdLevel &&
+      !!waveQuality &&
+      (!requiresSkillLevel || !!skillLevel)
     )
-  }, [sessionDate, waveSize, crowdLevel, waveQuality])
+  }, [sessionDate, waveSize, crowdLevel, waveQuality, requiresSkillLevel, skillLevel])
 
   const resetFields = useCallback(() => {
     setSessionDate(formatDateForInput(new Date()))
     setWaveSize('')
     setCrowdLevel('')
     setWaveQuality('')
+    setSkillLevel('')
     setWouldSurfAgain(false)
     setSurfboardId('')
   }, [])
@@ -150,6 +156,19 @@ export const SurfSessionFeedbackForm = (props: SurfSessionFeedbackFormProps) => 
             <input type="hidden" name="surfSpotId" value={surfSpotId} />
             <h1>Log Session at {surfSpotName}</h1>
             <div className="column gap">
+            {requiresSkillLevel && (
+              <FormInput
+                field={{
+                  label: 'Skill Level',
+                  name: 'skillLevel',
+                  type: 'select',
+                  options: [SELECT_OPTION, ...BASE_SKILL_LEVEL_OPTIONS],
+                }}
+                value={skillLevel}
+                onChange={(event) => setSkillLevel(valueFromSelectChange(event))}
+                showLabel
+              />
+            )}
             <DatePicker
               label="Session date"
               name="sessionDate"

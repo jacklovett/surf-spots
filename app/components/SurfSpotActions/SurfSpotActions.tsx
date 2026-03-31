@@ -21,6 +21,7 @@ import {
 } from '~/contexts'
 import { FetcherSubmitParams } from '~/types/api'
 import { InfoModal, InfoModalState } from '../Modal'
+import { ERROR_OPEN_SESSION_LOG } from '~/utils/errorUtils'
 
 interface IProps {
   surfSpot: SurfSpot
@@ -30,7 +31,7 @@ interface IProps {
   surfActionFetcher?: FetcherWithComponents<ActionData>
 }
 
-const SurfSpotActionsInner = (props: IProps) => {
+export const SurfSpotActions = memo((props: IProps) => {
     const {
       surfSpot,
       navigate,
@@ -49,7 +50,7 @@ const SurfSpotActionsInner = (props: IProps) => {
     const { updateSurfSpot } = useSurfSpotsContext()
     const { showSignUpPrompt } = useSignUpPromptContext()
     const { closeDrawer } = useLayoutContext()
-    const { showSuccess } = useToastContext()
+    const { showSuccess, showError } = useToastContext()
 
     const lastSurfActionDataRef = useRef(surfActionFetcher?.data)
 
@@ -162,10 +163,12 @@ const SurfSpotActionsInner = (props: IProps) => {
         showSignUpPrompt('surfed-spots')
         return
       }
-      const base = surfSpotState.path?.trim().replace(/\/+$/, '') ?? ''
+      const base = surfSpotState.path?.replace(/\/+$/, '') ?? ''
       if (base) {
         navigate(`${base}/session`)
         closeDrawer()
+      } else {
+        showError(ERROR_OPEN_SESSION_LOG)
       }
     }
 
@@ -229,8 +232,6 @@ const SurfSpotActionsInner = (props: IProps) => {
         </div>
       </>
     )
-}
-
-export const SurfSpotActions = memo(SurfSpotActionsInner)
+})
 
 SurfSpotActions.displayName = 'SurfSpotActions'

@@ -1,14 +1,39 @@
 import { Option } from '~/components/FormInput'
-import { buildCrowdLevelSelectOptions } from './surfSessionFeedback'
 import {
   BeachBottomType,
+  CrowdLevel,
+  CROWD_LEVEL_LABELS,
   SkillLevel,
   SurfSpotType,
   Tide,
   WaveDirection,
 } from '../surfSpots'
 
-const SELECT_OPTION: Option = { key: '', value: '', label: 'Select an option' }
+export const SELECT_OPTION: Option = {
+  key: '',
+  value: '',
+  label: 'Select an option',
+}
+
+const optionsForEnum = <T extends string>(
+  values: readonly T[],
+  labels: Record<T, string>,
+): Option[] =>
+  values.map((value) => ({
+    key: value,
+    value,
+    label: labels[value],
+  }))
+
+export const buildCrowdLevelSelectOptions = (
+  placeholder: Option = SELECT_OPTION,
+): Option[] => [
+  placeholder,
+  ...optionsForEnum(
+    Object.values(CrowdLevel) as CrowdLevel[],
+    CROWD_LEVEL_LABELS,
+  ),
+]
 
 export const MONTH_LIST: Option[] = [
   SELECT_OPTION,

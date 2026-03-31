@@ -5,7 +5,7 @@ import { SurfSpot } from '~/types/surfSpots'
 
 import Details from '../Details'
 import Chip from '../Chip'
-import { useLayoutContext, useSettingsContext } from '~/contexts'
+import { useLayoutContext, useSettingsContext, useToastContext } from '~/contexts'
 import { FetcherSubmitParams } from '~/types/api'
 import {
   DirectionIcon,
@@ -14,6 +14,7 @@ import {
   CalendarIcon,
 } from '../ConditionIcons'
 import { formatSurfHeightRange, formatSeason, getNoveltyWaveLabel } from '~/utils/surfSpotUtils'
+import { ERROR_OPEN_SURF_SPOT } from '~/utils/errorUtils'
 
 interface IProps {
   surfSpot: SurfSpot
@@ -45,6 +46,7 @@ export const SurfSpotPreview = memo((props: IProps) => {
   const noveltyLabel = getNoveltyWaveLabel({ isWavepool, isRiverWave })
   const { closeDrawer } = useLayoutContext()
   const { settings } = useSettingsContext()
+  const { showError } = useToastContext()
   const { preferredUnits } = settings
 
   return (
@@ -117,6 +119,10 @@ export const SurfSpotPreview = memo((props: IProps) => {
         <a
           className="surf-spot-preview-link"
           onClick={() => {
+            if (!path || path.trim() === '') {
+              showError(ERROR_OPEN_SURF_SPOT)
+              return
+            }
             navigate(path)
             closeDrawer()
           }}

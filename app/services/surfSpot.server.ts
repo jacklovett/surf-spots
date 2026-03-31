@@ -75,7 +75,7 @@ export const handleSaveSessionFeedback = async (
 ): Promise<ReturnType<typeof data>> => {
   const surfSpotIdRaw = formData.get('surfSpotId') as string
   const surfSpotId = Number(surfSpotIdRaw)
-  if (!surfSpotIdRaw?.trim() || Number.isNaN(surfSpotId)) {
+  if (surfSpotIdRaw == null || surfSpotIdRaw === '' || Number.isNaN(surfSpotId)) {
     return data<ActionData>(
       {
         success: false,
@@ -86,11 +86,12 @@ export const handleSaveSessionFeedback = async (
     )
   }
 
-  const sessionDate = (formData.get('sessionDate') as string)?.trim() || ''
-  const waveSize = (formData.get('waveSize') as string)?.trim() || ''
-  const crowdLevel = (formData.get('crowdLevel') as string)?.trim() || ''
-  const waveQuality = (formData.get('waveQuality') as string)?.trim() || ''
-  const surfboardIdRaw = (formData.get('surfboardId') as string)?.trim() || ''
+  const sessionDate = (formData.get('sessionDate') as string) || ''
+  const waveSize = (formData.get('waveSize') as string) || ''
+  const crowdLevel = (formData.get('crowdLevel') as string) || ''
+  const waveQuality = (formData.get('waveQuality') as string) || ''
+  const skillLevel = formData.get('skillLevel')
+  const surfboardIdRaw = (formData.get('surfboardId') as string) || ''
   const wouldSurfAgain = formData.get('wouldSurfAgain') === 'on'
 
   if (
@@ -118,6 +119,7 @@ export const handleSaveSessionFeedback = async (
       crowdLevel,
       waveQuality,
       wouldSurfAgain,
+      skillLevel,
     }
     if (surfboardIdRaw) {
       payload.surfboardId = surfboardIdRaw

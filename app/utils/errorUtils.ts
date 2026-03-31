@@ -62,6 +62,9 @@ export const ERROR_LOGIN_REQUIRED_ADD_SURFBOARD =
 export const ERROR_SAVE_NOTE = 'Failed to save note. Please try again.'
 export const ERROR_SAVE_SESSION_FEEDBACK =
   'Could not save session feedback. Please try again.'
+/** Session log: user has no profile skill and did not choose one on the form. */
+export const ERROR_SESSION_SKILL_LEVEL_REQUIRED =
+  'Select your skill level before saving this session.'
 export const SUCCESS_SESSION_FEEDBACK_SAVED =
   'Thanks for sharing your session feedback.'
 export const ERROR_LOAD_REGION_DATA = 'Failed to load region data. Please try again later.'
@@ -140,6 +143,10 @@ export const ERROR_TRIP_AND_TRIP_SPOT_IDS_REQUIRED =
 export const ERROR_MISSING_REQUIRED_FIELDS = 'Missing required fields'
 export const ERROR_INVALID_TRIP_ACTION = 'Invalid trip action'
 export const ERROR_INVALID_SURF_SPOT_ID = 'Invalid surf spot ID'
+export const ERROR_OPEN_SURF_SPOT =
+  'Unable to open this surf spot right now. Please try again.'
+export const ERROR_OPEN_SESSION_LOG =
+  'Unable to open session log for this surf spot right now. Please try again.'
 
 /**
  * Status code for `data(..., { status })` in an action `catch` after `post`/`patch` throws
