@@ -1,0 +1,24 @@
+.session-feedback-page {
+  .session-feedback-thank-you {
+    @extend %flex-column;
+    text-align: center;
+    gap: $spacing-unit;
+    padding: $spacing-unit 0;
+  }
+
+  .session-feedback-thank-you-icon {
+    color: $success;
+
+    svg {
+      transform: scale(2);
+    }
+  }
+
+  .session-feedback-thank-you-sub {
+    color: $text-secondary;
+  }
+
+  .session-feedback-thank-you-actions {
+    margin-top: $spacing-small;
+  }
+}

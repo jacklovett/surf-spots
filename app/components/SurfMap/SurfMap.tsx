@@ -24,7 +24,6 @@ import { useSurfSpotsContext, useUserContext } from '~/contexts'
 import { useMapDrawer, useResizeObserver } from '~/hooks'
 import { debounce } from '~/utils/commonUtils'
 import { ActionData, FetcherSubmitParams } from '~/types/api'
-import { Surfboard } from '~/types/surfboard'
 import { ERROR_LOAD_MAP_SPOTS } from '~/utils/errorUtils'
 import { Button, ContentStatus } from '~/components'
 
@@ -33,7 +32,6 @@ interface IProps {
   disableInteractions?: boolean
   onFetcherSubmit?: (params: FetcherSubmitParams) => void
   surfActionFetcher?: FetcherWithComponents<ActionData>
-  surfboards?: Surfboard[]
 }
 
 export const SurfMap = memo((props: IProps) => {
@@ -42,7 +40,6 @@ export const SurfMap = memo((props: IProps) => {
     disableInteractions,
     onFetcherSubmit,
     surfActionFetcher,
-    surfboards,
   } = props
   const [loading, setLoading] = useState(true)
   const [loadError, setLoadError] = useState<string | null>(null)
@@ -79,7 +76,6 @@ export const SurfMap = memo((props: IProps) => {
   const { handleMarkerClick } = useMapDrawer(
     onFetcherSubmit,
     surfActionFetcher,
-    surfboards,
   )
 
   // Debounced fetch for dynamic mode; setError allows showing timeout/network errors in map area

@@ -116,6 +116,7 @@ export const FormComponent = (props: IProps) => {
         {onCancel && (
           <div className="mt">
             <Button
+              type="button"
               label={cancelLabel ?? 'Cancel'}
               onClick={() => onCancel()}
               variant="cancel"

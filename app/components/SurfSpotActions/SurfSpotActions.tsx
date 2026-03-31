@@ -5,15 +5,13 @@ import {
   useEffect,
   useRef,
 } from 'react'
-import { useFetcher, useLocation, FetcherWithComponents } from 'react-router'
+import { FetcherWithComponents } from 'react-router'
 
 import { SurfSpot } from '~/types/surfSpots'
 import { User } from '~/types/user'
-import { Surfboard } from '~/types/surfboard'
 import { ActionData } from '~/types/api'
 import DropdownMenu from '../DropdownMenu'
 import TripSelectionModal from '../TripSelectionModal'
-import SurfSessionFeedbackModal from '../SurfSessionFeedbackModal'
 
 import {
   useSurfSpotsContext,
@@ -23,19 +21,12 @@ import {
 } from '~/contexts'
 import { FetcherSubmitParams } from '~/types/api'
 import { InfoModal, InfoModalState } from '../Modal'
-import {
-  ERROR_SAVE_SESSION_FEEDBACK,
-  getSafeFetcherErrorMessage,
-} from '~/utils/errorUtils'
-import { resolveSurfSpotActionUrl } from '~/utils/surfSpotUtils'
 
 interface IProps {
   surfSpot: SurfSpot
   navigate: (path: string) => void
   user: User | null
   onFetcherSubmit?: (params: FetcherSubmitParams) => void
-  /** User quiver for optional board field in session log */
-  surfboards?: Surfboard[]
   surfActionFetcher?: FetcherWithComponents<ActionData>
 }
 
@@ -45,28 +36,22 @@ const SurfSpotActionsInner = (props: IProps) => {
       navigate,
       user,
       onFetcherSubmit,
-      surfboards = [],
       surfActionFetcher,
     } = props
 
     const [surfSpotState, setSurfSpotState] = useState<SurfSpot>(surfSpot)
     const [tripSelectionModalOpen, setTripSelectionModalOpen] = useState(false)
-    const [sessionFeedbackOpen, setSessionFeedbackOpen] = useState(false)
     const [infoModal, setInfoModal] = useState<InfoModalState>({
       isOpen: false,
       message: '',
     })
 
-    const location = useLocation()
-    const sessionFeedbackFetcher = useFetcher<ActionData>()
     const { updateSurfSpot } = useSurfSpotsContext()
     const { showSignUpPrompt } = useSignUpPromptContext()
     const { closeDrawer } = useLayoutContext()
-    const { showSuccess, showError } = useToastContext()
+    const { showSuccess } = useToastContext()
 
-    const pendingOptimisticSurfedRef = useRef(false)
     const lastSurfActionDataRef = useRef(surfActionFetcher?.data)
-    const lastSessionFeedbackDataRef = useRef(sessionFeedbackFetcher.data)
 
     const { id: surfSpotId, isSurfedSpot, isWatched, createdBy } = surfSpotState
 
@@ -84,39 +69,11 @@ const SurfSpotActionsInner = (props: IProps) => {
         surfActionFetcher.data !== lastSurfActionDataRef.current
       ) {
         lastSurfActionDataRef.current = surfActionFetcher.data
-        const responseData = surfActionFetcher.data as ActionData
-        const hadError = !!(
-          responseData.error ||
-          (responseData.hasError && responseData.submitStatus)
-        )
-        if (pendingOptimisticSurfedRef.current) {
-          if (hadError) {
-            setSessionFeedbackOpen(false)
-          }
-          pendingOptimisticSurfedRef.current = false
-        }
       }
       if (surfActionFetcher.state === 'submitting') {
         lastSurfActionDataRef.current = undefined
       }
     }, [surfActionFetcher])
-
-    useEffect(() => {
-      if (
-        sessionFeedbackFetcher.state === 'idle' &&
-        sessionFeedbackFetcher.data &&
-        sessionFeedbackFetcher.data !== lastSessionFeedbackDataRef.current
-      ) {
-        lastSessionFeedbackDataRef.current = sessionFeedbackFetcher.data
-        const responseData = sessionFeedbackFetcher.data
-        if (responseData.error || (responseData.hasError && responseData.submitStatus)) {
-          showError(getSafeFetcherErrorMessage(responseData, ERROR_SAVE_SESSION_FEEDBACK))
-        }
-      }
-      if (sessionFeedbackFetcher.state === 'submitting') {
-        lastSessionFeedbackDataRef.current = undefined
-      }
-    }, [sessionFeedbackFetcher.data, sessionFeedbackFetcher.state, showError])
 
     const closeTripModal = useCallback(() => setTripSelectionModalOpen(false), [])
     const closeInfoModal = useCallback(
@@ -172,16 +129,13 @@ const SurfSpotActionsInner = (props: IProps) => {
         if (onFetcherSubmit) {
           try {
             if (actionType === 'add' && target === 'user-spots') {
-              pendingOptimisticSurfedRef.current = true
               const spotLabel = surfSpot.name?.trim() || 'Surf spot'
               showSuccess(`Added to your surfed spots. ${spotLabel} is on your list.`)
-              setSessionFeedbackOpen(true)
             }
             const formData = new FormData()
             formData.append('actionType', actionType)
             formData.append('target', target)
             formData.append('surfSpotId', surfSpotId)
-            formData.append('surfSpotName', surfSpot.name ?? '')
             onFetcherSubmit(formData)
           } catch (submitError) {
             console.error('Error submitting fetcher:', submitError)
@@ -208,7 +162,11 @@ const SurfSpotActionsInner = (props: IProps) => {
         showSignUpPrompt('surfed-spots')
         return
       }
-      setSessionFeedbackOpen(true)
+      const base = surfSpotState.path?.trim().replace(/\/+$/, '') ?? ''
+      if (base) {
+        navigate(`${base}/session`)
+        closeDrawer()
+      }
     }
 
     const menuItems = [
@@ -269,15 +227,6 @@ const SurfSpotActionsInner = (props: IProps) => {
             message={infoModal.message}
           />
         </div>
-        <SurfSessionFeedbackModal
-          isOpen={sessionFeedbackOpen}
-          onClose={() => setSessionFeedbackOpen(false)}
-          surfSpotId={surfSpotState.id}
-          surfSpotName={surfSpotState.name ?? ''}
-          actionPath={resolveSurfSpotActionUrl(location.pathname)}
-          fetcher={sessionFeedbackFetcher}
-          surfboards={surfboards}
-        />
       </>
     )
 }

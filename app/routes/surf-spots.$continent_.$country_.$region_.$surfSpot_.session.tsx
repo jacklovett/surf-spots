@@ -1,0 +1,155 @@
+import {
+  ActionFunction,
+  data,
+  LoaderFunction,
+  useFetcher,
+  useLoaderData,
+  useLocation,
+  useNavigate,
+} from 'react-router'
+
+import {
+  cacheControlHeader,
+  get,
+  getDisplayMessage,
+} from '~/services/networkService'
+import { handleSaveSessionFeedback } from '~/services/surfSpot.server'
+import { requireSessionCookie } from '~/services/session.server'
+import { SurfSpot } from '~/types/surfSpots'
+import { Surfboard } from '~/types/surfboard'
+import { ActionData } from '~/types/api'
+import { ErrorBoundary, SurfSessionFeedbackForm } from '~/components'
+import {
+  ERROR_BOUNDARY_GENERIC,
+  ERROR_METHOD_NOT_ALLOWED,
+  ERROR_SAVE_SESSION_FEEDBACK,
+} from '~/utils/errorUtils'
+
+interface LoaderData {
+  surfSpotDetails?: SurfSpot
+  surfboards: Surfboard[]
+  error?: string
+}
+
+const loadSurfboardsForUser = async (
+  userId: string,
+  cookie: string,
+): Promise<Surfboard[]> => {
+  try {
+    return await get<Surfboard[]>(`surfboards?userId=${userId}`, {
+      headers: { Cookie: cookie },
+    })
+  } catch {
+    return []
+  }
+}
+
+export const loader: LoaderFunction = async ({ request, params }) => {
+  const user = await requireSessionCookie(request)
+  const { surfSpot: surfSpotSlug, country: countrySlug, region: regionSlug } =
+    params
+
+  if (!surfSpotSlug) {
+    return data<LoaderData>(
+      { error: 'Surf spot is required', surfboards: [] },
+      { status: 400 },
+    )
+  }
+
+  try {
+    const queryParams = new URLSearchParams()
+    queryParams.set('userId', user.id)
+    
+    if (countrySlug) queryParams.set('countrySlug', countrySlug)
+    if (regionSlug) queryParams.set('regionSlug', regionSlug)
+    
+      const queryString = queryParams.toString()
+    const url = `surf-spots/${encodeURIComponent(surfSpotSlug)}?${queryString}`
+
+    const cookie = request.headers.get('Cookie') || ''
+    const [surfSpotDetails, surfboards] = await Promise.all([
+      get<SurfSpot>(url, { headers: { Cookie: cookie } }),
+      loadSurfboardsForUser(user.id, cookie),
+    ])
+
+    return data<LoaderData>(
+      { surfSpotDetails, surfboards },
+      {
+        headers: cacheControlHeader,
+      },
+    )
+  } catch (error) {
+    console.error('Session log page: failed to load surf spot', error)
+    return data<LoaderData>(
+      {
+        surfboards: [],
+        error: `We can't load this surf spot right now. Please try again later.`,
+      },
+      { status: 500 },
+    )
+  }
+}
+
+export const action: ActionFunction = async ({ request }) => {
+  const formData = await request.formData()
+
+  const intent = formData.get('intent') as string
+  if (intent !== 'saveSessionFeedback') {
+    return data<ActionData>(
+      { submitStatus: ERROR_METHOD_NOT_ALLOWED, hasError: true },
+      { status: 400 },
+    )
+  }
+  try {
+    const user = await requireSessionCookie(request)
+    const cookie = request.headers.get('Cookie') || ''
+    return await handleSaveSessionFeedback(formData, String(user.id), cookie)
+  } catch (error) {
+    console.error('Session log action failed', error)
+    if (error instanceof Response) return error
+    return data<ActionData>(
+      {
+        submitStatus: getDisplayMessage(error, ERROR_SAVE_SESSION_FEEDBACK),
+        hasError: true,
+      },
+      { status: 500 },
+    )
+  }
+}
+
+export default function SurfSpotSessionLogRoute() {
+  const { surfSpotDetails, surfboards, error } = useLoaderData<LoaderData>()
+  const navigate = useNavigate()
+  const location = useLocation()
+  const fetcher = useFetcher<ActionData>()
+
+  const formActionPath = location.pathname
+
+  if (error || surfSpotDetails == null || surfSpotDetails.id == null) {
+    return (
+      <div className="mb-l">
+        <ErrorBoundary message={ERROR_BOUNDARY_GENERIC}>
+          <p className="ph">
+            {error ||
+              'We could not open session feedback for this spot. Try again from the surf spot page.'}
+          </p>
+        </ErrorBoundary>
+      </div>
+    )
+  }
+
+  return (
+    <div className="mb-l">
+      <ErrorBoundary message={ERROR_BOUNDARY_GENERIC}>
+        <SurfSessionFeedbackForm
+          surfSpotId={String(surfSpotDetails.id)}
+          surfSpotName={surfSpotDetails.name ?? ''}
+          formActionPath={formActionPath}
+          fetcher={fetcher}
+          surfboards={surfboards}
+          onCancel={() => navigate(surfSpotDetails.path)}
+        />
+      </ErrorBoundary>
+    </div>
+  )
+}

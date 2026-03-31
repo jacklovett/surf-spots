@@ -56,13 +56,18 @@ interface SurfSpotFormProps {
   onCancel?: () => void
 }
 
-/** Uses `path` as returned by the API (normalization is server-side). */
-const pathFromSurfSpot = (spot: SurfSpot | null): string | null =>
-  spot != null &&
-  typeof spot.path === 'string' &&
-  spot.path !== ''
-    ? spot.path
-    : null
+/**
+ * Returns the app route for surf spot details (`surfSpot.path` from the API).
+ * Used for "View spot" after save; null if the API did not send a path.
+ */
+const detailsPagePathFromSurfSpot = (
+  surfSpot: SurfSpot | null,
+): string | null => {
+  if (surfSpot == null) return null
+  const path = surfSpot.path
+  if (typeof path !== 'string' || path.trim() === '') return null
+  return path.trim()
+}
 
 export const SurfSpotForm = (props: SurfSpotFormProps) => {
   const { actionType, onCancel } = props
@@ -228,10 +233,7 @@ export const SurfSpotForm = (props: SurfSpotFormProps) => {
         skillLevel: surfSpot?.skillLevel || '',
         crowdLevel: surfSpot?.crowdLevel ?? '',
         forecastLinks: (surfSpot?.forecasts as unknown as UrlLinkItem[]) || [],
-        webcamLinks: (surfSpot?.webcams ?? []).map((url) => ({
-          url,
-          errorMessage: '',
-        })),
+        webcamLinks: (surfSpot?.webcams as unknown as UrlLinkItem[]) || [],
         wavepoolUrl: surfSpot?.wavepoolUrl || '',
       } as SurfSpotFormState,
       validationFunctions: {
@@ -338,8 +340,8 @@ export const SurfSpotForm = (props: SurfSpotFormProps) => {
   })
 
   const handleFormSubmit = useCallback(
-    (e: FormEvent<HTMLFormElement>) => {
-      e.preventDefault()
+    (event: FormEvent<HTMLFormElement>) => {
+      event.preventDefault()
       if (
         !isPublicListingComplete({
           isPrivateSpot,
@@ -390,27 +392,37 @@ export const SurfSpotForm = (props: SurfSpotFormProps) => {
   )
 
   const navigate = useNavigate()
-  const surfSpotFromAction: SurfSpot | null = fetcher.data?.surfSpot ?? null
+  const surfSpotFromActionResponse: SurfSpot | null =
+    fetcher.data?.surfSpot ?? null
 
-  const surfSpotPathFromAction = pathFromSurfSpot(surfSpotFromAction)
-  const isSubmitOk =
+  const submitCompletedWithoutError =
     fetcher.data != null && fetcher.data.hasError !== true
-  const resolvedViewPath =
-    surfSpotPathFromAction ?? pathFromSurfSpot(surfSpot ?? null)
-  const isSubmitSuccess =
-    isSubmitOk &&
-    (isAddMode ? !!surfSpotPathFromAction : !!resolvedViewPath)
+
+  const detailsPathFromSavedSpot = detailsPagePathFromSurfSpot(
+    surfSpotFromActionResponse,
+  )
+  const detailsPathFromLoaderSpot = detailsPagePathFromSurfSpot(
+    surfSpot ?? null,
+  )
+  const urlToOpenSurfSpotDetails =
+    detailsPathFromSavedSpot ?? detailsPathFromLoaderSpot
+
+  const showSuccessScreen = isAddMode
+    ? submitCompletedWithoutError && surfSpotFromActionResponse != null
+    : submitCompletedWithoutError && urlToOpenSurfSpotDetails != null
 
   const afterSuccessLabel = isAddMode ? 'Add another' : 'Back to spot details'
-  const afterSuccessPath = isAddMode ? '/add-surf-spot' : resolvedViewPath
+  const afterSuccessPath = isAddMode
+    ? '/add-surf-spot'
+    : urlToOpenSurfSpotDetails
 
   return (
     <div
       className={`info-page-content mv map-content ${
-        isSubmitSuccess ? 'surf-spot-form-success-page' : ''
+        showSuccessScreen ? 'surf-spot-form-success-page' : ''
       }`}
     >
-      {!isSubmitSuccess && currentStep > 0 && (
+      {!showSuccessScreen && currentStep > 0 && (
         <div className="back-nav">
           <Button
             type="button"
@@ -426,12 +438,12 @@ export const SurfSpotForm = (props: SurfSpotFormProps) => {
       <WizardStepper
         steps={wizardSteps}
         currentStep={
-          isSubmitSuccess ? wizardSteps.length - 1 : currentStep
+          showSuccessScreen ? wizardSteps.length - 1 : currentStep
         }
-        isComplete={isSubmitSuccess}
+        isComplete={showSuccessScreen}
       />
 
-      {isSubmitSuccess ? (
+      {showSuccessScreen ? (
         <div className="surf-spot-form-success-wrapper">
           <div className="surf-spot-form-success column">
             <div className="ph center column">
@@ -447,7 +459,11 @@ export const SurfSpotForm = (props: SurfSpotFormProps) => {
               <div className="surf-spot-form-success-actions">
                 <Button
                   label={isAddMode ? 'View surf spot' : 'View spot'}
-                  onClick={() => navigate(resolvedViewPath!)}
+                  onClick={() => {
+                    if (urlToOpenSurfSpotDetails) {
+                      navigate(urlToOpenSurfSpotDetails)
+                    }
+                  }}
                 />
                 {isAddMode && (
                   <Button
@@ -481,7 +497,7 @@ export const SurfSpotForm = (props: SurfSpotFormProps) => {
             type: 'text',
           }}
           value={formState.name}
-          onChange={(e) => handleChange('name', e.target.value)}
+          onChange={(event) => handleChange('name', event.target.value)}
           errorMessage={errors.name || ''}
           showLabel={!!formState.name}
           required
@@ -492,7 +508,9 @@ export const SurfSpotForm = (props: SurfSpotFormProps) => {
             name: 'description',
             type: 'textarea',
           }}
-          onChange={(e) => handleChange('description', e.target.value)}
+          onChange={(event) =>
+            handleChange('description', event.target.value)
+          }
           value={formState.description}
           errorMessage={errors.description || ''}
           showLabel={!!formState.description}
@@ -576,8 +594,8 @@ export const SurfSpotForm = (props: SurfSpotFormProps) => {
                 type: 'text',
               }}
               value={wavepoolUrl || ''}
-              onChange={(e) => {
-                const value = e.target.value
+              onChange={(event) => {
+                const value = event.target.value
                 setWavepoolUrl(value)
                 handleChange('wavepoolUrl', value)
               }}

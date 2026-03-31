@@ -1,7 +1,6 @@
 import {
   messageForDisplay,
   DEFAULT_ERROR_MESSAGE,
-  ERROR_CHECK_INPUT,
   ERROR_REQUEST_TIMEOUT,
 } from '~/utils/errorUtils'
 
@@ -47,7 +46,7 @@ export const isNetworkError = (err: unknown): err is NetworkError => {
  * input for 4xx, our problem for 5xx/network).
  *
  * Validation and bad input should come back as 4xx from the API; those hit the
- * 4xx branch below (API message or ERROR_CHECK_INPUT). The 5xx branch is only
+ * 4xx branch below (API message or the caller's fallback). The 5xx branch is only
  * for real server errors: then messageForDisplay uses the caller's fallback
  * (e.g. ERROR_ADD_SURF_SPOT) when the API body is not safe to show.
  */
@@ -64,7 +63,7 @@ export function getDisplayMessage(
       if (status >= 500) return messageForDisplay(error.message, fallback)
       // For 4xx, use API message when present (e.g. validation "Name is required"), else generic
       if (status >= 400 && status < 500) {
-        return messageForDisplay(error.message, ERROR_CHECK_INPUT)
+        return messageForDisplay(error.message, fallback)
       }
     }
     return messageForDisplay(error.message, fallback)
@@ -73,12 +72,35 @@ export function getDisplayMessage(
   return messageForDisplay(msg, fallback)
 }
 
+/** Spring puts the HTTP reason phrase in `error` (e.g. "Not Found"); prefer `message` for the real reason. */
+const GENERIC_HTTP_REASON_PHRASES = new Set([
+  'bad request',
+  'unauthorized',
+  'forbidden',
+  'not found',
+  'method not allowed',
+  'not acceptable',
+  'conflict',
+  'gone',
+  'unsupported media type',
+  'unprocessable entity',
+  'internal server error',
+  'bad gateway',
+  'service unavailable',
+  'gateway timeout',
+])
+
 const getMessageFromBody = (data: unknown): string | undefined => {
   if (data == null || typeof data !== 'object') return undefined
   const o = data as Record<string, unknown>
   for (const key of ['message', 'error', 'errorMessage']) {
     const val = o[key]
-    if (typeof val === 'string' && val.trim()) return val.trim()
+    if (typeof val !== 'string' || !val.trim()) continue
+    const trimmed = val.trim()
+    if (key === 'error' && GENERIC_HTTP_REASON_PHRASES.has(trimmed.toLowerCase())) {
+      continue
+    }
+    return trimmed
   }
   return undefined
 }
@@ -121,7 +143,10 @@ const handleResponse = async <T>(response: Response): Promise<T> => {
       }
     }
     const bodyMessage = getMessageFromBody(data)
-    const errorMessage = messageForDisplay(bodyMessage, DEFAULT_ERROR_MESSAGE)
+    const errorMessage =
+      bodyMessage != null && bodyMessage !== ''
+        ? messageForDisplay(bodyMessage, DEFAULT_ERROR_MESSAGE)
+        : ''
     const contentTypeHeader = response.headers.get('content-type') ?? 'none'
     const reason =
       bodyMessage

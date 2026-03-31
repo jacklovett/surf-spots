@@ -194,6 +194,7 @@ export interface SwellSeason {
 }
 
 export interface NewSurfSpot extends Coordinates {
+  slug: string // URL slug for the surf spot - this needed for NewSurfSpotForm??
   name: string
   description: string
   isPrivate: boolean

@@ -60,7 +60,7 @@ import SurfboardSelectionModal from './SurfboardSelectionModal'
 import TripSelectionModal from './TripSelectionModal'
 import SelectionModal from './SelectionModal'
 import SafeLink from './SafeLink'
-import SurfSessionFeedbackModal from './SurfSessionFeedbackModal'
+import SurfSessionFeedbackForm from './SurfSessionFeedbackForm'
 
 export {
   AuthPage,
@@ -111,7 +111,7 @@ export {
   SurfSpotForm,
   SurfboardForm,
   SurfSpotNoteForm,
-  SurfSessionFeedbackModal,
+  SurfSessionFeedbackForm,
   SurfSpotPreview,
   SurfSpotList,
   TextButton,

@@ -29,10 +29,7 @@ import { BreadcrumbItem } from '~/components/Breadcrumb'
 import { getAppliedFiltersCount } from '~/components/Filters'
 import { resolveSurfSpotActionUrl } from '~/utils/surfSpotUtils'
 
-import { get } from '~/services/networkService'
-import { getSession } from '~/services/session.server'
 import { surfSpotAction } from '~/services/surfSpot.server'
-import { Surfboard } from '~/types/surfboard'
 import {
   useLayoutContext,
   useSurfSpotsContext,
@@ -42,7 +39,6 @@ import { useSurfSpotActions } from '~/hooks'
 
 interface LoaderData {
   isMapView: boolean
-  surfboards: Surfboard[]
 }
 
 const checkIsMapView = (pathname: string) =>
@@ -50,24 +46,8 @@ const checkIsMapView = (pathname: string) =>
 
 export const loader: LoaderFunction = async ({ request }) => {
   const { pathname } = new URL(request.url)
-  
-  const cookie = request.headers.get('Cookie') ?? ''
-  const session = await getSession(cookie)
-  const user = session.get('user') as { id?: string } | undefined
-  
-  let surfboards: Surfboard[] = []
-  if (user?.id) {
-    try {
-      surfboards = await get<Surfboard[]>(`surfboards?userId=${user.id}`, {
-        headers: { Cookie: cookie },
-      })
-    } catch {
-      surfboards = []
-    }
-  }
   return {
     isMapView: checkIsMapView(pathname),
-    surfboards,
   }
 }
 
@@ -89,7 +69,7 @@ export default function SurfSpots() {
     resolveSurfSpotActionUrl(pathname),
   )
 
-  const { isMapView: initialMapView, surfboards } = useLoaderData<LoaderData>()
+  const { isMapView: initialMapView } = useLoaderData<LoaderData>()
 
   const [isMapView, setIsMapView] = useState(initialMapView)
   const handleToggleView = () =>
@@ -192,7 +172,6 @@ export default function SurfSpots() {
                 <SurfMap
                   onFetcherSubmit={onFetcherSubmit}
                   surfActionFetcher={fetcher}
-                  surfboards={surfboards}
                 />
               </ErrorBoundary>
             </div>

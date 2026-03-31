@@ -10,7 +10,6 @@ import {
 } from 'react-router'
 
 import { cacheControlHeader, get, post, deleteData } from '~/services/networkService'
-import { handleSaveSessionFeedback } from '~/services/surfSpot.server'
 import { requireSessionCookie, getSession, commitSession } from '~/services/session.server'
 import {
   SurfSpot,
@@ -186,7 +185,6 @@ const handleSurfSpotAction = async (
   surfSpotId: string,
   userId: string,
   cookie: string,
-  surfSpotNameForFeedback: string,
 ): Promise<ReturnType<typeof data>> => {
   const surfSpotIdNumber = Number(surfSpotId)
   if (isNaN(surfSpotIdNumber)) {
@@ -217,9 +215,6 @@ const handleSurfSpotAction = async (
     {
       success: true,
       surfSpotAction: { actionType, target },
-      addedToSurfedSpots: actionType === 'add' && target === 'user-spots',
-      surfSpotIdForFeedback: surfSpotId,
-      surfSpotNameForFeedback: surfSpotNameForFeedback.trim() || undefined,
     },
     { headers: { 'Set-Cookie': await commitSession(session) } },
   )
@@ -242,10 +237,6 @@ export const action: ActionFunction = async ({ request }) => {
       return await handleSaveNote(formData, userId, cookie)
     }
 
-    if (intent === 'saveSessionFeedback') {
-      return await handleSaveSessionFeedback(formData, userId, cookie)
-    }
-
     // Handle trip actions
     if (intent === 'add-spot' || intent === 'remove-spot') {
       return await handleTripAction(intent, formData, userId, cookie)
@@ -259,14 +250,12 @@ export const action: ActionFunction = async ({ request }) => {
       )
     }
 
-    const surfSpotName = (formData.get('surfSpotName') as string) || ''
     return await handleSurfSpotAction(
       actionType,
       target,
       surfSpotId,
       userId,
       cookie,
-      surfSpotName,
     )
   } catch (error) {
     console.error('Error in action:', error)
@@ -593,7 +582,6 @@ if (error || !surfSpotDetails) {
                 user={user}
                 onFetcherSubmit={onFetcherSubmit}
                 surfActionFetcher={fetcher}
-                surfboards={surfboards}
               />
             </ErrorBoundary>
           </div>

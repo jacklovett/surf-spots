@@ -2,16 +2,16 @@ import { test, expect } from '@playwright/test'
 import { login } from './utils/auth-helper'
 
 /**
- * Session log modal after "Add to surfed spots": session date (defaults to today via date picker),
- * wave size, crowd, quality, return intent.
- * Requires VITE_API_URL and a running API that accepts POST /surf-sessions with structured session fields.
+ * Session log at `{SurfSpot.path}/session` (e.g. `/surf-spots/.../slug/session`, or with
+ * `.../sub-regions/.../slug/session`). Open from spot actions, fill fields, thank-you state.
+ * Requires VITE_API_URL and a running API that accepts POST /surf-sessions with structured fields.
  */
-test.describe('Session log after add to surfed spots', () => {
+test.describe('Session log page', () => {
   test.beforeEach(async ({ page }) => {
     await login(page)
   })
 
-  test('should show add toast, open session modal, submit fields, and show thank-you in modal', async ({
+  test('should add to surfed spots without opening session form, then open session log from actions', async ({
     page,
   }) => {
     await page.goto('/surf-spots/africa/algeria/boumerdes')
@@ -51,13 +51,19 @@ test.describe('Session log after add to surfed spots', () => {
       timeout: 15000,
     })
 
-    await expect(
-      page.getByRole('heading', { name: /Your session at/i }),
-    ).toBeVisible({ timeout: 10000 })
+    await expect(page.getByRole('heading', { name: /Your session at/i })).not.toBeVisible()
 
-    await expect(page.locator('input[name="sessionDate"]')).toHaveValue(
-      /\d{4}-\d{2}-\d{2}/,
-    )
+    await openMenu()
+    await page.locator('.dropdown-menu').waitFor({ state: 'visible', timeout: 5000 })
+    await page.getByRole('button', { name: 'Log your surf' }).click()
+
+    await expect(page).toHaveURL(/\/surf-spots\/.+\/session\/?$/, { timeout: 15000 })
+    await expect(page.getByRole('heading', { name: /Your session at/i })).toBeVisible({
+      timeout: 10000,
+    })
+    await expect(page.getByRole('button', { name: 'Cancel' })).toBeVisible()
+
+    await expect(page.locator('input[name="sessionDate"]')).toHaveValue(/\d{4}-\d{2}-\d{2}/)
 
     await page.locator('select[name="waveSize"]').selectOption('SMALL')
     await page.locator('select[name="crowdLevel"]').selectOption('FEW')

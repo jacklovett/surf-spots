@@ -156,23 +156,6 @@ export const surfSpotAction: ActionFunction = async ({ request }) => {
   const actionType = formData.get('actionType') as string
   const target = formData.get('target') as string
   const surfSpotId = formData.get('surfSpotId') as string
-  const surfSpotName = (formData.get('surfSpotName') as string) || ''
-
-  if (intent === 'saveSessionFeedback') {
-    try {
-      const user = await requireSessionCookie(request)
-      const cookie = request.headers.get('Cookie') || ''
-      return await handleSaveSessionFeedback(formData, String(user.id), cookie)
-    } catch (error) {
-      console.error('Surf spot action: save session feedback failed:', error)
-      if (error instanceof Response) return error
-      const message = getDisplayMessage(error, ERROR_SAVE_SESSION_FEEDBACK)
-      return data<ActionData>(
-        { submitStatus: message, hasError: true },
-        { status: 500 },
-      )
-    }
-  }
 
   // ——— Trip actions (add-spot, remove-spot) ———
   if (intent === 'add-spot' || intent === 'remove-spot') {
@@ -277,9 +260,6 @@ export const surfSpotAction: ActionFunction = async ({ request }) => {
       {
         success: true,
         surfSpotAction: { actionType, target },
-        addedToSurfedSpots: actionType === 'add' && target === 'user-spots',
-        surfSpotIdForFeedback: surfSpotId,
-        surfSpotNameForFeedback: surfSpotName.trim() || undefined,
       },
       { headers: { 'Set-Cookie': await commitSession(session) } },
     )

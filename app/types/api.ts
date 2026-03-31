@@ -23,10 +23,6 @@ export interface ActionData {
   hasError?: boolean
   success?: boolean
   surfSpotAction?: SurfSpotActionMeta
-  /** Set when add-to-surfed succeeds (flat fields so fetcher JSON always exposes them). */
-  addedToSurfedSpots?: boolean
-  surfSpotIdForFeedback?: string
-  surfSpotNameForFeedback?: string
   /** Present when add/edit surf spot actions return the saved spot. */
   surfSpot?: SurfSpot
 }

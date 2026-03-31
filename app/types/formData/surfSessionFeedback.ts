@@ -21,7 +21,7 @@ const optionsForEnum = <T extends string>(
     label: labels[value],
   }))
 
-/** Select options for crowd level: session feedback modal and surf spot form (same enum + labels). */
+/** Select options for crowd level: session feedback form and surf spot form (same enum + labels). */
 export const buildCrowdLevelSelectOptions = (
   placeholder: Option = CHOOSE,
 ): Option[] => [

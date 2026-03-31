@@ -1,4 +1,4 @@
-import { Direction } from '~/types/surfSpots'
+import { Direction, SwellSeason } from '~/types/surfSpots'
 import { DIRECTIONS } from '~/components/ConditionIcons/DirectionIcon'
 
 /**
@@ -73,8 +73,6 @@ export const formatSurfHeightRange = (
   return `${heightRange}${unit}`
 }
 
-import { SwellSeason } from '~/types/surfSpots'
-
 export const formatSeason = (swellSeason?: SwellSeason | null) => {
   if (!swellSeason) return '-'
   if (swellSeason.startMonth && swellSeason.endMonth) {
@@ -146,7 +144,7 @@ export const getNoveltyWaveLabel = (spot: {
 }
 
 /**
- * Where to POST for `surfSpotAction` (watch/surfed, session feedback, etc.).
+ * Where to POST for `surfSpotAction` (watch list / surfed spots, trips, etc.).
  * On a `/surf-spots/...` URL other than the bare index, use that path; otherwise `/surf-spots`.
  */
 export const resolveSurfSpotActionUrl = (pathname: string): string =>
