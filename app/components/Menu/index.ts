@@ -30,8 +30,14 @@ export const spotsMenuItems: MenuItem[] = [
   },
 ]
 
-// Collections category - trips and surfboards
+// Collections category - sessions, trips and surfboards
 export const collectionMenuItems: MenuItem[] = [
+  {
+    key: 'sessions',
+    icon: 'stopwatch',
+    label: 'Sessions',
+    path: '/sessions',
+  },
   {
     key: 'trips',
     icon: 'plane',

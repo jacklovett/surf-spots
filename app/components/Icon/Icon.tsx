@@ -346,6 +346,16 @@ export const Icon = (props: IProps) => {
             <polyline points="8 12 11 15 16 9" />
           </svg>
         )
+      case 'stopwatch': return (
+          <svg {...commonIconStyles}>
+        <circle cx="12" cy="13" r="8" />
+        <line x1="12" y1="13" x2="12" y2="9.5" />
+        <line x1="12" y1="13" x2="15" y2="13" />
+        <line x1="10" y1="3" x2="14" y2="3" />
+        <line x1="12" y1="3" x2="12" y2="5" />
+        <line x1="17.2" y1="7.8" x2="18.8" y2="6.2" />
+      </svg>
+        )
       default:
         return null
     }

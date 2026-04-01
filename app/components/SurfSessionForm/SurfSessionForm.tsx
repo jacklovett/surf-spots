@@ -20,26 +20,26 @@ import { FormField, InputElementType } from '~/components/FormInput'
 import { ActionData } from '~/types/api'
 import { Surfboard } from '~/types/surfboard'
 import {
-  buildSessionFeedbackSurfboardField,
-  SESSION_FEEDBACK_CROWD_LEVEL_FIELD,
-  SESSION_FEEDBACK_WAVE_QUALITY_FIELD,
-  SESSION_FEEDBACK_WAVE_SIZE_FIELD,
-} from '~/types/formData/surfSessionFeedback'
+  buildSurfSessionSurfboardField,
+  SURF_SESSION_CROWD_LEVEL_FIELD,
+  SURF_SESSION_WAVE_QUALITY_FIELD,
+  SURF_SESSION_WAVE_SIZE_FIELD,
+} from '~/types/formData/surfSessionForm'
 import { formatDateForInput } from '~/utils/dateUtils'
 import {
-  ERROR_SAVE_SESSION_FEEDBACK,
+  ERROR_SAVE_SURF_SESSION,
   getFetcherSubmitStatus,
 } from '~/utils/errorUtils'
 import { BASE_SKILL_LEVEL_OPTIONS, SELECT_OPTION } from '~/types/formData/surfSpots'
 
 const THANK_YOU_HEADLINE = 'Session saved.'
 const THANK_YOU_SUB =
-  'Your feedback helps other surfers see how this spot tends to feel in the water.'
+  'This helps other surfers see how this spot tends to feel in the water.'
 
 const valueFromSelectChange = (event: ChangeEvent<InputElementType>) =>
   (event.target as HTMLSelectElement).value
 
-interface SurfSessionFeedbackFormProps {
+interface SurfSessionFormProps {
   surfSpotId: string
   surfSpotName: string
   formActionPath: string
@@ -49,7 +49,7 @@ interface SurfSessionFeedbackFormProps {
   onCancel: () => void
 }
 
-export const SurfSessionFeedbackForm = (props: SurfSessionFeedbackFormProps) => {
+export const SurfSessionForm = (props: SurfSessionFormProps) => {
   const {
     surfSpotId,
     surfSpotName,
@@ -72,14 +72,14 @@ export const SurfSessionFeedbackForm = (props: SurfSessionFeedbackFormProps) => 
   const lastProcessedFetcherDataRef = useRef<typeof fetcher.data>(undefined)
 
   const boardField: FormField = useMemo(
-    () => buildSessionFeedbackSurfboardField(surfboards),
+    () => buildSurfSessionSurfboardField(surfboards),
     [surfboards],
   )
 
   const fetcherData = fetcher.data
   const submitStatus =
     fetcherData != null && typeof fetcherData === 'object' && fetcherData.hasError === true
-      ? getFetcherSubmitStatus(fetcherData, ERROR_SAVE_SESSION_FEEDBACK)
+      ? getFetcherSubmitStatus(fetcherData, ERROR_SAVE_SURF_SESSION)
       : null
 
   const isFormValid = useMemo(() => {
@@ -126,17 +126,17 @@ export const SurfSessionFeedbackForm = (props: SurfSessionFeedbackFormProps) => 
   }, [fetcher.state, fetcher.data])
 
   return (
-    <div className="info-page-content mv session-feedback-page">
+    <div className="info-page-content mv surf-session-page">
       {showThankYou && (
-        <div className="session-feedback-thank-you column">
-          <div className="session-feedback-thank-you-icon">
+        <div className="surf-session-thank-you column">
+          <div className="surf-session-thank-you-icon">
             <Icon iconKey="success" useCurrentColor />
           </div>
-          <p className="session-feedback-thank-you-headline bold">
+          <p className="surf-session-thank-you-headline bold">
             {THANK_YOU_HEADLINE}
           </p>
-          <p className="session-feedback-thank-you-sub">{THANK_YOU_SUB}</p>
-          <div className="session-feedback-thank-you-actions">
+          <p className="surf-session-thank-you-sub">{THANK_YOU_SUB}</p>
+          <div className="surf-session-thank-you-actions">
             <Button label="Close" type="button" onClick={handleDismiss} />
           </div>
         </div>
@@ -152,9 +152,9 @@ export const SurfSessionFeedbackForm = (props: SurfSessionFeedbackFormProps) => 
           onCancel={handleDismiss}
         >
           <>
-            <input type="hidden" name="intent" value="saveSessionFeedback" />
+            <input type="hidden" name="intent" value="saveSurfSession" />
             <input type="hidden" name="surfSpotId" value={surfSpotId} />
-            <h1>Log Session at {surfSpotName}</h1>
+            <h1>Session at {surfSpotName}</h1>
             <div className="column gap">
             {requiresSkillLevel && (
               <FormInput
@@ -178,19 +178,19 @@ export const SurfSessionFeedbackForm = (props: SurfSessionFeedbackFormProps) => 
               showLabel
             />
             <FormInput
-              field={SESSION_FEEDBACK_WAVE_SIZE_FIELD}
+              field={SURF_SESSION_WAVE_SIZE_FIELD}
               value={waveSize}
               onChange={(event) => setWaveSize(valueFromSelectChange(event))}
               showLabel
             />
             <FormInput
-              field={SESSION_FEEDBACK_CROWD_LEVEL_FIELD}
+              field={SURF_SESSION_CROWD_LEVEL_FIELD}
               value={crowdLevel}
               onChange={(event) => setCrowdLevel(valueFromSelectChange(event))}
               showLabel
             />
             <FormInput
-              field={SESSION_FEEDBACK_WAVE_QUALITY_FIELD}
+              field={SURF_SESSION_WAVE_QUALITY_FIELD}
               value={waveQuality}
               onChange={(event) => setWaveQuality(valueFromSelectChange(event))}
               showLabel
@@ -218,4 +218,4 @@ export const SurfSessionFeedbackForm = (props: SurfSessionFeedbackFormProps) => 
   )
 }
 
-SurfSessionFeedbackForm.displayName = 'SurfSessionFeedbackForm'
+SurfSessionForm.displayName = 'SurfSessionForm'

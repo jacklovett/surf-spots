@@ -1,12 +1,12 @@
-.session-feedback-page {
-  .session-feedback-thank-you {
+.surf-session-page {
+  .surf-session-thank-you {
     @extend %flex-column;
     text-align: center;
     gap: $spacing-unit;
     padding: $spacing-unit 0;
   }
 
-  .session-feedback-thank-you-icon {
+  .surf-session-thank-you-icon {
     color: $success;
 
     svg {
@@ -14,11 +14,11 @@
     }
   }
 
-  .session-feedback-thank-you-sub {
+  .surf-session-thank-you-sub {
     color: $text-secondary;
   }
 
-  .session-feedback-thank-you-actions {
+  .surf-session-thank-you-actions {
     margin-top: $spacing-small;
   }
 }

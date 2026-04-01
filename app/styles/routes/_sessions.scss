@@ -1,0 +1,96 @@
+.sessions-how-to {
+  margin-bottom: $spacing-x-large;
+
+  .sessions-how-to-heading {
+    margin: 0 0 $spacing-unit;
+    font-size: $font-size-large;
+    font-weight: 600;
+    color: $text-heading;
+  }
+
+  .sessions-how-to-lead {
+    margin: 0 0 $spacing-large;
+    line-height: 1.55;
+  }
+
+  .sessions-how-to-steps {
+    margin: 0;
+    padding-left: 1.35em;
+    line-height: 1.65;
+    color: $text-color;
+
+    li {
+      margin-bottom: $spacing-unit;
+
+      &:last-child {
+        margin-bottom: 0;
+      }
+    }
+  }
+}
+
+.sessions-section {
+  margin-bottom: $spacing-x-large;
+}
+
+.sessions-feed {
+  @extend .page-grid;
+}
+
+.session-card {
+  border: 1px solid $outline-color;
+  border-radius: $content-border-radius;
+  background: $background-color;
+  padding: $spacing-unit;
+}
+
+.session-card-header {
+  @extend %flex-space-between;
+  align-items: flex-start;
+  gap: $spacing-unit;
+
+  h2 {
+    margin: 0;
+    font-size: $font-size-large;
+  }
+
+  .session-date {
+    margin: $spacing-small 0 0;
+    color: $text-secondary;
+  }
+}
+
+.session-link {
+  color: $primary-color;
+  text-decoration: none;
+  font-weight: bold;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
+.session-metrics {
+  margin-top: $spacing-unit;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: $spacing-small;
+}
+
+.session-metric {
+  @extend %flex-column;
+  background: $background-light;
+  border: 1px solid $border-light;
+  border-radius: $button-border-radius;
+  padding: $spacing-small;
+
+  span {
+    color: $text-secondary;
+    font-size: $font-size-small;
+  }
+
+  strong {
+    margin-top: 2px;
+    color: $text-color;
+  }
+}

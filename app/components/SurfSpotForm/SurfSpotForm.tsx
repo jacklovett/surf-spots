@@ -655,6 +655,7 @@ export const SurfSpotForm = (props: SurfSpotFormProps) => {
               onSwellDirectionChange={setSwellDirectionArray}
               onWindDirectionChange={setWindDirectionArray}
               onChange={handleChange}
+              tideRequired={!isPrivateSpot && !isNoveltyWave}
             />
         )}
 

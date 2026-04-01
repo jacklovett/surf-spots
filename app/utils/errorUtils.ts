@@ -54,19 +54,20 @@ export const ERROR_CREATE_SURFBOARD = 'Failed to create surfboard. Please try ag
 export const ERROR_UPDATE_SURFBOARD = 'Failed to update surfboard. Please try again.'
 export const ERROR_LOAD_SURFBOARDS =
   "We couldn't load your surfboards right now. Please try again later."
+export const ERROR_LOAD_SESSIONS =
+  "We couldn't load your sessions right now. Please try again later."
 export const ERROR_SURFBOARD_NOT_FOUND = 'Surfboard not found'
 export const ERROR_LOGIN_REQUIRED_ADD_SURFBOARD =
   'Sign in to add surfboards'
 
 // Surf spots
 export const ERROR_SAVE_NOTE = 'Failed to save note. Please try again.'
-export const ERROR_SAVE_SESSION_FEEDBACK =
-  'Could not save session feedback. Please try again.'
+export const ERROR_SAVE_SURF_SESSION =
+  'Could not save your session. Please try again.'
 /** Session log: user has no profile skill and did not choose one on the form. */
 export const ERROR_SESSION_SKILL_LEVEL_REQUIRED =
   'Select your skill level before saving this session.'
-export const SUCCESS_SESSION_FEEDBACK_SAVED =
-  'Thanks for sharing your session feedback.'
+export const SUCCESS_SURF_SESSION_SAVED = 'Your session was saved.'
 export const ERROR_LOAD_REGION_DATA = 'Failed to load region data. Please try again later.'
 export const ERROR_LOAD_CONTINENTS = "We couldn't load the continents. Please try again."
 export const ERROR_LOAD_MAP_SPOTS = "We couldn't load the map. Please try again."
@@ -146,7 +147,7 @@ export const ERROR_INVALID_SURF_SPOT_ID = 'Invalid surf spot ID'
 export const ERROR_OPEN_SURF_SPOT =
   'Unable to open this surf spot right now. Please try again.'
 export const ERROR_OPEN_SESSION_LOG =
-  'Unable to open session log for this surf spot right now. Please try again.'
+  'Unable to open the surf session for this spot right now. Please try again.'
 
 /**
  * Status code for `data(..., { status })` in an action `catch` after `post`/`patch` throws

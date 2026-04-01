@@ -2,16 +2,16 @@ import { test, expect } from '@playwright/test'
 import { login } from './utils/auth-helper'
 
 /**
- * Session log at `{SurfSpot.path}/session` (e.g. `/surf-spots/.../slug/session`, or with
+ * Surf session at `{SurfSpot.path}/session` (e.g. `/surf-spots/.../slug/session`, or with
  * `.../sub-regions/.../slug/session`). Open from spot actions, fill fields, thank-you state.
  * Requires VITE_API_URL and a running API that accepts POST /surf-sessions with structured fields.
  */
-test.describe('Session log page', () => {
+test.describe('Surf session page', () => {
   test.beforeEach(async ({ page }) => {
     await login(page)
   })
 
-  test('should add to surfed spots without opening session form, then open session log from actions', async ({
+  test('should add to surfed spots without opening session form, then open surf session from actions', async ({
     page,
   }) => {
     await page.goto('/surf-spots/africa/algeria/boumerdes')
@@ -51,14 +51,14 @@ test.describe('Session log page', () => {
       timeout: 15000,
     })
 
-    await expect(page.getByRole('heading', { name: /Log Session at/i })).not.toBeVisible()
+    await expect(page.getByRole('heading', { name: /Session at/i })).not.toBeVisible()
 
     await openMenu()
     await page.locator('.dropdown-menu').waitFor({ state: 'visible', timeout: 5000 })
-    await page.getByRole('button', { name: 'Log your surf' }).click()
+    await page.getByRole('button', { name: 'Save your surf' }).click()
 
     await expect(page).toHaveURL(/\/surf-spots\/.+\/session\/?$/, { timeout: 15000 })
-    await expect(page.getByRole('heading', { name: /Log Session at/i })).toBeVisible({
+    await expect(page.getByRole('heading', { name: /Session at/i })).toBeVisible({
       timeout: 10000,
     })
     await expect(page.getByRole('button', { name: 'Cancel' })).toBeVisible()

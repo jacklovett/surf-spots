@@ -272,7 +272,7 @@ export const WAVE_DIRECTION_OPTIONS = [
   },
 ]
 
-/** Typical lineup for a surf spot (optional); same options as session feedback. */
+/** Typical lineup for a surf spot (optional); same options as logged surf sessions. */
 export const TYPICAL_CROWD_FORM_OPTIONS: Option[] =
   buildCrowdLevelSelectOptions(SELECT_OPTION)
 

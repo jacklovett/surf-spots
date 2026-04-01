@@ -88,7 +88,7 @@ export default function Index() {
 
               <div className="feature-card animate-on-scroll">
                 <div className="feature-icon" aria-hidden="true">
-                  <Icon iconKey="surfboard" useAccentColor />
+                  <Icon iconKey="clipboard" useAccentColor />
                 </div>
                 <h3>Stats</h3>
                 <p>

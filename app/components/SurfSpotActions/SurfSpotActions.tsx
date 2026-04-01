@@ -187,7 +187,7 @@ export const SurfSpotActions = memo((props: IProps) => {
         closeOnClick: !isSurfedSpot,
       },
       {
-        label: 'Log your surf',
+        label: 'Save your surf',
         iconKey: 'surfboard',
         onClick: handleOpenSessionLog,
       },

@@ -15,6 +15,7 @@ export type FeatureType =
   | 'add-surf-spot'
   | 'trips'
   | 'surfboards'
+  | 'sessions'
   | 'notes'
 
 interface SignUpPromptContextType {
@@ -118,6 +119,21 @@ export const SignUpPromptProvider = ({
                 <li>Record dimensions, volume, and specifications</li>
                 <li>Add photos and link to shaper pages</li>
                 <li>Plan which boards to bring on trips</li>
+              </ul>
+            </>
+          ),
+        }
+      case 'sessions':
+        return {
+          title: 'Sign Up to Track Your Sessions',
+          content: (
+            <>
+              <p>Save every surf session and build your personal timeline.</p>
+              <ul className="benefits-list">
+                <li>See all your sessions in one place</li>
+                <li>Track wave quality and crowd patterns</li>
+                <li>Remember the board you rode</li>
+                <li>Build a clean history of your progression</li>
               </ul>
             </>
           ),

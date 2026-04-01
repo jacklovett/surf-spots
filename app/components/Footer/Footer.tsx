@@ -16,13 +16,19 @@ export const Footer = ({ isAlternate }: IProps) => {
   // Map of protected routes to their route identifiers
   const protectedRoutes: Record<
     string,
-    'surfed-spots' | 'watch-list' | 'add-surf-spot' | 'trips' | 'surfboards'
+    | 'surfed-spots'
+    | 'watch-list'
+    | 'add-surf-spot'
+    | 'trips'
+    | 'surfboards'
+    | 'sessions'
   > = {
     '/surfed-spots': 'surfed-spots',
     '/watch-list': 'watch-list',
     '/add-surf-spot': 'add-surf-spot',
     '/trips': 'trips',
     '/surfboards': 'surfboards',
+    '/sessions': 'sessions',
   }
 
   const handleLinkClick = (e: MouseEvent<HTMLAnchorElement>, path: string) => {
@@ -91,6 +97,11 @@ export const Footer = ({ isAlternate }: IProps) => {
           <nav className="footer-section" aria-label="Collections navigation">
             <h4>Collections</h4>
             <ul>
+              <li>
+                <a href="/sessions" onClick={(e) => handleLinkClick(e, '/sessions')}>
+                  Sessions
+                </a>
+              </li>
               <li>
                 <a href="/trips" onClick={(e) => handleLinkClick(e, '/trips')}>
                   Trips

@@ -129,7 +129,7 @@ export enum SurfSessionWaveSize {
   GIANT = 'GIANT',
 }
 
-/** Crowd / lineup scale: session feedback and surf spot typical crowd (API enum names). */
+/** Crowd / lineup scale: surf sessions and surf spot typical crowd (API enum names). */
 export enum CrowdLevel {
   EMPTY = 'EMPTY',
   FEW = 'FEW',
@@ -320,4 +320,20 @@ export interface SurfSessionSummary {
   waveQualityTrendLine: string | null
   crowdTrendLine: string | null
   wouldSurfAgainLine: string | null
+}
+
+export interface SurfSessionListItem {
+  id: number
+  sessionDate: string
+  createdAt: string
+  surfSpotId: number
+  surfSpotName: string
+  spotPath: string
+  waveSize: SurfSessionWaveSize
+  crowdLevel: CrowdLevel
+  waveQuality: WaveQuality
+  wouldSurfAgain: boolean
+  skillLevel?: SkillLevel
+  surfboardId?: string | null
+  surfboardName?: string | null
 }

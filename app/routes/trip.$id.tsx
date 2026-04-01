@@ -659,7 +659,7 @@ export default function TripDetail() {
                   title="No Surf Spots Yet"
                   description="Add spots you want to surf on this trip."
                   ctaText="Explore Surf Spots"
-                  onCtaClick={() => navigate('/surf-spots')}
+                  ctaTo="/surf-spots"
                 />
               )}
             </section>

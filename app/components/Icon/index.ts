@@ -29,6 +29,7 @@ export type IconKey =
   | 'search'
   | 'success'
   | 'surfboard'
+  | 'stopwatch'
   | 'twitter'
 
 export const ICON_SIZE = 24

@@ -46,7 +46,9 @@ export const getStepRequiredFields = (
       }
       return []
     case 'details':
-      return isPrivateSpot || isNoveltyWave ? [] : ['swellDirection', 'windDirection']
+      return isPrivateSpot || isNoveltyWave
+        ? []
+        : ['swellDirection', 'windDirection', 'tide']
     case 'access':
       return []
     default:
@@ -105,6 +107,10 @@ export const getSurfSpotStepValidators = (
       if (isPrivateSpot) return ''
       return validateRequired(v as string, 'Wave direction')
     },
+    tide: (v) => {
+      if (isPrivateSpot || isNoveltyWave) return ''
+      return validateRequired(v as string, 'Tide')
+    },
   }
 }
 
@@ -120,6 +126,7 @@ export type SurfSpotPublicListingFields = {
   waveDirection?: string | null
   swellDirection?: string | null
   windDirection?: string | null
+  tide?: string | null
 }
 
 const hasNonWhitespaceText = (value?: string | null): boolean =>
@@ -161,7 +168,11 @@ const publicCoreConditionsAreComplete = (payload: SurfSpotPublicListingFields): 
     return true
   }
 
-  return hasNonWhitespaceText(payload.swellDirection) && hasNonWhitespaceText(payload.windDirection)
+  return (
+    hasNonWhitespaceText(payload.swellDirection) &&
+    hasNonWhitespaceText(payload.windDirection) &&
+    hasNonWhitespaceText(payload.tide)
+  )
 }
 
 export const isPublicListingComplete = (wizard: {
@@ -178,6 +189,7 @@ export const isPublicListingComplete = (wizard: {
     | 'waveDirection'
     | 'swellDirection'
     | 'windDirection'
+    | 'tide'
   >
 }): boolean =>
   isPublicSurfSpotPayloadComplete({
@@ -194,4 +206,5 @@ export const isPublicListingComplete = (wizard: {
     waveDirection: wizard.formState.waveDirection,
     swellDirection: wizard.formState.swellDirection,
     windDirection: wizard.formState.windDirection,
+    tide: wizard.formState.tide,
   })

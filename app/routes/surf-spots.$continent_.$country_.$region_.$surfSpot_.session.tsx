@@ -14,15 +14,15 @@ import {
   getDisplayMessage,
 } from '~/services/networkService'
 import { requireSessionCookie } from '~/services/session.server'
-import { handleSaveSessionFeedback } from '~/services/surfSpot.server'
+import { handleSaveSurfSession } from '~/services/surfSpot.server'
 import { SurfSpot } from '~/types/surfSpots'
 import { Surfboard } from '~/types/surfboard'
 import { ActionData } from '~/types/api'
-import { ErrorBoundary, SurfSessionFeedbackForm } from '~/components'
+import { ErrorBoundary, SurfSessionForm } from '~/components'
 import {
   ERROR_BOUNDARY_GENERIC,
   ERROR_METHOD_NOT_ALLOWED,
-  ERROR_SAVE_SESSION_FEEDBACK,
+  ERROR_SAVE_SURF_SESSION,
   ERROR_SESSION_SKILL_LEVEL_REQUIRED,
 } from '~/utils/errorUtils'
 
@@ -95,7 +95,7 @@ export const action: ActionFunction = async ({ request }) => {
   const formData = await request.formData()
 
   const intent = formData.get('intent') as string
-  if (intent !== 'saveSessionFeedback') {
+  if (intent !== 'saveSurfSession') {
     return data<ActionData>(
       { submitStatus: ERROR_METHOD_NOT_ALLOWED, hasError: true },
       { status: 400 },
@@ -120,13 +120,13 @@ export const action: ActionFunction = async ({ request }) => {
     }
 
     formData.set('skillLevel', skillLevel)
-    return await handleSaveSessionFeedback(formData, String(user.id), cookie)
+    return await handleSaveSurfSession(formData, String(user.id), cookie)
   } catch (error) {
     console.error('Session log action failed', error)
     if (error instanceof Response) return error
     return data<ActionData>(
       {
-        submitStatus: getDisplayMessage(error, ERROR_SAVE_SESSION_FEEDBACK),
+        submitStatus: getDisplayMessage(error, ERROR_SAVE_SURF_SESSION),
         hasError: true,
       },
       { status: 500 },
@@ -148,7 +148,7 @@ export default function SurfSpotSessionLogRoute() {
         <ErrorBoundary message={ERROR_BOUNDARY_GENERIC}>
           <p className="ph">
             {error ||
-              'We could not open session feedback for this spot. Try again from the surf spot page.'}
+              'We could not open this session for the spot. Try again from the surf spot page.'}
           </p>
         </ErrorBoundary>
       </div>
@@ -158,7 +158,7 @@ export default function SurfSpotSessionLogRoute() {
   return (
     <div className="mb-l">
       <ErrorBoundary message={ERROR_BOUNDARY_GENERIC}>
-        <SurfSessionFeedbackForm
+        <SurfSessionForm
           surfSpotId={String(surfSpotDetails.id)}
           surfSpotName={surfSpotDetails.name ?? ''}
           formActionPath={formActionPath}
@@ -171,3 +171,4 @@ export default function SurfSpotSessionLogRoute() {
     </div>
   )
 }
+

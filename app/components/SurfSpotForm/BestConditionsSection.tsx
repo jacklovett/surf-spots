@@ -31,6 +31,8 @@ interface BestConditionsSectionProps {
   onChange: FormChangeHandler
   /** When true, swell and wind direction are required (e.g. natural break, not wavepool) */
   swellWindRequired?: boolean
+  /** When true, best tide is required (public ocean spots) */
+  tideRequired?: boolean
 }
 
 export const BestConditionsSection = ({
@@ -43,6 +45,7 @@ export const BestConditionsSection = ({
   onWindDirectionChange,
   onChange,
   swellWindRequired = true,
+  tideRequired = false,
 }: BestConditionsSectionProps) => {
   return (
     <div>
@@ -76,10 +79,11 @@ export const BestConditionsSection = ({
         errorMessage={errors.tide || ''}
         value={formState.tide || ''}
         showLabel
+        required={tideRequired}
       />
-      <div className="mv">
+      <>
         <p className="m-0 pt bold">Ideal Surf Height</p>
-        <div className="form-inline">
+        <div className="form-inline no-top-padding">
           <FormInput
             field={{
               label: `Min Surf Height (${waveUnits})`,
@@ -115,7 +119,7 @@ export const BestConditionsSection = ({
             showLabel={!!formState.maxSurfHeight}
           />
         </div>
-      </div>
+      </>
     </div>
   )
 }

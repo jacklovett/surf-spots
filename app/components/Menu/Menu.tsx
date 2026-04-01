@@ -19,13 +19,19 @@ const Menu = () => {
   // Map of protected routes to their route identifiers
   const protectedRoutes: Record<
     string,
-    'surfed-spots' | 'watch-list' | 'add-surf-spot' | 'surfboards' | 'trips'
+    | 'surfed-spots'
+    | 'watch-list'
+    | 'add-surf-spot'
+    | 'surfboards'
+    | 'trips'
+    | 'sessions'
   > = {
     '/surfed-spots': 'surfed-spots',
     '/watch-list': 'watch-list',
     '/add-surf-spot': 'add-surf-spot',
     '/surfboards': 'surfboards',
     '/trips': 'trips',
+    '/sessions': 'sessions',
   }
 
   const handleMenuItemClick = (path: string) => {

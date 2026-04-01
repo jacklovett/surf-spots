@@ -20,7 +20,7 @@ const optionsForEnum = <T extends string>(
     label: labels[value],
   }))
 
-export const SESSION_FEEDBACK_WAVE_SIZE_FIELD: FormField = {
+export const SURF_SESSION_WAVE_SIZE_FIELD: FormField = {
   label: 'How big were the waves?',
   name: 'waveSize',
   type: 'select',
@@ -33,7 +33,7 @@ export const SESSION_FEEDBACK_WAVE_SIZE_FIELD: FormField = {
   ],
 }
 
-export const SESSION_FEEDBACK_CROWD_LEVEL_FIELD: FormField = {
+export const SURF_SESSION_CROWD_LEVEL_FIELD: FormField = {
   label: 'How crowded was the lineup?',
   name: 'crowdLevel',
   type: 'select',
@@ -46,7 +46,7 @@ export const SESSION_FEEDBACK_CROWD_LEVEL_FIELD: FormField = {
   ],
 }
 
-export const SESSION_FEEDBACK_WAVE_QUALITY_FIELD: FormField = {
+export const SURF_SESSION_WAVE_QUALITY_FIELD: FormField = {
   label: 'How were the waves?',
   name: 'waveQuality',
   type: 'select',
@@ -59,7 +59,7 @@ export const SESSION_FEEDBACK_WAVE_QUALITY_FIELD: FormField = {
   ],
 }
 
-export const buildSessionFeedbackSurfboardField = (
+export const buildSurfSessionSurfboardField = (
   surfboards: Surfboard[],
 ): FormField => ({
   label: 'Board used (optional)',

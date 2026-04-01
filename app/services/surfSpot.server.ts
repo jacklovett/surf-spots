@@ -8,13 +8,13 @@ import {
   ERROR_CHECK_INPUT,
   ERROR_LOGIN_REQUIRED,
   ERROR_MISSING_REQUIRED_FIELDS,
-  ERROR_SAVE_SESSION_FEEDBACK,
+  ERROR_SAVE_SURF_SESSION,
   ERROR_SURF_SPOT_ID_REQUIRED,
   ERROR_TRIP_AND_SPOT_IDS_REQUIRED,
   ERROR_TRIP_AND_TRIP_SPOT_IDS_REQUIRED,
   ERROR_UPDATE_TRIP,
   ERROR_USER_NOT_AUTHENTICATED,
-  SUCCESS_SESSION_FEEDBACK_SAVED,
+  SUCCESS_SURF_SESSION_SAVED,
 } from '~/utils/errorUtils'
 import { isPublicSurfSpotPayloadComplete } from '~/utils/surfSpotWizardValidation'
 import { safeLinkHref } from '~/utils/commonUtils'
@@ -68,7 +68,7 @@ const parseUrlList = (
   return urls
 }
 
-export const handleSaveSessionFeedback = async (
+export const handleSaveSurfSession = async (
   formData: FormData,
   userId: string,
   cookie: string,
@@ -129,12 +129,12 @@ export const handleSaveSessionFeedback = async (
 
     return data<ActionData>({
       success: true,
-      submitStatus: SUCCESS_SESSION_FEEDBACK_SAVED,
+      submitStatus: SUCCESS_SURF_SESSION_SAVED,
       hasError: false,
     })
   } catch (error) {
-    console.error('Save session feedback failed:', error)
-    const message = getDisplayMessage(error, ERROR_SAVE_SESSION_FEEDBACK)
+    console.error('Save surf session failed:', error)
+    const message = getDisplayMessage(error, ERROR_SAVE_SURF_SESSION)
     const status =
       error instanceof Error && 'status' in error
         ? (error as { status?: number }).status ?? 500
@@ -490,6 +490,7 @@ export const createSurfSpotFromFormData = async (request: Request) => {
       waveDirection: payload.waveDirection,
       swellDirection: payload.swellDirection,
       windDirection: payload.windDirection,
+      tide: payload.tide,
     })
   ) {
     throw new Response(ERROR_CHECK_INPUT, { status: 400 })
