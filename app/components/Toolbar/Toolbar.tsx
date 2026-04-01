@@ -5,6 +5,7 @@ import ViewSwitch from '../ViewSwitch'
 interface ToolbarProps {
   showAddButton: boolean
   onAddNewSpot: () => void
+  addButtonLoading?: boolean
   onOpenFilters: () => void
   filtersBadge?: number
   isMapView: boolean
@@ -17,6 +18,7 @@ export const Toolbar = (props: ToolbarProps) => {
   const {
     showAddButton,
     onAddNewSpot,
+    addButtonLoading = false,
     onOpenFilters,
     filtersBadge,
     isMapView,
@@ -65,6 +67,7 @@ export const Toolbar = (props: ToolbarProps) => {
             onClick={onAddNewSpot}
             ariaLabel="Add new spot"
             size="medium"
+            loading={addButtonLoading}
           />
         )}
       </div>

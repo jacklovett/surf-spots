@@ -110,9 +110,10 @@ const getFavoriteWaveDirection = (surfedSpots: SurfSpot[]) => {
 }
 
 export default function SurfedSpots() {
-  const { state } = useNavigation()
+  const navigation = useNavigation()
   const navigate = useNavigate()
-  const loading = state === 'loading'
+  const loading = navigation.state === 'loading'
+  const navigatingTo = navigation.location?.pathname
 
   const { surfedSpotsSummary, error } = useLoaderData<LoaderData>()
   const { onFetcherSubmit } = useSurfSpotActions()
@@ -163,7 +164,7 @@ export default function SurfedSpots() {
 
   return (
     <Page showHeader>
-      <TripPlannerButton onOpenTripPlanner={() => navigate('/trip-planner')} />
+      <TripPlannerButton onOpenTripPlanner={() => navigate('/trip-planner')} isLoading={loading && navigatingTo === '/trip-planner'} />
       <div className="info-page-content mv map-content">
         <h1>Surfed Spots</h1>
 

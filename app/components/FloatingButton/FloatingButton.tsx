@@ -8,6 +8,8 @@ interface FloatingButtonProps {
   badge?: number
   size?: 'medium' | 'large'
   className?: string
+  loading?: boolean
+  disabled?: boolean
 }
 
 export const FloatingButton = ({
@@ -17,16 +19,26 @@ export const FloatingButton = ({
   badge,
   size = 'large',
   className,
+  loading = false,
+  disabled = false,
 }: FloatingButtonProps) => (
     <button
       type="button"
-      className={classNames('floating-button', size, className)}
+      className={classNames('floating-button', size, className, {
+        loading,
+      })}
       onClick={onClick}
       aria-label={ariaLabel}
+      disabled={disabled || loading}
+      aria-busy={loading}
     >
-      <span className="floating-button-icon">
-        <Icon iconKey={iconKey} />
-      </span>
+      {loading ? (
+        <span className="floating-button-spinner" aria-hidden="true" />
+      ) : (
+        <span className="floating-button-icon">
+          <Icon iconKey={iconKey} />
+        </span>
+      )}
       {badge && badge > 0 && <span className="floating-button-badge">{badge}</span>}
     </button>
   )

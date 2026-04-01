@@ -61,8 +61,10 @@ export default function SurfSpots() {
   const navigation = useNavigation()
   const navigatingTo = navigation.location?.pathname
 
+  const isNavigating = navigation.state === 'loading'
+
   const loading =
-    navigation.state === 'loading' &&
+  isNavigating &&
     (!navigatingTo || navigatingTo.startsWith('/surf-spots'))
 
   const { fetcher, onFetcherSubmit } = useSurfSpotActions(
@@ -91,7 +93,7 @@ export default function SurfSpots() {
   }, [pathname])
 
   const isMapViewTransition =
-    navigation.state === 'loading' &&
+    isNavigating &&
     navigatingTo &&
     checkIsMapView(navigatingTo) !== checkIsMapView(pathname)
 
@@ -154,6 +156,10 @@ export default function SurfSpots() {
       <Toolbar
         showAddButton={!!user}
         onAddNewSpot={() => navigate('/add-surf-spot')}
+        addButtonLoading={
+          isNavigating &&
+          navigation.location?.pathname === '/add-surf-spot'
+        }
         onOpenFilters={handleOpenFilters}
         filtersBadge={getAppliedFiltersCount(filters)}
         isMapView={isMapView}
@@ -161,7 +167,13 @@ export default function SurfSpots() {
         hideFilters={isDetailPage}
         hideToolbarBorder={isMapView && !loading && !isMapViewTransition}
       />
-      <TripPlannerButton onOpenTripPlanner={() => navigate('/trip-planner')} />
+      <TripPlannerButton
+        onOpenTripPlanner={() => navigate('/trip-planner')}
+        isLoading={
+          isNavigating &&
+          navigation.location?.pathname === '/trip-planner'
+        }
+      />
       <div className="surf-spots-content-body column flex-1">
         {isMapView ? (
           loading || isMapViewTransition ? (

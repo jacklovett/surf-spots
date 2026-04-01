@@ -76,9 +76,10 @@ export const loader: LoaderFunction = async ({ request }) => {
 export const action: ActionFunction = surfSpotAction
 
 export default function Watchlist() {
-  const { state } = useNavigation()
+  const navigation = useNavigation()
   const navigate = useNavigate()
-  const loading = state === 'loading'
+  const loading = navigation.state === 'loading'
+  const navigatingTo = navigation.location?.pathname
 
   const { watchedSurfSpotsSummary, error } = useLoaderData<LoaderData>()
   const { onFetcherSubmit } = useSurfSpotActions()
@@ -117,7 +118,7 @@ export default function Watchlist() {
 
   return (
     <Page showHeader>
-      <TripPlannerButton onOpenTripPlanner={() => navigate('/trip-planner')} />
+      <TripPlannerButton onOpenTripPlanner={() => navigate('/trip-planner')} isLoading={loading && navigatingTo === '/trip-planner'} />
       <div className="info-page-content mv map-content">
         <h1>Watch List</h1>
         {surfSpotsFound && (
