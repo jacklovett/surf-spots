@@ -11,17 +11,27 @@
   gap: $spacing-unit;
   padding: $spacing-unit 0;
 
-  & button {
+  & button.social-auth-button {
     @extend %flex-center;
     width: $button-height;
     height: $button-height;
     border-radius: $circle-border-radius;
-    background: $background-color;
     box-shadow: $box-shadow;
+    background: $white;
+    color: $primary-color;
+    border: 1px solid $outline-color;
     padding: calc(0.8 * $spacing-unit);
+    transition:
+      transform 0.2s ease,
+      box-shadow 0.2s ease,
+      border-color 0.2s ease,
+      background-color 0.2s ease;
 
     &:hover {
-      background: $accent-color;
+      background: $background-light;
+      border-color: $primary-color;
+      box-shadow: $box-shadow;
+      transform: translateY(-1px) scale(1.03);
     }
 
     // Ensure icon maintains aspect ratio and doesn't stretch

@@ -12,6 +12,9 @@ export const SignInOptions = () => {
           <Button
             key={name}
             label=""
+            variant="icon"
+            className="social-auth-button"
+            ariaLabel={`Continue with ${name}`}
             icon={{
               name: name as IconKey,
             }}
