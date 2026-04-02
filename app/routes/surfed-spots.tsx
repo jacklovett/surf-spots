@@ -261,7 +261,7 @@ export default function SurfedSpots() {
                 title="Start Your Surf Journey"
                 description="No surfed spots recorded. Explore spots and add your first one to start your surf map."
                 ctaText="Explore Surf Spots"
-                ctaTo="/surf-spots"
+                onCtaClick={() => navigate('/surf-spots')}
               />
             )}
             {surfedSpotsFound && <SurfSpotList surfSpots={surfSpots} />}

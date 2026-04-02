@@ -176,7 +176,7 @@ export default function Watchlist() {
                 title="Build Your Watch List"
                 description="Follow spots you are interested in to get updates on swell seasons, events, and travel deals. Use the map below to find spots to add."
                 ctaText="Explore Surf Spots"
-                ctaTo="/surf-spots"
+                onCtaClick={() => navigate('/surf-spots')}
               />
             </div>
           </div>
