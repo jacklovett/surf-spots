@@ -4,6 +4,7 @@ import {
   useContext,
   useState,
   useCallback,
+  useMemo,
 } from 'react'
 import { IToast, ToastType } from '~/components/Toast'
 
@@ -87,20 +88,29 @@ export const ToastProvider = ({ children }: ToastProviderProps) => {
     [showToast],
   )
 
+  const value = useMemo(
+    (): ToastContextType => ({
+      toasts,
+      showToast,
+      showSuccess,
+      showError,
+      showInfo,
+      showWarning,
+      removeToast,
+    }),
+    [
+      toasts,
+      showToast,
+      showSuccess,
+      showError,
+      showInfo,
+      showWarning,
+      removeToast,
+    ],
+  )
+
   return (
-    <ToastContext.Provider
-      value={{
-        toasts,
-        showToast,
-        showSuccess,
-        showError,
-        showInfo,
-        showWarning,
-        removeToast,
-      }}
-    >
-      {children}
-    </ToastContext.Provider>
+    <ToastContext.Provider value={value}>{children}</ToastContext.Provider>
   )
 }
 

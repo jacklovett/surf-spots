@@ -1,4 +1,11 @@
-import { createContext, ReactNode, useContext, useState } from 'react'
+import {
+  createContext,
+  ReactNode,
+  useContext,
+  useState,
+  useCallback,
+  useMemo,
+} from 'react'
 import {
   defaultSurfSpotFilters,
   SurfSpotFilters,
@@ -33,71 +40,88 @@ export const SurfSpotsProvider = ({ children }: SurfSpotsProviderProps) => {
     defaultSurfSpotFilters,
   )
   const [surfSpots, setSurfSpots] = useState<SurfSpot[]>([])
-  const [notes, setNotes] = useState<Map<string, SurfSpotNote | null>>(new Map())
-  const [noteSubmissionComplete, setNoteSubmissionCompleteState] = useState<boolean>(false)
+  const [notes, setNotes] = useState<Map<string, SurfSpotNote | null>>(
+    () => new Map(),
+  )
+  const [noteSubmissionComplete, setNoteSubmissionCompleteState] =
+    useState<boolean>(false)
 
-  const updateSurfSpot = (surfSpotId: string, updates: Partial<SurfSpot>) => {
-    setSurfSpots((prev) =>
-      prev.map((spot) =>
-        spot.id === surfSpotId ? { ...spot, ...updates } : spot,
-      ),
-    )
-  }
+  const updateSurfSpot = useCallback(
+    (surfSpotId: string, updates: Partial<SurfSpot>) => {
+      setSurfSpots((prev) =>
+        prev.map((spot) =>
+          spot.id === surfSpotId ? { ...spot, ...updates } : spot,
+        ),
+      )
+    },
+    [],
+  )
 
-  const mergeSurfSpots = (newSurfSpots: SurfSpot[]) => {
-    // Guard against null or undefined
+  const mergeSurfSpots = useCallback((newSurfSpots: SurfSpot[]) => {
     if (!newSurfSpots || !Array.isArray(newSurfSpots)) {
       return
     }
 
     setSurfSpots((prev) => {
-      // Create a map of existing surf spots by ID for quick lookup
       const existingMap = new Map(prev.map((spot) => [spot.id, spot]))
-
-      // Add new surf spots, but don't overwrite existing ones (preserve user actions)
       const merged = [...prev]
       newSurfSpots.forEach((newSpot) => {
         if (!existingMap.has(newSpot.id)) {
           merged.push(newSpot)
         }
       })
-
       return merged
     })
-  }
+  }, [])
 
-  const setNote = (surfSpotId: string, note: SurfSpotNote | null) => {
+  const setNote = useCallback((surfSpotId: string, note: SurfSpotNote | null) => {
     setNotes((prev) => {
       const newMap = new Map(prev)
       newMap.set(surfSpotId, note)
       return newMap
     })
-  }
+  }, [])
 
-  const getNote = (surfSpotId: string): SurfSpotNote | null | undefined => {
-    return notes.get(surfSpotId)
-  }
+  const getNote = useCallback(
+    (surfSpotId: string): SurfSpotNote | null | undefined => notes.get(surfSpotId),
+    [notes],
+  )
 
-  const setNoteSubmissionComplete = (complete: boolean) => {
+  const setNoteSubmissionComplete = useCallback((complete: boolean) => {
     setNoteSubmissionCompleteState(complete)
-  }
+  }, [])
+
+  const value = useMemo(
+    (): SurfSpotsContextType => ({
+      filters,
+      setFilters,
+      surfSpots,
+      setSurfSpots,
+      updateSurfSpot,
+      mergeSurfSpots,
+      notes,
+      setNote,
+      getNote,
+      noteSubmissionComplete,
+      setNoteSubmissionComplete,
+    }),
+    [
+      filters,
+      setFilters,
+      surfSpots,
+      setSurfSpots,
+      notes,
+      noteSubmissionComplete,
+      updateSurfSpot,
+      mergeSurfSpots,
+      setNote,
+      getNote,
+      setNoteSubmissionComplete,
+    ],
+  )
 
   return (
-    <SurfSpotsContext.Provider
-      value={{
-        filters,
-        setFilters,
-        surfSpots,
-        setSurfSpots,
-        updateSurfSpot,
-        mergeSurfSpots,
-        notes,
-        setNote,
-        getNote,
-        noteSubmissionComplete,
-        setNoteSubmissionComplete,
-      }}
-    >
+    <SurfSpotsContext.Provider value={value}>
       {children}
     </SurfSpotsContext.Provider>
   )

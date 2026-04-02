@@ -1,4 +1,4 @@
-import { createContext, useContext, ReactNode } from 'react'
+import { createContext, useContext, ReactNode, useMemo } from 'react'
 import { User } from '~/types/user'
 
 interface UserProviderProps {
@@ -12,9 +12,12 @@ interface UserContextType {
 
 const UserContext = createContext<UserContextType | undefined>(undefined)
 
-export const UserProvider = ({ user, children }: UserProviderProps) => (
-  <UserContext.Provider value={{ user }}>{children}</UserContext.Provider>
-)
+export const UserProvider = ({ user, children }: UserProviderProps) => {
+  const value = useMemo(() => ({ user }), [user])
+  return (
+    <UserContext.Provider value={value}>{children}</UserContext.Provider>
+  )
+}
 
 export const useUserContext = () => {
   const context = useContext(UserContext)

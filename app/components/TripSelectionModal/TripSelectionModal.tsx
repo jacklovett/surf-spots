@@ -33,7 +33,8 @@ export const TripSelectionModal = ({
   const navigate = useNavigate()
   const location = useLocation()
   const { closeDrawer } = useLayoutContext()
-  const { trips: tripsFromContext, setTrips } = useTripContext()
+  const { trips: tripsFromContext, hydrateTrips, updateTripLocal } =
+    useTripContext()
   const tripsFetcher = useFetcher<{ trips: Trip[]; error?: string }>()
   const actionFetcher = useFetcher<{ success?: boolean; error?: string }>()
   
@@ -92,7 +93,7 @@ export const TripSelectionModal = ({
       // Update context with fetched trips
       const trips = tripsFetcher.data.trips
       if (Array.isArray(trips)) {
-        setTrips(trips)
+        hydrateTrips(trips)
       }
       if (tripsFetcher.data.error) {
         onError('Error', getSafeFetcherErrorMessage(tripsFetcher.data, ERROR_LOAD_TRIPS))
@@ -100,14 +101,14 @@ export const TripSelectionModal = ({
     } else if (tripsFetcher.state === 'loading' && !tripsFetcher.data) {
       setIsLoadingTrips(true)
     }
-  }, [tripsFetcher.state, tripsFetcher.data, setTrips, onError])
+  }, [tripsFetcher.state, tripsFetcher.data, hydrateTrips, onError])
 
   // Initialize trips from props into context when modal opens
   useEffect(() => {
     if (isOpen && tripsFromProps) {
-      setTrips(tripsFromProps)
+      hydrateTrips(tripsFromProps)
     }
-  }, [isOpen, tripsFromProps, setTrips])
+  }, [isOpen, tripsFromProps, hydrateTrips])
 
   // Clear loading states when action completes
   useEffect(() => {
@@ -170,15 +171,10 @@ export const TripSelectionModal = ({
     setRemovingFromTripId(tripId)
 
     // Optimistic update - we have a real ID so this is safe
-    setTrips((prevTrips: Trip[]) =>
-      prevTrips.map((t: Trip) => {
-        if (t.id !== tripId) return t
-        return {
-          ...t,
-          spots: t.spots?.filter((s) => s.id !== tripSpotId) || [],
-        }
-      }),
-    )
+    updateTripLocal(tripId, (t) => ({
+      ...t,
+      spots: t.spots?.filter((s) => s.id !== tripSpotId) || [],
+    }))
 
     // Submit action using internal fetcher to track completion
     const formData = new FormData()

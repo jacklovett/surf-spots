@@ -1,4 +1,11 @@
-import { createContext, useContext, useState, ReactNode } from 'react'
+import {
+  createContext,
+  useContext,
+  useState,
+  useCallback,
+  useMemo,
+  ReactNode,
+} from 'react'
 
 export type DrawerPosition = 'left' | 'right'
 
@@ -34,31 +41,37 @@ export const LayoutProvider = ({ children }: LayoutProviderProps) => {
     content: null,
   })
 
-  const openDrawer = (
-    content: ReactNode,
-    position: DrawerPosition = 'right',
-    title?: string,
-    actions?: ReactNode,
-  ) =>
-    setDrawer({
-      isOpen: true,
-      position,
-      content,
-      title,
-      actions,
-    })
+  const openDrawer = useCallback(
+    (
+      content: ReactNode,
+      position: DrawerPosition = 'right',
+      title?: string,
+      actions?: ReactNode,
+    ) => 
+      setDrawer({
+        isOpen: true,
+        position,
+        content,
+        title,
+        actions,
+      }),
+    [],
+  )
 
-  const closeDrawer = () =>
+  const closeDrawer = useCallback(() =>
     setDrawer((prev) => ({
       ...prev,
       isOpen: false,
-    }))
+    })), [])
 
-  const value: LayoutContextType = {
-    drawer,
-    openDrawer,
-    closeDrawer,
-  }
+  const value = useMemo(
+    (): LayoutContextType => ({
+      drawer,
+      openDrawer,
+      closeDrawer,
+    }),
+    [drawer, openDrawer, closeDrawer],
+  )
 
   return (
     <LayoutContext.Provider value={value}>{children}</LayoutContext.Provider>

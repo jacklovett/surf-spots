@@ -4,6 +4,7 @@ import {
   useState,
   useEffect,
   useCallback,
+  useMemo,
   ReactNode,
 } from 'react'
 
@@ -21,13 +22,14 @@ const defaultSettings: Settings = {
   preferredUnits: 'metric',
 }
 
-const SettingsContext = createContext<{
+interface SettingsContextValue {
   settings: Settings
   updateSetting: (key: string, value: string | units) => void
-}>({
-  settings: defaultSettings,
-  updateSetting: () => {},
-})
+}
+
+const SettingsContext = createContext<SettingsContextValue | undefined>(
+  undefined,
+)
 
 export const SettingsProvider = ({ children }: SettingsProviderProps) => {
   const [settings, setSettings] = useState<Settings>(defaultSettings)
@@ -58,8 +60,13 @@ export const SettingsProvider = ({ children }: SettingsProviderProps) => {
     [],
   )
 
+  const value = useMemo(
+    (): SettingsContextValue => ({ settings, updateSetting }),
+    [settings, updateSetting],
+  )
+
   return (
-    <SettingsContext.Provider value={{ settings, updateSetting }}>
+    <SettingsContext.Provider value={value}>
       {children}
     </SettingsContext.Provider>
   )
@@ -69,7 +76,9 @@ export const useSettingsContext = () => {
   const context = useContext(SettingsContext)
 
   if (!context) {
-    throw new Error('useSettingsContext must be used within a SettingsProvider')
+    throw new Error(
+      'useSettingsContext must be used within a SettingsProvider',
+    )
   }
 
   return context
