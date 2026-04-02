@@ -237,7 +237,9 @@ export const SurfSpotForm = (props: SurfSpotFormProps) => {
         foodNearby: !!surfSpot?.foodNearby,
         skillLevel: surfSpot?.skillLevel || '',
         crowdLevel: surfSpot?.crowdLevel ?? '',
-        forecastLinks: toUrlLinkItems(surfSpot?.forecasts),
+        forecastLinks: surfSpot?.isWavepool
+          ? []
+          : toUrlLinkItems(surfSpot?.forecasts),
         webcamLinks: toUrlLinkItems(surfSpot?.webcams),
         wavepoolUrl: surfSpot?.wavepoolUrl || '',
       } as SurfSpotFormState,
@@ -249,6 +251,7 @@ export const SurfSpotForm = (props: SurfSpotFormProps) => {
         }),
         forecastLinks: (links) => {
           if (!Array.isArray(links)) return 'Invalid data format'
+          if (isWavepool) return ''
 
           // Validate each link and update its errorMessage
           const updatedLinks = links.map((link) => ({
@@ -576,6 +579,7 @@ export const SurfSpotForm = (props: SurfSpotFormProps) => {
               const next = !isWavepool
               setIsWavepool(next)
               if (next) setIsRiverWave(false)
+              if (next) handleChange('forecastLinks', [])
             }}
           />
           <CheckboxOption
@@ -661,6 +665,7 @@ export const SurfSpotForm = (props: SurfSpotFormProps) => {
 
         {stepId === 'access' && (
         <AccessAmenitiesSection
+          isWavepool={isWavepool}
           isBoatRequired={isBoatRequired}
           onBoatRequiredChange={setIsBoatRequired}
           accommodation={accommodation}

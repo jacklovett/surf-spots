@@ -89,9 +89,11 @@ export const buildSurfSpotFormData = (
   if (isWavepool) fd.append('isWavepool', 'on')
   if (isWavepool && wavepoolUrl) fd.append('wavepoolUrl', wavepoolUrl)
   if (isRiverWave) fd.append('isRiverWave', 'on')
-  ;(formState.forecastLinks ?? []).forEach((link) =>
-    fd.append('forecasts', link.url),
-  )
+  if (!isWavepool) {
+    ;(formState.forecastLinks ?? []).forEach((link) =>
+      fd.append('forecasts', link.url),
+    )
+  }
   ;(formState.webcamLinks ?? []).forEach((link) => fd.append('webcams', link.url))
   foodOptions.forEach((opt) => fd.append('foodOptions', opt.value))
   accommodationOptions.forEach((opt) =>

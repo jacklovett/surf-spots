@@ -27,6 +27,8 @@ type FormChangeHandler = <K extends keyof SurfSpotFormState>(
 ) => void
 
 interface AccessAmenitiesSectionProps {
+  /** When true, swell-based forecast links are hidden (not applicable to wavepools). */
+  isWavepool: boolean
   isBoatRequired: boolean
   onBoatRequiredChange: (value: boolean) => void
   accommodation: Availability
@@ -52,6 +54,7 @@ interface AccessAmenitiesSectionProps {
 }
 
 export const AccessAmenitiesSection = ({
+  isWavepool,
   isBoatRequired,
   onBoatRequiredChange,
   accommodation,
@@ -97,21 +100,23 @@ export const AccessAmenitiesSection = ({
           />
         </div>
       </div>
-      {/* Forecast Links */}
-      <div className="pv">
-        <p className='bold'>Forecast Links</p>
-        <p className="mb">
-          Add forecast sites you know for this surf spot. (Maximum of {MAX_FORECASTS})
-        </p>
-        <UrlLinkList
-          links={formState.forecastLinks}
-          onChange={(links) => onChange('forecastLinks', links)}
-          inputName="forecasts"
-          linkLabel="Forecast Link"
-          addButtonText="Add Forecast Link"
-          maxLinks={MAX_FORECASTS}
-        />
-      </div>
+      {/* Forecast Links (ocean spots only; wavepools use schedules, not swell forecasts) */}
+      {!isWavepool && (
+        <div className="pv">
+          <p className='bold'>Forecast Links</p>
+          <p className="mb">
+            Add forecast sites you know for this surf spot. (Maximum of {MAX_FORECASTS})
+          </p>
+          <UrlLinkList
+            links={formState.forecastLinks}
+            onChange={(links) => onChange('forecastLinks', links)}
+            inputName="forecasts"
+            linkLabel="Forecast Link"
+            addButtonText="Add Forecast Link"
+            maxLinks={MAX_FORECASTS}
+          />
+        </div>
+      )}
       {/* Webcam Links */}
       <div className="pv">
         <p className='bold'>Webcam Links</p>

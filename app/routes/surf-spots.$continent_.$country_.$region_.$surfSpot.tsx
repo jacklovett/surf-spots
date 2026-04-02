@@ -652,30 +652,32 @@ if (error || !surfSpotDetails) {
             </div>
           </section>
         )}
-        <section>
-          <h3>Surf Forecasts</h3>
-          {forecasts && forecasts.length > 0 ? (
-            <>
+        {!isWavepool && (
+          <section>
+            <h3>Surf Forecasts</h3>
+            {forecasts && forecasts.length > 0 ? (
+              <>
+                <p>
+                  Looking for real time conditions? Below is a list of forecasts
+                  to check out
+                </p>
+                <div className="column">
+                  {/* TODO: add icons/logos for well known forecasting sites */}
+                  {forecasts.map((forecast) => (
+                    <SafeLink key={forecast} url={forecast}>
+                      {forecast}
+                    </SafeLink>
+                  ))}
+                </div>
+              </>
+            ) : (
               <p>
-                Looking for real time conditions? Below is a list of forecasts
-                to check out
+                Know a reliable forecast for this spot? Let us know and share the
+                love!
               </p>
-              <div className="column">
-                {/* TODO: add icons/logos for well known forecasting sites */}
-                {forecasts.map((forecast) => (
-                  <SafeLink key={forecast} url={forecast}>
-                    {forecast}
-                  </SafeLink>
-                ))}
-              </div>
-            </>
-          ) : (
-            <p>
-              Know a reliable forecast for this spot? Let us know and share the
-              love!
-            </p>
-          )}
-        </section>
+            )}
+          </section>
+        )}
         <section>
           <h3>Webcams</h3>
           {webcams && webcams.length > 0 ? (
