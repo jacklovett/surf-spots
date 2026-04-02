@@ -61,6 +61,7 @@ import TripSelectionModal from './TripSelectionModal'
 import SelectionModal from './SelectionModal'
 import SafeLink from './SafeLink'
 import SurfSessionForm from './SurfSessionForm'
+import { SessionLogRow } from './SessionLogRow'
 
 export {
   AuthPage,
@@ -123,6 +124,7 @@ export {
   SurfboardSelectionModal,
   TripSelectionModal,
   SelectionModal,
+  SessionLogRow,
   UrlLinkList,
   ViewSwitch,
 }

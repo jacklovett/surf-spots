@@ -79,7 +79,7 @@ export const loader: LoaderFunction = async ({ request, params }) => {
       },
     )
   } catch (error) {
-    console.error('Session log page: failed to load surf spot', error)
+    console.error('Add session page: failed to load surf spot', error)
     return data<LoaderData>(
       {
         surfboards: [],
@@ -122,7 +122,7 @@ export const action: ActionFunction = async ({ request }) => {
     formData.set('skillLevel', skillLevel)
     return await handleSaveSurfSession(formData, String(user.id), cookie)
   } catch (error) {
-    console.error('Session log action failed', error)
+    console.error('Add session action failed', error)
     if (error instanceof Response) return error
     return data<ActionData>(
       {
@@ -134,7 +134,7 @@ export const action: ActionFunction = async ({ request }) => {
   }
 }
 
-export default function SurfSpotSessionLogRoute() {
+export default function SurfSpotAddSessionRoute() {
   const { surfSpotDetails, surfboards, requiresSkillLevel, error } = useLoaderData<LoaderData>()
   const navigate = useNavigate()
   const location = useLocation()

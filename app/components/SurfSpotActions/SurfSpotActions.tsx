@@ -158,7 +158,7 @@ export const SurfSpotActions = memo((props: IProps) => {
       setTripSelectionModalOpen(true)
     }
 
-    const handleOpenSessionLog = () => {
+    const handleOpenAddSession = () => {
       if (!user) {
         showSignUpPrompt('surfed-spots')
         return
@@ -187,9 +187,9 @@ export const SurfSpotActions = memo((props: IProps) => {
         closeOnClick: !isSurfedSpot,
       },
       {
-        label: 'Save your surf',
-        iconKey: 'surfboard',
-        onClick: handleOpenSessionLog,
+        label: 'Add session',
+        iconKey: 'stopwatch',
+        onClick: handleOpenAddSession,
       },
       {
         label: 'Add to trip',

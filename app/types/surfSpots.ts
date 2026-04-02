@@ -329,11 +329,15 @@ export interface SurfSessionListItem {
   surfSpotId: number
   surfSpotName: string
   spotPath: string
-  waveSize: SurfSessionWaveSize
-  crowdLevel: CrowdLevel
-  waveQuality: WaveQuality
-  wouldSurfAgain: boolean
+  waveSize?: SurfSessionWaveSize | null
+  crowdLevel?: CrowdLevel | null
+  waveQuality?: WaveQuality | null
+  wouldSurfAgain?: boolean | null
   skillLevel?: SkillLevel
   surfboardId?: string | null
   surfboardName?: string | null
+  swellDirection?: string | null
+  windDirection?: string | null
+  tide?: Tide | null
+  sessionNotes?: string | null
 }

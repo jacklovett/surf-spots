@@ -1,4 +1,16 @@
 .surf-session-page {
+  .surf-session-lead {
+    margin: 0 0 $spacing-unit;
+    line-height: 1.55;
+    max-width: 40rem;
+  }
+
+  .surf-session-section-title {
+    margin: $spacing-unit 0 $spacing-small;
+    font-size: $font-size-large;
+    color: $text-heading;
+  }
+
   .surf-session-thank-you {
     @extend %flex-column;
     text-align: center;
@@ -20,5 +32,18 @@
 
   .surf-session-thank-you-actions {
     margin-top: $spacing-small;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: $spacing-unit;
+    align-items: center;
+
+    .button.surf-session-thank-you-actions__btn {
+      width: auto;
+      min-width: 0;
+      flex: 0 1 auto;
+      padding-left: $spacing-large;
+      padding-right: $spacing-large;
+    }
   }
 }

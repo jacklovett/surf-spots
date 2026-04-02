@@ -8,7 +8,7 @@ import {
   WaveQuality,
 } from '~/types/surfSpots'
 import { Surfboard } from '~/types/surfboard'
-import { SELECT_OPTION } from './surfSpots'
+import { SELECT_OPTION, TIDE_OPTIONS } from './surfSpots'
 
 const optionsForEnum = <T extends string>(
   values: readonly T[],
@@ -20,8 +20,15 @@ const optionsForEnum = <T extends string>(
     label: labels[value],
   }))
 
+export const SURF_SESSION_TIDE_FIELD: FormField = {
+  label: 'Tide when you surfed',
+  name: 'tide',
+  type: 'select',
+  options: TIDE_OPTIONS,
+}
+
 export const SURF_SESSION_WAVE_SIZE_FIELD: FormField = {
-  label: 'How big were the waves?',
+  label: 'Wave size (rough height)',
   name: 'waveSize',
   type: 'select',
   options: [
@@ -34,7 +41,7 @@ export const SURF_SESSION_WAVE_SIZE_FIELD: FormField = {
 }
 
 export const SURF_SESSION_CROWD_LEVEL_FIELD: FormField = {
-  label: 'How crowded was the lineup?',
+  label: 'Lineup crowd',
   name: 'crowdLevel',
   type: 'select',
   options: [
@@ -47,7 +54,7 @@ export const SURF_SESSION_CROWD_LEVEL_FIELD: FormField = {
 }
 
 export const SURF_SESSION_WAVE_QUALITY_FIELD: FormField = {
-  label: 'How were the waves?',
+  label: 'How it felt in the water',
   name: 'waveQuality',
   type: 'select',
   options: [
@@ -62,7 +69,7 @@ export const SURF_SESSION_WAVE_QUALITY_FIELD: FormField = {
 export const buildSurfSessionSurfboardField = (
   surfboards: Surfboard[],
 ): FormField => ({
-  label: 'Board used (optional)',
+  label: 'Surfboard',
   name: 'surfboardId',
   type: 'select',
   options: [

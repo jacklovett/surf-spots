@@ -64,7 +64,7 @@ export const ERROR_LOGIN_REQUIRED_ADD_SURFBOARD =
 export const ERROR_SAVE_NOTE = 'Failed to save note. Please try again.'
 export const ERROR_SAVE_SURF_SESSION =
   'Could not save your session. Please try again.'
-/** Session log: user has no profile skill and did not choose one on the form. */
+/** Add session form: user has no profile skill and did not choose one on the form. */
 export const ERROR_SESSION_SKILL_LEVEL_REQUIRED =
   'Select your skill level before saving this session.'
 export const SUCCESS_SURF_SESSION_SAVED = 'Your session was saved.'

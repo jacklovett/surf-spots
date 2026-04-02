@@ -1,0 +1,256 @@
+.session-log-card {
+  border: 1px solid $outline-color;
+  border-radius: $content-border-radius;
+  background: $background-color;
+  overflow: hidden;
+}
+
+.session-log-card-row {
+  display: flex;
+  align-items: stretch;
+  gap: 0;
+  min-height: 3.25rem;
+}
+
+.session-log-card-toggle {
+  flex: 1;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: $spacing-unit;
+  padding: $spacing-unit $spacing-small $spacing-unit $spacing-unit;
+  margin: 0;
+  border: none;
+  background: $background-light;
+  text-align: left;
+  cursor: pointer;
+  font: inherit;
+  color: inherit;
+
+  &:hover {
+    background: color-mix(in srgb, $background-light 85%, $primary-color 15%);
+  }
+
+  &:focus-visible {
+    outline: 2px solid $primary-color;
+    outline-offset: -2px;
+  }
+}
+
+.session-log-card-chevron {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: $text-secondary;
+  transition: transform 0.2s ease;
+
+  svg {
+    width: 1.1rem;
+    height: 1.1rem;
+  }
+}
+
+.session-log-card-chevron-open {
+  transform: rotate(180deg);
+}
+
+.session-log-card-primary {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.session-log-card-spot {
+  font-size: $font-size-base;
+  font-weight: 600;
+  color: $text-heading;
+  line-height: 1.3;
+}
+
+.session-log-card-date {
+  font-size: $font-size-small;
+  line-height: 1.35;
+}
+
+.session-log-card-status {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: $spacing-unit;
+  min-width: 0;
+  max-width: 100%;
+}
+
+.session-log-card-badge {
+  flex-shrink: 0;
+  font-size: $font-size-small;
+  font-weight: 600;
+  padding: 2px $spacing-small;
+  border-radius: $button-border-radius;
+  white-space: nowrap;
+}
+
+.session-log-card-badge-good {
+  background: color-mix(in srgb, $success 18%, transparent);
+  color: $success;
+}
+
+.session-log-card-badge-ok {
+  background: color-mix(in srgb, $text-secondary 12%, transparent);
+  color: $text-color;
+}
+
+.session-log-card-badge-tough {
+  background: color-mix(in srgb, $error 14%, transparent);
+  color: $error;
+}
+
+.session-log-card-badge-unset {
+  background: color-mix(in srgb, $text-secondary 10%, transparent);
+  color: $text-secondary;
+}
+
+.session-log-card-meta {
+  flex: 1 1 auto;
+  min-width: 0;
+  font-size: $font-size-small;
+  line-height: 1.3;
+  text-align: left;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.session-log-card-link {
+  display: flex;
+  align-items: center;
+  padding: 0 $spacing-unit;
+  font-size: $font-size-small;
+  font-weight: 600;
+  color: $primary-color;
+  text-decoration: none;
+  border-left: 1px solid $border-light;
+  white-space: nowrap;
+
+  &:hover {
+    text-decoration: underline;
+  }
+
+  &:focus-visible {
+    outline: 2px solid $primary-color;
+    outline-offset: -4px;
+  }
+}
+
+.session-log-card-panel {
+  padding: $spacing-unit $spacing-unit $spacing-large;
+  border-top: 1px solid $border-light;
+  background: $background-color;
+}
+
+.session-log-card-dl {
+  margin: 0;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  column-gap: $spacing-large;
+  row-gap: $spacing-unit;
+}
+
+.session-log-card-dl-row {
+  display: grid;
+  grid-template-columns: minmax(5.5rem, 7.5rem) minmax(0, 1fr);
+  gap: $spacing-small $spacing-unit;
+  align-items: baseline;
+  font-size: $font-size-small;
+  min-width: 0;
+
+  dt {
+    margin: 0;
+    color: $text-secondary;
+    font-weight: 600;
+  }
+
+  dd {
+    margin: 0;
+    color: $text-color;
+    line-height: 1.45;
+    min-width: 0;
+    overflow-wrap: break-word;
+    word-break: normal;
+  }
+}
+
+.session-log-card-notes {
+  grid-column: 1 / -1;
+  margin-top: $spacing-small;
+  padding-top: $spacing-unit;
+  border-top: 1px dashed $border-light;
+
+  dt {
+    margin: 0 0 $spacing-small;
+    font-size: $font-size-small;
+    font-weight: 600;
+    color: $text-secondary;
+  }
+}
+
+.session-log-card-notes-body {
+  margin: 0;
+  font-size: $font-size-base;
+  line-height: 1.5;
+  color: $text-color;
+  white-space: pre-wrap;
+}
+
+@media (max-width: 36rem) {
+  .session-log-card-toggle {
+    grid-template-columns: auto 1fr;
+    grid-template-rows: auto auto;
+    row-gap: $spacing-small;
+    align-items: start;
+  }
+
+  .session-log-card-chevron {
+    grid-row: 1 / span 2;
+    align-self: center;
+  }
+
+  .session-log-card-primary {
+    grid-column: 2;
+    grid-row: 1;
+  }
+
+  .session-log-card-status {
+    grid-column: 2;
+    grid-row: 2;
+    justify-content: space-between;
+    flex-wrap: nowrap;
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .session-log-card-row {
+    flex-direction: column;
+  }
+
+  .session-log-card-link {
+    border-left: none;
+    border-top: 1px solid $border-light;
+    justify-content: center;
+    padding: $spacing-small $spacing-unit;
+  }
+
+  .session-log-card-dl {
+    grid-template-columns: 1fr;
+  }
+
+  /* Keep label + value on one row; only wrap inside the value when needed. */
+  .session-log-card-dl-row {
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: $spacing-small $spacing-unit;
+    align-items: baseline;
+  }
+}

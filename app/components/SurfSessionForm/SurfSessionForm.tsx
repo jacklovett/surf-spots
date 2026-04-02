@@ -6,12 +6,14 @@ import {
   useRef,
   useState,
 } from 'react'
-import { useFetcher } from 'react-router'
+import { useFetcher, useNavigate } from 'react-router'
 
 import {
   Button,
   CheckboxOption,
   DatePicker,
+  DirectionSelectors,
+  EmptyState,
   FormComponent,
   FormInput,
   Icon,
@@ -22,6 +24,7 @@ import { Surfboard } from '~/types/surfboard'
 import {
   buildSurfSessionSurfboardField,
   SURF_SESSION_CROWD_LEVEL_FIELD,
+  SURF_SESSION_TIDE_FIELD,
   SURF_SESSION_WAVE_QUALITY_FIELD,
   SURF_SESSION_WAVE_SIZE_FIELD,
 } from '~/types/formData/surfSessionForm'
@@ -30,11 +33,13 @@ import {
   ERROR_SAVE_SURF_SESSION,
   getFetcherSubmitStatus,
 } from '~/utils/errorUtils'
-import { BASE_SKILL_LEVEL_OPTIONS, SELECT_OPTION } from '~/types/formData/surfSpots'
-
-const THANK_YOU_HEADLINE = 'Session saved.'
+import {
+  BASE_SKILL_LEVEL_OPTIONS,
+  SELECT_OPTION,
+} from '~/types/formData/surfSpots'
+const THANK_YOU_HEADLINE = 'Session saved'
 const THANK_YOU_SUB =
-  'This helps other surfers see how this spot tends to feel in the water.'
+  'You will find it under My Sessions. Use it later to compare conditions, boards, and how the spot felt for you.'
 
 const valueFromSelectChange = (event: ChangeEvent<InputElementType>) =>
   (event.target as HTMLSelectElement).value
@@ -59,16 +64,21 @@ export const SurfSessionForm = (props: SurfSessionFormProps) => {
     requiresSkillLevel = false,
     onCancel,
   } = props
+  const navigate = useNavigate()
   const [showThankYou, setShowThankYou] = useState(false)
   const [sessionDate, setSessionDate] = useState(() =>
     formatDateForInput(new Date()),
   )
+  const [swellDirectionArray, setSwellDirectionArray] = useState<string[]>([])
+  const [windDirectionArray, setWindDirectionArray] = useState<string[]>([])
+  const [tide, setTide] = useState('')
   const [waveSize, setWaveSize] = useState('')
   const [crowdLevel, setCrowdLevel] = useState('')
   const [waveQuality, setWaveQuality] = useState('')
   const [skillLevel, setSkillLevel] = useState('')
   const [wouldSurfAgain, setWouldSurfAgain] = useState(false)
   const [surfboardId, setSurfboardId] = useState('')
+  const [sessionNotes, setSessionNotes] = useState('')
   const lastProcessedFetcherDataRef = useRef<typeof fetcher.data>(undefined)
 
   const boardField: FormField = useMemo(
@@ -83,23 +93,21 @@ export const SurfSessionForm = (props: SurfSessionFormProps) => {
       : null
 
   const isFormValid = useMemo(() => {
-    return (
-      !!sessionDate &&
-      !!waveSize &&
-      !!crowdLevel &&
-      !!waveQuality &&
-      (!requiresSkillLevel || !!skillLevel)
-    )
-  }, [sessionDate, waveSize, crowdLevel, waveQuality, requiresSkillLevel, skillLevel])
+    return !!sessionDate && (!requiresSkillLevel || !!skillLevel)
+  }, [sessionDate, requiresSkillLevel, skillLevel])
 
   const resetFields = useCallback(() => {
     setSessionDate(formatDateForInput(new Date()))
+    setSwellDirectionArray([])
+    setWindDirectionArray([])
+    setTide('')
     setWaveSize('')
     setCrowdLevel('')
     setWaveQuality('')
     setSkillLevel('')
     setWouldSurfAgain(false)
     setSurfboardId('')
+    setSessionNotes('')
   }, [])
 
   const handleDismiss = useCallback(() => {
@@ -109,8 +117,14 @@ export const SurfSessionForm = (props: SurfSessionFormProps) => {
     onCancel()
   }, [onCancel, resetFields])
 
+  const handleGoToSessions = useCallback(() => {
+    resetFields()
+    setShowThankYou(false)
+    lastProcessedFetcherDataRef.current = undefined
+    navigate('/sessions')
+  }, [navigate, resetFields])
+
   useEffect(() => {
-    // Re-init only when `surfSpotId` changes (not when fetcher returns after submit).
     resetFields()
     setShowThankYou(false)
     lastProcessedFetcherDataRef.current = undefined
@@ -137,7 +151,19 @@ export const SurfSessionForm = (props: SurfSessionFormProps) => {
           </p>
           <p className="surf-session-thank-you-sub">{THANK_YOU_SUB}</p>
           <div className="surf-session-thank-you-actions">
-            <Button label="Close" type="button" onClick={handleDismiss} />
+            <Button
+              label="My sessions"
+              type="button"
+              className="surf-session-thank-you-actions__btn"
+              onClick={handleGoToSessions}
+            />
+            <Button
+              label="Close"
+              type="button"
+              variant="cancel"
+              className="surf-session-thank-you-actions__btn"
+              onClick={handleDismiss}
+            />
           </div>
         </div>
       )}
@@ -154,63 +180,100 @@ export const SurfSessionForm = (props: SurfSessionFormProps) => {
           <>
             <input type="hidden" name="intent" value="saveSurfSession" />
             <input type="hidden" name="surfSpotId" value={surfSpotId} />
-            <h1>Session at {surfSpotName}</h1>
-            <div className="column gap">
-            {requiresSkillLevel && (
+            <h1>Add session at {surfSpotName}</h1>
+            <p className="surf-session-lead text-secondary">
+              Add as much or as little as you like; only the session date is required.
+            </p>
+            <div className="column">
+              {requiresSkillLevel && (
+                <FormInput
+                  field={{
+                    label: 'Skill Level',
+                    name: 'skillLevel',
+                    type: 'select',
+                    options: [SELECT_OPTION, ...BASE_SKILL_LEVEL_OPTIONS],
+                  }}
+                  value={skillLevel}
+                  onChange={(event) => setSkillLevel(valueFromSelectChange(event))}
+                  showLabel
+                />
+              )}
+              <DatePicker
+                label="Session date"
+                name="sessionDate"
+                value={sessionDate}
+                onChange={(event) => setSessionDate(event.target.value)}
+                max={formatDateForInput(new Date())}
+                showLabel
+              />
+              <h2 className="surf-session-section-title">Conditions</h2>
+              <DirectionSelectors
+                swellDirectionArray={swellDirectionArray}
+                windDirectionArray={windDirectionArray}
+                onSwellDirectionChange={setSwellDirectionArray}
+                onWindDirectionChange={setWindDirectionArray}
+              />
+              <FormInput
+                field={SURF_SESSION_TIDE_FIELD}
+                value={tide}
+                onChange={(event) => setTide(valueFromSelectChange(event))}
+                showLabel
+              />
+              <FormInput
+                field={SURF_SESSION_WAVE_SIZE_FIELD}
+                value={waveSize}
+                onChange={(event) => setWaveSize(valueFromSelectChange(event))}
+                showLabel
+              />
+              <FormInput
+                field={SURF_SESSION_WAVE_QUALITY_FIELD}
+                value={waveQuality}
+                onChange={(event) => setWaveQuality(valueFromSelectChange(event))}
+                showLabel
+              />
+              <FormInput
+                field={SURF_SESSION_CROWD_LEVEL_FIELD}
+                value={crowdLevel}
+                onChange={(event) => setCrowdLevel(valueFromSelectChange(event))}
+                showLabel
+              />
+              {surfboards.length > 0 ? (
+                <FormInput
+                  field={boardField}
+                  value={surfboardId}
+                  onChange={(event) =>
+                    setSurfboardId(valueFromSelectChange(event))
+                  }
+                  showLabel
+                />
+              ) : (
+                <EmptyState
+                  title="No boards in your quiver"
+                  description="Add a surfboard to your collection so you can tag which board you used on this session."
+                  ctaText="Add a surfboard"
+                  onCtaClick={() => navigate('/add-surfboard')}
+                />
+              )}
+               <div className="column mv">
+              <CheckboxOption
+                name="wouldSurfAgain"
+                title="Would surf again in similar conditions"
+                checked={wouldSurfAgain}
+                onChange={setWouldSurfAgain}
+              /></div>
               <FormInput
                 field={{
-                  label: 'Skill Level',
-                  name: 'skillLevel',
-                  type: 'select',
-                  options: [SELECT_OPTION, ...BASE_SKILL_LEVEL_OPTIONS],
+                  label: 'Session notes',
+                  name: 'sessionNotes',
+                  type: 'textarea',
+                  validationRules: { maxLength: 2000 },
                 }}
-                value={skillLevel}
-                onChange={(event) => setSkillLevel(valueFromSelectChange(event))}
+                value={sessionNotes}
+                onChange={(event) => setSessionNotes(event.target.value)}
                 showLabel
+                placeholder="Sections that worked, tide or crowd details, what to try next time…"
               />
-            )}
-            <DatePicker
-              label="Session date"
-              name="sessionDate"
-              value={sessionDate}
-              onChange={(event) => setSessionDate(event.target.value)}
-              max={formatDateForInput(new Date())}
-              showLabel
-            />
-            <FormInput
-              field={SURF_SESSION_WAVE_SIZE_FIELD}
-              value={waveSize}
-              onChange={(event) => setWaveSize(valueFromSelectChange(event))}
-              showLabel
-            />
-            <FormInput
-              field={SURF_SESSION_CROWD_LEVEL_FIELD}
-              value={crowdLevel}
-              onChange={(event) => setCrowdLevel(valueFromSelectChange(event))}
-              showLabel
-            />
-            <FormInput
-              field={SURF_SESSION_WAVE_QUALITY_FIELD}
-              value={waveQuality}
-              onChange={(event) => setWaveQuality(valueFromSelectChange(event))}
-              showLabel
-            />
-            <CheckboxOption
-              name="wouldSurfAgain"
-              title="Would you surf here again?"
-              description="Check if you would return to this spot; leave unchecked if not."
-              checked={wouldSurfAgain}
-              onChange={setWouldSurfAgain}
-            />
-            {surfboards.length > 0 && (
-              <FormInput
-                field={boardField}
-                value={surfboardId}
-                onChange={(event) => setSurfboardId(valueFromSelectChange(event))}
-                showLabel
-              />
-            )}
-          </div>
+            </div>
           </>
         </FormComponent>
       )}

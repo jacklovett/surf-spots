@@ -90,16 +90,16 @@ export const handleSaveSurfSession = async (
   const waveSize = (formData.get('waveSize') as string) || ''
   const crowdLevel = (formData.get('crowdLevel') as string) || ''
   const waveQuality = (formData.get('waveQuality') as string) || ''
+  const tide = (formData.get('tide') as string) || ''
+  const swellDirection = (formData.get('swellDirection') as string) || ''
+  const windDirection = (formData.get('windDirection') as string) || ''
+  const sessionNotesRaw = (formData.get('sessionNotes') as string) || ''
+  const sessionNotes = sessionNotesRaw.trim().slice(0, 2000)
   const skillLevel = formData.get('skillLevel')
   const surfboardIdRaw = (formData.get('surfboardId') as string) || ''
   const wouldSurfAgain = formData.get('wouldSurfAgain') === 'on'
 
-  if (
-    !sessionDate ||
-    !waveSize ||
-    !crowdLevel ||
-    !waveQuality
-  ) {
+  if (!sessionDate) {
     return data<ActionData>(
       {
         success: false,
@@ -115,11 +115,35 @@ export const handleSaveSurfSession = async (
       surfSpotId,
       userId,
       sessionDate,
-      waveSize,
-      crowdLevel,
-      waveQuality,
       wouldSurfAgain,
-      skillLevel,
+    }
+    const skillLevelStr =
+      typeof skillLevel === 'string' && skillLevel.trim() !== ''
+        ? skillLevel.trim()
+        : undefined
+    if (skillLevelStr) {
+      payload.skillLevel = skillLevelStr
+    }
+    if (waveSize) {
+      payload.waveSize = waveSize
+    }
+    if (crowdLevel) {
+      payload.crowdLevel = crowdLevel
+    }
+    if (waveQuality) {
+      payload.waveQuality = waveQuality
+    }
+    if (tide) {
+      payload.tide = tide
+    }
+    if (swellDirection.trim()) {
+      payload.swellDirection = swellDirection.trim()
+    }
+    if (windDirection.trim()) {
+      payload.windDirection = windDirection.trim()
+    }
+    if (sessionNotes) {
+      payload.sessionNotes = sessionNotes
     }
     if (surfboardIdRaw) {
       payload.surfboardId = surfboardIdRaw

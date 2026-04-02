@@ -65,6 +65,7 @@ export const FormInput = (props: IProps) => {
           disabled={disabled}
           aria-disabled={disabled}
           readOnly={readOnly}
+          maxLength={field.validationRules?.maxLength}
         />
       ) : type === 'select' ? (
         <select

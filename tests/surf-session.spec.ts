@@ -4,7 +4,7 @@ import { login } from './utils/auth-helper'
 /**
  * Surf session at `{SurfSpot.path}/session` (e.g. `/surf-spots/.../slug/session`, or with
  * `.../sub-regions/.../slug/session`). Open from spot actions, fill fields, thank-you state.
- * Requires VITE_API_URL and a running API that accepts POST /surf-sessions with structured fields.
+ * Requires VITE_API_URL and a running API that accepts POST /surf-sessions (including tide and optional swell/wind).
  */
 test.describe('Surf session page', () => {
   test.beforeEach(async ({ page }) => {
@@ -51,14 +51,14 @@ test.describe('Surf session page', () => {
       timeout: 15000,
     })
 
-    await expect(page.getByRole('heading', { name: /Session at/i })).not.toBeVisible()
+    await expect(page.getByRole('heading', { name: /Add session at/i })).not.toBeVisible()
 
     await openMenu()
     await page.locator('.dropdown-menu').waitFor({ state: 'visible', timeout: 5000 })
-    await page.getByRole('button', { name: 'Save your surf' }).click()
+    await page.getByRole('button', { name: 'Add session' }).click()
 
     await expect(page).toHaveURL(/\/surf-spots\/.+\/session\/?$/, { timeout: 15000 })
-    await expect(page.getByRole('heading', { name: /Session at/i })).toBeVisible({
+    await expect(page.getByRole('heading', { name: /Add session at/i })).toBeVisible({
       timeout: 10000,
     })
     await expect(page.getByRole('button', { name: 'Cancel' })).toBeVisible()
@@ -70,11 +70,22 @@ test.describe('Surf session page', () => {
       await skillLevelSelect.selectOption('INTERMEDIATE')
     }
 
+    const directionWrappers = page.locator('.direction-selector-wrapper')
+    await directionWrappers
+      .nth(0)
+      .getByRole('button', { name: 'Select N direction' })
+      .click()
+    await directionWrappers
+      .nth(1)
+      .getByRole('button', { name: 'Select SW direction' })
+      .click()
+
+    await page.locator('select[name="tide"]').selectOption('Mid')
     await page.locator('select[name="waveSize"]').selectOption('SMALL')
     await page.locator('select[name="crowdLevel"]').selectOption('FEW')
     await page.locator('select[name="waveQuality"]').selectOption('FUN')
     await page
-      .getByRole('checkbox', { name: /Would you surf here again/i })
+      .getByRole('checkbox', { name: /Would surf again in similar conditions/i })
       .check()
 
     await page.getByRole('button', { name: 'Save session' }).click()
