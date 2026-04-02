@@ -407,6 +407,9 @@ test.describe('Surf Spot Wizard (Add/Edit Contract)', () => {
     await assertWizardStepIndex(page, 4)
     await assertWizardCurrentStepLabel(page, STEP_LABELS.amenities)
 
+    await expect(page.getByText('Forecast Links', { exact: true })).toHaveCount(0)
+    await expect(page.getByRole('button', { name: /Add Webcam Link/i })).toHaveCount(0)
+
     await expect(wizardProgressNav(page)).toHaveAttribute('aria-valuemax', '4')
     await expect(page.locator('button[type="submit"]')).toBeVisible({ timeout: 15000 })
     await page.locator('button[type="submit"]').click()

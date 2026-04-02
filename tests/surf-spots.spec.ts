@@ -89,16 +89,17 @@ test.describe('Surf Spots', () => {
     await firstSpot.click()
     await page.waitForLoadState('networkidle')
 
-    const webcamsSection = page
-      .locator('section')
-      .filter({ has: page.locator('a[href*="http"]') })
-      .first()
-    const hasWebcamsSection = await webcamsSection.isVisible().catch(() => false)
-    if (!hasWebcamsSection) {
-      test.skip(true, 'Webcams/links section not present for this spot/data')
+    // Ocean spots show a Webcams section; wavepools omit it (no beach-style webcams).
+    const webcamsHeading = page.getByRole('heading', { name: 'Webcams' })
+    const hasWebcamsHeading = await webcamsHeading.isVisible().catch(() => false)
+    if (!hasWebcamsHeading) {
+      test.skip(
+        true,
+        'No Webcams heading (wavepool spot or layout without webcams section)',
+      )
       return
     }
-    await expect(webcamsSection).toBeVisible()
+    await expect(webcamsHeading).toBeVisible()
   })
 
   test('should show Standing Wave as break type option in filters', async ({

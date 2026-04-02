@@ -27,7 +27,7 @@ type FormChangeHandler = <K extends keyof SurfSpotFormState>(
 ) => void
 
 interface AccessAmenitiesSectionProps {
-  /** When true, swell-based forecast links are hidden (not applicable to wavepools). */
+  /** When true, forecast and webcam links are hidden (not applicable to wavepools). */
   isWavepool: boolean
   isBoatRequired: boolean
   onBoatRequiredChange: (value: boolean) => void
@@ -100,38 +100,39 @@ export const AccessAmenitiesSection = ({
           />
         </div>
       </div>
-      {/* Forecast Links (ocean spots only; wavepools use schedules, not swell forecasts) */}
+      {/* Forecast and webcam links: ocean spots only (not applicable to wavepools). */}
       {!isWavepool && (
-        <div className="pv">
-          <p className='bold'>Forecast Links</p>
-          <p className="mb">
-            Add forecast sites you know for this surf spot. (Maximum of {MAX_FORECASTS})
-          </p>
-          <UrlLinkList
-            links={formState.forecastLinks}
-            onChange={(links) => onChange('forecastLinks', links)}
-            inputName="forecasts"
-            linkLabel="Forecast Link"
-            addButtonText="Add Forecast Link"
-            maxLinks={MAX_FORECASTS}
-          />
-        </div>
+        <>
+          <div className="pv">
+            <p className='bold'>Forecast Links</p>
+            <p className="mb">
+              Add forecast sites you know for this surf spot. (Maximum of {MAX_FORECASTS})
+            </p>
+            <UrlLinkList
+              links={formState.forecastLinks}
+              onChange={(links) => onChange('forecastLinks', links)}
+              inputName="forecasts"
+              linkLabel="Forecast Link"
+              addButtonText="Add Forecast Link"
+              maxLinks={MAX_FORECASTS}
+            />
+          </div>
+          <div className="pv">
+            <p className='bold'>Webcam Links</p>
+            <p className="mb">
+              Add webcam links for live views of this surf spot. (Maximum of {MAX_WEBCAMS})
+            </p>
+            <UrlLinkList
+              links={formState.webcamLinks}
+              onChange={(links) => onChange('webcamLinks', links)}
+              inputName="webcams"
+              linkLabel="Webcam Link"
+              addButtonText="Add Webcam Link"
+              maxLinks={MAX_WEBCAMS}
+            />
+          </div>
+        </>
       )}
-      {/* Webcam Links */}
-      <div className="pv">
-        <p className='bold'>Webcam Links</p>
-        <p className="mb">
-          Add webcam links for live views of this surf spot. (Maximum of {MAX_WEBCAMS})
-        </p>
-        <UrlLinkList
-          links={formState.webcamLinks}
-          onChange={(links) => onChange('webcamLinks', links)}
-          inputName="webcams"
-          linkLabel="Webcam Link"
-          addButtonText="Add Webcam Link"
-          maxLinks={MAX_WEBCAMS}
-        />
-      </div>
       {/* Amenities */}
       {/* Accommodation Nearby */}
       <div className="pv">

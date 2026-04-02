@@ -240,7 +240,9 @@ export const SurfSpotForm = (props: SurfSpotFormProps) => {
         forecastLinks: surfSpot?.isWavepool
           ? []
           : toUrlLinkItems(surfSpot?.forecasts),
-        webcamLinks: toUrlLinkItems(surfSpot?.webcams),
+        webcamLinks: surfSpot?.isWavepool
+          ? []
+          : toUrlLinkItems(surfSpot?.webcams),
         wavepoolUrl: surfSpot?.wavepoolUrl || '',
       } as SurfSpotFormState,
       validationFunctions: {
@@ -579,7 +581,10 @@ export const SurfSpotForm = (props: SurfSpotFormProps) => {
               const next = !isWavepool
               setIsWavepool(next)
               if (next) setIsRiverWave(false)
-              if (next) handleChange('forecastLinks', [])
+              if (next) {
+                handleChange('forecastLinks', [])
+                handleChange('webcamLinks', [])
+              }
             }}
           />
           <CheckboxOption

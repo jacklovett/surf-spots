@@ -322,12 +322,14 @@ export const createSurfSpotFromFormData = async (request: Request) => {
         MAX_FORECASTS,
         'forecast links',
       )
-  const webcams = parseUrlList(
-    formData,
-    'webcams',
-    MAX_WEBCAMS,
-    'webcam links',
-  )
+  const webcams = isWavepool
+    ? []
+    : parseUrlList(
+        formData,
+        'webcams',
+        MAX_WEBCAMS,
+        'webcam links',
+      )
 
   const facilities = parseCappedStringArray(
     formData,

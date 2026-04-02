@@ -93,8 +93,10 @@ export const buildSurfSpotFormData = (
     ;(formState.forecastLinks ?? []).forEach((link) =>
       fd.append('forecasts', link.url),
     )
+    ;(formState.webcamLinks ?? []).forEach((link) =>
+      fd.append('webcams', link.url),
+    )
   }
-  ;(formState.webcamLinks ?? []).forEach((link) => fd.append('webcams', link.url))
   foodOptions.forEach((opt) => fd.append('foodOptions', opt.value))
   accommodationOptions.forEach((opt) =>
     fd.append('accommodationOptions', opt.value),

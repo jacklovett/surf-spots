@@ -144,7 +144,7 @@ export const goToAddSurfSpotLocationStep = async (
 }
 
 /**
- * Private spot → Amenities step (webcams / forecasts live here).
+ * Private spot → Amenities step (forecasts and webcams for ocean spots; hidden for wavepools).
  * false = missing seed location data (caller should skip).
  */
 export const goToAddSurfSpotAmenitiesStep = async (

@@ -653,48 +653,50 @@ if (error || !surfSpotDetails) {
           </section>
         )}
         {!isWavepool && (
-          <section>
-            <h3>Surf Forecasts</h3>
-            {forecasts && forecasts.length > 0 ? (
-              <>
+          <>
+            <section>
+              <h3>Surf Forecasts</h3>
+              {forecasts && forecasts.length > 0 ? (
+                <>
+                  <p>
+                    Looking for real time conditions? Below is a list of forecasts
+                    to check out
+                  </p>
+                  <div className="column">
+                    {/* TODO: add icons/logos for well known forecasting sites */}
+                    {forecasts.map((forecast) => (
+                      <SafeLink key={forecast} url={forecast}>
+                        {forecast}
+                      </SafeLink>
+                    ))}
+                  </div>
+                </>
+              ) : (
                 <p>
-                  Looking for real time conditions? Below is a list of forecasts
-                  to check out
+                  Know a reliable forecast for this spot? Let us know and share the
+                  love!
                 </p>
-                <div className="column">
-                  {/* TODO: add icons/logos for well known forecasting sites */}
-                  {forecasts.map((forecast) => (
-                    <SafeLink key={forecast} url={forecast}>
-                      {forecast}
-                    </SafeLink>
-                  ))}
-                </div>
-              </>
-            ) : (
-              <p>
-                Know a reliable forecast for this spot? Let us know and share the
-                love!
-              </p>
-            )}
-          </section>
+              )}
+            </section>
+            <section>
+              <h3>Webcams</h3>
+              {webcams && webcams.length > 0 ? (
+                <>
+                  <p>Live views of the spot. Check the webcams before you go.</p>
+                  <div className="column">
+                    {webcams.map((webcam) => (
+                      <SafeLink key={webcam} url={webcam}>
+                        {webcam}
+                      </SafeLink>
+                    ))}
+                  </div>
+                </>
+              ) : (
+                <p>Know a webcam for this spot? Let us know and we can add it!</p>
+              )}
+            </section>
+          </>
         )}
-        <section>
-          <h3>Webcams</h3>
-          {webcams && webcams.length > 0 ? (
-            <>
-              <p>Live views of the spot. Check the webcams before you go.</p>
-              <div className="column">
-                {webcams.map((webcam) => (
-                  <SafeLink key={webcam} url={webcam}>
-                    {webcam}
-                  </SafeLink>
-                ))}
-              </div>
-            </>
-          ) : (
-            <p>Know a webcam for this spot? Let us know and we can add it!</p>
-          )}
-        </section>
         {isWavepool && wavepoolUrl && (
           <section>
             <h3>Official Website</h3>
