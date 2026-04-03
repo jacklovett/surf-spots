@@ -26,6 +26,9 @@ export interface User {
   height?: number
   weight?: number
   skillLevel?: SkillLevel
+  emergencyContactName?: string
+  emergencyContactPhone?: string
+  emergencyContactRelationship?: string
   settings?: UserSettings
 }
 
@@ -39,6 +42,9 @@ export interface ProfileState {
   height: string
   weight: string
   skillLevel: string
+  emergencyContactName: string
+  emergencyContactPhone: string
+  emergencyContactRelationship: string
 }
 
 export interface UserSettings {

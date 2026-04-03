@@ -175,6 +175,13 @@ export const action: ActionFunction = async ({ request }) => {
   
   const skillLevel = formData.get('skillLevel')?.toString() || undefined
 
+  const emergencyContactName =
+    formData.get('emergencyContactName')?.toString().trim() || undefined
+  const emergencyContactPhone =
+    formData.get('emergencyContactPhone')?.toString().trim() || undefined
+  const emergencyContactRelationship =
+    formData.get('emergencyContactRelationship')?.toString().trim() || undefined
+
   const user = await requireSessionCookie(request)
 
   const updateUser = {
@@ -187,6 +194,9 @@ export const action: ActionFunction = async ({ request }) => {
     height,
     weight,
     skillLevel,
+    emergencyContactName,
+    emergencyContactPhone,
+    emergencyContactRelationship,
   }
 
   const cookie = request.headers.get('Cookie') ?? ''
@@ -253,6 +263,9 @@ const Profile = () => {
         height: heightDisplay?.toString() || '',
         weight: weightDisplay?.toString() || '',
         skillLevel: user?.skillLevel ? String(user.skillLevel) : '',
+        emergencyContactName: user?.emergencyContactName || '',
+        emergencyContactPhone: user?.emergencyContactPhone || '',
+        emergencyContactRelationship: user?.emergencyContactRelationship || '',
       },
       validationFunctions: {
         email: validateEmail,
@@ -290,7 +303,11 @@ const Profile = () => {
           (formState.gender || '') !== (user?.gender || '') ||
           heightFormValue !== (user?.height ?? undefined) ||
           weightFormValue !== (user?.weight ?? undefined) ||
-          formSkillLevel !== userSkillLevel,
+          formSkillLevel !== userSkillLevel ||
+          (formState.emergencyContactName || '') !== (user?.emergencyContactName || '') ||
+          (formState.emergencyContactPhone || '') !== (user?.emergencyContactPhone || '') ||
+          (formState.emergencyContactRelationship || '') !==
+            (user?.emergencyContactRelationship || ''),
       )
     },
     [formState, user, settings.preferredUnits],
@@ -429,6 +446,40 @@ const Profile = () => {
               onChange={(e) => handleChange('skillLevel', e.target.value)}
               showLabel={!!formState.skillLevel}
             />
+
+            <div className="mt-l">
+              <h3>Emergency contact</h3>
+              <FormInput
+                field={{ label: 'Name', name: 'emergencyContactName', type: 'text' }}
+                value={formState.emergencyContactName}
+                onChange={(e) => handleChange('emergencyContactName', e.target.value)}
+                onBlur={() => handleBlur('emergencyContactName')}
+                errorMessage={errors.emergencyContactName || ''}
+                showLabel={!!formState.emergencyContactName}
+              />
+              <FormInput
+                field={{ label: 'Phone', name: 'emergencyContactPhone', type: 'text' }}
+                value={formState.emergencyContactPhone}
+                onChange={(e) => handleChange('emergencyContactPhone', e.target.value)}
+                onBlur={() => handleBlur('emergencyContactPhone')}
+                errorMessage={errors.emergencyContactPhone || ''}
+                showLabel={!!formState.emergencyContactPhone}
+              />
+              <FormInput
+                field={{
+                  label: 'Relationship',
+                  name: 'emergencyContactRelationship',
+                  type: 'text',
+                }}
+                value={formState.emergencyContactRelationship}
+                onChange={(e) =>
+                  handleChange('emergencyContactRelationship', e.target.value)
+                }
+                onBlur={() => handleBlur('emergencyContactRelationship')}
+                errorMessage={errors.emergencyContactRelationship || ''}
+                showLabel={!!formState.emergencyContactRelationship}
+              />
+            </div>
           </div>
           
           <div className="profile-links">
