@@ -101,7 +101,7 @@ export default function Sessions() {
         <div className="sessions-page-header">
           <h1 className="sessions-page-title">My sessions</h1>
           <TextButton
-            text="Explore Surf Spots"
+            text="Explore Spots"
             onClick={() => navigate('/surf-spots')}
             iconKey="map"
             filled
