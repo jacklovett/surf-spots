@@ -5,6 +5,7 @@ A modern web application for discovering and sharing surf spots worldwide, built
 ## Documentation
 
 - [React Router v7 docs](https://reactrouter.com/dev)
+- [Mobile (Capacitor)](mobile/README.md) – run the app on iOS/Android; loads the SSR app from a URL
 
 ## Quick Start
 
@@ -53,16 +54,20 @@ https://surf-spots-five.vercel.app/
 
 ```
 surf-spots/
-├── app/
-│   ├── components/     # React components
-│   ├── contexts/       # React contexts
-│   ├── hooks/          # Custom hooks
-│   ├── routes/         # React Router routes
-│   ├── services/       # API services
-│   ├── styles/         # SCSS styles
-│   └── types/          # TypeScript types
+├── app/                # React app (shared by web + mobile)
+│   ├── components/
+│   ├── contexts/
+│   ├── hooks/
+│   ├── routes/
+│   ├── services/
+│   ├── styles/
+│   └── types/
 ├── public/             # Static assets
+├── mobile/             # Native projects (Capacitor)
+│   ├── ios/            # Xcode project
+│   └── android/        # Android Studio project
 ├── build/              # Build output (generated)
+├── capacitor.config.ts # Mobile config (webDir, server URL, platform paths)
 ```
 
 ## Styling

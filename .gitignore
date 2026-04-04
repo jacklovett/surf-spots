@@ -15,3 +15,6 @@ playwright/.cache/
 
 # Vercel
 .vercel
+
+# Android Studio local user state
+mobile/android/.idea/deploymentTargetSelector.xml

@@ -14,9 +14,17 @@
     "test:headed": "playwright test --headed",
     "test:debug": "playwright test --debug",
     "test:report": "playwright show-report",
-    "test:install": "playwright install"
+    "test:install": "playwright install",
+    "cap:assets": "capacitor-assets generate --android --ios --androidProject mobile/android --iosProject mobile/ios/App --iconBackgroundColor '#046380' --iconBackgroundColorDark '#046380' --splashBackgroundColor '#046380' --splashBackgroundColorDark '#046380'",
+    "cap:icons": "npm run cap:assets && cap sync",
+    "cap:sync": "cap sync",
+    "cap:open:ios": "cap open ios",
+    "cap:open:android": "cap open android"
   },
   "dependencies": {
+    "@capacitor/android": "^7.0.0",
+    "@capacitor/core": "^7.0.0",
+    "@capacitor/ios": "^7.0.0",
     "@react-router/fs-routes": "7.9.4",
     "@react-router/node": "7.9.4",
     "@types/mapbox-gl": "^3.4.0",
@@ -30,6 +38,8 @@
     "sass": "^1.78.0"
   },
   "devDependencies": {
+    "@capacitor/assets": "^3.0.5",
+    "@capacitor/cli": "^7.0.0",
     "@playwright/test": "^1.40.0",
     "@react-router/dev": "7.9.4",
     "@types/node": "^22.13.5",
