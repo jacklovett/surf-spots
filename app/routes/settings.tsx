@@ -242,9 +242,7 @@ export default function Settings() {
                 </div>
               </>
             ) : (
-              <div className="mt pt">
                 <p>Sign in to update more preferences</p>
-              </div>
             )}
           </div>
         </FormComponent>
