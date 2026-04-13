@@ -45,7 +45,6 @@ button.text-button {
     &.filled {
       background: $button-primary-bg;
       color: $white;
-      box-shadow: $button-shadow;
       border: 1px solid $button-primary-border;
 
       & svg {
@@ -62,7 +61,6 @@ button.text-button {
         background: color.adjust($error, $lightness: -6%);
         color: $white;
         border: 1px solid color.adjust($error, $lightness: -12%);
-        box-shadow: $button-shadow;
 
         & svg {
           stroke: $white;
@@ -78,13 +76,11 @@ button.text-button {
     .text-button-icon.filled:not(.danger) {
       background: $button-primary-hover-bg;
       border-color: $button-primary-bg;
-      box-shadow: $button-shadow-hover;
     }
 
     .text-button-icon.filled.danger {
       background: color.adjust($error, $lightness: -4%);
       border-color: color.adjust($error, $lightness: -10%);
-      box-shadow: $button-shadow-hover;
     }
   }
 

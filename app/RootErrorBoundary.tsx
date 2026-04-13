@@ -89,13 +89,9 @@ body:has(.root-error-page) {
   border: 1px solid transparent;
   border-radius: 12px;
   cursor: pointer;
-  box-shadow:
-    0 1px 2px rgba(13, 22, 25, 0.06),
-    0 2px 8px rgba(13, 22, 25, 0.08);
   transition:
     background-color 0.2s ease,
     border-color 0.2s ease,
-    box-shadow 0.2s ease,
     transform 0.15s ease,
     color 0.2s ease;
 }
@@ -113,15 +109,11 @@ body:has(.root-error-page) {
 .root-error-page-btn-primary:hover {
   background-color: #046380;
   border-color: #035061;
-  box-shadow:
-    0 2px 4px rgba(13, 22, 25, 0.08),
-    0 6px 16px rgba(13, 22, 25, 0.12);
   transform: translateY(-1px);
 }
 .root-error-page-btn-primary:active {
   background-color: #022a36;
   border-color: #022a36;
-  box-shadow: 0 1px 2px rgba(13, 22, 25, 0.1);
   transform: translateY(0);
 }
 .root-error-page-btn-secondary {
@@ -132,14 +124,10 @@ body:has(.root-error-page) {
 .root-error-page-btn-secondary:hover {
   background-color: #f8fafc;
   border-color: #727272;
-  box-shadow:
-    0 2px 4px rgba(13, 22, 25, 0.08),
-    0 6px 16px rgba(13, 22, 25, 0.12);
   transform: translateY(-1px);
 }
 .root-error-page-btn-secondary:active {
   background-color: #eef2f7;
-  box-shadow: 0 1px 2px rgba(13, 22, 25, 0.1);
   transform: translateY(0);
 }
 .root-error-page-footer {

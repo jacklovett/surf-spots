@@ -12,11 +12,9 @@
   font-size: $font-size-base;
   line-height: 1.25;
   cursor: pointer;
-  box-shadow: $button-shadow;
   transition:
     background-color 0.2s ease,
     border-color 0.2s ease,
-    box-shadow 0.2s ease,
     transform 0.15s ease,
     color 0.2s ease;
   text-align: center;
@@ -39,19 +37,16 @@
     background: $white;
     color: $text-color;
     border: 1px solid color.adjust($border-medium, $lightness: -12%);
-    box-shadow: $button-shadow;
     height: $button-height;
 
     &:hover:not(:disabled) {
       background: $background-light;
       border-color: color.adjust($text-secondary, $lightness: 10%);
-      box-shadow: $button-shadow-hover;
       transform: translateY(-1px);
     }
 
     &:active:not(:disabled) {
       background: color.adjust($background-light, $lightness: -2%);
-      box-shadow: $button-shadow-active;
       transform: translateY(0);
     }
   }
@@ -65,13 +60,11 @@
       background: color.adjust($accent-color, $lightness: -28%);
       border-color: color.adjust($accent-color, $lightness: -42%);
       color: $white;
-      box-shadow: $button-shadow-hover;
       transform: translateY(-1px);
     }
 
     &:active:not(:disabled) {
       background: color.adjust($accent-color, $lightness: -32%);
-      box-shadow: $button-shadow-active;
     }
   }
 
@@ -83,13 +76,11 @@
     &:hover:not(:disabled) {
       background: $error;
       border-color: color.adjust($error, $lightness: -8%);
-      box-shadow: $button-shadow-hover;
       transform: translateY(-1px);
     }
 
     &:active:not(:disabled) {
       background: color.adjust($error, $lightness: -12%);
-      box-shadow: $button-shadow-active;
     }
   }
 
@@ -101,7 +92,6 @@
     &:not(.cancel):not(.secondary):not(.danger):not(.icon) {
       background: $button-primary-hover-bg;
       border-color: $button-primary-bg;
-      box-shadow: $button-shadow-hover;
       transform: translateY(-1px);
     }
   }
@@ -110,7 +100,6 @@
     &:not(.cancel):not(.secondary):not(.danger):not(.icon) {
       background: $button-primary-active-bg;
       border-color: $button-primary-active-bg;
-      box-shadow: $button-shadow-active;
       transform: translateY(0);
     }
   }
@@ -127,7 +116,6 @@
     border-color: color.adjust($disabled-color, $lightness: -8%);
     font-weight: 600;
     cursor: not-allowed;
-    box-shadow: none;
     transform: none;
 
     // Prevent any hover/active effects when disabled
@@ -136,7 +124,6 @@
       transform: none;
       background: $disabled-color;
       border-color: color.adjust($disabled-color, $lightness: -8%);
-      box-shadow: none;
     }
   }
 

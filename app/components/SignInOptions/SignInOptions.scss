@@ -17,27 +17,23 @@
     width: $button-height;
     height: $button-height;
     border-radius: $circle-border-radius;
-    box-shadow: $button-shadow;
     background: $white;
     color: $primary-color;
     border: 1px solid color.adjust($outline-color, $lightness: -8%);
     padding: calc(0.8 * $spacing-unit);
     transition:
       transform 0.15s ease,
-      box-shadow 0.2s ease,
       border-color 0.2s ease,
       background-color 0.2s ease;
 
     &:hover:not(:disabled) {
       background: $background-light;
       border-color: $button-primary-bg;
-      box-shadow: $button-shadow-hover;
       transform: translateY(-2px);
     }
 
     &:active:not(:disabled) {
       transform: translateY(0);
-      box-shadow: $button-shadow-active;
     }
 
     // Ensure icon maintains aspect ratio and doesn't stretch
