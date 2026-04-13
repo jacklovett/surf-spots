@@ -7,8 +7,23 @@ button.text-button {
   cursor: pointer;
   padding: $spacing-small $spacing-unit;
   border-radius: $button-border-radius;
-  transition: all 0.2s ease;
+  color: $text-color;
+  font-weight: 600;
+  font-size: $font-size-small;
+  transition:
+    background-color 0.2s ease,
+    color 0.2s ease,
+    transform 0.15s ease;
   white-space: nowrap; // Prevent text wrapping
+
+  &:focus-visible {
+    outline: 2px solid $focus-color;
+    outline-offset: 2px;
+  }
+
+  &:focus:not(:focus-visible) {
+    outline: none;
+  }
 
   .text-button-icon {
     @extend %flex-center;
@@ -28,9 +43,10 @@ button.text-button {
     }
 
     &.filled {
-      background: $primary-color;
+      background: $button-primary-bg;
       color: $white;
-      box-shadow: $box-shadow;
+      box-shadow: $button-shadow;
+      border: 1px solid $button-primary-border;
 
       & svg {
         stroke: $white;
@@ -43,8 +59,10 @@ button.text-button {
       }
 
       &.filled {
-        background: $error;
+        background: color.adjust($error, $lightness: -6%);
         color: $white;
+        border: 1px solid color.adjust($error, $lightness: -12%);
+        box-shadow: $button-shadow;
 
         & svg {
           stroke: $white;
@@ -54,10 +72,20 @@ button.text-button {
   }
 
   &:not(:disabled):hover {
-    background-color: $text-hover-background;
-    color: color.adjust($text-color, $lightness: -10%);
-    transform: scale(1.02);
-    transition: transform 0.2s ease-in-out;
+    background-color: color.adjust($text-hover-background, $lightness: -2%);
+    color: $text-color;
+
+    .text-button-icon.filled:not(.danger) {
+      background: $button-primary-hover-bg;
+      border-color: $button-primary-bg;
+      box-shadow: $button-shadow-hover;
+    }
+
+    .text-button-icon.filled.danger {
+      background: color.adjust($error, $lightness: -4%);
+      border-color: color.adjust($error, $lightness: -10%);
+      box-shadow: $button-shadow-hover;
+    }
   }
 
   &:disabled {
@@ -113,10 +141,6 @@ button.text-button {
     to {
       transform: rotate(360deg);
     }
-  }
-
-  span {
-    font-size: $font-size-small;
   }
 
   .text-button-badge {

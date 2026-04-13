@@ -75,8 +75,18 @@ $button-height: 56px;
 $form-border-radius: $spacing-unit;
 $content-border-radius: $spacing-unit;
 $circle-border-radius: 50%;
-$button-border-radius: 25px;
+// Shared by buttons, chips, compact controls; keeps UI consistent
+$button-border-radius: 12px;
 $box-shadow: none;
+
+/* Buttons: elevation and tints (primary teal is lightened on hover for feedback) */
+$button-shadow: 0 1px 2px rgba(13, 22, 25, 0.06), 0 2px 8px rgba(13, 22, 25, 0.08);
+$button-shadow-hover: 0 2px 4px rgba(13, 22, 25, 0.08), 0 6px 16px rgba(13, 22, 25, 0.12);
+$button-shadow-active: 0 1px 2px rgba(13, 22, 25, 0.1);
+$button-primary-bg: #035061;
+$button-primary-border: #023d4d;
+$button-primary-hover-bg: #046380;
+$button-primary-active-bg: #022a36;
 
 /* Z-Index Layers */
 $z-index-base: 1;

@@ -19,7 +19,7 @@ body:has(.root-error-page) {
   color: #0d1619;
   background-color: #fff;
 }
-.root-error-page__header {
+.root-error-page-header {
   flex-shrink: 0;
   display: flex;
   align-items: center;
@@ -30,17 +30,17 @@ body:has(.root-error-page) {
   height: 56px;
 }
 @media (max-width: 752px) {
-  .root-error-page__header { padding-left: 8px; }
+  .root-error-page-header { padding-left: 8px; }
 }
-.root-error-page__logo {
+.root-error-page-logo {
   cursor: pointer;
   padding-bottom: 4px;
 }
-.root-error-page__logo img {
+.root-error-page-logo img {
   height: 56px;
   display: block;
 }
-.root-error-page__main {
+.root-error-page-main {
   flex: 1;
   display: flex;
   flex-direction: column;
@@ -50,22 +50,22 @@ body:has(.root-error-page) {
   text-align: center;
   min-height: 0;
 }
-.root-error-page__icon {
+.root-error-page-icon {
   color: #3fc1c9;
   margin-bottom: 16px;
 }
-.root-error-page__title {
+.root-error-page-title {
   font-size: 1.25rem;
   font-weight: bold;
   margin: 0 0 1rem;
   color: #333;
 }
-.root-error-page__message {
+.root-error-page-message {
   font-size: 0.875rem;
   margin: 0 0 0.5rem;
   color: #666;
 }
-.root-error-page__actions {
+.root-error-page-actions {
   margin-top: 16px;
   display: inline-flex;
   flex-direction: row;
@@ -73,35 +73,83 @@ body:has(.root-error-page) {
   gap: 8px;
   justify-content: center;
 }
-.root-error-page__btn {
+.root-error-page-btn {
   display: inline-flex;
   width: auto !important;
   align-items: center;
+  justify-content: center;
   flex: 0 0 auto;
-  padding: 10px 20px;
+  padding: 8px 24px;
   min-height: 56px;
   font-family: inherit;
   font-size: 1rem;
-  font-weight: bold;
+  line-height: 1.25;
+  font-weight: 600;
   color: #fff;
-  border: none;
-  border-radius: 25px;
+  border: 1px solid transparent;
+  border-radius: 12px;
   cursor: pointer;
+  box-shadow:
+    0 1px 2px rgba(13, 22, 25, 0.06),
+    0 2px 8px rgba(13, 22, 25, 0.08);
+  transition:
+    background-color 0.2s ease,
+    border-color 0.2s ease,
+    box-shadow 0.2s ease,
+    transform 0.15s ease,
+    color 0.2s ease;
 }
-.root-error-page__btn--primary {
+.root-error-page-btn:focus-visible {
+  outline: 2px solid #046380;
+  outline-offset: 2px;
+}
+.root-error-page-btn:focus:not(:focus-visible) {
+  outline: none;
+}
+.root-error-page-btn-primary {
+  background-color: #035061;
+  border-color: #023d4d;
+}
+.root-error-page-btn-primary:hover {
   background-color: #046380;
+  border-color: #035061;
+  box-shadow:
+    0 2px 4px rgba(13, 22, 25, 0.08),
+    0 6px 16px rgba(13, 22, 25, 0.12);
+  transform: translateY(-1px);
 }
-.root-error-page__btn--secondary {
-  background-color: #2aa8af;
+.root-error-page-btn-primary:active {
+  background-color: #022a36;
+  border-color: #022a36;
+  box-shadow: 0 1px 2px rgba(13, 22, 25, 0.1);
+  transform: translateY(0);
 }
-.root-error-page__footer {
+.root-error-page-btn-secondary {
+  background-color: #fff;
+  color: #0d1619;
+  border-color: #b9c2ca;
+}
+.root-error-page-btn-secondary:hover {
+  background-color: #f8fafc;
+  border-color: #727272;
+  box-shadow:
+    0 2px 4px rgba(13, 22, 25, 0.08),
+    0 6px 16px rgba(13, 22, 25, 0.12);
+  transform: translateY(-1px);
+}
+.root-error-page-btn-secondary:active {
+  background-color: #eef2f7;
+  box-shadow: 0 1px 2px rgba(13, 22, 25, 0.1);
+  transform: translateY(0);
+}
+.root-error-page-footer {
   flex-shrink: 0;
   text-align: center;
   font-size: 0.75rem;
   padding: 32px 16px 8px;
   color: #666;
 }
-.root-error-page__footer p {
+.root-error-page-footer p {
   margin: 0;
 }
 `
@@ -113,9 +161,9 @@ export function ErrorBoundary(_props: { error: unknown }) {
   return (
     <div className="root-error-page">
       <style dangerouslySetInnerHTML={{ __html: rootErrorPageStyles }} />
-      <header className="root-error-page__header">
+      <header className="root-error-page-header">
         <div
-          className="root-error-page__logo"
+          className="root-error-page-logo"
           onClick={() => navigate('/')}
           onKeyDown={(e) => e.key === 'Enter' && navigate('/')}
           role="button"
@@ -125,8 +173,8 @@ export function ErrorBoundary(_props: { error: unknown }) {
           <img src="/images/png/logo-with-text.png" alt="Surf Spots logo - Return to home" />
         </div>
       </header>
-      <main className="root-error-page__main">
-        <div className="root-error-page__icon" aria-hidden>
+      <main className="root-error-page-main">
+        <div className="root-error-page-icon" aria-hidden>
           <svg
             width="48"
             height="48"
@@ -141,26 +189,26 @@ export function ErrorBoundary(_props: { error: unknown }) {
             <circle cx="24" cy="32" r="1.5" fill="currentColor" />
           </svg>
         </div>
-        <h1 className="root-error-page__title">Something went wrong</h1>
-        <p className="root-error-page__message">Please try again.</p>
-        <div className="root-error-page__actions">
+        <h1 className="root-error-page-title">Something went wrong</h1>
+        <p className="root-error-page-message">Please try again.</p>
+        <div className="root-error-page-actions">
           <button
             type="button"
-            className="root-error-page__btn root-error-page__btn--primary"
+            className="root-error-page-btn root-error-page-btn-primary"
             onClick={() => window.location.reload()}
           >
             Try again
           </button>
           <button
             type="button"
-            className="root-error-page__btn root-error-page__btn--secondary"
+            className="root-error-page-btn root-error-page-btn-secondary"
             onClick={() => navigate('/')}
           >
             Go to home
           </button>
         </div>
       </main>
-      <footer className="root-error-page__footer">
+      <footer className="root-error-page-footer">
         <p>{COPYRIGHT_TEXT}</p>
       </footer>
     </div>

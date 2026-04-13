@@ -3,97 +3,140 @@
 .button {
   @extend %flex-center;
   gap: $spacing-small;
-  background-color: $primary-color;
+  background-color: $button-primary-bg;
   color: $white;
   padding: $spacing-small $spacing-large;
-  border: none;
+  border: 1px solid $button-primary-border;
   border-radius: $button-border-radius;
   font-family: $font-family-base;
-  font-weight: bold;
+  font-size: $font-size-base;
+  line-height: 1.25;
   cursor: pointer;
+  box-shadow: $button-shadow;
   transition:
-    background-color 0.3s,
-    transform 0.2s,
-    border-color 0.3s;
+    background-color 0.2s ease,
+    border-color 0.2s ease,
+    box-shadow 0.2s ease,
+    transform 0.15s ease,
+    color 0.2s ease;
   text-align: center;
   text-decoration: none;
   width: 100%;
   height: $button-height;
   box-sizing: border-box;
 
+  &:focus-visible {
+    outline: 2px solid $focus-color;
+    outline-offset: 2px;
+  }
+
+  &:focus:not(:focus-visible) {
+    outline: none;
+  }
+
   // Variant-specific styles
   &.cancel {
-    background: $background-light;
+    background: $white;
     color: $text-color;
-    border: 1px solid $border-medium;
+    border: 1px solid color.adjust($border-medium, $lightness: -12%);
+    box-shadow: $button-shadow;
     height: $button-height;
 
     &:hover:not(:disabled) {
-      background: color.adjust($background-light, $lightness: -3%);
-      border-color: color.adjust($border-medium, $lightness: -10%);
+      background: $background-light;
+      border-color: color.adjust($text-secondary, $lightness: 10%);
+      box-shadow: $button-shadow-hover;
+      transform: translateY(-1px);
     }
 
     &:active:not(:disabled) {
-      background: color.adjust($background-light, $lightness: -5%);
+      background: color.adjust($background-light, $lightness: -2%);
+      box-shadow: $button-shadow-active;
+      transform: translateY(0);
     }
   }
 
   &.secondary {
-    background: color.adjust($accent-color, $lightness: -10%);
+    background: color.adjust($accent-color, $lightness: -22%);
     color: $white;
+    border: 1px solid color.adjust($accent-color, $lightness: -35%);
 
     &:hover:not(:disabled) {
-      color: color.adjust($primary-color, $lightness: -10%);
+      background: color.adjust($accent-color, $lightness: -28%);
+      border-color: color.adjust($accent-color, $lightness: -42%);
+      color: $white;
+      box-shadow: $button-shadow-hover;
+      transform: translateY(-1px);
+    }
+
+    &:active:not(:disabled) {
+      background: color.adjust($accent-color, $lightness: -32%);
+      box-shadow: $button-shadow-active;
     }
   }
 
   &.danger {
-    background: $error;
+    background: color.adjust($error, $lightness: -6%);
     color: $white;
+    border: 1px solid color.adjust($error, $lightness: -12%);
 
     &:hover:not(:disabled) {
-      background: color.adjust($error, $lightness: 5%);
+      background: $error;
+      border-color: color.adjust($error, $lightness: -8%);
+      box-shadow: $button-shadow-hover;
+      transform: translateY(-1px);
     }
 
     &:active:not(:disabled) {
-      background: color.adjust($error, $lightness: -5%);
+      background: color.adjust($error, $lightness: -12%);
+      box-shadow: $button-shadow-active;
     }
   }
 
   // Common hover and active states (applied to all variants, but not when disabled)
   &:hover:not(:disabled) {
-    transform: scale(1.03);
     text-decoration: none;
 
     // Primary variant (default) background
     &:not(.cancel):not(.secondary):not(.danger):not(.icon) {
-      background: color.adjust($primary-color, $lightness: 5%);
+      background: $button-primary-hover-bg;
+      border-color: $button-primary-bg;
+      box-shadow: $button-shadow-hover;
+      transform: translateY(-1px);
     }
   }
 
   &:active:not(:disabled) {
-    transform: scale(0.95);
-
-    // Primary variant (default) background
     &:not(.cancel):not(.secondary):not(.danger):not(.icon) {
-      background: color.adjust($primary-color, $lightness: -5%);
+      background: $button-primary-active-bg;
+      border-color: $button-primary-active-bg;
+      box-shadow: $button-shadow-active;
+      transform: translateY(0);
     }
+  }
+
+  &.cancel:active:not(:disabled),
+  &.secondary:active:not(:disabled),
+  &.danger:active:not(:disabled) {
+    transform: translateY(0);
   }
 
   &:disabled {
     background: $disabled-color;
     color: $disabled-text-color;
-    font-weight: 500;
+    border-color: color.adjust($disabled-color, $lightness: -8%);
+    font-weight: 600;
     cursor: not-allowed;
-    opacity: 0.6;
+    box-shadow: none;
     transform: none;
-    translate: none;
 
     // Prevent any hover/active effects when disabled
     &:hover,
     &:active {
       transform: none;
       background: $disabled-color;
+      border-color: color.adjust($disabled-color, $lightness: -8%);
+      box-shadow: none;
     }
   }
 
@@ -158,7 +201,7 @@
   }
 }
 
-.icon {
+.button.icon {
   @extend %flex-center;
   width: $spacing-large;
   height: $spacing-large;
@@ -167,11 +210,13 @@
   color: $text-color;
   background: transparent;
   font-size: $font-size-x-large;
+  border: none;
   border-radius: $circle-border-radius;
+  box-shadow: none;
   transition:
-    color 0.3s,
-    background 0.3s,
-    transform 0.2s;
+    color 0.2s ease,
+    background 0.2s ease,
+    transform 0.15s ease;
 
   .button-content {
     @extend %flex-center;
@@ -179,14 +224,30 @@
     transform: translateY(-1px);
   }
 
-  &:hover {
-    color: color.adjust($text-color, $lightness: -10%);
-    background: $text-hover-background;
-    transform: scale(1.03);
+  &:hover:not(:disabled) {
+    color: $text-color;
+    background: color.adjust($text-hover-background, $lightness: -3%);
+    transform: none;
+    box-shadow: none;
 
     .button-content {
-      // Maintain the vertical adjustment on hover
       transform: translateY(-1px);
     }
+  }
+
+  &:active:not(:disabled) {
+    background: color.adjust($text-hover-background, $lightness: -6%);
+  }
+
+  &:focus-visible {
+    outline: 2px solid $focus-color;
+    outline-offset: 2px;
+  }
+
+  &:disabled {
+    border: none;
+    box-shadow: none;
+    background: transparent;
+    color: $disabled-text-color;
   }
 }

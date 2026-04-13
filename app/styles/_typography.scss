@@ -27,10 +27,11 @@ p {
   letter-spacing: 0.03em; /* Looser for readability */
 }
 
-/* All Caps */
+/* Primary actions: readable label style (avoids heavy all-caps) */
 .button {
-  letter-spacing: 0.05em; /* Spacious for clarity */
-  text-transform: uppercase;
+  letter-spacing: 0.01em;
+  text-transform: none;
+  font-weight: 600;
 }
 
 h1,
