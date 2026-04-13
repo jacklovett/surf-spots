@@ -1,4 +1,5 @@
 import { roundCoordinate } from '~/utils/coordinateUtils'
+import { normalizeUserUrl } from '~/utils/commonUtils'
 
 /**
  * Payload shape for building FormData for add/edit surf spot.
@@ -87,14 +88,16 @@ export const buildSurfSpotFormData = (
   if (accommodationNearby) fd.append('accommodationNearby', 'on')
   if (isBoatRequired) fd.append('boatRequired', 'on')
   if (isWavepool) fd.append('isWavepool', 'on')
-  if (isWavepool && wavepoolUrl) fd.append('wavepoolUrl', wavepoolUrl)
+  if (isWavepool && wavepoolUrl) {
+    fd.append('wavepoolUrl', normalizeUserUrl(wavepoolUrl))
+  }
   if (isRiverWave) fd.append('isRiverWave', 'on')
   if (!isWavepool) {
     ;(formState.forecastLinks ?? []).forEach((link) =>
-      fd.append('forecasts', link.url),
+      fd.append('forecasts', normalizeUserUrl(link.url)),
     )
     ;(formState.webcamLinks ?? []).forEach((link) =>
-      fd.append('webcams', link.url),
+      fd.append('webcams', normalizeUserUrl(link.url)),
     )
   }
   foodOptions.forEach((opt) => fd.append('foodOptions', opt.value))

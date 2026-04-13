@@ -27,6 +27,7 @@ import {
   ERROR_BOUNDARY_SECTION,
   ERROR_LOAD_SURFBOARDS,
 } from '~/utils/errorUtils'
+import { normalizeUserUrl } from '~/utils/commonUtils'
 
 interface LoaderData {
   surfboard: Surfboard
@@ -121,7 +122,8 @@ export const action: ActionFunction = async ({ params, request }) => {
       : undefined,
     finSetup: (formData.get('finSetup') as string)?.trim() || undefined,
     description: (formData.get('description') as string)?.trim() || undefined,
-    modelUrl: (formData.get('modelUrl') as string)?.trim() || undefined,
+    modelUrl:
+      normalizeUserUrl((formData.get('modelUrl') as string) || '') || undefined,
   }
 
   try {

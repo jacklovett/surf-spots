@@ -6,6 +6,7 @@
 export const MAX_SAFE_URL_LENGTH = 2048
 
 const ALLOWED_SCHEMES = ['https:', 'http:']
+const HAS_SCHEME_REGEX = /^[a-zA-Z][a-zA-Z\d+\-.]*:/
 
 /**
  * Returns a safe href for use in <a> tags, or null if the URL is not allowed.
@@ -18,12 +19,45 @@ export const safeLinkHref = (
   if (url == null || typeof url !== 'string') return null
   const trimmed = url.trim()
   if (trimmed.length === 0 || trimmed.length > MAX_SAFE_URL_LENGTH) return null
+  return parseAllowedHttpUrl(trimmed) != null ? trimmed : null
+}
+
+const parseAllowedHttpUrl = (value: string): URL | null => {
   try {
-    const parsed = new URL(trimmed)
-    return ALLOWED_SCHEMES.includes(parsed.protocol) ? trimmed : null
+    const parsed = new URL(value)
+    return ALLOWED_SCHEMES.includes(parsed.protocol) ? parsed : null
   } catch {
     return null
   }
+}
+
+/**
+ * Normalizes user-entered URLs in a "typical app" way:
+ * - trims whitespace
+ * - adds https:// when no scheme is present
+ * - lowercases protocol and host (path/query/hash are preserved as-is)
+ */
+export const normalizeUserUrl = (value: string): string => {
+  const trimmed = value.trim()
+  if (trimmed === '') return ''
+
+  const hasScheme = HAS_SCHEME_REGEX.test(trimmed)
+  const candidate = hasScheme ? trimmed : `https://${trimmed}`
+
+  const parsed = parseAllowedHttpUrl(candidate)
+  if (!parsed) {
+    return trimmed
+  }
+
+  const lowerProtocol = parsed.protocol.toLowerCase()
+  const lowerHost = parsed.host.toLowerCase()
+  return `${lowerProtocol}//${lowerHost}${parsed.pathname}${parsed.search}${parsed.hash}`
+}
+
+export const isValidHttpUrl = (value: string): boolean => {
+  if (!value) return true
+  const normalized = normalizeUserUrl(value)
+  return parseAllowedHttpUrl(normalized) != null
 }
 
 /**

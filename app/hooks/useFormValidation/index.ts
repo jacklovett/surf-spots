@@ -1,5 +1,6 @@
 import { useFormValidation } from './useFormValidation'
 import { parseHeightImperial, parseWeightImperial } from '~/utils/unitUtils'
+import { isValidHttpUrl } from '~/utils/commonUtils'
 
 // Validation helpers
 export const validateRequired = <T>(value: T, fieldName = 'This field') =>
@@ -170,8 +171,8 @@ export const validateWeight = (
 
 export const validateUrl = (value: string, fieldName = 'URL') => {
   try {
-    if (value) {
-      new URL(value)
+    if (!isValidHttpUrl(value)) {
+      throw new Error('Invalid URL')
     }
     return ''
   } catch {

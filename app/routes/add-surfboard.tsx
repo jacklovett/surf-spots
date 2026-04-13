@@ -16,6 +16,7 @@ import {
   ERROR_LOGIN_REQUIRED_ADD_SURFBOARD,
   ERROR_NAME_REQUIRED,
 } from '~/utils/errorUtils'
+import { normalizeUserUrl } from '~/utils/commonUtils'
 
 export const loader: LoaderFunction = async ({ request }) => {
   try {
@@ -70,7 +71,8 @@ export const action: ActionFunction = async ({ request }) => {
       : undefined,
     finSetup: (formData.get('finSetup') as string)?.trim() || undefined,
     description: (formData.get('description') as string)?.trim() || undefined,
-    modelUrl: (formData.get('modelUrl') as string)?.trim() || undefined,
+    modelUrl:
+      normalizeUserUrl((formData.get('modelUrl') as string) || '') || undefined,
   }
 
   try {
