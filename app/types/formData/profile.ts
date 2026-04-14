@@ -1,4 +1,5 @@
 import { Option } from '~/components/FormInput'
+import { EmergencyContactRelationship } from '../surfSpots'
 import { BASE_SKILL_LEVEL_OPTIONS } from './surfSpots'
 
 export const GENDER_OPTIONS: Option[] = [
@@ -29,5 +30,16 @@ export const GENDER_OPTIONS: Option[] = [
 export const USER_SKILL_LEVEL_OPTIONS: Option[] = [
   { key: '', value: '', label: 'Select skill level' },
   ...BASE_SKILL_LEVEL_OPTIONS,
+]
+
+export const EMERGENCY_CONTACT_RELATIONSHIP_OPTIONS: Option[] = [
+  { key: '', value: '', label: 'Select relationship' },
+  ...(
+    Object.values(EmergencyContactRelationship) as EmergencyContactRelationship[]
+  ).map((rel) => ({
+    key: rel,
+    value: rel,
+    label: rel,
+  })),
 ]
 

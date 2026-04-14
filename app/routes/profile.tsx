@@ -31,6 +31,7 @@ import {
   Modal,
   Button,
 } from '~/components'
+import { EmergencyContactPhoneField } from '~/components'
 import { Location } from '~/components/LocationSelector'
 import { useSubmitStatus, useFormSubmission } from '~/hooks'
 import useFormValidation, {
@@ -40,7 +41,11 @@ import useFormValidation, {
   validateHeight,
   validateWeight,
 } from '~/hooks/useFormValidation'
-import { GENDER_OPTIONS, USER_SKILL_LEVEL_OPTIONS } from '~/types/formData/profile'
+import {
+  EMERGENCY_CONTACT_RELATIONSHIP_OPTIONS,
+  GENDER_OPTIONS,
+  USER_SKILL_LEVEL_OPTIONS,
+} from '~/types/formData/profile'
 import {
   ERROR_AGE_RANGE,
   ERROR_DELETE_ACCOUNT,
@@ -61,6 +66,7 @@ import {
   validateAndConvertHeight,
   validateAndConvertWeight,
 } from '~/utils/unitUtils'
+import { validateEmergencyContactPhone } from '~/utils/emergencyContactPhone'
 
 interface LoaderData {
   locationData?: Location[]
@@ -179,6 +185,16 @@ export const action: ActionFunction = async ({ request }) => {
     formData.get('emergencyContactName')?.toString().trim() || undefined
   const emergencyContactPhone =
     formData.get('emergencyContactPhone')?.toString().trim() || undefined
+  if (emergencyContactPhone) {
+    const phoneValidationMessage =
+      validateEmergencyContactPhone(emergencyContactPhone)
+    if (phoneValidationMessage) {
+      return data(
+        { submitStatus: phoneValidationMessage, hasError: true },
+        { status: 400 },
+      )
+    }
+  }
   const emergencyContactRelationship =
     formData.get('emergencyContactRelationship')?.toString().trim() || undefined
 
@@ -273,6 +289,7 @@ const Profile = () => {
         age: (value?: string) => validateAge(value),
         height: (value?: string) => validateHeight(value, settings.preferredUnits),
         weight: (value?: string) => validateWeight(value, settings.preferredUnits),
+        emergencyContactPhone: validateEmergencyContactPhone,
       },
     })
 
@@ -447,37 +464,42 @@ const Profile = () => {
               showLabel={!!formState.skillLevel}
             />
 
-            <div className="mt-l">
+            <div className="mt-l" data-testid="profile-emergency-contact">
               <h3>Emergency contact</h3>
-              <FormInput
-                field={{ label: 'Name', name: 'emergencyContactName', type: 'text' }}
-                value={formState.emergencyContactName}
-                onChange={(e) => handleChange('emergencyContactName', e.target.value)}
-                onBlur={() => handleBlur('emergencyContactName')}
-                errorMessage={errors.emergencyContactName || ''}
-                showLabel={!!formState.emergencyContactName}
-              />
-              <FormInput
-                field={{ label: 'Phone', name: 'emergencyContactPhone', type: 'text' }}
+              <div className="form-inline">
+                  <FormInput
+                    field={{ label: 'Name', name: 'emergencyContactName', type: 'text' }}
+                    value={formState.emergencyContactName}
+                    onChange={(e) => handleChange('emergencyContactName', e.target.value)}
+                    onBlur={() => handleBlur('emergencyContactName')}
+                    errorMessage={errors.emergencyContactName || ''}
+                    showLabel={!!formState.emergencyContactName}
+                  />
+                  <FormInput
+                    field={{
+                      label: 'Relationship',
+                      name: 'emergencyContactRelationship',
+                      type: 'select',
+                      options: EMERGENCY_CONTACT_RELATIONSHIP_OPTIONS,
+                    }}
+                    value={formState.emergencyContactRelationship}
+                    onChange={(e) =>
+                      handleChange('emergencyContactRelationship', e.target.value)
+                    }
+                    onBlur={() => handleBlur('emergencyContactRelationship')}
+                    errorMessage={errors.emergencyContactRelationship || ''}
+                    showLabel={!!formState.emergencyContactRelationship}
+                  />
+              </div>
+              <EmergencyContactPhoneField
                 value={formState.emergencyContactPhone}
-                onChange={(e) => handleChange('emergencyContactPhone', e.target.value)}
+                onChange={(phone) =>
+                  handleChange('emergencyContactPhone', phone)
+                }
                 onBlur={() => handleBlur('emergencyContactPhone')}
                 errorMessage={errors.emergencyContactPhone || ''}
                 showLabel={!!formState.emergencyContactPhone}
-              />
-              <FormInput
-                field={{
-                  label: 'Relationship',
-                  name: 'emergencyContactRelationship',
-                  type: 'text',
-                }}
-                value={formState.emergencyContactRelationship}
-                onChange={(e) =>
-                  handleChange('emergencyContactRelationship', e.target.value)
-                }
-                onBlur={() => handleBlur('emergencyContactRelationship')}
-                errorMessage={errors.emergencyContactRelationship || ''}
-                showLabel={!!formState.emergencyContactRelationship}
+                profileCountryName={formState.country}
               />
             </div>
           </div>

@@ -89,6 +89,9 @@ export const ERROR_LOAD_WATCH_LIST =
 // Profile & account
 export const ERROR_DELETE_ACCOUNT = 'Unable to delete account. Please try again later.'
 export const ERROR_UPDATE_PROFILE = 'Unable to update profile details. Please try again later.'
+/** Client and profile action: emergency phone must be a valid international number (E.164). */
+export const ERROR_INVALID_EMERGENCY_PHONE =
+  'Enter a valid phone number including country code.'
 export const ERROR_POPULATE_LOCATION = 'Unable to populate location drop-down menus'
 export const ERROR_AGE_RANGE = 'Age must be between 13 and 120 years'
 export const ERROR_INVALID_HEIGHT = 'Please enter a valid height'

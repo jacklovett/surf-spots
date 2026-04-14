@@ -13,7 +13,7 @@ export interface AuthRequest {
   providerId?: string
 }
 
-import { SkillLevel } from './surfSpots'
+import { EmergencyContactRelationship, SkillLevel } from './surfSpots'
 
 export interface User {
   id: string
@@ -28,7 +28,7 @@ export interface User {
   skillLevel?: SkillLevel
   emergencyContactName?: string
   emergencyContactPhone?: string
-  emergencyContactRelationship?: string
+  emergencyContactRelationship?: EmergencyContactRelationship
   settings?: UserSettings
 }
 

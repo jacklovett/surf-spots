@@ -17,6 +17,9 @@
     "test:install": "playwright install"
   },
   "dependencies": {
+    "i18n-iso-countries": "^7.14.0",
+    "libphonenumber-js": "^1.12.33",
+    "react-phone-number-input": "^3.4.12",
     "@react-router/fs-routes": "7.9.4",
     "@react-router/node": "7.9.4",
     "@types/mapbox-gl": "^3.4.0",

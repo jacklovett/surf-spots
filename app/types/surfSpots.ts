@@ -100,6 +100,16 @@ export enum SkillLevel {
   ALL_LEVELS = 'All Levels',
 }
 
+export enum EmergencyContactRelationship {
+  PARENT = 'Parent',
+  SPOUSE = 'Spouse',
+  PARTNER = 'Partner',
+  SIBLING = 'Sibling',
+  CHILD = 'Child',
+  FRIEND = 'Friend',
+  OTHER = 'Other',
+}
+
 export enum Tide {
   ANY = 'Any',
   LOW = 'Low',

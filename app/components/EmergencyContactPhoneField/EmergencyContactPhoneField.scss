@@ -1,0 +1,235 @@
+// Match shared form controls (_form.scss): one bordered row; country control shows flag + "Name (+dial)".
+.emergency-contact-phone {
+  --PhoneInput-color--focus: #{$focus-color};
+  $circular-flag-size: 1.375rem;
+
+  .PhoneInput {
+    @extend %flex-base;
+    align-items: stretch;
+    width: 100%;
+    min-height: $form-input-height;
+    padding: 0 $spacing-small;
+    border: 1px solid $outline-color;
+    border-radius: $form-border-radius;
+    background-color: $background-color;
+    box-sizing: border-box;
+    gap: $spacing-small;
+
+    &.PhoneInput--focus {
+      border-color: $focus-color;
+      box-shadow: 0 0 4px rgba(0, 119, 182, 0.5);
+    }
+  }
+
+  .PhoneInputCountry {
+    align-self: stretch;
+    margin-right: 0;
+    padding-right: $spacing-small;
+    border-right: 1px solid $outline-color;
+    flex-shrink: 0;
+    width: fit-content;
+    min-width: 0;
+    max-width: none;
+  }
+
+  .PhoneInputCountry.emergency-contact-country-select {
+    @extend %flex-base;
+    align-items: center;
+    position: relative;
+  }
+
+  .emergency-contact-country-select-trigger {
+    @extend %flex-base;
+    align-items: center;
+    gap: $spacing-small;
+    width: auto;
+    min-height: 2.25rem;
+    padding: 0;
+    margin: 0;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    text-align: left;
+
+    &:disabled {
+      cursor: not-allowed;
+      opacity: 0.5;
+    }
+
+    &:focus-visible {
+      outline: 2px solid $focus-color;
+      outline-offset: 2px;
+    }
+  }
+
+  .emergency-contact-country-select-trigger-main {
+    @extend %flex-base;
+    align-items: center;
+    gap: $spacing-small;
+    min-width: 0;
+  }
+
+  // Circular flag (common on checkout UIs; fits rounded form controls).
+  .emergency-contact-country-select-trigger-flag,
+  .emergency-contact-country-select-option-flag {
+    @extend %flex-center;
+    flex-shrink: 0;
+
+    .PhoneInputCountryIcon {
+      width: $circular-flag-size;
+      height: $circular-flag-size;
+      margin: 0;
+      flex-shrink: 0;
+      border-radius: $circle-border-radius;
+      overflow: hidden;
+      box-sizing: border-box;
+      box-shadow: 0 0 0 1px $outline-color;
+
+      &.PhoneInputCountryIcon--border {
+        box-shadow: 0 0 0 1px $outline-color;
+      }
+
+      .PhoneInputCountryIconImg {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        object-position: center;
+      }
+
+      > svg {
+        display: block;
+        width: 148%;
+        height: 100%;
+        margin-left: 50%;
+        transform: translateX(-50%);
+      }
+    }
+  }
+
+  .emergency-contact-country-select-trigger-label {
+    font-size: $font-size-small;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .PhoneInputCountrySelectArrow {
+    margin-top: 0;
+    margin-left: 0;
+  }
+
+  .emergency-contact-country-select-list {
+    position: absolute;
+    top: calc(100% + 4px);
+    left: 0;
+    z-index: $z-index-dropdown;
+    min-width: min(22rem, 90vw);
+    max-width: min(28rem, 92vw);
+    max-height: 20rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    background: $background-color;
+    border: 1px solid $outline-color;
+    border-radius: 0;
+    box-shadow: none;
+    overflow-y: auto;
+    box-sizing: border-box;
+    @include vertical-scrollbar;
+  }
+
+  .emergency-contact-country-select-divider {
+    height: 1px;
+    margin: $spacing-small 0;
+    padding: 0;
+    list-style: none;
+    background: $border-medium;
+    border: none;
+  }
+
+  .emergency-contact-country-select-row {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .emergency-contact-country-select-option {
+    @extend %flex-base;
+    align-items: center;
+    gap: $spacing-small;
+    width: 100%;
+    min-height: 2rem;
+    padding: $spacing-small;
+    margin: 0;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    font: inherit;
+    color: inherit;
+    font-size: $font-size-base;
+    line-height: 1.5;
+    text-align: left;
+
+    &:hover,
+    &:focus-visible {
+      background: $text-hover-background;
+    }
+  }
+
+  .emergency-contact-country-select-option.emergency-contact-country-select-option-selected {
+    background: $background-section;
+  }
+
+  .emergency-contact-country-select-option-label {
+    @extend %flex-space-between;
+    flex: 1;
+    min-width: 0;
+    gap: $spacing-small;
+  }
+
+  .emergency-contact-country-select-option-country {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .emergency-contact-country-select-option-dial {
+    flex-shrink: 0;
+    color: $text-secondary;
+    font-size: $font-size-small;
+  }
+
+  .PhoneInputCountryIcon {
+    flex-shrink: 0;
+  }
+
+  .PhoneInputCountryIconImg {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .PhoneInputInput {
+    flex: 1;
+    min-width: 0;
+    height: auto;
+    min-height: calc(#{$form-input-height} - 2px);
+    border: none !important;
+    box-shadow: none !important;
+    padding-left: 0;
+    background: transparent;
+
+    &:focus {
+      box-shadow: none !important;
+      outline: none;
+    }
+  }
+
+  &.error .PhoneInput {
+    border-color: $outline-color;
+    box-shadow: 0 0 4px $error;
+  }
+}

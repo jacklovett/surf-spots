@@ -12,6 +12,7 @@ import DatePicker from './DatePicker'
 import Details from './Details'
 import Drawer from './Drawer'
 import DropdownMenu from './DropdownMenu'
+import EmergencyContactPhoneField from './EmergencyContactPhoneField'
 import EmptyState from './EmptyState'
 import ErrorBoundary from './ErrorBoundary'
 import FeedItem from './FeedItem'
@@ -80,6 +81,7 @@ export {
   DirectionSelectors,
   Drawer,
   DropdownMenu,
+  EmergencyContactPhoneField,
   EmptyState,
   ErrorBoundary,
   FeedItem,
