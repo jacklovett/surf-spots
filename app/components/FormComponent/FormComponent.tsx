@@ -51,9 +51,10 @@ export const FormComponent = (props: IProps) => {
 
   const defaultFetcher = useFetcher()
   const fetcher = propFetcher ?? defaultFetcher
-  const { isFormSubmitting } = useFormSubmission()
+  const { isSubmitting: isNavigationSubmitting } = useFormSubmission()
   const isSubmitting =
-    isSubmittingOverride ?? (propFetcher ? fetcher.state === 'submitting' : isFormSubmitting)
+    isSubmittingOverride ??
+    (propFetcher ? fetcher.state === 'submitting' : isNavigationSubmitting)
 
   const handleSubmit = customOnSubmit
     ? (e: FormEvent<HTMLFormElement>) => {
