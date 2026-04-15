@@ -173,11 +173,6 @@ export const SessionLogRow = (props: SessionLogRowProps) => {
             </span>
           </span>
           <span className="session-log-card-status">
-            <span className="session-log-card-meta text-secondary">
-              {session.surfboardName
-                ? session.surfboardName
-                : 'No board saved'}
-            </span>
             <span
               className={classNames(
                 'session-log-card-badge',
@@ -215,6 +210,24 @@ export const SessionLogRow = (props: SessionLogRowProps) => {
             <div className="session-log-card-dl-row">
               <dt>Tide</dt>
               <dd>{tideDisplay(session.tide) || '—'}</dd>
+            </div>
+            <div className="session-log-card-dl-row">
+              <dt>Board</dt>
+              <dd>
+                {session.surfboardId && session.surfboardName ? (
+                  <Link
+                    to={`/surfboard/${session.surfboardId}`}
+                    prefetch="intent"
+                    className="session-log-card-board-link"
+                  >
+                    {session.surfboardName}
+                  </Link>
+                ) : session.surfboardName ? (
+                  session.surfboardName
+                ) : (
+                  '—'
+                )}
+              </dd>
             </div>
             <div className="session-log-card-dl-row">
               <dt>Wave size</dt>
