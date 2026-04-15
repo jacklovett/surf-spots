@@ -1,5 +1,6 @@
 import {
   data,
+  ActionFunction,
   LoaderFunction,
   useLoaderData,
   useNavigation,
@@ -13,15 +14,33 @@ import {
   SessionLogRow,
   TextButton,
 } from '~/components'
-import { cacheControlHeader, get, isNetworkError } from '~/services/networkService'
+import {
+  cacheControlHeader,
+  get,
+  getDisplayMessage,
+  isNetworkError,
+} from '~/services/networkService'
+import {
+  addSurfSessionMedia,
+  deleteSurfSessionMedia,
+} from '~/services/surfSession'
 import { requireSessionCookie } from '~/services/session.server'
-import { SurfSessionListItem } from '~/types/surfSpots'
+import { SurfSessionListItem, SurfSessionMedia } from '~/types/surfSpots'
+import { ActionData as BaseActionData } from '~/types/api'
 import { formatDate } from '~/utils/dateUtils'
-import { ERROR_LOAD_SESSIONS } from '~/utils/errorUtils'
+import {
+  ERROR_LOAD_SESSIONS,
+  UPLOAD_ERROR_MEDIA_UNAVAILABLE,
+  ERROR_DELETE_MEDIA,
+} from '~/utils/errorUtils'
 
 interface LoaderData {
   sessions: SurfSessionListItem[]
   error?: string
+}
+
+interface SessionsActionData extends BaseActionData {
+  media?: SurfSessionMedia
 }
 
 const SessionsHowToSection = () => (
@@ -67,6 +86,68 @@ export const loader: LoaderFunction = async ({ request }) => {
       { status: status && status >= 400 && status < 600 ? status : 500 },
     )
   }
+}
+
+export const action: ActionFunction = async ({ request }) => {
+  const user = await requireSessionCookie(request)
+  if (!user?.id) {
+    return data<SessionsActionData>({ error: 'Unauthorized' }, { status: 401 })
+  }
+
+  const formData = await request.formData()
+  const intent = formData.get('intent') as string
+  const cookie = request.headers.get('Cookie') ?? ''
+
+  if (intent === 'add-media') {
+    const sessionId = formData.get('sessionId') as string
+    const s3Url = formData.get('s3Url') as string
+    const mediaType = (formData.get('mediaType') as string) || 'image'
+    if (!sessionId || !s3Url) {
+      return data<SessionsActionData>(
+        { error: 'Session and media URL are required' },
+        { status: 400 },
+      )
+    }
+    try {
+      const media = await addSurfSessionMedia(
+        sessionId,
+        user.id,
+        { originalUrl: s3Url, thumbUrl: s3Url, mediaType },
+        { headers: { Cookie: cookie } },
+      )
+      return data<SessionsActionData>({ success: true, media })
+    } catch (error) {
+      console.error('Sessions action: add session media failed', { sessionId, error })
+      return data<SessionsActionData>(
+        { error: getDisplayMessage(error, UPLOAD_ERROR_MEDIA_UNAVAILABLE) },
+        { status: 500 },
+      )
+    }
+  }
+
+  if (intent === 'delete-media') {
+    const mediaId = formData.get('mediaId') as string
+    if (!mediaId) {
+      return data<SessionsActionData>(
+        { error: 'Media ID is required' },
+        { status: 400 },
+      )
+    }
+    try {
+      await deleteSurfSessionMedia(mediaId, user.id, {
+        headers: { Cookie: cookie },
+      })
+      return data<SessionsActionData>({ success: true })
+    } catch (error) {
+      console.error('Sessions action: delete session media failed', { mediaId, error })
+      return data<SessionsActionData>(
+        { error: getDisplayMessage(error, ERROR_DELETE_MEDIA) },
+        { status: 500 },
+      )
+    }
+  }
+
+  return data<SessionsActionData>({ error: 'Invalid intent' }, { status: 400 })
 }
 
 export default function Sessions() {

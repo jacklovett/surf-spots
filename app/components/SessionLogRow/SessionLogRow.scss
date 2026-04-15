@@ -205,6 +205,65 @@
   white-space: pre-wrap;
 }
 
+.session-log-card-media-toggle-link {
+  @extend %flex-base;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 4px;
+  border: none;
+  background: none;
+  padding: 0;
+  margin: 0 0 $spacing-unit 0;
+  width: 100%;
+  color: $primary-color;
+  font-size: $font-size-small;
+  text-decoration: underline;
+  cursor: pointer;
+
+  &:focus-visible {
+    outline: 2px solid $focus-color;
+    outline-offset: 2px;
+  }
+}
+
+.session-log-card-media-toggle-chevron {
+  @extend %flex-center;
+  transition: transform 0.2s ease;
+
+  svg {
+    width: 14px;
+    height: 14px;
+  }
+}
+
+.session-log-card-media-toggle-chevron-open {
+  transform: rotate(180deg);
+}
+
+.session-log-card-media-reveal {
+  display: grid;
+  grid-template-rows: 0fr;
+  opacity: 0;
+  transition:
+    grid-template-rows 0.26s ease,
+    opacity 0.2s ease;
+}
+
+.session-log-card-media-reveal-inner {
+  overflow: hidden;
+  transform: translateY(-4px);
+  transition: transform 0.26s ease;
+}
+
+.session-log-card-media-reveal-open {
+  grid-template-rows: 1fr;
+  opacity: 1;
+
+  .session-log-card-media-reveal-inner {
+    transform: translateY(0);
+  }
+}
+
 @media (max-width: 36rem) {
   .session-log-card-toggle {
     grid-template-columns: auto 1fr;

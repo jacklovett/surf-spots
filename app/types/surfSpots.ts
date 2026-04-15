@@ -332,6 +332,21 @@ export interface SurfSessionSummary {
   wouldSurfAgainLine: string | null
 }
 
+export interface SurfSessionMedia {
+  id: string
+  surfSessionId: number
+  originalUrl: string
+  thumbUrl?: string
+  mediaType?: string
+  createdAt: string
+}
+
+export interface CreateSurfSessionMediaRequest {
+  originalUrl: string
+  thumbUrl?: string
+  mediaType?: string
+}
+
 export interface SurfSessionListItem {
   id: number
   sessionDate: string
@@ -350,4 +365,5 @@ export interface SurfSessionListItem {
   windDirection?: string | null
   tide?: Tide | null
   sessionNotes?: string | null
+  media?: SurfSessionMedia[]
 }

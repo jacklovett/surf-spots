@@ -1,7 +1,15 @@
-import { useId, useState } from 'react'
-import { Link } from 'react-router'
+import { useEffect, useId, useState } from 'react'
+import { Link, useFetcher, useLocation } from 'react-router'
+import classNames from 'classnames'
 
-import Icon from '~/components/Icon'
+import {
+  ErrorBoundary,
+  Icon,
+  MediaGallery,
+  MediaUpload,
+} from '~/components'
+import { useToastContext, useUserContext } from '~/contexts'
+import { useFileUpload } from '~/hooks'
 import {
   CROWD_LEVEL_LABELS,
   SURF_SESSION_WAVE_QUALITY_LABELS,
@@ -9,12 +17,24 @@ import {
   Tide,
   WaveQuality,
   SurfSessionListItem,
+  SurfSessionMedia,
 } from '~/types/surfSpots'
 import { TIDE_OPTIONS } from '~/types/formData/surfSpots'
+import {
+  ERROR_BOUNDARY_MEDIA,
+  ERROR_DELETE_MEDIA,
+  getSafeFetcherErrorMessage,
+} from '~/utils/errorUtils'
 
 interface SessionLogRowProps {
   session: SurfSessionListItem
   formatSessionDate: (isoDate: string) => string
+}
+
+interface SessionMediaActionData {
+  error?: string
+  success?: boolean
+  media?: SurfSessionMedia
 }
 
 const impressionLabel = (waveQuality: WaveQuality | null | undefined): string => {
@@ -55,9 +75,70 @@ const tideDisplay = (tide: Tide | string | null | undefined): string => {
 
 export const SessionLogRow = (props: SessionLogRowProps) => {
   const { session, formatSessionDate } = props
+  const { user } = useUserContext()
+  const { showSuccess, showError } = useToastContext()
+  const { pathname } = useLocation()
   const [expanded, setExpanded] = useState(false)
+  const [showMediaSection, setShowMediaSection] = useState(false)
   const panelId = useId()
   const mod = impressionModifier(session.waveQuality)
+
+  const {
+    uploadFiles,
+    isUploading,
+    error: uploadError,
+    clearError: clearUploadError,
+    fetcherData: uploadFetcherData,
+  } = useFileUpload({
+    directUpload: {
+      getUploadUrlApi: (mediaType: string) =>
+        `/api/surf-session/${session.id}/upload-url?mediaType=${encodeURIComponent(mediaType)}`,
+      recordActionUrl: pathname,
+      extraRecordFields: { sessionId: String(session.id) },
+    },
+  })
+
+  const mediaActionFetcher = useFetcher<SessionMediaActionData>()
+
+  useEffect(() => {
+    if (uploadFetcherData?.success && uploadFetcherData?.media) {
+      showSuccess('Media uploaded successfully!')
+    }
+  }, [uploadFetcherData, showSuccess])
+
+  useEffect(() => {
+    if (uploadError) {
+      showError(uploadError)
+      clearUploadError()
+    }
+  }, [uploadError, showError, clearUploadError])
+
+  useEffect(() => {
+    if (mediaActionFetcher.state !== 'idle' || mediaActionFetcher.data == null) return
+    if (mediaActionFetcher.data.success) {
+      showSuccess('Media deleted successfully!')
+      return
+    }
+    const message = getSafeFetcherErrorMessage(
+      mediaActionFetcher.data,
+      ERROR_DELETE_MEDIA,
+    )
+    showError(message)
+  }, [mediaActionFetcher.data, mediaActionFetcher.state, showSuccess, showError])
+
+  const mediaItems = session.media ?? []
+
+  const handleFileUpload = (files: FileList) => {
+    if (!user?.id) return
+    uploadFiles(files)
+  }
+
+  const submitDeleteMedia = (mediaId: string) => {
+    const formData = new FormData()
+    formData.append('intent', 'delete-media')
+    formData.append('mediaId', mediaId)
+    mediaActionFetcher.submit(formData, { method: 'POST', action: pathname })
+  }
 
   return (
     <article className="session-log-card">
@@ -67,10 +148,20 @@ export const SessionLogRow = (props: SessionLogRowProps) => {
           className="session-log-card-toggle"
           aria-expanded={expanded}
           aria-controls={panelId}
-          onClick={() => setExpanded((v) => !v)}
+          onClick={() =>
+            setExpanded((isExpanded) => {
+              const nextExpanded = !isExpanded
+              if (!nextExpanded) {
+                setShowMediaSection(false)
+              }
+              return nextExpanded
+            })
+          }
         >
           <span
-            className={`session-log-card-chevron${expanded ? ' session-log-card-chevron-open' : ''}`}
+            className={classNames('session-log-card-chevron', {
+              'session-log-card-chevron-open': expanded,
+            })}
             aria-hidden
           >
             <Icon iconKey="chevron-down" useCurrentColor />
@@ -88,7 +179,10 @@ export const SessionLogRow = (props: SessionLogRowProps) => {
                 : 'No board saved'}
             </span>
             <span
-              className={`session-log-card-badge session-log-card-badge-${mod}`}
+              className={classNames(
+                'session-log-card-badge',
+                `session-log-card-badge-${mod}`,
+              )}
             >
               {impressionLabel(session.waveQuality)}
             </span>
@@ -165,6 +259,70 @@ export const SessionLogRow = (props: SessionLogRowProps) => {
               </div>
             ) : null}
           </dl>
+
+          <ErrorBoundary message={ERROR_BOUNDARY_MEDIA}>
+            <section>
+              <button
+                type="button"
+                className="session-log-card-media-toggle-link"
+                aria-expanded={showMediaSection}
+                onClick={() =>
+                  setShowMediaSection((isMediaSectionVisible) => !isMediaSectionVisible)
+                }
+              >
+                <span
+                  className={classNames('session-log-card-media-toggle-chevron', {
+                    'session-log-card-media-toggle-chevron-open':
+                      showMediaSection,
+                  })}
+                  aria-hidden
+                >
+                  <Icon iconKey="chevron-down" useCurrentColor />
+                </span>
+                <span>{showMediaSection ? 'Show less' : 'Show more'}</span>
+              </button>
+              <div
+                className={classNames('session-log-card-media-reveal', {
+                  'session-log-card-media-reveal-open': showMediaSection,
+                })}
+                aria-hidden={!showMediaSection}
+              >
+                <div className="session-log-card-media-reveal-inner">
+                  <h3>Media</h3>
+                  <MediaGallery
+                    items={mediaItems.map((mediaItem) => ({
+                      id: mediaItem.id,
+                      url: mediaItem.originalUrl,
+                      thumbUrl: mediaItem.thumbUrl,
+                      mediaType: (mediaItem.mediaType || 'image') as 'image' | 'video',
+                      alt: session.surfSpotName,
+                    }))}
+                    canDelete={!!user?.id}
+                    onDelete={(item) => {
+                      if (user?.id) {
+                        submitDeleteMedia(item.id)
+                      }
+                    }}
+                    altText={session.surfSpotName}
+                  />
+                  <div className="media-upload-container">
+                    {isUploading && <p className="mb">Uploading media...</p>}
+                    {mediaActionFetcher.state === 'submitting' && (
+                      <p className="mb">Deleting media...</p>
+                    )}
+                    <MediaUpload
+                      onFilesSelected={handleFileUpload}
+                      accept="image/*,video/*"
+                      multiple
+                      disabled={
+                        isUploading || mediaActionFetcher.state === 'submitting'
+                      }
+                    />
+                  </div>
+                </div>
+              </div>
+            </section>
+          </ErrorBoundary>
         </div>
       )}
     </article>

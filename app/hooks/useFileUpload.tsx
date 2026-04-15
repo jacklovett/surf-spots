@@ -1,5 +1,5 @@
 /**
- * useFileUpload: hook used on trip and surfboard pages to add photos/videos.
+ * useFileUpload: hook used on trip, surfboard, and sessions pages to add photos/videos.
  *
  * Flow: 1) GET presigned URL from our API (no file sent). 2) PUT file to S3 from the browser.
  * 3) POST add-media (mediaId, s3Url, mediaType) to the page action so the backend records it.
@@ -40,6 +40,8 @@ const uploadFileToS3 = async (uploadUrl: string, file: File): Promise<void> => {
 export interface UseFileUploadDirectUploadOptions {
   getUploadUrlApi: (mediaType: string) => string
   recordActionUrl: string
+  /** Appended to the add-media FormData (e.g. sessionId for /sessions action). */
+  extraRecordFields?: Record<string, string>
 }
 
 interface UseFileUploadOptions {
@@ -121,6 +123,12 @@ export const useFileUpload = (options: UseFileUploadOptions): UseFileUploadRetur
             formData.append('mediaId', presigned.mediaId)
             formData.append('s3Url', s3Url)
             formData.append('mediaType', mediaType)
+            const extras = directUpload.extraRecordFields
+            if (extras) {
+              Object.entries(extras).forEach(([key, value]) => {
+                formData.append(key, value)
+              })
+            }
             await new Promise<void>((resolve) => {
               resolveWhenActionDone.current = resolve
               fetcher.submit(formData, { method: 'POST', action: directUpload.recordActionUrl })
