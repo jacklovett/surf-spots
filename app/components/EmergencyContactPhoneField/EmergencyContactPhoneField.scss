@@ -1,7 +1,7 @@
 // Match shared form controls (_form.scss): one bordered row; country control shows flag + "Name (+dial)".
 .emergency-contact-phone {
   --PhoneInput-color--focus: #{$focus-color};
-  $circular-flag-size: 1.375rem;
+  $circular-flag-size: 22px;
 
   .PhoneInput {
     @extend %flex-base;
@@ -43,7 +43,7 @@
     align-items: center;
     gap: $spacing-small;
     width: auto;
-    min-height: 2.25rem;
+    min-height: 36px;
     padding: 0;
     margin: 0;
     border: none;
@@ -123,9 +123,9 @@
     top: calc(100% + 4px);
     left: 0;
     z-index: $z-index-dropdown;
-    min-width: min(22rem, 90vw);
-    max-width: min(28rem, 92vw);
-    max-height: 20rem;
+    min-width: min(352px, 88vw);
+    max-width: min(448px, 88vw);
+    max-height: 320px;
     margin: 0;
     padding: 0;
     list-style: none;
@@ -158,7 +158,7 @@
     align-items: center;
     gap: $spacing-small;
     width: 100%;
-    min-height: 2rem;
+    min-height: 32px;
     padding: $spacing-small;
     margin: 0;
     border: none;
