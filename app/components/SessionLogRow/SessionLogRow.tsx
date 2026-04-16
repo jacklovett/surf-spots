@@ -1,8 +1,9 @@
-import { useEffect, useId, useState } from 'react'
-import { Link, useFetcher, useLocation } from 'react-router'
+import { useEffect, useId, useMemo, useState } from 'react'
+import { Link, useFetcher, useLocation, useNavigate } from 'react-router'
 import classNames from 'classnames'
 
 import {
+  DropdownMenu,
   ErrorBoundary,
   Icon,
   MediaGallery,
@@ -77,6 +78,7 @@ export const SessionLogRow = (props: SessionLogRowProps) => {
   const { session, formatSessionDate } = props
   const { user } = useUserContext()
   const { showSuccess, showError } = useToastContext()
+  const navigate = useNavigate()
   const { pathname } = useLocation()
   const [expanded, setExpanded] = useState(false)
   const [showMediaSection, setShowMediaSection] = useState(false)
@@ -128,6 +130,22 @@ export const SessionLogRow = (props: SessionLogRowProps) => {
 
   const mediaItems = session.media ?? []
 
+  const sessionSpotMenuItems = useMemo(() => {
+    const base = session.spotPath.replace(/\/+$/, '')
+    return [
+      {
+        label: 'Go to spot',
+        iconKey: 'pin',
+        onClick: () => navigate(session.spotPath),
+      },
+      {
+        label: 'Add session',
+        iconKey: 'stopwatch',
+        onClick: () => navigate(`${base}/session`),
+      },
+    ]
+  }, [navigate, session.spotPath])
+
   const handleFileUpload = (files: FileList) => {
     if (!user?.id) return
     uploadFiles(files)
@@ -141,55 +159,57 @@ export const SessionLogRow = (props: SessionLogRowProps) => {
   }
 
   return (
-    <article className="session-log-card">
+    <article
+      className={classNames('session-log-card', {
+        'session-log-card-expanded': expanded,
+      })}
+    >
       <div className="session-log-card-row">
-        <button
-          type="button"
-          className="session-log-card-toggle"
-          aria-expanded={expanded}
-          aria-controls={panelId}
-          onClick={() =>
-            setExpanded((isExpanded) => {
-              const nextExpanded = !isExpanded
-              if (!nextExpanded) {
-                setShowMediaSection(false)
-              }
-              return nextExpanded
-            })
-          }
-        >
-          <span
-            className={classNames('session-log-card-chevron', {
-              'session-log-card-chevron-open': expanded,
-            })}
-            aria-hidden
+        <div className="session-log-card-top">
+          <button
+            type="button"
+            className="session-log-card-toggle"
+            aria-expanded={expanded}
+            aria-controls={panelId}
+            onClick={() =>
+              setExpanded((isExpanded) => {
+                const nextExpanded = !isExpanded
+                if (!nextExpanded) {
+                  setShowMediaSection(false)
+                }
+                return nextExpanded
+              })
+            }
           >
-            <Icon iconKey="chevron-down" useCurrentColor />
-          </span>
-          <span className="session-log-card-primary">
-            <span className="session-log-card-spot">{session.surfSpotName}</span>
-            <span className="session-log-card-date text-secondary">
-              {formatSessionDate(session.sessionDate)}
-            </span>
-          </span>
-          <span className="session-log-card-status">
             <span
-              className={classNames(
-                'session-log-card-badge',
-                `session-log-card-badge-${mod}`,
-              )}
+              className={classNames('session-log-card-chevron', {
+                'session-log-card-chevron-open': expanded,
+              })}
+              aria-hidden
             >
-              {impressionLabel(session.waveQuality)}
+              <Icon iconKey="chevron-down" useCurrentColor />
             </span>
-          </span>
-        </button>
-        <Link
-          to={session.spotPath}
-          prefetch="intent"
-          className="session-log-card-link"
-        >
-          View spot
-        </Link>
+            <span className="session-log-card-primary">
+              <span className="session-log-card-spot">{session.surfSpotName}</span>
+              <span className="session-log-card-date text-secondary">
+                {formatSessionDate(session.sessionDate)}
+              </span>
+            </span>
+            <span className="session-log-card-status">
+              <span
+                className={classNames(
+                  'session-log-card-badge',
+                  `session-log-card-badge-${mod}`,
+                )}
+              >
+                {impressionLabel(session.waveQuality)}
+              </span>
+            </span>
+          </button>
+        </div>
+        <div className="session-log-card-actions">
+          <DropdownMenu items={sessionSpotMenuItems} align="right" />
+        </div>
       </div>
       {expanded && (
         <div

@@ -25,11 +25,9 @@ export const DropdownMenu = (props: DropdownMenuProps) => {
   const [isOpen, setIsOpen] = useState(false)
   const containerRef = useRef<HTMLDivElement>(null)
 
-  useClickOutside(
-    containerRef,
-    useCallback(() => setIsOpen(false), []),
-    isOpen,
-  )
+  const close = useCallback(() => setIsOpen(false), [])
+
+  useClickOutside(containerRef, close, isOpen)
 
   const handleItemClick = (item: DropdownMenuItem) => {
     if (!item.disabled) {

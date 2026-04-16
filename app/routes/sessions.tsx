@@ -53,8 +53,9 @@ const SessionsHowToSection = () => (
     </h2>
     <p className="text-secondary sessions-how-to-lead">
       Your session history: conditions, boards, and notes tied to each spot and
-      date. You add sessions from the spot (not from this page) so each entry is
-      linked to the right place.
+      date. Use <strong>Add another session</strong> on a row below for a quick
+      shortcut, or add from the surf spot (steps) so each entry stays linked to
+      the right place.
     </p>
     <ol className="sessions-how-to-steps">
       <li>

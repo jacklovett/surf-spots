@@ -2,11 +2,39 @@
   border: 1px solid $outline-color;
   border-radius: $content-border-radius;
   background: $background-color;
+  box-shadow: $box-shadow;
+
+  &:hover,
+  &:focus-within {
+    border-color: $border-medium;
+  }
+}
+
+.session-log-card-top {
+  @extend %flex-base;
+  flex: 1;
+  min-width: 0;
   overflow: hidden;
 }
 
+.session-log-card:not(.session-log-card-expanded) .session-log-card-top {
+  border-radius: $content-border-radius 0 0 $content-border-radius;
+}
+
+.session-log-card-expanded .session-log-card-top {
+  border-radius: $content-border-radius 0 0 0;
+}
+
+.session-log-card:not(.session-log-card-expanded) .session-log-card-actions {
+  border-radius: 0 $content-border-radius $content-border-radius 0;
+}
+
+.session-log-card-expanded .session-log-card-actions {
+  border-radius: 0 $content-border-radius 0 0;
+}
+
 .session-log-card-row {
-  display: flex;
+  @extend %flex-base;
   align-items: stretch;
   gap: 0;
   min-height: 3.25rem;
@@ -14,6 +42,7 @@
 
 .session-log-card-toggle {
   flex: 1;
+  width: 100%;
   display: grid;
   grid-template-columns: auto minmax(0, 1fr) auto;
   align-items: center;
@@ -28,7 +57,7 @@
   color: inherit;
 
   &:hover {
-    background: color-mix(in srgb, $background-light 85%, $primary-color 15%);
+    background: $text-hover-background;
   }
 
   &:focus-visible {
@@ -38,9 +67,7 @@
 }
 
 .session-log-card-chevron {
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  @extend %flex-center;
   color: $text-secondary;
   transition: transform 0.2s ease;
 
@@ -55,8 +82,7 @@
 }
 
 .session-log-card-primary {
-  display: flex;
-  flex-direction: column;
+  @extend %flex-column;
   gap: 2px;
   min-width: 0;
 }
@@ -74,11 +100,9 @@
 }
 
 .session-log-card-status {
-  display: flex;
+  @extend %flex-space-between;
   flex-direction: row;
   flex-wrap: nowrap;
-  align-items: center;
-  justify-content: space-between;
   gap: $spacing-unit;
   min-width: 0;
   max-width: 100%;
@@ -128,24 +152,17 @@
   }
 }
 
-.session-log-card-link {
-  display: flex;
-  align-items: center;
+.session-log-card-actions {
+  @extend %flex-center;
+  flex-shrink: 0;
   padding: 0 $spacing-unit;
-  font-size: $font-size-small;
-  font-weight: 600;
-  color: $primary-color;
-  text-decoration: none;
   border-left: 1px solid $border-light;
-  white-space: nowrap;
+  background: $background-light;
+  align-self: stretch;
 
-  &:hover {
-    text-decoration: underline;
-  }
-
-  &:focus-visible {
-    outline: 2px solid $primary-color;
-    outline-offset: -4px;
+  .dropdown-menu-wrapper {
+    display: flex;
+    align-items: center;
   }
 }
 
@@ -153,6 +170,7 @@
   padding: $spacing-unit $spacing-unit $spacing-large;
   border-top: 1px solid $border-light;
   background: $background-color;
+  border-radius: 0 0 $content-border-radius $content-border-radius;
 }
 
 .session-log-card-dl {
@@ -299,11 +317,31 @@
     flex-direction: column;
   }
 
-  .session-log-card-link {
+  .session-log-card:not(.session-log-card-expanded) .session-log-card-top {
+    border-radius: $content-border-radius $content-border-radius 0 0;
+    width: 100%;
+  }
+
+  .session-log-card-expanded .session-log-card-top {
+    border-radius: $content-border-radius $content-border-radius 0 0;
+    width: 100%;
+  }
+
+  .session-log-card:not(.session-log-card-expanded) .session-log-card-actions {
+    border-radius: 0 0 $content-border-radius $content-border-radius;
+  }
+
+  .session-log-card-expanded .session-log-card-actions {
+    border-radius: 0;
+  }
+
+  .session-log-card-actions {
     border-left: none;
     border-top: 1px solid $border-light;
-    justify-content: center;
+    width: 100%;
     padding: $spacing-small $spacing-unit;
+    justify-content: center;
+    background: $background-light;
   }
 
   .session-log-card-dl {
