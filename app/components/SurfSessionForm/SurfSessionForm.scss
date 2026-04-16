@@ -10,40 +10,4 @@
     font-size: $font-size-large;
     color: $text-heading;
   }
-
-  .surf-session-thank-you {
-    @extend %flex-column;
-    text-align: center;
-    gap: $spacing-unit;
-    padding: $spacing-unit 0;
-  }
-
-  .surf-session-thank-you-icon {
-    color: $success;
-
-    svg {
-      transform: scale(2);
-    }
-  }
-
-  .surf-session-thank-you-sub {
-    color: $text-secondary;
-  }
-
-  .surf-session-thank-you-actions {
-    margin-top: $spacing-small;
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: $spacing-unit;
-    align-items: center;
-
-    .button.surf-session-thank-you-actions__btn {
-      width: auto;
-      min-width: 0;
-      flex: 0 1 auto;
-      padding-left: $spacing-large;
-      padding-right: $spacing-large;
-    }
-  }
 }

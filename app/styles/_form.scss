@@ -118,13 +118,8 @@ select:focus {
 .form-inline {
   @extend %flex-base;
   align-items: flex-start;
-  gap: $spacing-small;
+  gap: $spacing-unit;
   flex-wrap: wrap;
-
-  @media (max-width: 768px) {
-    flex-direction: column;
-    gap: 0;
-  }
 }
 
 .direction-selector-wrapper {

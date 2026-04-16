@@ -297,11 +297,12 @@ h2 {
 .form-row,
 .form-inline {
   @extend %flex-base;
-  gap: $spacing-small;
+  gap: $spacing-unit;
   align-items: flex-start;
 
   @media (max-width: 768px) {
     flex-direction: column;
+    gap: 0;
   }
 
   .form-item {

@@ -32,15 +32,12 @@ import { formatDateForInput } from '~/utils/dateUtils'
 import {
   ERROR_SAVE_SURF_SESSION,
   getFetcherSubmitStatus,
+  SUCCESS_SURF_SESSION_SAVED,
 } from '~/utils/errorUtils'
 import {
   BASE_SKILL_LEVEL_OPTIONS,
   SELECT_OPTION,
 } from '~/types/formData/surfSpots'
-const THANK_YOU_HEADLINE = 'Session saved'
-const THANK_YOU_SUB =
-  'You will find it under My Sessions. Use it later to compare conditions, boards, and how the spot felt for you.'
-
 const valueFromSelectChange = (event: ChangeEvent<InputElementType>) =>
   (event.target as HTMLSelectElement).value
 
@@ -65,7 +62,7 @@ export const SurfSessionForm = (props: SurfSessionFormProps) => {
     onCancel,
   } = props
   const navigate = useNavigate()
-  const [showThankYou, setShowThankYou] = useState(false)
+  const [showSuccessScreen, setShowSuccessScreen] = useState(false)
   const [sessionDate, setSessionDate] = useState(() =>
     formatDateForInput(new Date()),
   )
@@ -86,10 +83,13 @@ export const SurfSessionForm = (props: SurfSessionFormProps) => {
     [surfboards],
   )
 
-  const fetcherData = fetcher.data
-  const submitStatus =
-    fetcherData != null && typeof fetcherData === 'object' && fetcherData.hasError === true
-      ? getFetcherSubmitStatus(fetcherData, ERROR_SAVE_SURF_SESSION)
+  const fetcherSubmitStatus = getFetcherSubmitStatus(
+    fetcher.data,
+    ERROR_SAVE_SURF_SESSION,
+  )
+  const formSubmitStatus =
+    fetcherSubmitStatus != null && fetcherSubmitStatus.isError
+      ? fetcherSubmitStatus
       : null
 
   const isFormValid = useMemo(() => {
@@ -110,23 +110,16 @@ export const SurfSessionForm = (props: SurfSessionFormProps) => {
     setSessionNotes('')
   }, [])
 
-  const handleDismiss = useCallback(() => {
+  const handleFormCancel = useCallback(() => {
     resetFields()
-    setShowThankYou(false)
+    setShowSuccessScreen(false)
     lastProcessedFetcherDataRef.current = undefined
     onCancel()
   }, [onCancel, resetFields])
 
-  const handleGoToSessions = useCallback(() => {
-    resetFields()
-    setShowThankYou(false)
-    lastProcessedFetcherDataRef.current = undefined
-    navigate('/sessions')
-  }, [navigate, resetFields])
-
   useEffect(() => {
     resetFields()
-    setShowThankYou(false)
+    setShowSuccessScreen(false)
     lastProcessedFetcherDataRef.current = undefined
   }, [surfSpotId, resetFields])
 
@@ -135,77 +128,94 @@ export const SurfSessionForm = (props: SurfSessionFormProps) => {
 
     if (fetcher.data && fetcher.data !== lastProcessedFetcherDataRef.current) {
       lastProcessedFetcherDataRef.current = fetcher.data
-      setShowThankYou(!!fetcher.data.success && !fetcher.data.hasError)
+      setShowSuccessScreen(!!fetcher.data.success && !fetcher.data.hasError)
     }
   }, [fetcher.state, fetcher.data])
 
+  const successMessage =
+    fetcherSubmitStatus != null && !fetcherSubmitStatus.isError
+      ? fetcherSubmitStatus.message
+      : SUCCESS_SURF_SESSION_SAVED
+
   return (
-    <div className="info-page-content mv surf-session-page">
-      {showThankYou && (
-        <div className="surf-session-thank-you column">
-          <div className="surf-session-thank-you-icon">
-            <Icon iconKey="success" useCurrentColor />
-          </div>
-          <p className="surf-session-thank-you-headline bold">
-            {THANK_YOU_HEADLINE}
-          </p>
-          <p className="surf-session-thank-you-sub">{THANK_YOU_SUB}</p>
-          <div className="surf-session-thank-you-actions">
-            <Button
-              label="My sessions"
-              type="button"
-              className="surf-session-thank-you-actions__btn"
-              onClick={handleGoToSessions}
-            />
-            <Button
-              label="Close"
-              type="button"
-              variant="cancel"
-              className="surf-session-thank-you-actions__btn"
-              onClick={handleDismiss}
-            />
+    <div
+      className={`info-page-content surf-session-page${
+        showSuccessScreen ? ' surf-spot-form-success-page' : ''
+      }`}
+    >
+      <h1>Add session at {surfSpotName}</h1>
+      {showSuccessScreen && (
+        <div className="surf-spot-form-success-wrapper">
+          <div className="surf-spot-form-success column">
+            <div className="ph center column">
+              <div className="surf-spot-form-success-icon mb">
+                <Icon iconKey="success" useCurrentColor />
+              </div>
+              <p className="surf-spot-form-success-message bold">
+                {successMessage}
+              </p>
+              <p className="surf-spot-form-success-subtext">
+                You can return to this spot or open My sessions.
+              </p>
+              <div className="surf-spot-form-success-actions">
+                <Button
+                  label="View spot"
+                  type="button"
+                  onClick={() => onCancel()}
+                />
+                <Button
+                  label="My sessions"
+                  type="button"
+                  variant="secondary"
+                  onClick={() => navigate('/sessions')}
+                />
+              </div>
+            </div>
           </div>
         </div>
       )}
-      {!showThankYou && (
+      {!showSuccessScreen && (
         <FormComponent
           fetcher={fetcher}
           action={formActionPath}
           method="post"
           submitLabel="Save session"
-          submitStatus={submitStatus}
+          submitStatus={formSubmitStatus}
           isDisabled={!isFormValid}
-          onCancel={handleDismiss}
+          onCancel={handleFormCancel}
         >
           <>
             <input type="hidden" name="intent" value="saveSurfSession" />
             <input type="hidden" name="surfSpotId" value={surfSpotId} />
-            <h1>Add session at {surfSpotName}</h1>
             <p className="surf-session-lead text-secondary">
               Add as much or as little as you like; only the session date is required.
             </p>
             <div className="column">
-              {requiresSkillLevel && (
-                <FormInput
-                  field={{
-                    label: 'Skill Level',
-                    name: 'skillLevel',
-                    type: 'select',
-                    options: [SELECT_OPTION, ...BASE_SKILL_LEVEL_OPTIONS],
-                  }}
-                  value={skillLevel}
-                  onChange={(event) => setSkillLevel(valueFromSelectChange(event))}
+              <div className="form-inline">
+                {requiresSkillLevel && (
+                  <FormInput
+                    field={{
+                      label: 'Skill Level',
+                      name: 'skillLevel',
+                      type: 'select',
+                      options: [SELECT_OPTION, ...BASE_SKILL_LEVEL_OPTIONS],
+                    }}
+                    value={skillLevel}
+                    onChange={(event) =>
+                      setSkillLevel(valueFromSelectChange(event))
+                    }
+                    showLabel
+                  />
+                )}
+                <DatePicker
+                  label="Session date"
+                  name="sessionDate"
+                  value={sessionDate}
+                  onChange={(event) => setSessionDate(event.target.value)}
+                  max={formatDateForInput(new Date())}
                   showLabel
                 />
-              )}
-              <DatePicker
-                label="Session date"
-                name="sessionDate"
-                value={sessionDate}
-                onChange={(event) => setSessionDate(event.target.value)}
-                max={formatDateForInput(new Date())}
-                showLabel
-              />
+              </div>
               <h2 className="surf-session-section-title">Conditions</h2>
               <DirectionSelectors
                 swellDirectionArray={swellDirectionArray}
@@ -213,30 +223,38 @@ export const SurfSessionForm = (props: SurfSessionFormProps) => {
                 onSwellDirectionChange={setSwellDirectionArray}
                 onWindDirectionChange={setWindDirectionArray}
               />
-              <FormInput
-                field={SURF_SESSION_TIDE_FIELD}
-                value={tide}
-                onChange={(event) => setTide(valueFromSelectChange(event))}
-                showLabel
-              />
-              <FormInput
-                field={SURF_SESSION_WAVE_SIZE_FIELD}
-                value={waveSize}
-                onChange={(event) => setWaveSize(valueFromSelectChange(event))}
-                showLabel
-              />
-              <FormInput
-                field={SURF_SESSION_WAVE_QUALITY_FIELD}
-                value={waveQuality}
-                onChange={(event) => setWaveQuality(valueFromSelectChange(event))}
-                showLabel
-              />
-              <FormInput
-                field={SURF_SESSION_CROWD_LEVEL_FIELD}
-                value={crowdLevel}
-                onChange={(event) => setCrowdLevel(valueFromSelectChange(event))}
-                showLabel
-              />
+              <div className="form-inline">
+                <FormInput
+                  field={SURF_SESSION_TIDE_FIELD}
+                  value={tide}
+                  onChange={(event) => setTide(valueFromSelectChange(event))}
+                  showLabel
+                />
+                <FormInput
+                  field={SURF_SESSION_WAVE_SIZE_FIELD}
+                  value={waveSize}
+                  onChange={(event) => setWaveSize(valueFromSelectChange(event))}
+                  showLabel
+                />
+              </div>
+              <div className="form-inline">
+                <FormInput
+                  field={SURF_SESSION_WAVE_QUALITY_FIELD}
+                  value={waveQuality}
+                  onChange={(event) =>
+                    setWaveQuality(valueFromSelectChange(event))
+                  }
+                  showLabel
+                />
+                <FormInput
+                  field={SURF_SESSION_CROWD_LEVEL_FIELD}
+                  value={crowdLevel}
+                  onChange={(event) =>
+                    setCrowdLevel(valueFromSelectChange(event))
+                  }
+                  showLabel
+                />
+              </div>
               {surfboards.length > 0 ? (
                 <FormInput
                   field={boardField}
@@ -254,13 +272,14 @@ export const SurfSessionForm = (props: SurfSessionFormProps) => {
                   onCtaClick={() => navigate('/add-surfboard')}
                 />
               )}
-               <div className="column mv">
-              <CheckboxOption
-                name="wouldSurfAgain"
-                title="Would surf again in similar conditions"
-                checked={wouldSurfAgain}
-                onChange={setWouldSurfAgain}
-              /></div>
+              <div className="column mv">
+                <CheckboxOption
+                  name="wouldSurfAgain"
+                  title="Would surf again in similar conditions"
+                  checked={wouldSurfAgain}
+                  onChange={setWouldSurfAgain}
+                />
+              </div>
               <FormInput
                 field={{
                   label: 'Session notes',

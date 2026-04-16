@@ -3,7 +3,7 @@ import type { Page } from '@playwright/test'
 import { login } from './utils/auth-helper'
 
 /**
- * Surf session flow: `{SurfSpot.path}/session`, save, thank-you; and /sessions list with Media on expanded rows.
+ * Surf session flow: `{SurfSpot.path}/session`, save, success screen; and /sessions list with Media on expanded rows.
  * Requires VITE_API_URL and a running API (POST /surf-sessions, session media / presigned upload for upload test).
  */
 

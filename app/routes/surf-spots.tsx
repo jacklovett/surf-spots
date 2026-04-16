@@ -145,6 +145,10 @@ export default function SurfSpots() {
       pathname,
     )
 
+  /** Add session lives under this layout but should match add-surf-spot: header + form only (no map toolbar or trail). */
+  const isAddSessionRoute =
+    pathname.startsWith('/surf-spots/') && /\/session\/?$/.test(pathname)
+
   const loadingComponent = (
     <div className="page-loading-state">
       <Loading />
@@ -153,27 +157,31 @@ export default function SurfSpots() {
 
   return (
     <Page showHeader overrideLoading>
-      <Toolbar
-        showAddButton={!!user}
-        onAddNewSpot={() => navigate('/add-surf-spot')}
-        addButtonLoading={
-          isNavigating &&
-          navigation.location?.pathname === '/add-surf-spot'
-        }
-        onOpenFilters={handleOpenFilters}
-        filtersBadge={getAppliedFiltersCount(filters)}
-        isMapView={isMapView}
-        onToggleView={handleToggleView}
-        hideFilters={isDetailPage}
-        hideToolbarBorder={isMapView && !loading && !isMapViewTransition}
-      />
-      <TripPlannerButton
-        onOpenTripPlanner={() => navigate('/trip-planner')}
-        isLoading={
-          isNavigating &&
-          navigation.location?.pathname === '/trip-planner'
-        }
-      />
+      {!isAddSessionRoute && (
+        <>
+          <Toolbar
+            showAddButton={!!user}
+            onAddNewSpot={() => navigate('/add-surf-spot')}
+            addButtonLoading={
+              isNavigating &&
+              navigation.location?.pathname === '/add-surf-spot'
+            }
+            onOpenFilters={handleOpenFilters}
+            filtersBadge={getAppliedFiltersCount(filters)}
+            isMapView={isMapView}
+            onToggleView={handleToggleView}
+            hideFilters={isDetailPage}
+            hideToolbarBorder={isMapView && !loading && !isMapViewTransition}
+          />
+          <TripPlannerButton
+            onOpenTripPlanner={() => navigate('/trip-planner')}
+            isLoading={
+              isNavigating &&
+              navigation.location?.pathname === '/trip-planner'
+            }
+          />
+        </>
+      )}
       <div className="surf-spots-content-body column flex-1">
         {isMapView ? (
           loading || isMapViewTransition ? (
@@ -190,7 +198,7 @@ export default function SurfSpots() {
           )
         ) : (
           <div className="column surf-spots-list-view flex-1">
-            <Breadcrumb items={breadcrumbs} />
+            {!isAddSessionRoute && <Breadcrumb items={breadcrumbs} />}
             <div className="surf-spots-list-content column flex-1">
               {loading ? (
                 loadingComponent
