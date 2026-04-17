@@ -24,7 +24,7 @@ import { useSurfSpotsContext, useUserContext } from '~/contexts'
 import { useMapDrawer, useResizeObserver } from '~/hooks'
 import { debounce } from '~/utils/commonUtils'
 import { ActionData, FetcherSubmitParams } from '~/types/api'
-import { ERROR_LOAD_MAP_SPOTS } from '~/utils/errorUtils'
+import { ERROR_LOAD_MAP, ERROR_LOAD_MAP_DATA } from '~/utils/errorUtils'
 import { Button, ContentStatus } from '~/components'
 
 interface IProps {
@@ -96,7 +96,7 @@ export const SurfMap = memo((props: IProps) => {
           mergeSurfSpots(newSurfSpots)
         } catch (error) {
           console.error('Error fetching surf spots:', error)
-          const msg = getDisplayMessage(error, ERROR_LOAD_MAP_SPOTS)
+          const msg = getDisplayMessage(error, ERROR_LOAD_MAP_DATA)
           setError?.(msg)
         }
       },
@@ -121,7 +121,7 @@ export const SurfMap = memo((props: IProps) => {
       })
       .catch((error) => {
         console.error('Error fetching surf spots on filter change:', error)
-        setLoadError(getDisplayMessage(error, ERROR_LOAD_MAP_SPOTS))
+        setLoadError(getDisplayMessage(error, ERROR_LOAD_MAP_DATA))
       })
   }, [filters, user?.id, setSurfSpots, disableInteractions, isPreloadedMode])
 
@@ -157,13 +157,24 @@ export const SurfMap = memo((props: IProps) => {
 
     let mapInstance: mapboxgl.Map
 
+    const setMapInitializationError = () => {
+      setLoading(false)
+      setLoadError(ERROR_LOAD_MAP)
+    }
+
     // Static map mode (single marker, no interactions)
     if (disableInteractions && surfSpots && surfSpots.length > 0) {
       const { longitude, latitude } = surfSpots[0]
-      mapInstance = initializeMap(mapContainerRef.current, false, {
-        longitude,
-        latitude,
-      })
+      try {
+        mapInstance = initializeMap(mapContainerRef.current, false, {
+          longitude,
+          latitude,
+        })
+      } catch (error) {
+        console.error('Error initializing static map:', error)
+        setMapInitializationError()
+        return
+      }
       mapInstance.on('load', () => {
         setLoading(false)
         addMarkerForCoordinate({ longitude, latitude }, mapInstance)
@@ -183,7 +194,13 @@ export const SurfMap = memo((props: IProps) => {
       } else {
         initialCoords = userLocation || defaultMapCenter
       }
-      mapInstance = initializeMap(mapContainerRef.current, true, initialCoords)
+      try {
+        mapInstance = initializeMap(mapContainerRef.current, true, initialCoords)
+      } catch (error) {
+        console.error('Error initializing interactive map:', error)
+        setMapInitializationError()
+        return
+      }
       mapInstance.addControl(new mapboxgl.NavigationControl(), 'top-right')
 
       mapInstance.on('load', () => {

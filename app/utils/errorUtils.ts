@@ -70,7 +70,9 @@ export const ERROR_SESSION_SKILL_LEVEL_REQUIRED =
 export const SUCCESS_SURF_SESSION_SAVED = 'Your session was saved.'
 export const ERROR_LOAD_REGION_DATA = 'Failed to load region data. Please try again later.'
 export const ERROR_LOAD_CONTINENTS = "We couldn't load the continents. Please try again."
-export const ERROR_LOAD_MAP_SPOTS = "We couldn't load the map. Please try again."
+export const ERROR_LOAD_MAP_DATA =
+  "We couldn't load surf spots for this map. Please try again."
+export const ERROR_LOAD_MAP = "We couldn't load the map. Please try again."
 export const ERROR_ADD_SURF_SPOT = 'Unable to add surf spot. Please try again later.'
 export const ERROR_EDIT_SURF_SPOT = 'Unable to update surf spot. Please try again later.'
 export const SUCCESS_SURF_SPOT_UPDATED = 'Surf spot updated'
