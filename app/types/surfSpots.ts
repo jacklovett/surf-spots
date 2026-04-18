@@ -367,3 +367,11 @@ export interface SurfSessionListItem {
   sessionNotes?: string | null
   media?: SurfSessionMedia[]
 }
+
+/** GET /surf-sessions/{userId}: headline stats plus list (same bundle idea as user-spots / watch). */
+export interface UserSurfSessions {
+  totalSessions: number
+  spotsSurfedCount: number
+  boardsUsedCount: number
+  sessions: SurfSessionListItem[]
+}

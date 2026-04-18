@@ -8,7 +8,8 @@ import {
 } from 'react-router'
 import { Page, TextButton, ContentStatus, Card } from '~/components'
 import { requireSessionCookie } from '~/services/session.server'
-import { cacheControlHeader, get} from '~/services/networkService'
+import { cacheControlHeader } from '~/services/networkService'
+import { getTrips } from '~/services/trip'
 import { Trip } from '~/types/trip'
 import { useScrollReveal } from '~/hooks'
 import { formatDate } from '~/utils/dateUtils'
@@ -23,11 +24,14 @@ interface LoaderData {
 export const loader: LoaderFunction = async ({ request }) => {
   const user = await requireSessionCookie(request)
   const userId = user?.id
+  if (!userId) {
+    return data<LoaderData>({ trips: [] }, { status: 401 })
+  }
 
   const cookie = request.headers.get('Cookie') ?? ''
 
   try {
-    const trips = await get<Trip[]>(`trips/mine?userId=${userId}`, {
+    const trips = await getTrips(userId, {
       headers: { Cookie: cookie },
     })
     return data<LoaderData>(

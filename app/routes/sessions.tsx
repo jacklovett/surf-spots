@@ -25,7 +25,11 @@ import {
   deleteSurfSessionMedia,
 } from '~/services/surfSession'
 import { requireSessionCookie } from '~/services/session.server'
-import { SurfSessionListItem, SurfSessionMedia } from '~/types/surfSpots'
+import {
+  SurfSessionListItem,
+  SurfSessionMedia,
+  UserSurfSessions,
+} from '~/types/surfSpots'
 import { ActionData as BaseActionData } from '~/types/api'
 import { formatDate } from '~/utils/dateUtils'
 import {
@@ -35,7 +39,7 @@ import {
 } from '~/utils/errorUtils'
 
 interface LoaderData {
-  sessions: SurfSessionListItem[]
+  userSurfSessions?: UserSurfSessions
   error?: string
 }
 
@@ -75,15 +79,14 @@ export const loader: LoaderFunction = async ({ request }) => {
   const cookie = request.headers.get('Cookie') ?? ''
 
   try {
-    const sessions = await get<SurfSessionListItem[]>(
-      `surf-sessions/mine?userId=${user.id}`,
-      { headers: { Cookie: cookie } },
-    )
-    return data<LoaderData>({ sessions }, { headers: cacheControlHeader })
+    const userSurfSessions = await get<UserSurfSessions>(`surf-sessions/${user.id}`, {
+      headers: { Cookie: cookie },
+    })
+    return data<LoaderData>({ userSurfSessions }, { headers: cacheControlHeader })
   } catch (error) {
     const status = isNetworkError(error) ? error.status : undefined
     return data<LoaderData>(
-      { sessions: [], error: ERROR_LOAD_SESSIONS },
+      { error: ERROR_LOAD_SESSIONS },
       { status: status && status >= 400 && status < 600 ? status : 500 },
     )
   }
@@ -154,8 +157,12 @@ export const action: ActionFunction = async ({ request }) => {
 export default function Sessions() {
   const navigate = useNavigate()
   const { state } = useNavigation()
-  const { sessions, error } = useLoaderData<LoaderData>()
+  const { userSurfSessions, error } = useLoaderData<LoaderData>()
   const isLoading = state === 'loading'
+  const sessions: SurfSessionListItem[] = userSurfSessions?.sessions ?? []
+  const totalSessions = userSurfSessions?.totalSessions ?? 0
+  const spotsSurfedCount = userSurfSessions?.spotsSurfedCount ?? 0
+  const boardsUsedCount = userSurfSessions?.boardsUsedCount ?? 0
 
   if (error) {
     return (
@@ -188,6 +195,21 @@ export default function Sessions() {
             iconKey="map"
             filled
           />
+        </div>
+
+        <div className="stats-overview mt-l">
+          <div className="stat-card primary">
+            <div className="stat-label bold">Sessions</div>
+            <div className="stat-value">{totalSessions}</div>
+          </div>
+          <div className="stat-card">
+            <div className="stat-label bold">Spots surfed</div>
+            <div className="stat-value">{spotsSurfedCount}</div>
+          </div>
+          <div className="stat-card">
+            <div className="stat-label bold">Boards used</div>
+            <div className="stat-value">{boardsUsedCount}</div>
+          </div>
         </div>
 
         {sessions.length === 0 ? (

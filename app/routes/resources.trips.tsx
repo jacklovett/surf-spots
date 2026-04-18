@@ -1,6 +1,7 @@
 import { data, LoaderFunction } from 'react-router'
 import { requireSessionCookie } from '~/services/session.server'
-import { cacheControlHeader, get } from '~/services/networkService'
+import { cacheControlHeader } from '~/services/networkService'
+import { getTrips } from '~/services/trip'
 import { Trip } from '~/types/trip'
 import { ERROR_LOAD_TRIPS } from '~/utils/errorUtils'
 
@@ -18,7 +19,7 @@ export const loader: LoaderFunction = async ({ request }) => {
   const cookie = request.headers.get('Cookie') ?? ''
 
   try {
-    const trips = await get<Trip[]>(`trips/mine?userId=${user.id}`, {
+    const trips = await getTrips(user.id, {
       headers: { Cookie: cookie },
     })
     return data<LoaderData>(

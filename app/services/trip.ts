@@ -11,8 +11,11 @@ import {
 
 const tripsEndpoint = 'trips'
 
-export const getTrips = async (userId: string): Promise<Trip[]> => {
-  return get<Trip[]>(`${tripsEndpoint}/mine?userId=${userId}`)
+export const getTrips = async (
+  userId: string,
+  options?: RequestInit,
+): Promise<Trip[]> => {
+  return get<Trip[]>(`${tripsEndpoint}/user/${userId}`, options)
 }
 
 export const getTrip = async (
