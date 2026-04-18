@@ -45,7 +45,7 @@ export const TextButton = (props: IProps) => {
               'icon-chevron-left': iconKey === 'chevron-left',
             })}
           >
-            <Icon iconKey={iconKey} />
+            <Icon iconKey={iconKey} useCurrentColor={filled} />
           </span>
         )}
         <span className="text-button-text">{text}</span>

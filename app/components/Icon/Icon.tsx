@@ -171,58 +171,13 @@ export const Icon = (props: IProps) => {
         )
       case 'crosshair':
         return (
-          <svg
-            {...commonIconStyles}
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            {/* Outer Circle */}
-            <circle
-              cx="12"
-              cy="12"
-              r="8"
-              stroke="#ffffff"
-              strokeWidth="2"
-              fill="none"
-            />
-            {/* Inner Solid Circle */}
-            <circle cx="12" cy="12" r="2" fill="#ffffff" />
-            {/* North Line */}
-            <line
-              x1="12"
-              y1="0"
-              x2="12"
-              y2="6"
-              stroke="#ffffff"
-              strokeWidth="2"
-            />
-            {/* South Line */}
-            <line
-              x1="12"
-              y1="18"
-              x2="12"
-              y2="24"
-              stroke="#ffffff"
-              strokeWidth="2"
-            />
-            {/* West Line */}
-            <line
-              x1="0"
-              y1="12"
-              x2="6"
-              y2="12"
-              stroke="#ffffff"
-              strokeWidth="2"
-            />
-            {/* East Line */}
-            <line
-              x1="18"
-              y1="12"
-              x2="24"
-              y2="12"
-              stroke="#ffffff"
-              strokeWidth="2"
-            />
+          <svg {...commonIconStyles} fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="12" cy="12" r="8" stroke={color} strokeWidth="2" fill="none" />
+            <circle cx="12" cy="12" r="2" fill={color} />
+            <line x1="12" y1="1" x2="12" y2="6" stroke={color} strokeWidth="2" />
+            <line x1="12" y1="18" x2="12" y2="23" stroke={color} strokeWidth="2" />
+            <line x1="1" y1="12" x2="6" y2="12" stroke={color} strokeWidth="2" />
+            <line x1="18" y1="12" x2="23" y2="12" stroke={color} strokeWidth="2" />
           </svg>
         )
       case 'error':

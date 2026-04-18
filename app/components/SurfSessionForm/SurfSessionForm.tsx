@@ -155,19 +155,19 @@ export const SurfSessionForm = (props: SurfSessionFormProps) => {
                 {successMessage}
               </p>
               <p className="surf-spot-form-success-subtext">
-                You can return to this spot or open My sessions.
+                Open Sessions to see your log, or return to this spot.
               </p>
               <div className="surf-spot-form-success-actions">
                 <Button
-                  label="View spot"
+                  label="Sessions"
                   type="button"
-                  onClick={() => onCancel()}
+                  onClick={() => navigate('/sessions')}
                 />
                 <Button
-                  label="My sessions"
+                  label="View spot"
                   type="button"
                   variant="secondary"
-                  onClick={() => navigate('/sessions')}
+                  onClick={() => onCancel()}
                 />
               </div>
             </div>

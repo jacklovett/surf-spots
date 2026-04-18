@@ -3,11 +3,14 @@ import { Link, useFetcher, useLocation, useNavigate } from 'react-router'
 import classNames from 'classnames'
 
 import {
+  DirectionIcon,
   DropdownMenu,
   ErrorBoundary,
   Icon,
   MediaGallery,
   MediaUpload,
+  SurfHeightIcon,
+  TideIcon,
 } from '~/components'
 import { useToastContext, useUserContext } from '~/contexts'
 import { useFileUpload } from '~/hooks'
@@ -73,6 +76,12 @@ const tideDisplay = (tide: Tide | string | null | undefined): string => {
   const opt = TIDE_OPTIONS.find((o) => o.value === tide)
   return opt?.label ?? String(tide)
 }
+
+const formatDirectionDisplay = (value: string | null | undefined): string =>
+  value ? value.replace(/-/g, ' to ') : '—'
+
+const SESSION_CONDITION_ICON_COLOR = 'var(--primary-color)'
+const SESSION_CONDITION_ICON_SIZE = 26
 
 export const SessionLogRow = (props: SessionLogRowProps) => {
   const { session, formatSessionDate } = props
@@ -208,7 +217,11 @@ export const SessionLogRow = (props: SessionLogRowProps) => {
           </button>
         </div>
         <div className="session-log-card-actions">
-          <DropdownMenu items={sessionSpotMenuItems} align="right" />
+          <DropdownMenu
+            items={sessionSpotMenuItems}
+            align="right"
+            useCurrentColor
+          />
         </div>
       </div>
       {expanded && (
@@ -219,69 +232,130 @@ export const SessionLogRow = (props: SessionLogRowProps) => {
           aria-label={`Details for ${session.surfSpotName}`}
         >
           <dl className="session-log-card-dl">
-            <div className="session-log-card-dl-row">
-              <dt>Swell</dt>
-              <dd>{session.swellDirection?.replace(/-/g, ' to ') || '—'}</dd>
+            <div
+              className="session-log-card-dl-group session-log-card-dl-group-with-icons"
+              aria-label="Conditions with icons"
+            >
+              <div className="session-log-card-dl-row">
+                <dt>Swell</dt>
+                <dd>
+                  <span className="session-log-card-dd-with-condition">
+                    {session.swellDirection ? (
+                      <span className="session-log-card-condition-svg" aria-hidden>
+                        <DirectionIcon
+                          type="swell"
+                          directionRange={session.swellDirection}
+                          color={SESSION_CONDITION_ICON_COLOR}
+                          size={SESSION_CONDITION_ICON_SIZE}
+                        />
+                      </span>
+                    ) : null}
+                    <span>{formatDirectionDisplay(session.swellDirection)}</span>
+                  </span>
+                </dd>
+              </div>
+              <div className="session-log-card-dl-row">
+                <dt>Wind</dt>
+                <dd>
+                  <span className="session-log-card-dd-with-condition">
+                    {session.windDirection ? (
+                      <span className="session-log-card-condition-svg" aria-hidden>
+                        <DirectionIcon
+                          type="wind"
+                          directionRange={session.windDirection}
+                          color={SESSION_CONDITION_ICON_COLOR}
+                          size={SESSION_CONDITION_ICON_SIZE}
+                        />
+                      </span>
+                    ) : null}
+                    <span>{formatDirectionDisplay(session.windDirection)}</span>
+                  </span>
+                </dd>
+              </div>
+              <div className="session-log-card-dl-row">
+                <dt>Tide</dt>
+                <dd>
+                  <span className="session-log-card-dd-with-condition">
+                    {session.tide ? (
+                      <span className="session-log-card-condition-svg" aria-hidden>
+                        <TideIcon
+                          tide={session.tide}
+                          color={SESSION_CONDITION_ICON_COLOR}
+                          size={SESSION_CONDITION_ICON_SIZE}
+                        />
+                      </span>
+                    ) : null}
+                    <span>{tideDisplay(session.tide) || '—'}</span>
+                  </span>
+                </dd>
+              </div>
+              <div className="session-log-card-dl-row">
+                <dt>Wave size</dt>
+                <dd>
+                  <span className="session-log-card-dd-with-condition">
+                    <span className="session-log-card-condition-svg" aria-hidden>
+                      <SurfHeightIcon
+                        color={SESSION_CONDITION_ICON_COLOR}
+                        size={SESSION_CONDITION_ICON_SIZE}
+                      />
+                    </span>
+                    <span>
+                      {session.waveSize
+                        ? SURF_SESSION_WAVE_SIZE_LABELS[session.waveSize]
+                        : '—'}
+                    </span>
+                  </span>
+                </dd>
+              </div>
             </div>
-            <div className="session-log-card-dl-row">
-              <dt>Wind</dt>
-              <dd>{session.windDirection?.replace(/-/g, ' to ') || '—'}</dd>
-            </div>
-            <div className="session-log-card-dl-row">
-              <dt>Tide</dt>
-              <dd>{tideDisplay(session.tide) || '—'}</dd>
-            </div>
-            <div className="session-log-card-dl-row">
-              <dt>Board</dt>
-              <dd>
-                {session.surfboardId && session.surfboardName ? (
-                  <Link
-                    to={`/surfboard/${session.surfboardId}`}
-                    prefetch="intent"
-                    className="session-log-card-board-link"
-                  >
-                    {session.surfboardName}
-                  </Link>
-                ) : session.surfboardName ? (
-                  session.surfboardName
-                ) : (
-                  '—'
-                )}
-              </dd>
-            </div>
-            <div className="session-log-card-dl-row">
-              <dt>Wave size</dt>
-              <dd>
-                {session.waveSize
-                  ? SURF_SESSION_WAVE_SIZE_LABELS[session.waveSize]
-                  : '—'}
-              </dd>
-            </div>
-            <div className="session-log-card-dl-row">
-              <dt>Crowd</dt>
-              <dd>
-                {session.crowdLevel
-                  ? CROWD_LEVEL_LABELS[session.crowdLevel]
-                  : '—'}
-              </dd>
-            </div>
-            <div className="session-log-card-dl-row">
-              <dt>How it felt</dt>
-              <dd>
-                {session.waveQuality
-                  ? SURF_SESSION_WAVE_QUALITY_LABELS[session.waveQuality]
-                  : '—'}
-              </dd>
-            </div>
-            <div className="session-log-card-dl-row">
-              <dt>Surf again (similar conditions)</dt>
-              <dd>
-                {session.wouldSurfAgain === true
-                  ? 'Yes'
-                  : session.wouldSurfAgain === false
-                    ? 'No'
+            <div
+              className="session-log-card-dl-group session-log-card-dl-group-text-fields"
+              aria-label="Session details"
+            >
+              <div className="session-log-card-dl-row">
+                <dt>Board</dt>
+                <dd>
+                  {session.surfboardId && session.surfboardName ? (
+                    <Link
+                      to={`/surfboard/${session.surfboardId}`}
+                      prefetch="intent"
+                      className="session-log-card-board-link"
+                    >
+                      {session.surfboardName}
+                    </Link>
+                  ) : session.surfboardName ? (
+                    session.surfboardName
+                  ) : (
+                    '—'
+                  )}
+                </dd>
+              </div>
+              <div className="session-log-card-dl-row">
+                <dt>Crowd</dt>
+                <dd>
+                  {session.crowdLevel
+                    ? CROWD_LEVEL_LABELS[session.crowdLevel]
                     : '—'}
-              </dd>
+                </dd>
+              </div>
+              <div className="session-log-card-dl-row">
+                <dt>How it felt</dt>
+                <dd>
+                  {session.waveQuality
+                    ? SURF_SESSION_WAVE_QUALITY_LABELS[session.waveQuality]
+                    : '—'}
+                </dd>
+              </div>
+              <div className="session-log-card-dl-row">
+                <dt>Surf again (similar conditions)</dt>
+                <dd>
+                  {session.wouldSurfAgain === true
+                    ? 'Yes'
+                    : session.wouldSurfAgain === false
+                      ? 'No'
+                      : '—'}
+                </dd>
+              </div>
             </div>
             {session.sessionNotes ? (
               <div className="session-log-card-notes">
@@ -303,6 +377,7 @@ export const SessionLogRow = (props: SessionLogRowProps) => {
                   setShowMediaSection((isMediaSectionVisible) => !isMediaSectionVisible)
                 }
               >
+                <span>{showMediaSection ? 'Hide media' : 'Show media'}</span>
                 <span
                   className={classNames('session-log-card-media-toggle-chevron', {
                     'session-log-card-media-toggle-chevron-open':
@@ -312,7 +387,6 @@ export const SessionLogRow = (props: SessionLogRowProps) => {
                 >
                   <Icon iconKey="chevron-down" useCurrentColor />
                 </span>
-                <span>{showMediaSection ? 'Show less' : 'Show more'}</span>
               </button>
               <div
                 className={classNames('session-log-card-media-reveal', {
