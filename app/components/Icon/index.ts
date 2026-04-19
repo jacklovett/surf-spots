@@ -1,7 +1,6 @@
 import { Icon } from './Icon'
 
 export type IconKey =
-  | 'about'
   | 'ai'
   | 'bin'
   | 'chevron-down'
@@ -17,6 +16,7 @@ export type IconKey =
   | 'google'
   | 'heart'
   | 'info'
+  | 'info-inverted'
   | 'instagram'
   | 'logout'
   | 'map'
@@ -27,6 +27,7 @@ export type IconKey =
   | 'plus'
   | 'profile'
   | 'search'
+  | 'question'
   | 'success'
   | 'surfboard'
   | 'stopwatch'

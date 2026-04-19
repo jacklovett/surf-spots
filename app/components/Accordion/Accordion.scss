@@ -1,0 +1,110 @@
+.accordion-list {
+  @extend %flex-column;
+  gap: $spacing-unit;
+}
+
+.accordion-card {
+  position: relative;
+  border: 1px solid $outline-color;
+  border-radius: $content-border-radius;
+  background: $white;
+  overflow: hidden;
+  transition:
+    border-color 0.15s ease,
+    box-shadow 0.15s ease;
+
+  &:hover {
+    border-color: $border-medium;
+    box-shadow: 0 2px 8px color-mix(in srgb, $text-color 8%, transparent);
+  }
+}
+
+.accordion-card-top {
+  @extend %flex-base;
+  flex: 1;
+  min-width: 0;
+}
+
+.accordion-card-row {
+  @extend %flex-base;
+  align-items: stretch;
+  min-height: 56px;
+  background: color-mix(in srgb, $white 94%, $primary-color 6%);
+  transition: background-color 0.12s ease;
+
+  &:hover {
+    background: color-mix(in srgb, $white 90%, $primary-color 10%);
+  }
+}
+
+.accordion-card-toggle {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: $spacing-unit;
+  padding: 12px $spacing-small 12px 14px;
+  margin: 0;
+  border: none;
+  background: transparent;
+  text-align: left;
+  cursor: pointer;
+  font: inherit;
+  color: inherit;
+  min-width: 0;
+
+  &:focus-visible {
+    outline: 2px solid $primary-color;
+    outline-offset: -2px;
+  }
+}
+
+.accordion-card-chevron {
+  @extend %flex-center;
+  flex-shrink: 0;
+  color: $text-secondary;
+  transition: transform 0.2s ease;
+
+  svg {
+    width: $spacing-unit;
+    height: $spacing-unit;
+  }
+}
+
+.accordion-card-chevron-open {
+  transform: rotate(180deg);
+}
+
+.accordion-card-primary {
+  @extend %flex-column;
+  gap: 3px;
+  flex: 1;
+  min-width: 0;
+}
+
+.accordion-card-title {
+  font-size: $font-size-base;
+  font-weight: 600;
+  color: $text-heading;
+  line-height: 1.3;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.accordion-card-panel {
+  padding: $spacing-unit $spacing-unit $spacing-large;
+  border-top: 1px solid $border-light;
+  background: $white;
+  border-radius: 0 0 $content-border-radius $content-border-radius;
+
+  p {
+    margin: 0;
+  }
+}
+
+@media (max-width: 576px) {
+  .accordion-card-toggle {
+    gap: $spacing-small;
+    padding: 10px $spacing-small 10px 12px;
+  }
+}

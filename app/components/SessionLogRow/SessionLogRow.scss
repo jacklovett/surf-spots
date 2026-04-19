@@ -1,83 +1,3 @@
-.session-log-card {
-  position: relative;
-  border: 1px solid $outline-color;
-  border-radius: $content-border-radius;
-  background: $white;
-  overflow: hidden;
-  transition:
-    border-color 0.15s ease,
-    box-shadow 0.15s ease;
-
-  &:hover {
-    border-color: $border-medium;
-    box-shadow: 0 2px 8px color-mix(in srgb, $text-color 8%, transparent);
-  }
-}
-
-.session-log-card-top {
-  @extend %flex-base;
-  flex: 1;
-  min-width: 0;
-}
-
-// Row: single unified surface — toggle + actions share the same bg
-.session-log-card-row {
-  @extend %flex-base;
-  align-items: stretch;
-  min-height: 56px;
-  background: $white;
-  transition: background-color 0.12s ease;
-
-  &:hover {
-    background: $text-hover-background;
-  }
-}
-
-// Toggle: transparent so row controls the bg; flex not grid
-.session-log-card-toggle {
-  flex: 1;
-  display: flex;
-  align-items: center;
-  gap: $spacing-unit;
-  padding: 12px $spacing-small 12px 14px;
-  margin: 0;
-  border: none;
-  background: transparent;
-  text-align: left;
-  cursor: pointer;
-  font: inherit;
-  color: inherit;
-  min-width: 0;
-
-  &:focus-visible {
-    outline: 2px solid $primary-color;
-    outline-offset: -2px;
-  }
-}
-
-.session-log-card-chevron {
-  @extend %flex-center;
-  flex-shrink: 0;
-  color: $text-secondary;
-  transition: transform 0.2s ease;
-
-  svg {
-    width: $spacing-unit;
-    height: $spacing-unit;
-  }
-}
-
-.session-log-card-chevron-open {
-  transform: rotate(180deg);
-}
-
-.session-log-card-primary {
-  @extend %flex-column;
-  gap: 3px;
-  flex: 1;
-  min-width: 0;
-}
-
 .session-log-card-spot {
   font-size: $font-size-base;
   font-weight: 600;
@@ -157,12 +77,10 @@
 
   // Ghost circular button — sits on the shared row bg, no extra panel
   .dropdown-menu-trigger {
+    @extend %flex-center;
     width: 32px;
     height: 32px;
     padding: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
     border-radius: 50%;
     border: none;
     background: transparent;
@@ -183,13 +101,6 @@
       color: $text-heading;
     }
   }
-}
-
-.session-log-card-panel {
-  padding: $spacing-unit $spacing-unit $spacing-large;
-  border-top: 1px solid $border-light;
-  background: $background-light;
-  border-radius: 0 0 $content-border-radius $content-border-radius;
 }
 
 .session-log-card-dl {
@@ -340,11 +251,6 @@
 }
 
 @media (max-width: 576px) {
-  .session-log-card-toggle {
-    gap: $spacing-small;
-    padding: 10px $spacing-small 10px 12px;
-  }
-
   .session-log-card-actions {
     padding: 0 4px;
   }

@@ -143,6 +143,9 @@ export const Footer = ({ isAlternate }: IProps) => {
                 <a href="/about-us">About Us</a>
               </li>
               <li>
+                <a href="/faq">FAQ</a>
+              </li>
+              <li>
                 <a href="/data-policy">Data Policy</a>
               </li>
               <li>

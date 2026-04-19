@@ -169,15 +169,15 @@ export const SessionLogRow = (props: SessionLogRowProps) => {
 
   return (
     <article
-      className={classNames('session-log-card', {
-        'session-log-card-expanded': expanded,
+      className={classNames('accordion-card', {
+        'accordion-card-expanded': expanded,
       })}
     >
-      <div className="session-log-card-row">
-        <div className="session-log-card-top">
+      <div className="accordion-card-row">
+        <div className="accordion-card-top">
           <button
             type="button"
-            className="session-log-card-toggle"
+            className="accordion-card-toggle"
             aria-expanded={expanded}
             aria-controls={panelId}
             onClick={() =>
@@ -191,14 +191,14 @@ export const SessionLogRow = (props: SessionLogRowProps) => {
             }
           >
             <span
-              className={classNames('session-log-card-chevron', {
-                'session-log-card-chevron-open': expanded,
+              className={classNames('accordion-card-chevron', {
+                'accordion-card-chevron-open': expanded,
               })}
               aria-hidden
             >
               <Icon iconKey="chevron-down" useCurrentColor />
             </span>
-            <span className="session-log-card-primary">
+            <span className="accordion-card-primary">
               <span className="session-log-card-spot">{session.surfSpotName}</span>
               <span className="session-log-card-date text-secondary">
                 {formatSessionDate(session.sessionDate)}
@@ -227,7 +227,7 @@ export const SessionLogRow = (props: SessionLogRowProps) => {
       {expanded && (
         <div
           id={panelId}
-          className="session-log-card-panel"
+          className="accordion-card-panel"
           role="region"
           aria-label={`Details for ${session.surfSpotName}`}
         >

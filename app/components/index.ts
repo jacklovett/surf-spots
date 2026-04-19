@@ -1,4 +1,5 @@
 import AuthPage from './AuthPage' 
+import Accordion from './Accordion'
 import Button from './Button'
 import Card from './Card'
 import ContentStatus from './ContentStatus'
@@ -65,6 +66,7 @@ import SurfSessionForm from './SurfSessionForm'
 import { SessionLogRow } from './SessionLogRow'
 
 export {
+  Accordion,
   AuthPage,
   Breadcrumb,
   Button,

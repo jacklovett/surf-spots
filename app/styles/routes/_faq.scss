@@ -1,0 +1,26 @@
+.faq-page {
+  .faq-intro {
+    color: $text-secondary;
+    margin-bottom: $spacing-large;
+  }
+
+  .faq-section {
+    margin-bottom: $spacing-x-large;
+  }
+
+  .faq-section-subtitle {
+    color: $text-secondary;
+    margin-top: 0;
+    margin-bottom: $spacing-unit;
+  }
+
+  .faq-note {
+    border-top: 1px solid $outline-color;
+    padding-top: $spacing-large;
+    margin-top: $spacing-large;
+
+    h2 {
+      margin-bottom: $spacing-small;
+    }
+  }
+}
