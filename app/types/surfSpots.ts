@@ -342,6 +342,7 @@ export interface SurfSessionMedia {
 }
 
 export interface CreateSurfSessionMediaRequest {
+  mediaId?: string
   originalUrl: string
   thumbUrl?: string
   mediaType?: string

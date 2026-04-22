@@ -56,6 +56,7 @@ export const Button = (props: IProps) => {
           ) : (
             <Icon
               iconKey={icon.name}
+              useCurrentColor
               useBrandColors={icon.name === 'facebook' || icon.name === 'google'}
             />
           ))}

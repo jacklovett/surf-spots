@@ -148,6 +148,13 @@ export const ERROR_TRIP_AND_TRIP_SPOT_IDS_REQUIRED =
   'Trip ID and trip spot ID are required'
 export const ERROR_MISSING_REQUIRED_FIELDS = 'Missing required fields'
 export const ERROR_INVALID_TRIP_ACTION = 'Invalid trip action'
+export const ERROR_INVALID_ACTION = 'Invalid action'
+export const ERROR_MEDIA_ID_REQUIRED = 'Media ID is required'
+export const ERROR_SURFBOARD_ID_REQUIRED = 'Surfboard ID is required'
+export const ERROR_TRIP_ID_REQUIRED = 'Trip ID is required'
+export const ERROR_MEDIA_RECORD_FIELDS_REQUIRED = 'Missing mediaId or s3Url'
+export const ERROR_SESSION_MEDIA_FIELDS_REQUIRED =
+  'Session, mediaId, and media URL are required'
 export const ERROR_INVALID_SURF_SPOT_ID = 'Invalid surf spot ID'
 export const ERROR_OPEN_SURF_SPOT =
   'Unable to open this surf spot right now. Please try again.'

@@ -36,6 +36,10 @@ import {
   ERROR_LOAD_SESSIONS,
   UPLOAD_ERROR_MEDIA_UNAVAILABLE,
   ERROR_DELETE_MEDIA,
+  ERROR_USER_NOT_AUTHENTICATED,
+  ERROR_MEDIA_ID_REQUIRED,
+  ERROR_INVALID_ACTION,
+  ERROR_SESSION_MEDIA_FIELDS_REQUIRED,
 } from '~/utils/errorUtils'
 
 interface LoaderData {
@@ -95,7 +99,10 @@ export const loader: LoaderFunction = async ({ request }) => {
 export const action: ActionFunction = async ({ request }) => {
   const user = await requireSessionCookie(request)
   if (!user?.id) {
-    return data<SessionsActionData>({ error: 'Unauthorized' }, { status: 401 })
+    return data<SessionsActionData>(
+      { error: ERROR_USER_NOT_AUTHENTICATED },
+      { status: 401 },
+    )
   }
 
   const formData = await request.formData()
@@ -104,11 +111,12 @@ export const action: ActionFunction = async ({ request }) => {
 
   if (intent === 'add-media') {
     const sessionId = formData.get('sessionId') as string
+    const mediaId = formData.get('mediaId') as string
     const s3Url = formData.get('s3Url') as string
     const mediaType = (formData.get('mediaType') as string) || 'image'
-    if (!sessionId || !s3Url) {
+    if (!sessionId || !mediaId || !s3Url) {
       return data<SessionsActionData>(
-        { error: 'Session and media URL are required' },
+        { error: ERROR_SESSION_MEDIA_FIELDS_REQUIRED },
         { status: 400 },
       )
     }
@@ -116,7 +124,7 @@ export const action: ActionFunction = async ({ request }) => {
       const media = await addSurfSessionMedia(
         sessionId,
         user.id,
-        { originalUrl: s3Url, thumbUrl: s3Url, mediaType },
+        { mediaId, originalUrl: s3Url, thumbUrl: s3Url, mediaType },
         { headers: { Cookie: cookie } },
       )
       return data<SessionsActionData>({ success: true, media })
@@ -133,7 +141,7 @@ export const action: ActionFunction = async ({ request }) => {
     const mediaId = formData.get('mediaId') as string
     if (!mediaId) {
       return data<SessionsActionData>(
-        { error: 'Media ID is required' },
+        { error: ERROR_MEDIA_ID_REQUIRED },
         { status: 400 },
       )
     }
@@ -151,7 +159,7 @@ export const action: ActionFunction = async ({ request }) => {
     }
   }
 
-  return data<SessionsActionData>({ error: 'Invalid intent' }, { status: 400 })
+  return data<SessionsActionData>({ error: ERROR_INVALID_ACTION }, { status: 400 })
 }
 
 export default function Sessions() {

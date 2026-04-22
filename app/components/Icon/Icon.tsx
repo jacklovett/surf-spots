@@ -75,6 +75,12 @@ export const Icon = (props: IProps) => {
             <polyline points="15 18 9 12 15 6" />
           </svg>
         )
+      case 'chevron-right':
+        return (
+          <svg {...commonIconStyles}>
+            <polyline points="9 18 15 12 9 6" />
+          </svg>
+        )
       case 'chevron-down':
         return (
           <svg {...commonIconStyles}>

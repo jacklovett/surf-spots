@@ -14,7 +14,7 @@ import { Trip } from '~/types/trip'
 import { useScrollReveal } from '~/hooks'
 import { formatDate } from '~/utils/dateUtils'
 import { ActionData } from '~/types/api'
-import { ERROR_LOAD_TRIPS } from '~/utils/errorUtils'
+import { ERROR_INVALID_TRIP_ACTION, ERROR_LOAD_TRIPS } from '~/utils/errorUtils'
 
 interface LoaderData {
   trips: Trip[]
@@ -64,7 +64,7 @@ export const action: ActionFunction = async ({ request }) => {
   // Trip spot actions (add-spot, remove-spot) are handled by surfSpotAction
   // to avoid duplication. They go through the surf spot route action when
   // called from TripSelectionModal via onFetcherSubmit.
-  return data<ActionData>({ error: 'Invalid intent' }, { status: 400 })
+  return data<ActionData>({ error: ERROR_INVALID_TRIP_ACTION }, { status: 400 })
 }
 
 export default function Trips() {

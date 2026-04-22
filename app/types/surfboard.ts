@@ -49,6 +49,7 @@ export interface UpdateSurfboardRequest {
 }
 
 export interface CreateSurfboardMediaRequest {
+  mediaId?: string
   originalUrl: string
   thumbUrl?: string
   mediaType?: string

@@ -32,6 +32,10 @@ import {
   DEFAULT_ERROR_MESSAGE,
   ERROR_SURFBOARD_NOT_FOUND,
   ERROR_LOAD_SURFBOARDS,
+  ERROR_MEDIA_ID_REQUIRED,
+  ERROR_SURFBOARD_ID_REQUIRED,
+  ERROR_MEDIA_RECORD_FIELDS_REQUIRED,
+  ERROR_INVALID_ACTION,
 } from '~/utils/errorUtils'
 import { Surfboard, SurfboardMedia } from '~/types/surfboard'
 import {
@@ -60,7 +64,7 @@ export const loader: LoaderFunction = async ({ request, params }) => {
 
   if (!surfboardId) {
     return data<LoaderData>(
-      { error: 'Surfboard not found', surfboard: {} as Surfboard },
+      { error: ERROR_SURFBOARD_NOT_FOUND, surfboard: {} as Surfboard },
       { status: 404 },
     )
   }
@@ -99,7 +103,7 @@ const handleDeleteMedia = async (
 ): Promise<ReturnType<typeof data<ActionData>>> => {
   if (!mediaId) {
     return data<ActionData>(
-      { error: 'Media ID is required' },
+      { error: ERROR_MEDIA_ID_REQUIRED },
       { status: 400 },
     )
   }
@@ -144,7 +148,7 @@ export const action: ActionFunction = async ({ request, params }) => {
 
     if (!surfboardId) {
       return data<ActionData>(
-        { error: 'Surfboard ID is required' },
+        { error: ERROR_SURFBOARD_ID_REQUIRED },
         { status: 400 },
       )
     }
@@ -154,19 +158,23 @@ export const action: ActionFunction = async ({ request, params }) => {
     const cookie = request.headers.get('Cookie') || ''
 
     if (intent === 'add-media') {
+      const mediaId = formData.get('mediaId') as string
       const s3Url = formData.get('s3Url') as string
       const mediaType = (formData.get('mediaType') as string) || 'image'
-      if (!s3Url) {
-        return data<ActionData>({ error: 'Missing s3Url' }, { status: 400 })
+      if (!mediaId || !s3Url) {
+        return data<ActionData>(
+          { error: ERROR_MEDIA_RECORD_FIELDS_REQUIRED },
+          { status: 400 },
+        )
       }
       try {
-        const media = await addSurfboardMedia(
+        await addSurfboardMedia(
           surfboardId,
           user.id,
-          { originalUrl: s3Url, thumbUrl: s3Url, mediaType },
+          { mediaId, originalUrl: s3Url, thumbUrl: s3Url, mediaType },
           { headers: { Cookie: cookie } },
         )
-        return data<ActionData>({ success: true, media })
+        return data<ActionData>({ success: true })
       } catch (err) {
         console.error('Surfboard detail action: add media failed', { surfboardId, err })
         return data<ActionData>(
@@ -185,7 +193,7 @@ export const action: ActionFunction = async ({ request, params }) => {
       return await handleDeleteSurfboard(surfboardId, user.id, cookie)
     }
 
-    return data<ActionData>({ error: 'Invalid intent' }, { status: 400 })
+    return data<ActionData>({ error: ERROR_INVALID_ACTION }, { status: 400 })
   } catch (error) {
     if (error instanceof Response) {
       throw error
@@ -251,15 +259,7 @@ export default function SurfboardDetail() {
   }, []) // eslint-disable-line react-hooks/exhaustive-deps -- run once on mount; navigate clears query
 
   useEffect(() => {
-    if (fetcherData?.success && fetcherData?.media) {
-      const newMedia = fetcherData.media as SurfboardMedia
-      setSurfboard((prev) => {
-        if (!prev) return prev
-        return {
-          ...prev,
-          media: [...(prev.media || []), newMedia],
-        }
-      })
+    if (fetcherData?.success) {
       showSuccess('Media uploaded successfully!')
     }
   }, [fetcherData, showSuccess])

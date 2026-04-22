@@ -46,6 +46,12 @@ import {
   ERROR_DELETE_MEDIA,
   ERROR_BOUNDARY_MEDIA,
   ERROR_BOUNDARY_SECTION,
+  ERROR_TRIP_NOT_FOUND,
+  ERROR_TRIP_ID_REQUIRED,
+  ERROR_SURFBOARD_ID_REQUIRED,
+  ERROR_MEDIA_ID_REQUIRED,
+  ERROR_MEDIA_RECORD_FIELDS_REQUIRED,
+  ERROR_INVALID_TRIP_ACTION,
 } from '~/utils/errorUtils'
 import { ActionData as BaseActionData } from '~/types/api'
 
@@ -65,7 +71,7 @@ export const loader: LoaderFunction = async ({ request, params }) => {
 
   if (!tripId) {
     return data<LoaderData>(
-      { error: 'Trip not found', trip: {} as Trip },
+      { error: ERROR_TRIP_NOT_FOUND, trip: {} as Trip },
       { status: 404 },
     )
   }
@@ -98,7 +104,7 @@ export const action: ActionFunction = async ({ request, params }) => {
   const user = await requireSessionCookie(request)
   const tripId = params.id
   if (!tripId) {
-    return data<ActionData>({ error: 'Trip ID is required' }, { status: 400 })
+    return data<ActionData>({ error: ERROR_TRIP_ID_REQUIRED }, { status: 400 })
   }
 
   const formData = await request.formData()
@@ -133,7 +139,7 @@ export const action: ActionFunction = async ({ request, params }) => {
     if (!surfboardId) {
       console.error('Trip action: Missing surfboardId for add-surfboard')
       return data<ActionData>(
-        { error: 'Surfboard ID is required' },
+        { error: ERROR_SURFBOARD_ID_REQUIRED },
         { status: 400 },
       )
     }
@@ -298,7 +304,7 @@ export const action: ActionFunction = async ({ request, params }) => {
     if (!mediaId) {
       console.error('Trip action: Missing mediaId for delete-media')
       return data<ActionData>(
-        { error: 'Media ID is required' },
+        { error: ERROR_MEDIA_ID_REQUIRED },
         { status: 400 },
       )
     }
@@ -330,7 +336,7 @@ export const action: ActionFunction = async ({ request, params }) => {
     const mediaType = (formData.get('mediaType') as string) || 'image'
     if (!mediaId || !s3Url) {
       return data<ActionData>(
-        { error: 'Missing mediaId or s3Url' },
+        { error: ERROR_MEDIA_RECORD_FIELDS_REQUIRED },
         { status: 400 },
       )
     }
@@ -341,17 +347,7 @@ export const action: ActionFunction = async ({ request, params }) => {
         { mediaId, url: s3Url, mediaType },
         { headers: { Cookie: cookie } },
       )
-      return data<ActionData>({
-        success: true,
-        media: {
-          id: mediaId,
-          url: s3Url,
-          mediaType,
-          ownerId: user.id,
-          ownerName: user.name || 'Unknown',
-          uploadedAt: new Date().toISOString(),
-        } as TripMedia,
-      })
+      return data<ActionData>({ success: true })
     } catch (error) {
       console.error('Trip action: add-media failed', { tripId, mediaId, error })
       return data<ActionData>(
@@ -361,7 +357,7 @@ export const action: ActionFunction = async ({ request, params }) => {
     }
   }
 
-  return data<ActionData>({ error: 'Invalid intent' }, { status: 400 })
+  return data<ActionData>({ error: ERROR_INVALID_TRIP_ACTION }, { status: 400 })
 }
 
 export default function TripDetail() {
@@ -429,17 +425,9 @@ export default function TripDetail() {
     }
   }, []) // eslint-disable-line react-hooks/exhaustive-deps -- run once on mount; navigate clears query
 
-  // Handle successful media upload - optimistically update UI
+  // Handle successful media upload
   useEffect(() => {
-    if (fetcherData?.success && fetcherData?.media) {
-      const newMedia = fetcherData.media as TripMedia
-      setTrip((prev) => {
-        if (!prev) return prev
-        return {
-          ...prev,
-          media: [...(prev.media || []), newMedia],
-        }
-      })
+    if (fetcherData?.success) {
       showSuccess('Media uploaded')
     }
   }, [fetcherData, showSuccess])

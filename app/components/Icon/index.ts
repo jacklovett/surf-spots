@@ -5,6 +5,7 @@ export type IconKey =
   | 'bin'
   | 'chevron-down'
   | 'chevron-left'
+  | 'chevron-right'
   | 'clipboard'
   | 'cog'
   | 'crosshair'
