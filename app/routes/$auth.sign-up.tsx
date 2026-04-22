@@ -1,10 +1,8 @@
-import { useEffect } from 'react'
 import {
   ActionFunctionArgs,
   data,
   Link,
   MetaFunction,
-  useNavigation,
 } from 'react-router'
 
 import { formatEmail, registerUser, validate } from '~/services/auth.server'
@@ -57,18 +55,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
 }
 
 const SignUp = () => {
-  const { state } = useNavigation()
-  const loading = state === 'loading'
-
   const submitStatus = useSubmitStatus()
-
-  // Remove any present modals
-  useEffect(() => {
-    const modalOverlay = document.querySelector('.modal-overlay')
-    if (modalOverlay) {
-      modalOverlay.remove()
-    }
-  }, [])
 
   const { formState, errors, isFormValid, handleChange } = useFormValidation({
     initialFormState: { email: '', password: '' },

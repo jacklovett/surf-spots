@@ -23,7 +23,7 @@ import {
   ToastProvider,
   SignUpPromptProvider,
 } from './contexts'
-import { ErrorBoundary as AppErrorBoundary, ToastContainer, SignUpPromptModal } from './components'
+import { ErrorBoundary as AppErrorBoundary, ToastContainer } from './components'
 import { ERROR_BOUNDARY_APP } from './utils/errorUtils'
 
 export { ErrorBoundary } from './RootErrorBoundary'
@@ -142,7 +142,6 @@ export default function App() {
                   <SignUpPromptProvider>
                     <Outlet />
                     <ToastContainer />
-                    <SignUpPromptModal />
                   </SignUpPromptProvider>
                 </ToastProvider>
               </TripProvider>

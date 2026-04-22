@@ -54,7 +54,6 @@ import SurfSpotForm from './SurfSpotForm'
 import SurfboardForm from './SurfboardForm'
 import SurfSpotNoteForm from './SurfSpotNoteForm'
 import ToastContainer from './ToastContainer'
-import SignUpPromptModal from './SignUpPromptModal'
 import Toolbar from './Toolbar'
 import TripForm from './TripForm'
 import TripPlannerButton from './TripPlannerButton'
@@ -106,7 +105,6 @@ export {
   Page,
   SafeLink,
   SignInOptions,
-  SignUpPromptModal,
   SkeletonLoader,
   SocialLinks,
   SurfHeightIcon,

@@ -4,10 +4,10 @@ import {
   useContext,
   useState,
   useCallback,
+  useEffect,
 } from 'react'
-import { useNavigate } from 'react-router'
+import { useLocation, useNavigate } from 'react-router'
 import { Modal, Button } from '~/components'
-import { IModalState, initialModalState } from '~/components/Modal'
 
 export type FeatureType =
   | 'surfed-spots'
@@ -20,9 +20,7 @@ export type FeatureType =
 
 interface SignUpPromptContextType {
   showSignUpPrompt: (feature: FeatureType) => void
-  modalState: IModalState
   closeModal: () => void
-  SignUpPromptModal: () => JSX.Element | null
 }
 
 const SignUpPromptContext = createContext<SignUpPromptContextType | undefined>(
@@ -37,7 +35,10 @@ export const SignUpPromptProvider = ({
   children,
 }: SignUpPromptProviderProps) => {
   const navigate = useNavigate()
-  const [modalState, setModalState] = useState<IModalState>(initialModalState)
+  const location = useLocation()
+  const [isModalVisible, setIsModalVisible] = useState(false)
+  const [selectedFeature, setSelectedFeature] = useState<FeatureType | null>(null)
+  const [isNavigatingToSignUp, setIsNavigatingToSignUp] = useState(false)
 
   const getModalContent = (feature: FeatureType) => {
     switch (feature) {
@@ -164,48 +165,60 @@ export const SignUpPromptProvider = ({
   }
 
   const showSignUpPrompt = useCallback((feature: FeatureType) => {
-    const { title, content } = getModalContent(feature)
-    setModalState({
-      content: (
-        <>
-          <h2>{title}</h2>
-          <div className="modal-scrollable-content">
-            {content}
-          </div>
-          <div className="modal-footer">
-            <Button
-              label="Create account"
-              onClick={() => {
-                setModalState(initialModalState)
-                navigate('/auth/sign-up')
-              }}
-            />
-          </div>
-        </>
-      ),
-      isVisible: true,
-    })
-  }, [navigate])
-
-  const closeModal = useCallback(() => {
-    setModalState(initialModalState)
+    setSelectedFeature(feature)
+    setIsModalVisible(true)
+    setIsNavigatingToSignUp(false)
   }, [])
 
-  const SignUpPromptModal = useCallback(() => {
-    if (!modalState.isVisible) return null
-    return <Modal onClose={closeModal}>{modalState.content}</Modal>
-  }, [modalState, closeModal])
+  const closeModal = useCallback(() => {
+    setIsModalVisible(false)
+    setSelectedFeature(null)
+    setIsNavigatingToSignUp(false)
+  }, [])
+
+  const handleCreateAccount = useCallback(() => {
+    setIsNavigatingToSignUp(true)
+    navigate('/auth/sign-up')
+  }, [navigate])
+
+  useEffect(() => {
+    if (!isNavigatingToSignUp || location.pathname !== '/auth/sign-up') {
+      return
+    }
+
+    setIsModalVisible(false)
+    setSelectedFeature(null)
+    setIsNavigatingToSignUp(false)
+  }, [isNavigatingToSignUp, location.pathname])
+
+  const shouldShowModal = isModalVisible && !!selectedFeature
+  const modalContent = selectedFeature ? getModalContent(selectedFeature) : null
 
   return (
     <SignUpPromptContext.Provider
       value={{
         showSignUpPrompt,
-        modalState,
         closeModal,
-        SignUpPromptModal,
       }}
     >
       {children}
+      {shouldShowModal && modalContent && (
+        <Modal onClose={closeModal}>
+          <>
+            <h2>{modalContent.title}</h2>
+            <div className="modal-scrollable-content">
+              {modalContent.content}
+            </div>
+            <div className="modal-footer">
+              <Button
+                label="Create account"
+                onClick={handleCreateAccount}
+                loading={isNavigatingToSignUp}
+              />
+            </div>
+          </>
+        </Modal>
+      )}
     </SignUpPromptContext.Provider>
   )
 }
