@@ -463,6 +463,11 @@ const Profile = () => {
               onChange={(e) => handleChange('skillLevel', e.target.value)}
               showLabel={!!formState.skillLevel}
             />
+            <div className="profile-links">
+              <Link to="/skill-levels" prefetch="intent" className="text-link">
+                What do these skill levels mean?
+              </Link>
+            </div>
 
             <div className="mt-l" data-testid="profile-emergency-contact">
               <h3>Emergency contact</h3>
@@ -505,9 +510,6 @@ const Profile = () => {
           </div>
           
           <div className="profile-links">
-            <Link to="/skill-levels" prefetch="intent" className="text-link">
-              What do these skill levels mean?
-            </Link>
             <Link to="/data-policy" prefetch="intent" className="text-link">
               Learn more about our data policy
             </Link>
