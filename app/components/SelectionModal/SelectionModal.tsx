@@ -68,14 +68,10 @@ export function SelectionModal<T extends SelectionItem>({
     }
   }, [isOpen, onLoadItems])
 
-  // Handle errors
-  useEffect(() => {
-    if (error?.error && error?.onError) {
-      error.onError(error.error)
-    }
-  }, [error])
-
   if (!isOpen) return null
+  const errorMessage = error?.error
+  const hasItems = items.length > 0
+  const hasError = Boolean(errorMessage)
 
   const defaultRenderItem = (item: T, isSelected: boolean, isAdding: boolean, isRemoving: boolean) => {
     const showRemoveButton = isRemoving
@@ -139,7 +135,20 @@ export function SelectionModal<T extends SelectionItem>({
           <div className="selection-loading">
             <Loading />
           </div>
-        ) : items.length === 0 ? (
+        ) : hasError && !hasItems ? (
+          <div className="selection-empty-state selection-error-state">
+            <p className="selection-empty-description text-secondary">{errorMessage}</p>
+            {footer?.buttonText && footer?.buttonAction && (
+              <div className="selection-actions">
+                <Button
+                  label={footer.buttonText}
+                  variant="secondary"
+                  onClick={footer.buttonAction}
+                />
+              </div>
+            )}
+          </div>
+        ) : !hasItems ? (
           <div className="selection-empty-state">
             <p className="selection-empty-title bold">{emptyState?.title || 'Nothing here yet.'}</p>
             {emptyState?.description && (
@@ -157,6 +166,11 @@ export function SelectionModal<T extends SelectionItem>({
           </div>
         ) : (
           <div className="selection-content">
+            {hasError && (
+              <div className="selection-empty-state selection-error-state">
+                <p className="selection-empty-description text-secondary">{errorMessage}</p>
+              </div>
+            )}
             <div className="selection-list">
               {items.map((item) => {
                 const isSelected = isItemSelected(item)

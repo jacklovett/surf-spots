@@ -172,10 +172,6 @@ export const SurfboardSelectionModal = ({
       }}
       error={{
         error: surfboardsFetcher.data?.error,
-        onError: (error) => {
-          showToastError(error)
-          onClose()
-        }
       }}
     />
   )

@@ -20,7 +20,6 @@ import {
   useToastContext,
 } from '~/contexts'
 import { FetcherSubmitParams } from '~/types/api'
-import { InfoModal, InfoModalState } from '../Modal'
 import { ERROR_OPEN_SESSION_LOG } from '~/utils/errorUtils'
 
 interface IProps {
@@ -42,10 +41,6 @@ export const SurfSpotActions = memo((props: IProps) => {
 
     const [surfSpotState, setSurfSpotState] = useState<SurfSpot>(surfSpot)
     const [tripSelectionModalOpen, setTripSelectionModalOpen] = useState(false)
-    const [infoModal, setInfoModal] = useState<InfoModalState>({
-      isOpen: false,
-      message: '',
-    })
 
     const { updateSurfSpot } = useSurfSpotsContext()
     const { showSignUpPrompt } = useSignUpPromptContext()
@@ -77,14 +72,6 @@ export const SurfSpotActions = memo((props: IProps) => {
     }, [surfActionFetcher])
 
     const closeTripModal = useCallback(() => setTripSelectionModalOpen(false), [])
-    const closeInfoModal = useCallback(
-      () => setInfoModal({ isOpen: false, message: '' }),
-      [],
-    )
-
-    const showInfoModal = useCallback((title: string, message: string) => {
-      setInfoModal({ isOpen: true, title, message })
-    }, [])
 
     const handleAction = async (
       actionType: 'add' | 'remove',
@@ -218,17 +205,11 @@ export const SurfSpotActions = memo((props: IProps) => {
             <TripSelectionModal
               isOpen={tripSelectionModalOpen}
               onClose={closeTripModal}
-              onError={showInfoModal}
+              onError={showError}
               surfSpot={surfSpotState}
               userId={user.id}
             />
           )}
-          <InfoModal
-            isOpen={infoModal.isOpen}
-            onClose={closeInfoModal}
-            title={infoModal.title}
-            message={infoModal.message}
-          />
         </div>
       </>
     )

@@ -16,7 +16,7 @@ import { FetcherSubmitParams } from '~/types/api'
 interface TripSelectionModalProps {
   isOpen: boolean
   onClose: () => void
-  onError: (title: string, message: string) => void
+  onError: (message: string) => void
   surfSpot: SurfSpot
   userId: string
   trips?: Trip[]
@@ -96,7 +96,7 @@ export const TripSelectionModal = ({
         hydrateTrips(trips)
       }
       if (tripsFetcher.data.error) {
-        onError('Error', getSafeFetcherErrorMessage(tripsFetcher.data, ERROR_LOAD_TRIPS))
+        onError(getSafeFetcherErrorMessage(tripsFetcher.data, ERROR_LOAD_TRIPS))
       }
     } else if (tripsFetcher.state === 'loading' && !tripsFetcher.data) {
       setIsLoadingTrips(true)
@@ -118,10 +118,7 @@ export const TripSelectionModal = ({
       setRemovingFromTripId(null)
       
       if (actionFetcher.data.error) {
-        onError(
-          'Error',
-          getSafeFetcherErrorMessage(actionFetcher.data, DEFAULT_ERROR_MESSAGE),
-        )
+        onError(getSafeFetcherErrorMessage(actionFetcher.data, DEFAULT_ERROR_MESSAGE))
       }
     }
   }, [actionFetcher.state, actionFetcher.data, onError])
@@ -161,10 +158,7 @@ export const TripSelectionModal = ({
 
     const tripSpotId = getTripSpotId(trip)
     if (!tripSpotId) {
-      onError(
-        'Error',
-        'Could not find spot in trip. Please try refreshing the page.',
-      )
+      onError('Could not find spot in trip. Please try refreshing the page.')
       return
     }
 
@@ -254,7 +248,6 @@ export const TripSelectionModal = ({
       }}
       error={{
         error: tripsFetcher.data?.error,
-        onError: (error) => onError('Error', error)
       }}
     />
   )
