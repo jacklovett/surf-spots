@@ -17,7 +17,7 @@ import {
 } from '~/services/mapService'
 import { Coordinates, SurfSpot } from '~/types/surfSpots'
 import { debounce } from '~/utils/commonUtils'
-import { FetcherSubmitParams } from '~/types/api'
+import { SurfSpotQuickActionSubmitHandler } from '~/types/api'
 import { useSurfSpotsContext, useUserContext } from '~/contexts'
 import { useMapDrawer } from './useMapDrawer'
 
@@ -30,7 +30,7 @@ import { useMapDrawer } from './useMapDrawer'
 export const useDynamicMap = (
   mapContainer: MutableRefObject<HTMLDivElement | null>,
   setLoading: (value: boolean) => void,
-  onFetcherSubmit?: (params: FetcherSubmitParams) => void,
+  onFetcherSubmit?: SurfSpotQuickActionSubmitHandler,
 ) => {
   const { user } = useUserContext()
   const userId = user?.id

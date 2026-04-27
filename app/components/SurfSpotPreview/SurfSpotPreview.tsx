@@ -6,7 +6,7 @@ import { SurfSpot } from '~/types/surfSpots'
 import Details from '../Details'
 import Chip from '../Chip'
 import { useLayoutContext, useSettingsContext, useToastContext } from '~/contexts'
-import { FetcherSubmitParams } from '~/types/api'
+import { SurfSpotQuickActionSubmitHandler } from '~/types/api'
 import {
   DirectionIcon,
   TideIcon,
@@ -20,7 +20,7 @@ interface IProps {
   surfSpot: SurfSpot
   user: User | null
   navigate: (path: string) => void
-  onFetcherSubmit?: (params: FetcherSubmitParams) => void
+  onFetcherSubmit?: SurfSpotQuickActionSubmitHandler
 }
 
 export const SurfSpotPreview = memo((props: IProps) => {

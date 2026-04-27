@@ -40,7 +40,7 @@ import {
   TideIcon,
 } from '~/components'
 import { submitFetcher } from '~/components/SurfSpotActions'
-import { FetcherSubmitParams, ActionData } from '~/types/api'
+import { ActionData, SurfSpotQuickActionSubmitHandler } from '~/types/api'
 
 import { useUserContext, useSettingsContext, useLayoutContext, useToastContext, useSurfSpotsContext, useSignUpPromptContext } from '~/contexts'
 
@@ -59,6 +59,7 @@ import {
   SUCCESS_NOTE_SAVED,
   getSafeFetcherErrorMessage,
 } from '~/utils/errorUtils'
+import { messageForSurfSpotActionSuccess } from '~/utils/surfSpotActionMessages'
 import {
   formatSurfHeightRange,
   formatSeason,
@@ -409,6 +410,7 @@ export default function SurfSpotDetails() {
   const noteFetcher = useFetcher<ActionData & { note?: SurfSpotNote }>()
   const lastProcessedDataRef = useRef<typeof noteFetcher.data>(undefined)
   const lastFetcherDataRef = useRef<typeof fetcher.data>(undefined)
+  const pendingSurfActionSubmitResolversRef = useRef<Array<() => void>>([])
 
   useEffect(() => {
     if (searchParams.has('success')) {
@@ -425,7 +427,7 @@ export default function SurfSpotDetails() {
     }
   }, [surfSpotDetails?.id, note])
 
-  // Surf spot actions fetcher: toast on error
+  // Surf spot actions fetcher: show toast from server-confirmed result only.
   useEffect(() => {
     if (fetcher.state === 'idle' && fetcher.data && fetcher.data !== lastFetcherDataRef.current) {
       lastFetcherDataRef.current = fetcher.data
@@ -436,12 +438,31 @@ export default function SurfSpotDetails() {
       if (hadError) {
         const errorMessage = getSafeFetcherErrorMessage(fetcher.data, DEFAULT_ERROR_MESSAGE)
         showError(errorMessage)
+      } else if (actionResult.success && actionResult.surfSpotAction) {
+        const successMessage = messageForSurfSpotActionSuccess(
+          actionResult.surfSpotAction,
+        )
+        if (successMessage) {
+          showSuccess(successMessage)
+        }
       }
     }
     if (fetcher.state === 'submitting') {
       lastFetcherDataRef.current = undefined
     }
-  }, [fetcher.data, fetcher.state, showError])
+  }, [fetcher.data, fetcher.state, showError, showSuccess])
+
+  useEffect(() => {
+    if (
+      fetcher.state !== 'idle' ||
+      pendingSurfActionSubmitResolversRef.current.length === 0
+    ) {
+      return
+    }
+    const pending = pendingSurfActionSubmitResolversRef.current
+    pendingSurfActionSubmitResolversRef.current = []
+    pending.forEach((resolve) => resolve())
+  }, [fetcher.state])
 
   // Handle note form submission - show toast and update context
   useEffect(() => {
@@ -486,6 +507,11 @@ export default function SurfSpotDetails() {
         )
       } catch (error) {
         console.error('Error submitting fetcher:', error)
+          pendingSurfActionSubmitResolversRef.current =
+            pendingSurfActionSubmitResolversRef.current.filter(
+              (pendingResolve) => pendingResolve !== resolve,
+            )
+          resolve()
         showError(DEFAULT_ERROR_MESSAGE)
       }
     },

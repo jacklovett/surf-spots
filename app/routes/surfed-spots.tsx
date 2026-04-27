@@ -116,7 +116,7 @@ export default function SurfedSpots() {
   const navigatingTo = navigation.location?.pathname
 
   const { surfedSpotsSummary, error } = useLoaderData<LoaderData>()
-  const { onFetcherSubmit } = useSurfSpotActions()
+  const { fetcher, onFetcherSubmit } = useSurfSpotActions()
 
   // Hooks to animate cards when they scroll into view
   const recentSpotsRef = useScrollReveal()
@@ -249,7 +249,11 @@ export default function SurfedSpots() {
         <h2>Your Surf Journey Map</h2>
         <div className="map-wrapper center">
           <ErrorBoundary message={ERROR_BOUNDARY_MAP}>
-            <SurfMap surfSpots={surfSpots} onFetcherSubmit={onFetcherSubmit} />
+            <SurfMap
+              surfSpots={surfSpots}
+              onFetcherSubmit={onFetcherSubmit}
+              surfActionFetcher={fetcher}
+            />
           </ErrorBoundary>
         </div>
         {/* All Surf Spots List */}

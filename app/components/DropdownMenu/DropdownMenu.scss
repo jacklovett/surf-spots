@@ -101,13 +101,28 @@
     cursor: not-allowed;
   }
 
-  svg {
-    width: 18px;
-    height: 18px;
+  .dropdown-menu-item-icon-slot {
+    @extend %flex-center;
+    width: 20px;
+    height: 20px;
     flex-shrink: 0;
+
+    svg {
+      width: 20px;
+      height: 20px;
+      flex-shrink: 0;
+    }
   }
 
-  span {
+  .dropdown-menu-item-label {
     flex: 1;
   }
+}
+
+.dropdown-menu-item-spinner {
+  width: 18px;
+  height: 18px;
+  border-width: 2px;
+  border-color: $primary-color;
+  border-top-color: transparent;
 }

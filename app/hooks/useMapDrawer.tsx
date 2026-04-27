@@ -8,10 +8,10 @@ import { FetcherWithComponents } from 'react-router'
 
 import { ErrorBoundary, SurfSpotPreview, SurfSpotActions } from '~/components'
 import { ERROR_BOUNDARY_SECTION } from '~/utils/errorUtils'
-import { ActionData, FetcherSubmitParams } from '~/types/api'
+import { ActionData, SurfSpotQuickActionSubmitHandler } from '~/types/api'
 
 export const useMapDrawer = (
-  onFetcherSubmit?: (params: FetcherSubmitParams) => void,
+  onFetcherSubmit?: SurfSpotQuickActionSubmitHandler,
   surfActionFetcher?: FetcherWithComponents<ActionData>,
 ) => {
   const navigate = useNavigate()

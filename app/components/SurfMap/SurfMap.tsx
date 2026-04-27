@@ -23,14 +23,14 @@ import { getDisplayMessage } from '~/services/networkService'
 import { useSurfSpotsContext, useUserContext } from '~/contexts'
 import { useMapDrawer, useResizeObserver } from '~/hooks'
 import { debounce } from '~/utils/commonUtils'
-import { ActionData, FetcherSubmitParams } from '~/types/api'
+import { ActionData, SurfSpotQuickActionSubmitHandler } from '~/types/api'
 import { ERROR_LOAD_MAP, ERROR_LOAD_MAP_DATA } from '~/utils/errorUtils'
 import { Button, ContentStatus } from '~/components'
 
 interface IProps {
   surfSpots?: SurfSpot[]
   disableInteractions?: boolean
-  onFetcherSubmit?: (params: FetcherSubmitParams) => void
+  onFetcherSubmit?: SurfSpotQuickActionSubmitHandler
   surfActionFetcher?: FetcherWithComponents<ActionData>
 }
 

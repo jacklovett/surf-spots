@@ -71,9 +71,16 @@ export const DropdownMenu = (props: DropdownMenuProps) => {
               })}
               onClick={() => handleItemClick(item)}
               disabled={item.disabled}
+              aria-busy={item.loading}
             >
-              {item.iconKey && <Icon iconKey={item.iconKey as IconKey} />}
-              <span>{item.label}</span>
+              <span className="dropdown-menu-item-icon-slot" aria-hidden="true">
+                {item.loading ? (
+                  <span className="button-loading-spinner dropdown-menu-item-spinner" />
+                ) : (
+                  item.iconKey && <Icon iconKey={item.iconKey as IconKey} />
+                )}
+              </span>
+              <span className="dropdown-menu-item-label">{item.label}</span>
             </button>
           ))}
         </div>

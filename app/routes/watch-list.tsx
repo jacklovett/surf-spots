@@ -82,7 +82,7 @@ export default function Watchlist() {
   const navigatingTo = navigation.location?.pathname
 
   const { watchedSurfSpotsSummary, error } = useLoaderData<LoaderData>()
-  const { onFetcherSubmit } = useSurfSpotActions()
+  const { fetcher, onFetcherSubmit } = useSurfSpotActions()
   const feedRef = useScrollReveal()
   const emptyStateRef = useScrollReveal()
 
@@ -158,7 +158,11 @@ export default function Watchlist() {
 
             <div id="watchlist-map" className="map-wrapper center mt-l">
               <ErrorBoundary message={ERROR_BOUNDARY_MAP}>
-                <SurfMap surfSpots={surfSpots} onFetcherSubmit={onFetcherSubmit} />
+                <SurfMap
+                  surfSpots={surfSpots}
+                  onFetcherSubmit={onFetcherSubmit}
+                  surfActionFetcher={fetcher}
+                />
               </ErrorBoundary>
             </div>
 
