@@ -23,6 +23,11 @@ export const validateEmail: ValidationFn<string> = (
     : ''
 }
 
+// Password policy follows NIST SP 800-63B: length-first, no composition rules,
+// no rotation. Keep this in sync with UserService.setUserPassword on the backend.
+const PASSWORD_MIN_LENGTH = 8
+const PASSWORD_MAX_LENGTH = 128
+
 export const validatePassword: ValidationFn<string> = (
   password,
   fieldName = 'Password',
@@ -33,8 +38,12 @@ export const validatePassword: ValidationFn<string> = (
     return requiredError
   }
 
-  if (password.length < 8) {
-    return `${fieldName} must be at least 8 characters long.`
+  if (password.length < PASSWORD_MIN_LENGTH) {
+    return `${fieldName} must be at least ${PASSWORD_MIN_LENGTH} characters long.`
+  }
+
+  if (password.length > PASSWORD_MAX_LENGTH) {
+    return `${fieldName} must be less than ${PASSWORD_MAX_LENGTH} characters long.`
   }
 
   const hasLower = /[a-z]/.test(password)
