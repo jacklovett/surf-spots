@@ -1,9 +1,9 @@
-import { useEffect, useState } from 'react'
 import { createPortal } from 'react-dom'
 import classNames from 'classnames'
 import Button from '../Button'
 import SkeletonLoader from '../SkeletonLoader'
 import { MediaItem } from './index'
+import { isVideoMediaItem, useMediaGallery } from '~/hooks'
 
 export interface MediaGalleryProps {
   items: MediaItem[]
@@ -18,101 +18,54 @@ export const MediaGallery = ({
   onDelete,
   altText = 'Media',
 }: MediaGalleryProps) => {
-  const [previewIndex, setPreviewIndex] = useState<number | null>(null)
-  const [thumbnailLoadedState, setThumbnailLoadedState] = useState<
-    Record<string, boolean>
-  >({})
-  const [previewMediaLoaded, setPreviewMediaLoaded] = useState(false)
-  const previewItem = previewIndex !== null ? items[previewIndex] : null
+  const gallery = useMediaGallery(items)
 
-  if (!items || items.length === 0) {
+  const handleDeleteFromPreview = async () => {
+    if (!gallery.previewItem || !onDelete) return
+    await onDelete(gallery.previewItem)
+    gallery.closePreview()
+  }
+
+  if (gallery.isEmpty) {
     return null
   }
 
-  const closePreview = () => setPreviewIndex(null)
-
-  const showPrevious = () => {
-    if (previewIndex === null) return
-    setPreviewIndex((previewIndex - 1 + items.length) % items.length)
-  }
-
-  const showNext = () => {
-    if (previewIndex === null) return
-    setPreviewIndex((previewIndex + 1) % items.length)
-  }
-
-  const handleDelete = async () => {
-    if (previewItem && onDelete) {
-      await onDelete(previewItem)
-      closePreview()
-    }
-  }
-
-  const isVideo = (item: MediaItem) => {
-    return item.mediaType === 'video' || item.url.match(/\.(mp4|webm|ogg)$/i)
-  }
-
-  useEffect(() => {
-    if (previewIndex === null) return
-    const onKeyDown = (event: KeyboardEvent) => {
-      if (event.key === 'ArrowLeft') {
-        event.preventDefault()
-        showPrevious()
-      } else if (event.key === 'ArrowRight') {
-        event.preventDefault()
-        showNext()
-      } else if (event.key === 'Escape') {
-        event.preventDefault()
-        closePreview()
-      }
-    }
-
-    window.addEventListener('keydown', onKeyDown)
-    return () => window.removeEventListener('keydown', onKeyDown)
-  }, [previewIndex, items.length])
-
-  useEffect(() => {
-    if (previewItem) {
-      setPreviewMediaLoaded(false)
-    }
-  }, [previewItem?.id])
-
-  useEffect(() => {
-    if (previewIndex === null) return
-    const originalOverflow = document.body.style.overflow
-    document.body.style.overflow = 'hidden'
-    return () => {
-      document.body.style.overflow = originalOverflow
-    }
-  }, [previewIndex])
+  const {
+    list,
+    thumbnailLoadedState,
+    markThumbnailLoaded,
+    previewIndex,
+    previewItem,
+    previewMediaLoaded,
+    markFullPreviewLoaded,
+    closePreview,
+    showPrevious,
+    showNext,
+    openPreviewAt,
+  } = gallery
 
   return (
     <>
       <div className="image-gallery">
-        {items.map((item, index) => (
+        {list.map((item, index) => (
           <div
             key={item.id}
             className="image-thumbnail"
             onClick={(e) => {
               e.preventDefault()
               e.stopPropagation()
-              setPreviewIndex(index)
+              openPreviewAt(index)
             }}
           >
             {!thumbnailLoadedState[item.id] && <SkeletonLoader />}
-            {isVideo(item) ? (
+            {isVideoMediaItem(item) ? (
               <video
                 src={item.thumbUrl || item.url}
                 muted
                 className={classNames({
                   'image-media-loading': !thumbnailLoadedState[item.id],
                 })}
-                onLoadedData={() =>
-                  setThumbnailLoadedState((prevState) => ({
-                    ...prevState,
-                    [item.id]: true,
-                  }))
-                }
+                onLoadedData={() => markThumbnailLoaded(item.id)}
               />
             ) : (
               <img
@@ -121,12 +74,7 @@ export const MediaGallery = ({
                 className={classNames({
                   'image-media-loading': !thumbnailLoadedState[item.id],
                 })}
-                onLoad={() =>
-                  setThumbnailLoadedState((prevState) => ({
-                    ...prevState,
-                    [item.id]: true,
-                  }))
-                }
+                onLoad={() => markThumbnailLoaded(item.id)}
               />
             )}
           </div>
@@ -148,7 +96,7 @@ export const MediaGallery = ({
               onClick={(event) => event.stopPropagation()}
             >
               <div className="media-lightbox-stage">
-                {items.length > 1 && (
+                {list.length > 1 && (
                   <Button
                     variant="icon"
                     className="media-lightbox-control image-preview-nav image-preview-nav-prev"
@@ -159,7 +107,7 @@ export const MediaGallery = ({
                 )}
 
                 {!previewMediaLoaded && <SkeletonLoader />}
-                {isVideo(previewItem) ? (
+                {isVideoMediaItem(previewItem) ? (
                   <video
                     src={previewItem.url}
                     controls
@@ -170,7 +118,7 @@ export const MediaGallery = ({
                     className={classNames('image-preview-full', {
                       'image-media-loading': !previewMediaLoaded,
                     })}
-                    onLoadedData={() => setPreviewMediaLoaded(true)}
+                    onLoadedData={markFullPreviewLoaded}
                   />
                 ) : (
                   <img
@@ -179,11 +127,11 @@ export const MediaGallery = ({
                     className={classNames('image-preview-full', {
                       'image-media-loading': !previewMediaLoaded,
                     })}
-                    onLoad={() => setPreviewMediaLoaded(true)}
+                    onLoad={markFullPreviewLoaded}
                   />
                 )}
 
-                {items.length > 1 && (
+                {list.length > 1 && (
                   <Button
                     variant="icon"
                     className="media-lightbox-control image-preview-nav image-preview-nav-next"
@@ -195,9 +143,9 @@ export const MediaGallery = ({
               </div>
 
               <div className="image-preview-footer">
-                {items.length > 1 && previewIndex !== null && (
+                {list.length > 1 && previewIndex !== null && (
                   <div className="image-preview-counter">
-                    {previewIndex + 1} / {items.length}
+                    {previewIndex + 1} / {list.length}
                   </div>
                 )}
                 {canDelete && onDelete && (
@@ -207,7 +155,7 @@ export const MediaGallery = ({
                       icon={{ name: 'bin' }}
                       variant="danger"
                       size="small"
-                      onClick={handleDelete}
+                      onClick={handleDeleteFromPreview}
                     />
                   </div>
                 )}

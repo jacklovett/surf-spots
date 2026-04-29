@@ -31,3 +31,5 @@ export {
   useSurfSpotActions,
   useSurfSpotWizard,
 }
+
+export { useMediaGallery, isVideoMediaItem } from './useMediaGallery'
