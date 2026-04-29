@@ -37,7 +37,7 @@ Create a `.env` file in the `surf-spots` directory. See `.env.example` for a tem
 
 **Optional:**
 - `VITE_MAP_ACCESS_TOKEN` - Mapbox access token for maps
-- `BASE_URL` - Base URL for the application
+- `BASE_URL` - Public app base URL (scheme + host + port). Set in production so SSR API calls send an `Origin` the API allowlists (see **surf-spots-api** `docs/auth.md`)
 - `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `GOOGLE_CALLBACK_URL` - Google OAuth
 - `FACEBOOK_CLIENT_ID`, `FACEBOOK_CLIENT_SECRET`, `FACEBOOK_CALLBACK_URL` - Facebook OAuth
 

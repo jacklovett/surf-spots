@@ -14,31 +14,28 @@ export interface UploadUrlResponse {
 
 export const addSurfSessionMedia = async (
   sessionId: string,
-  userId: string,
   request: CreateSurfSessionMediaRequest,
   options?: RequestInit,
 ): Promise<SurfSessionMedia> =>
   post<CreateSurfSessionMediaRequest, SurfSessionMedia>(
-    `${surfSessionsEndpoint}/${sessionId}/media?userId=${userId}`,
+    `${surfSessionsEndpoint}/${sessionId}/media`,
     request,
     options,
   )
 
 export const getSurfSessionMediaUploadUrl = async (
   sessionId: string,
-  userId: string,
   request: UploadSurfSessionMediaRequest,
   options?: RequestInit,
 ): Promise<UploadUrlResponse> =>
   post<UploadSurfSessionMediaRequest, UploadUrlResponse>(
-    `${surfSessionsEndpoint}/${sessionId}/media/upload-url?userId=${userId}`,
+    `${surfSessionsEndpoint}/${sessionId}/media/upload-url`,
     request,
     options,
   )
 
 export const deleteSurfSessionMedia = async (
   mediaId: string,
-  userId: string,
   options?: RequestInit,
 ): Promise<void> =>
-  deleteData(`${surfSessionsEndpoint}/media/${mediaId}?userId=${userId}`, options)
+  deleteData(`${surfSessionsEndpoint}/media/${mediaId}`, options)

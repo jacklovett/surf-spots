@@ -12,6 +12,14 @@ export type FetcherSubmitParams =
   | URLSearchParams
   | Record<string, string>
 
+/**
+ * Watch-list / surfed-spots quick actions submit via Remix fetcher.
+ * Must return a Promise so callers (e.g. SurfSpotActions spinners) can await completion.
+ */
+export type SurfSpotQuickActionSubmitHandler = (
+  params: FetcherSubmitParams,
+) => Promise<void>
+
 export interface SurfSpotActionMeta {
   actionType: string
   target: string

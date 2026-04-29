@@ -96,7 +96,6 @@ const createErrorResponse = (
  */
 const handleSaveNote = async (
   formData: FormData,
-  userId: string,
   cookie: string,
 ): Promise<ReturnType<typeof data>> => {
   const surfSpotId = formData.get('surfSpotId') as string
@@ -118,9 +117,9 @@ const handleSaveNote = async (
     skillRequirement: skillRequirementValue ? (skillRequirementValue as SkillLevel) : null,
   }
 
-  const savedNote = await post<typeof noteData & { userId: string }, SurfSpotNote>(
+  const savedNote = await post<typeof noteData, SurfSpotNote>(
     `surf-spots/id/${surfSpotId}/notes`,
-    { ...noteData, userId },
+    noteData,
     { headers: { Cookie: cookie } },
   )
 
@@ -138,7 +137,6 @@ const handleSaveNote = async (
 const handleTripAction = async (
   intent: string,
   formData: FormData,
-  userId: string,
   cookie: string,
 ): Promise<ReturnType<typeof data>> => {
   const tripId = formData.get('tripId') as string
@@ -153,7 +151,7 @@ const handleTripAction = async (
       )
     }
     const newTripSpotId = await post<undefined, string>(
-      `trips/${tripId}/spots/${spotSurfSpotId}?userId=${userId}`,
+      `trips/${tripId}/spots/${spotSurfSpotId}`,
       undefined,
       { headers: { Cookie: cookie } },
     )
@@ -168,7 +166,7 @@ const handleTripAction = async (
       )
     }
     await deleteData(
-      `trips/${tripId}/spots/${tripSpotId}?userId=${userId}`,
+      `trips/${tripId}/spots/${tripSpotId}`,
       { headers: { Cookie: cookie } },
     )
     return data({ success: true })
@@ -184,7 +182,6 @@ const handleSurfSpotAction = async (
   actionType: string,
   target: string,
   surfSpotId: string,
-  userId: string,
   cookie: string,
 ): Promise<ReturnType<typeof data>> => {
   const surfSpotIdNumber = Number(surfSpotId)
@@ -198,14 +195,14 @@ const handleSurfSpotAction = async (
   const endpoint =
     actionType === 'add'
       ? `${target}`
-      : `${target}/${userId}/remove/${surfSpotIdNumber}`
+      : `${target}/remove/${surfSpotIdNumber}`
 
   const session = await getSession(cookie)
 
   if (actionType === 'add') {
     await post(
       endpoint,
-      { userId, surfSpotId: surfSpotIdNumber },
+      { surfSpotId: surfSpotIdNumber },
       { headers: { Cookie: cookie } },
     )
   } else {
@@ -235,12 +232,12 @@ export const action: ActionFunction = async ({ request }) => {
 
     // Handle note saving
     if (intent === 'saveNote') {
-      return await handleSaveNote(formData, userId, cookie)
+      return await handleSaveNote(formData, cookie)
     }
 
     // Handle trip actions
     if (intent === 'add-spot' || intent === 'remove-spot') {
-      return await handleTripAction(intent, formData, userId, cookie)
+      return await handleTripAction(intent, formData, cookie)
     }
 
     // Handle surf spot actions (watch list / surfed spots)
@@ -255,7 +252,6 @@ export const action: ActionFunction = async ({ request }) => {
       actionType,
       target,
       surfSpotId,
-      userId,
       cookie,
     )
   } catch (error) {
@@ -305,13 +301,12 @@ const loadUserNote = async (
  */
 const loadSessionSummaryForSpot = async (
   spotId: string | undefined,
-  userId: string,
   cookie: string,
 ): Promise<SurfSessionSummary | null> => {
   if (!spotId) return null
   try {
     return await get<SurfSessionSummary>(
-      `surf-spots/${spotId}/sessions?userId=${encodeURIComponent(userId)}`,
+      `surf-spots/${spotId}/sessions`,
       { headers: { Cookie: cookie } },
     )
   } catch (error) {
@@ -321,11 +316,10 @@ const loadSessionSummaryForSpot = async (
 }
 
 const loadSurfboardsForUser = async (
-  userId: string,
   cookie: string,
 ): Promise<Surfboard[]> => {
   try {
-    return await get<Surfboard[]>(`surfboards?userId=${userId}`, {
+    return await get<Surfboard[]>(`surfboards`, {
       headers: { Cookie: cookie },
     })
   } catch {
@@ -340,9 +334,8 @@ export const loader: LoaderFunction = async ({ request, params }) => {
     const user = session.get('user')
     const userId = user?.id
 
-    // Build API URL with optional userId
+    // Build API URL for spot details.
     const queryParams = new URLSearchParams()
-    if (userId) queryParams.set('userId', userId)
     if (countrySlug) queryParams.set('countrySlug', countrySlug)
     if (regionSlug) queryParams.set('regionSlug', regionSlug)
     const queryString = queryParams.toString()
@@ -351,10 +344,7 @@ export const loader: LoaderFunction = async ({ request, params }) => {
       : `surf-spots/${surfSpotSlug}`
 
     const cookie = request.headers.get('Cookie') || ''
-    const surfSpotDetails = await get<SurfSpot>(
-      url,
-      userId ? { headers: { Cookie: cookie } } : {},
-    )
+    const surfSpotDetails = await get<SurfSpot>(url, { headers: { Cookie: cookie } })
 
     const spotId = surfSpotDetails?.id
 
@@ -365,8 +355,8 @@ export const loader: LoaderFunction = async ({ request, params }) => {
           spotId
             ? loadUserNote(spotId, userId, cookie)
             : Promise.resolve(null),
-          loadSessionSummaryForSpot(spotId, userId, cookie),
-          loadSurfboardsForUser(userId, cookie),
+          loadSessionSummaryForSpot(spotId, cookie),
+          loadSurfboardsForUser(cookie),
         ])
       : Promise.resolve(emptyAuth)
 
@@ -497,23 +487,26 @@ export default function SurfSpotDetails() {
     }
   }, [noteFetcher.data, noteFetcher.state, surfSpotDetails?.id, showSuccess, showError, setNote, setNoteSubmissionComplete])
    
-  const onFetcherSubmit = useCallback(
-    (params: FetcherSubmitParams) => {
-      try {
-        submitFetcher(
-          params,
-          fetcher,
-          resolveSurfSpotActionUrl(location.pathname),
-        )
-      } catch (error) {
-        console.error('Error submitting fetcher:', error)
+  const onFetcherSubmit = useCallback<SurfSpotQuickActionSubmitHandler>(
+    (params) => {
+      return new Promise<void>((resolve) => {
+        try {
+          pendingSurfActionSubmitResolversRef.current.push(resolve)
+          submitFetcher(
+            params,
+            fetcher,
+            resolveSurfSpotActionUrl(location.pathname),
+          )
+        } catch (error) {
+          console.error('Error submitting fetcher:', error)
           pendingSurfActionSubmitResolversRef.current =
             pendingSurfActionSubmitResolversRef.current.filter(
               (pendingResolve) => pendingResolve !== resolve,
             )
           resolve()
-        showError(DEFAULT_ERROR_MESSAGE)
-      }
+          showError(DEFAULT_ERROR_MESSAGE)
+        }
+      })
     },
     [fetcher, showError, location.pathname],
   )

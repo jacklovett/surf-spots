@@ -19,13 +19,12 @@ interface LoaderData {
 }
 
 export const loader: LoaderFunction = async ({ request }) => {
-  const user = await requireSessionCookie(request)
-  const userId = user?.id
+  await requireSessionCookie(request)
 
   const cookie = request.headers.get('Cookie') ?? ''
 
   try {
-    const surfboards = await get<Surfboard[]>(`surfboards?userId=${userId}`, {
+    const surfboards = await get<Surfboard[]>(`surfboards`, {
       headers: { Cookie: cookie },
     })
     return data<LoaderData>(

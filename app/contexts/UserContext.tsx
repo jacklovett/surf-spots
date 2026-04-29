@@ -1,13 +1,13 @@
 import { createContext, useContext, ReactNode, useMemo } from 'react'
-import { User } from '~/types/user'
+import { SessionUser } from '~/types/user'
 
 interface UserProviderProps {
-  user: User | null
+  user: SessionUser | null
   children: ReactNode
 }
 
 interface UserContextType {
-  user: User | null
+  user: SessionUser | null
 }
 
 const UserContext = createContext<UserContextType | undefined>(undefined)

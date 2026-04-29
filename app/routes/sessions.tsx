@@ -36,7 +36,6 @@ import {
   ERROR_LOAD_SESSIONS,
   UPLOAD_ERROR_MEDIA_UNAVAILABLE,
   ERROR_DELETE_MEDIA,
-  ERROR_USER_NOT_AUTHENTICATED,
   ERROR_MEDIA_ID_REQUIRED,
   ERROR_INVALID_ACTION,
   ERROR_SESSION_MEDIA_FIELDS_REQUIRED,
@@ -79,11 +78,11 @@ const SessionsHowToSection = () => (
 )
 
 export const loader: LoaderFunction = async ({ request }) => {
-  const user = await requireSessionCookie(request)
+  await requireSessionCookie(request)
   const cookie = request.headers.get('Cookie') ?? ''
 
   try {
-    const userSurfSessions = await get<UserSurfSessions>(`surf-sessions/${user.id}`, {
+    const userSurfSessions = await get<UserSurfSessions>('surf-sessions', {
       headers: { Cookie: cookie },
     })
     return data<LoaderData>({ userSurfSessions }, { headers: cacheControlHeader })
@@ -97,13 +96,7 @@ export const loader: LoaderFunction = async ({ request }) => {
 }
 
 export const action: ActionFunction = async ({ request }) => {
-  const user = await requireSessionCookie(request)
-  if (!user?.id) {
-    return data<SessionsActionData>(
-      { error: ERROR_USER_NOT_AUTHENTICATED },
-      { status: 401 },
-    )
-  }
+  await requireSessionCookie(request)
 
   const formData = await request.formData()
   const intent = formData.get('intent') as string
@@ -123,7 +116,6 @@ export const action: ActionFunction = async ({ request }) => {
     try {
       const media = await addSurfSessionMedia(
         sessionId,
-        user.id,
         { mediaId, originalUrl: s3Url, thumbUrl: s3Url, mediaType },
         { headers: { Cookie: cookie } },
       )
@@ -146,7 +138,7 @@ export const action: ActionFunction = async ({ request }) => {
       )
     }
     try {
-      await deleteSurfSessionMedia(mediaId, user.id, {
+      await deleteSurfSessionMedia(mediaId, {
         headers: { Cookie: cookie },
       })
       return data<SessionsActionData>({ success: true })

@@ -4,6 +4,7 @@ import {
   data,
   LoaderFunction,
   MetaFunction,
+  useLoaderData,
   useNavigation,
 } from 'react-router'
 
@@ -25,10 +26,10 @@ import {
 import { edit } from '~/services/networkService'
 import {
   requireSessionCookie,
-  getSession,
-  commitSession,
+  requireFullUserProfile,
 } from '~/services/session.server'
 import { useSubmitStatus } from '~/hooks'
+import type { UserSettings } from '~/types/user'
 
 export const meta: MetaFunction = () => [
   { title: 'Surf Spots - Settings' },
@@ -40,27 +41,33 @@ const unitOptions: SelectOption[] = [
   { key: 'imperial', label: 'Imperial (mi/ft)', value: 'imperial' },
 ]
 
-export const loader: LoaderFunction = async () => data({})
+interface LoaderData {
+  settings: UserSettings | null
+}
+
+export const loader: LoaderFunction = async ({ request }) => {
+  try {
+    const profile = await requireFullUserProfile(request)
+    return data<LoaderData>({ settings: profile.settings ?? null })
+  } catch {
+    return data<LoaderData>({ settings: null })
+  }
+}
 
 export const action: ActionFunction = async ({ request }) => {
   const formData = await request.formData()
   const preferredUnits = formData.get('preferredUnits') as string
 
-  // Check if user is logged in
-  let user = null
   try {
-    user = await requireSessionCookie(request)
+    await requireSessionCookie(request)
   } catch {
-    // Non-logged-in user - save to localStorage in component
     return data(
       { submitStatus: SUCCESS_SETTINGS_UPDATED, hasError: false },
       { status: 200 },
     )
   }
 
-  // Logged-in user - save all settings to backend
   const settings = {
-    userId: user.id,
     newSurfSpotsEmails: formData.get('newSurfSpots') === 'on',
     nearbySurfSpotEmails: formData.get('nearbySurfSpots') === 'on',
     swellSeasonEmails: formData.get('swellSeasons') === 'on',
@@ -75,25 +82,9 @@ export const action: ActionFunction = async ({ request }) => {
       headers: { Cookie: cookie },
     })
 
-    const session = await getSession(cookie)
-    session.set('user', {
-      ...user,
-      settings: {
-        newSurfSpotEmails: settings.newSurfSpotsEmails,
-        nearbySurfSpotsEmails: settings.nearbySurfSpotEmails,
-        swellSeasonEmails: settings.swellSeasonEmails,
-        eventEmails: settings.eventEmails,
-        promotionEmails: settings.promotionEmails,
-        preferredUnits,
-      },
-    })
-
     return data(
       { submitStatus: SUCCESS_SETTINGS_UPDATED, hasError: false },
-      {
-        status: 200,
-        headers: { 'Set-Cookie': await commitSession(session) },
-      },
+      { status: 200 },
     )
   } catch (error) {
     console.error('Unable to update settings: ', error)
@@ -113,16 +104,17 @@ export default function Settings() {
   const submitStatus = useSubmitStatus()
   const { settings, updateSetting } = useSettingsContext()
   const { user } = useUserContext()
+  const { settings: serverSettings } = useLoaderData<LoaderData>()
 
   const [preferredUnits, setPreferredUnits] = useState<units>(
     settings.preferredUnits,
   )
   const [emailSettings, setEmailSettings] = useState({
-    newSurfSpots: user?.settings?.newSurfSpotEmails ?? true,
-    nearbySurfSpots: user?.settings?.nearbySurfSpotsEmails ?? true,
-    swellSeasons: user?.settings?.swellSeasonEmails ?? true,
-    events: user?.settings?.eventEmails ?? true,
-    promotions: user?.settings?.promotionEmails ?? true,
+    newSurfSpots: serverSettings?.newSurfSpotEmails ?? true,
+    nearbySurfSpots: serverSettings?.nearbySurfSpotsEmails ?? true,
+    swellSeasons: serverSettings?.swellSeasonEmails ?? true,
+    events: serverSettings?.eventEmails ?? true,
+    promotions: serverSettings?.promotionEmails ?? true,
   })
 
   // Track if we've already saved to avoid infinite loop
@@ -144,15 +136,15 @@ export default function Settings() {
   // Check if any settings have changed
   const hasChanges = useMemo(() => {
     if (preferredUnits !== settings.preferredUnits) return true
-    if (!user?.settings) return false
+    if (!serverSettings) return false
     return (
-      emailSettings.newSurfSpots !== user.settings.newSurfSpotEmails ||
-      emailSettings.nearbySurfSpots !== user.settings.nearbySurfSpotsEmails ||
-      emailSettings.swellSeasons !== user.settings.swellSeasonEmails ||
-      emailSettings.events !== user.settings.eventEmails ||
-      emailSettings.promotions !== user.settings.promotionEmails
+      emailSettings.newSurfSpots !== serverSettings.newSurfSpotEmails ||
+      emailSettings.nearbySurfSpots !== serverSettings.nearbySurfSpotsEmails ||
+      emailSettings.swellSeasons !== serverSettings.swellSeasonEmails ||
+      emailSettings.events !== serverSettings.eventEmails ||
+      emailSettings.promotions !== serverSettings.promotionEmails
     )
-  }, [preferredUnits, settings.preferredUnits, emailSettings, user?.settings])
+  }, [preferredUnits, settings.preferredUnits, emailSettings, serverSettings])
 
   const toggleEmailSetting = (key: keyof typeof emailSettings) =>
     setEmailSettings((prev) => ({ ...prev, [key]: !prev[key] }))

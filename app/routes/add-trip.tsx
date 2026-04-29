@@ -45,13 +45,7 @@ export const loader: LoaderFunction = async ({ request }) => {
 }
 
 export const action: ActionFunction = async ({ request }) => {
-  const user = await requireSessionCookie(request)
-  if (!user?.id) {
-    return data(
-      { error: ERROR_LOGIN_REQUIRED_CREATE_TRIP },
-      { status: 401 },
-    )
-  }
+  await requireSessionCookie(request)
 
   const formData = await request.formData()
   const startDate = formData.get('startDate') as string
@@ -96,7 +90,7 @@ export const action: ActionFunction = async ({ request }) => {
   try {
     const cookie = request.headers.get('Cookie') || ''
     const trip = await post<CreateTripRequest, Trip>(
-      `trips?userId=${user.id}`,
+      `trips`,
       tripData,
       { headers: { Cookie: cookie } },
     )
@@ -105,7 +99,6 @@ export const action: ActionFunction = async ({ request }) => {
     if (memberEmails.length > 0 && trip.id) {
       const { failedEmails } = await addMembersToTrip(
         trip.id,
-        user.id,
         memberEmails,
         cookie,
         {

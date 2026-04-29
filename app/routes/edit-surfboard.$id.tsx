@@ -35,8 +35,7 @@ interface LoaderData {
 }
 
 export const loader: LoaderFunction = async ({ request, params }) => {
-  const user = await requireSessionCookie(request)
-  const userId = user?.id
+  await requireSessionCookie(request)
   const surfboardId = params.id
 
   if (!surfboardId) {
@@ -50,7 +49,7 @@ export const loader: LoaderFunction = async ({ request, params }) => {
 
   try {
     const surfboard = await get<Surfboard>(
-      `surfboards/${surfboardId}?userId=${userId}`,
+      `surfboards/${surfboardId}`,
       {
         headers: { Cookie: cookie },
       },
@@ -83,10 +82,10 @@ export const action: ActionFunction = async ({ params, request }) => {
     )
   }
 
-  const user = await requireSessionCookie(request)
+  await requireSessionCookie(request)
   const { id: surfboardId } = params
 
-  if (!surfboardId || !user?.id) {
+  if (!surfboardId) {
     return data<ActionData>(
       { submitStatus: ERROR_SURFBOARD_NOT_FOUND, hasError: true },
       { status: 404 },
@@ -128,7 +127,7 @@ export const action: ActionFunction = async ({ params, request }) => {
 
   try {
     const cookie = request.headers.get('Cookie') || ''
-    await updateSurfboard(surfboardId, user.id, surfboardData, {
+    await updateSurfboard(surfboardId, surfboardData, {
       headers: { Cookie: cookie },
     })
 

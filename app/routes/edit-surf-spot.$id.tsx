@@ -1,3 +1,4 @@
+import { useEffect } from 'react'
 import {
   ActionFunction,
   data,
@@ -13,16 +14,20 @@ import { createSurfSpotFromFormData } from '~/services/surfSpot.server'
 import { Continent, SurfSpot } from '~/types/surfSpots'
 import {
   ERROR_EDIT_SURF_SPOT,
+  ERROR_EDIT_SURF_SPOT_FORBIDDEN,
+  ERROR_LOAD_EDIT_SURF_SPOT,
   ERROR_BOUNDARY_GENERIC,
   ERROR_SURF_SPOT_ID_REQUIRED,
   SUCCESS_SURF_SPOT_UPDATED,
   httpStatusFromActionError,
 } from '~/utils/errorUtils'
 import SurfSpotForm, { LoaderData } from '~/components/SurfSpotForm'
-import { ErrorBoundary, Page } from '~/components'
+import { ContentStatus, ErrorBoundary, Page } from '~/components'
+import { useToastContext } from '~/contexts'
 
 export const loader: LoaderFunction = async ({ request, params }) => {
   try {
+    const cookie = request.headers.get('Cookie') ?? ''
     const user = await requireSessionCookie(request)
 
     const { id: routeParam } = params
@@ -35,8 +40,11 @@ export const loader: LoaderFunction = async ({ request, params }) => {
     const isNumericId = /^\d+$/.test(routeParam)
     const surfSpot = await get<SurfSpot>(
       isNumericId
-        ? `surf-spots/id/${routeParam}?userId=${user.id}`
-        : `surf-spots/${routeParam}?userId=${user.id}`,
+        ? `surf-spots/id/${routeParam}`
+        : `surf-spots/${routeParam}`,
+      {
+        headers: { Cookie: cookie },
+      },
     )
 
     if (!surfSpot) {
@@ -44,7 +52,7 @@ export const loader: LoaderFunction = async ({ request, params }) => {
     }
 
     // Only allow editing if user is creator
-    const isOwner = user && surfSpot.createdBy === user.id
+    const isOwner = surfSpot.createdBy === user.id
 
     if (!isOwner) {
       throw redirect('/surf-spots')
@@ -60,13 +68,18 @@ export const loader: LoaderFunction = async ({ request, params }) => {
     )
   } catch (error) {
     console.error('Error fetching data for edit form:', error)
+    const status = httpStatusFromActionError(error)
+
+    const fallbackMessage =
+      status === 403 ? ERROR_EDIT_SURF_SPOT_FORBIDDEN : ERROR_LOAD_EDIT_SURF_SPOT
+
     return data<LoaderData>(
       {
         continents: [],
-        error: `We're having trouble finding the data for this surf spot right now. Please try again later.`,
+        error: getDisplayMessage(error, fallbackMessage),
       },
       {
-        status: 500,
+        status,
       },
     )
   }
@@ -123,12 +136,30 @@ export const action: ActionFunction = async ({ request, params }) => {
 }
 
 export default function EditSurfSpot() {
-  const { surfSpot } = useLoaderData<LoaderData>()
+  const { surfSpot, error } = useLoaderData<LoaderData>()
   const navigate = useNavigate()
+  const { showError } = useToastContext()
+
+  useEffect(() => {
+    if (!error) return
+    showError(error)
+  }, [error, showError])
 
   const handleCancel = () => {
     if (surfSpot?.path) return navigate(surfSpot.path)
     navigate(-1)
+  }
+
+  if (!surfSpot) {
+    return (
+      <Page showHeader>
+        <ContentStatus isError>
+          <p>
+            {error || ERROR_LOAD_EDIT_SURF_SPOT}
+          </p>
+        </ContentStatus>
+      </Page>
+    )
   }
 
   return (

@@ -38,13 +38,12 @@ interface LoaderData {
 }
 
 export const loader: LoaderFunction = async ({ request }) => {
-  const user = await requireSessionCookie(request)
-  const userId = user?.id
+  await requireSessionCookie(request)
 
   const cookie = request.headers.get('Cookie') ?? ''
 
   try {
-    const watchedSurfSpotsSummary = await get(`watch/${userId}`, {
+    const watchedSurfSpotsSummary = await get('watch', {
       headers: { Cookie: cookie },
     })
     return data<LoaderData>(

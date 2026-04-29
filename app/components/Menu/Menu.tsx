@@ -8,13 +8,12 @@ import {
 import { ErrorBoundary } from '../index'
 import { ERROR_BOUNDARY_SECTION } from '~/utils/errorUtils'
 import { MenuSection } from './MenuSection'
-import { useLayoutContext, useUserContext, useSignUpPromptContext } from '~/contexts'
+import { useLayoutContext, useUserContext } from '~/contexts'
 
 const Menu = () => {
   const navigate = useNavigate()
   const { user } = useUserContext()
   const { openDrawer, closeDrawer } = useLayoutContext()
-  const { showSignUpPrompt } = useSignUpPromptContext()
 
   // Map of protected routes to their route identifiers
   const protectedRoutes: Record<
@@ -38,7 +37,7 @@ const Menu = () => {
     // Check if this is a protected route and user is not logged in
     const routeKey = protectedRoutes[path]
     if (routeKey && !user) {
-      showSignUpPrompt(routeKey)
+      navigate('/auth')
       closeDrawer()
       return
     }

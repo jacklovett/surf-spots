@@ -23,15 +23,11 @@ interface LoaderData {
 
 export const loader: LoaderFunction = async ({ request }) => {
   const user = await requireSessionCookie(request)
-  const userId = user?.id
-  if (!userId) {
-    return data<LoaderData>({ trips: [] }, { status: 401 })
-  }
 
   const cookie = request.headers.get('Cookie') ?? ''
 
   try {
-    const trips = await getTrips(userId, {
+    const trips = await getTrips(user.id, {
       headers: { Cookie: cookie },
     })
     return data<LoaderData>(
@@ -53,13 +49,7 @@ export const loader: LoaderFunction = async ({ request }) => {
 }
 
 export const action: ActionFunction = async ({ request }) => {
-  const user = await requireSessionCookie(request)
-  if (!user?.id) {
-    return data<ActionData>(
-      { error: 'Sign in to view your trips' },
-      { status: 401 },
-    )
-  }
+  await requireSessionCookie(request)
 
   // Trip spot actions (add-spot, remove-spot) are handled by surfSpotAction
   // to avoid duplication. They go through the surf spot route action when

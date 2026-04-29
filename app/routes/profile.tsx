@@ -18,12 +18,15 @@ import {
   destroySession,
   getSession,
   requireSessionCookie,
+  requireFullUserProfile,
 } from '~/services/session.server'
-import { useUserContext, useSettingsContext } from '~/contexts'
+import { useSettingsContext } from '~/contexts'
+import type { User } from '~/types/user'
 
 import {
   ContentStatus,
   Page,
+  EmergencyContactPhoneField,
   FormInput,
   FormComponent,
   LocationSelector,
@@ -31,7 +34,6 @@ import {
   Modal,
   Button,
 } from '~/components'
-import { EmergencyContactPhoneField } from '~/components'
 import { Location } from '~/components/LocationSelector'
 import { useSubmitStatus, useFormSubmission } from '~/hooks'
 import useFormValidation, {
@@ -70,6 +72,7 @@ import { validateEmergencyContactPhone } from '~/utils/emergencyContactPhone'
 
 interface LoaderData {
   locationData?: Location[]
+  user?: User | null
   error?: string
 }
 
@@ -79,22 +82,23 @@ export const meta: MetaFunction = () => [
 ]
 
 export const loader: LoaderFunction = async ({ request }) => {
-  await requireSessionCookie(request)
+  const user = await requireFullUserProfile(request)
   try {
     const filePath = path.resolve('public/data/cities_countries.json')
     const fileData = await fs.readFile(filePath, 'utf-8')
     const locationData = JSON.parse(fileData)
-    return data(
-      { locationData },
+    return data<LoaderData>(
+      { locationData, user },
       {
         headers: cacheControlHeader,
       },
     )
   } catch (error) {
     console.error(error)
-    return {
+    return data<LoaderData>({
       error: ERROR_POPULATE_LOCATION,
-    }
+      user,
+    })
   }
 }
 
@@ -108,7 +112,7 @@ export const action: ActionFunction = async ({ request }) => {
     const cookie = request.headers.get('Cookie') ?? ''
 
     try {
-      await deleteData(`user/${user.id}`, {
+      await deleteData(`user/account/${user.id}`, {
         headers: { Cookie: cookie },
       })
 
@@ -225,7 +229,14 @@ export const action: ActionFunction = async ({ request }) => {
     })
 
     const session = await getSession(cookie)
-    session.set('user', updateUser)
+    const currentSessionUser = session.get('user')
+    if (currentSessionUser) {
+      session.set('user', {
+        id: currentSessionUser.id,
+        email: currentSessionUser.email,
+        name: updateUser.name,
+      })
+    }
 
     return data(
       { submitStatus: SUCCESS_PROFILE_UPDATED, hasError: false },
@@ -250,11 +261,10 @@ export const action: ActionFunction = async ({ request }) => {
 }
 
 const Profile = () => {
-  const { user } = useUserContext()
   const { settings } = useSettingsContext()
   const { isFormSubmitting } = useFormSubmission()
 
-  const { locationData = [], error } = useLoaderData<LoaderData>()
+  const { locationData = [], user, error } = useLoaderData<LoaderData>()
 
   const submitStatus = useSubmitStatus()
   const deleteFetcher = useFetcher()

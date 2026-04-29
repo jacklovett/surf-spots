@@ -31,16 +31,7 @@ export const loader: LoaderFunction = async ({ request }) => {
 }
 
 export const action: ActionFunction = async ({ request }) => {
-  const user = await requireSessionCookie(request)
-  if (!user?.id) {
-    return data(
-      {
-        submitStatus: ERROR_LOGIN_REQUIRED_ADD_SURFBOARD,
-        hasError: true,
-      },
-      { status: 401 },
-    )
-  }
+  await requireSessionCookie(request)
 
   const formData = await request.formData()
   const name = (formData.get('name') as string)?.trim()
@@ -78,7 +69,7 @@ export const action: ActionFunction = async ({ request }) => {
   try {
     const cookie = request.headers.get('Cookie') || ''
     const surfboard = await post<CreateSurfboardRequest, Surfboard>(
-      `surfboards?userId=${user.id}`,
+      `surfboards`,
       surfboardData,
       { headers: { Cookie: cookie } },
     )

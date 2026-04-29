@@ -1,4 +1,4 @@
-import { ActionFunction, data, redirect } from 'react-router'
+import { ActionFunction, data } from 'react-router'
 import { post, deleteData, getDisplayMessage } from './networkService'
 import { getSession, commitSession } from './session.server'
 import { requireSessionCookie } from './session.server'
@@ -6,14 +6,12 @@ import { CrowdLevel, SurfSpotStatus } from '~/types/surfSpots'
 import type { ActionData } from '~/types/api'
 import {
   ERROR_CHECK_INPUT,
-  ERROR_LOGIN_REQUIRED,
   ERROR_MISSING_REQUIRED_FIELDS,
   ERROR_SAVE_SURF_SESSION,
   ERROR_SURF_SPOT_ID_REQUIRED,
   ERROR_TRIP_AND_SPOT_IDS_REQUIRED,
   ERROR_TRIP_AND_TRIP_SPOT_IDS_REQUIRED,
   ERROR_UPDATE_TRIP,
-  ERROR_USER_NOT_AUTHENTICATED,
   SUCCESS_SURF_SESSION_SAVED,
 } from '~/utils/errorUtils'
 import { isPublicSurfSpotPayloadComplete } from '~/utils/surfSpotWizardValidation'
@@ -70,7 +68,6 @@ const parseUrlList = (
 
 export const handleSaveSurfSession = async (
   formData: FormData,
-  userId: string,
   cookie: string,
 ): Promise<ReturnType<typeof data>> => {
   const surfSpotIdRaw = formData.get('surfSpotId') as string
@@ -113,7 +110,6 @@ export const handleSaveSurfSession = async (
   try {
     const payload: Record<string, unknown> = {
       surfSpotId,
-      userId,
       sessionDate,
       wouldSurfAgain,
     }
@@ -186,10 +182,7 @@ export const surfSpotAction: ActionFunction = async ({ request }) => {
   // ——— Trip actions (add-spot, remove-spot) ———
   if (intent === 'add-spot' || intent === 'remove-spot') {
     try {
-      const user = await requireSessionCookie(request)
-      if (!user?.id) {
-        return data({ error: ERROR_LOGIN_REQUIRED }, { status: 401 })
-      }
+      await requireSessionCookie(request)
 
       const cookie = request.headers.get('Cookie') || ''
       const tripId = formData.get('tripId') as string
@@ -204,7 +197,7 @@ export const surfSpotAction: ActionFunction = async ({ request }) => {
           )
         }
         const tripSpotId = await post<undefined, string>(
-          `trips/${tripId}/spots/${spotSurfSpotId}?userId=${user.id}`,
+          `trips/${tripId}/spots/${spotSurfSpotId}`,
           undefined,
           { headers: { Cookie: cookie } },
         )
@@ -219,7 +212,7 @@ export const surfSpotAction: ActionFunction = async ({ request }) => {
           )
         }
         await deleteData(
-          `trips/${tripId}/spots/${tripSpotId}?userId=${user.id}`,
+          `trips/${tripId}/spots/${tripSpotId}`,
           { headers: { Cookie: cookie } },
         )
         return data({ success: true })
@@ -254,20 +247,12 @@ export const surfSpotAction: ActionFunction = async ({ request }) => {
   }
 
   try {
-    const user = await requireSessionCookie(request)
-    const userId = user.id
-
-    if (!userId) {
-      return data(
-        { error: ERROR_USER_NOT_AUTHENTICATED },
-        { status: 401 },
-      )
-    }
+    await requireSessionCookie(request)
 
     const endpoint =
       actionType === 'add'
         ? `${target}`
-        : `${target}/${userId}/remove/${surfSpotId}`
+        : `${target}/remove/${surfSpotId}`
 
     const session = await getSession(request.headers.get('Cookie'))
     const cookie = request.headers.get('Cookie') || ''
@@ -275,7 +260,7 @@ export const surfSpotAction: ActionFunction = async ({ request }) => {
     if (actionType === 'add') {
       await post(
         endpoint,
-        { userId, surfSpotId },
+        { surfSpotId },
         { headers: { Cookie: cookie } },
       )
     } else {
@@ -307,11 +292,7 @@ export const surfSpotAction: ActionFunction = async ({ request }) => {
 
 export const createSurfSpotFromFormData = async (request: Request) => {
   const user = await requireSessionCookie(request)
-  const userId =
-    user.id != null && String(user.id).trim() !== '' ? String(user.id) : ''
-  if (!userId) {
-    throw redirect('/auth')
-  }
+  const userId = user.id
 
   const formData = await request.formData()
 

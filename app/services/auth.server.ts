@@ -1,9 +1,9 @@
 import { randomBytes } from 'node:crypto'
 import { data, redirect } from 'react-router'
 import type { Session } from 'react-router'
-import { AuthRequest, OAuthProvider, User } from '~/types/user'
+import { AuthRequest, OAuthProvider, SessionUser, User } from '~/types/user'
 import { getSession, commitSession } from '~/services/session.server'
-import { post, isNetworkError, getDisplayMessage } from './networkService'
+import { post, isNetworkError } from './networkService'
 import { validateEmail, validatePassword } from '~/hooks/useFormValidation'
 import {
   ERROR_ACCOUNT_CANT_SIGN_IN,
@@ -61,11 +61,15 @@ export interface AuthActionData {
 
 export const formatEmail = (email: string) => email.toLowerCase().trim()
 
-export type SessionUser = {
-  id: string
-  email: string
-  displayName: string
-}
+/**
+ * Strip an API User down to the identity claims we are willing to put in the
+ * signed session cookie. Keep this in sync with the SessionUser type.
+ */
+const toSessionUser = (user: User): SessionUser => ({
+  id: user.id,
+  name: user.name,
+  email: user.email,
+})
 
 export const authenticateWithCredentials = async (request: Request) => {
   const formData = await request.formData()
@@ -120,7 +124,7 @@ export const setSessionCookieAndRedirect = async (
   existingSession?: Session,
 ) => {
   const session = existingSession ?? (await getSession(request.headers.get('Cookie')))
-  session.set('user', user)
+  session.set('user', toSessionUser(user))
   const cookie = await commitSession(session)
 
   if (cookie) {

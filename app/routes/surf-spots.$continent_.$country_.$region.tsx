@@ -9,7 +9,6 @@ import {
 } from 'react-router'
 import { ContentStatus } from '~/components'
 import { cacheControlHeader, get, post } from '~/services/networkService'
-import { getSession } from '~/services/session.server'
 import type { SurfSpot, Region, SurfSpotFilters } from '~/types/surfSpots'
 import { useSurfSpotsContext } from '~/contexts'
 import { ERROR_LOAD_REGION_DATA } from '~/utils/errorUtils'
@@ -33,11 +32,8 @@ export const loader: LoaderFunction = async ({ request, params }) => {
   }
 
   try {
-    const session = await getSession(request.headers.get('Cookie'))
-    const user = session.get('user')
-    const userId = user?.id
-
-    const filters = { ...searchParams, userId }
+    const cookie = request.headers.get('Cookie') ?? ''
+    const filters = { ...searchParams }
 
     // Get region by country + region slug so we get the correct region (e.g. England's South West, not Italy's)
     const regionDetails = await get<Region>(`regions/country/${country}/${region}`)
@@ -48,6 +44,7 @@ export const loader: LoaderFunction = async ({ request, params }) => {
       surfSpots = await post<typeof filters, SurfSpot[]>(
         `surf-spots/region-id/${regionDetails.id}`,
         { ...filters },
+        { headers: { Cookie: cookie } },
       ) ?? []
     } catch (spotsError) {
       console.error('Error loading surf spots for region:', spotsError)

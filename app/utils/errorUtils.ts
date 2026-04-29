@@ -75,6 +75,10 @@ export const ERROR_LOAD_MAP_DATA =
 export const ERROR_LOAD_MAP = "We couldn't load the map. Please try again."
 export const ERROR_ADD_SURF_SPOT = 'Unable to add surf spot. Please try again later.'
 export const ERROR_EDIT_SURF_SPOT = 'Unable to update surf spot. Please try again later.'
+export const ERROR_EDIT_SURF_SPOT_FORBIDDEN =
+  'You do not have permission to edit this surf spot.'
+export const ERROR_LOAD_EDIT_SURF_SPOT =
+  "We're having trouble finding the data for this surf spot right now. Please try again later."
 export const SUCCESS_SURF_SPOT_UPDATED = 'Surf spot updated'
 export const ERROR_SURF_SPOT_ID_REQUIRED = 'Surf spot ID is required'
 export const SUCCESS_SURF_SPOT_ADDED = 'Surf spot added'

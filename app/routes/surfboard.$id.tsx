@@ -58,8 +58,7 @@ interface ActionData extends BaseActionData {
 }
 
 export const loader: LoaderFunction = async ({ request, params }) => {
-  const user = await requireSessionCookie(request)
-  const userId = user?.id
+  await requireSessionCookie(request)
   const surfboardId = params.id
 
   if (!surfboardId) {
@@ -73,7 +72,7 @@ export const loader: LoaderFunction = async ({ request, params }) => {
 
   try {
     const surfboard = await get<Surfboard>(
-      `surfboards/${surfboardId}?userId=${userId}`,
+      `surfboards/${surfboardId}`,
       {
         headers: { Cookie: cookie },
       },
@@ -98,7 +97,6 @@ export const loader: LoaderFunction = async ({ request, params }) => {
 
 const handleDeleteMedia = async (
   mediaId: string,
-  userId: string,
   cookie: string,
 ): Promise<ReturnType<typeof data<ActionData>>> => {
   if (!mediaId) {
@@ -109,7 +107,7 @@ const handleDeleteMedia = async (
   }
 
   try {
-    await deleteSurfboardMedia(mediaId, userId, {
+    await deleteSurfboardMedia(mediaId, {
       headers: { Cookie: cookie },
     })
     return data<ActionData>({ success: true })
@@ -124,11 +122,10 @@ const handleDeleteMedia = async (
 
 const handleDeleteSurfboard = async (
   surfboardId: string,
-  userId: string,
   cookie: string,
 ): Promise<ReturnType<typeof data<ActionData>> | ReturnType<typeof redirect>> => {
   try {
-    await deleteSurfboard(surfboardId, userId, {
+    await deleteSurfboard(surfboardId, {
       headers: { Cookie: cookie },
     })
     return redirect('/surfboards')
@@ -143,7 +140,7 @@ const handleDeleteSurfboard = async (
 
 export const action: ActionFunction = async ({ request, params }) => {
   try {
-    const user = await requireSessionCookie(request)
+    await requireSessionCookie(request)
     const surfboardId = params.id
 
     if (!surfboardId) {
@@ -170,7 +167,6 @@ export const action: ActionFunction = async ({ request, params }) => {
       try {
         await addSurfboardMedia(
           surfboardId,
-          user.id,
           { mediaId, originalUrl: s3Url, thumbUrl: s3Url, mediaType },
           { headers: { Cookie: cookie } },
         )
@@ -186,11 +182,11 @@ export const action: ActionFunction = async ({ request, params }) => {
 
     if (intent === 'delete-media') {
       const mediaId = formData.get('mediaId') as string
-      return await handleDeleteMedia(mediaId, user.id, cookie)
+      return await handleDeleteMedia(mediaId, cookie)
     }
 
     if (intent === 'delete-surfboard') {
-      return await handleDeleteSurfboard(surfboardId, user.id, cookie)
+      return await handleDeleteSurfboard(surfboardId, cookie)
     }
 
     return data<ActionData>({ error: ERROR_INVALID_ACTION }, { status: 400 })

@@ -65,8 +65,7 @@ interface ActionData extends BaseActionData {
 }
 
 export const loader: LoaderFunction = async ({ request, params }) => {
-  const user = await requireSessionCookie(request)
-  const userId = user?.id
+  await requireSessionCookie(request)
   const tripId = params.id
 
   if (!tripId) {
@@ -79,7 +78,7 @@ export const loader: LoaderFunction = async ({ request, params }) => {
   const cookie = request.headers.get('Cookie') ?? ''
 
   try {
-    const trip = await get<Trip>(`trips/${tripId}?userId=${userId}`, {
+    const trip = await get<Trip>(`trips/${tripId}`, {
       headers: { Cookie: cookie },
     })
     return data<LoaderData>(
@@ -114,7 +113,7 @@ export const action: ActionFunction = async ({ request, params }) => {
   // Handle delete trip
   if (intent === 'delete-trip') {
     try {
-      await deleteData(`trips/${tripId}?userId=${user.id}`, {
+      await deleteData(`trips/${tripId}`, {
         headers: { Cookie: cookie },
       })
       return redirect('/trips')
@@ -145,7 +144,7 @@ export const action: ActionFunction = async ({ request, params }) => {
     }
     try {
       await post<undefined, string>(
-        `trips/${tripId}/surfboards/${surfboardId}?userId=${user.id}`,
+        `trips/${tripId}/surfboards/${surfboardId}`,
         undefined,
         { headers: { Cookie: cookie } },
       )
@@ -180,7 +179,7 @@ export const action: ActionFunction = async ({ request, params }) => {
     }
     try {
       await deleteData(
-        `trips/${tripId}/surfboards/${tripSurfboardId}?userId=${user.id}`,
+        `trips/${tripId}/surfboards/${tripSurfboardId}`,
         { headers: { Cookie: cookie } },
       )
       return data<ActionData>({ success: true })
@@ -212,7 +211,7 @@ export const action: ActionFunction = async ({ request, params }) => {
     }
     try {
       await deleteData(
-        `trips/${tripId}/spots/${tripSpotId}?userId=${user.id}`,
+        `trips/${tripId}/spots/${tripSpotId}`,
         { headers: { Cookie: cookie } },
       )
       return data<ActionData>({ success: true })
@@ -244,7 +243,7 @@ export const action: ActionFunction = async ({ request, params }) => {
     }
     try {
       await deleteData(
-        `trips/${tripId}/members/${memberUserId}?currentUserId=${user.id}`,
+        `trips/${tripId}/members/${memberUserId}`,
         { headers: { Cookie: cookie } },
       )
       return data<ActionData>({ success: true })
@@ -278,7 +277,7 @@ export const action: ActionFunction = async ({ request, params }) => {
     }
     try {
       await deleteData(
-        `trips/${tripId}/invitations/${invitationId}?userId=${user.id}`,
+        `trips/${tripId}/invitations/${invitationId}`,
         { headers: { Cookie: cookie } },
       )
       return data<ActionData>({ success: true })
@@ -309,7 +308,7 @@ export const action: ActionFunction = async ({ request, params }) => {
       )
     }
     try {
-      await deleteData(`trips/${tripId}/media/${mediaId}?userId=${user.id}`, {
+      await deleteData(`trips/${tripId}/media/${mediaId}`, {
         headers: { Cookie: cookie },
       })
       return data<ActionData>({ success: true })
@@ -343,7 +342,6 @@ export const action: ActionFunction = async ({ request, params }) => {
     try {
       await recordMedia(
         tripId,
-        user.id,
         { mediaId, url: s3Url, mediaType },
         { headers: { Cookie: cookie } },
       )

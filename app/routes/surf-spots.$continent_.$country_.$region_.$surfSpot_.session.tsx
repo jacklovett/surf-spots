@@ -13,7 +13,7 @@ import {
   get,
   getDisplayMessage,
 } from '~/services/networkService'
-import { requireSessionCookie } from '~/services/session.server'
+import { requireFullUserProfile } from '~/services/session.server'
 import { handleSaveSurfSession } from '~/services/surfSpot.server'
 import { SurfSpot } from '~/types/surfSpots'
 import { Surfboard } from '~/types/surfboard'
@@ -34,11 +34,10 @@ interface LoaderData {
 }
 
 const loadSurfboardsForUser = async (
-  userId: string,
   cookie: string,
 ): Promise<Surfboard[]> => {
   try {
-    return await get<Surfboard[]>(`surfboards?userId=${userId}`, {
+    return await get<Surfboard[]>(`surfboards`, {
       headers: { Cookie: cookie },
     })
   } catch {
@@ -47,7 +46,7 @@ const loadSurfboardsForUser = async (
 }
 
 export const loader: LoaderFunction = async ({ request, params }) => {
-  const user = await requireSessionCookie(request)
+  const user = await requireFullUserProfile(request)
   const { surfSpot: surfSpotSlug, country: countrySlug, region: regionSlug } =
     params
 
@@ -60,16 +59,16 @@ export const loader: LoaderFunction = async ({ request, params }) => {
 
   try {
     const queryParams = new URLSearchParams()
-    queryParams.set('userId', user.id)
     if (countrySlug) queryParams.set('countrySlug', countrySlug)
     if (regionSlug) queryParams.set('regionSlug', regionSlug)
     const queryString = queryParams.toString()
-    const url = `surf-spots/${encodeURIComponent(surfSpotSlug)}?${queryString}`
+    const baseUrl = `surf-spots/${encodeURIComponent(surfSpotSlug)}`
+    const url = queryString ? `${baseUrl}?${queryString}` : baseUrl
 
     const cookie = request.headers.get('Cookie') || ''
     const [surfSpotDetails, surfboards] = await Promise.all([
       get<SurfSpot>(url, { headers: { Cookie: cookie } }),
-      loadSurfboardsForUser(user.id, cookie),
+      loadSurfboardsForUser(cookie),
     ])
 
     return data<LoaderData>(
@@ -102,7 +101,7 @@ export const action: ActionFunction = async ({ request }) => {
     )
   }
   try {
-    const user = await requireSessionCookie(request)
+    const user = await requireFullUserProfile(request)
     const cookie = request.headers.get('Cookie') || ''
     const submittedSkillLevel = formData.get('skillLevel')
     const skillLevel =
@@ -120,7 +119,7 @@ export const action: ActionFunction = async ({ request }) => {
     }
 
     formData.set('skillLevel', skillLevel)
-    return await handleSaveSurfSession(formData, String(user.id), cookie)
+    return await handleSaveSurfSession(formData, cookie)
   } catch (error) {
     console.error('Add session action failed', error)
     if (error instanceof Response) return error

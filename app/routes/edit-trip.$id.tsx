@@ -41,8 +41,7 @@ interface LoaderData {
 }
 
 export const loader: LoaderFunction = async ({ request, params }) => {
-  const user = await requireSessionCookie(request)
-  const userId = user?.id
+  await requireSessionCookie(request)
   const tripId = params.id
 
   if (!tripId) {
@@ -55,7 +54,7 @@ export const loader: LoaderFunction = async ({ request, params }) => {
   const cookie = request.headers.get('Cookie') ?? ''
 
   try {
-    const trip = await get<Trip>(`trips/${tripId}?userId=${userId}`, {
+    const trip = await get<Trip>(`trips/${tripId}`, {
       headers: { Cookie: cookie },
     })
 
@@ -91,10 +90,10 @@ export const action: ActionFunction = async ({ params, request }) => {
     )
   }
 
-  const user = await requireSessionCookie(request)
+  await requireSessionCookie(request)
   const tripId = params.id
 
-  if (!tripId || !user?.id) {
+  if (!tripId) {
     return data<ActionData>(
       { submitStatus: ERROR_TRIP_NOT_FOUND, hasError: true },
       { status: 404 },
@@ -143,16 +142,15 @@ export const action: ActionFunction = async ({ params, request }) => {
 
   try {
     const cookie = request.headers.get('Cookie') || ''
-    await updateTrip(tripId, user.id, tripData, {
+    await updateTrip(tripId, tripData, {
       headers: { Cookie: cookie },
     })
 
     // Add members if any emails provided
     if (memberEmails.length > 0) {
       try {
-        const { failedEmails, alreadyInvitedEmails } = await addMembersToTrip(
+        const { alreadyInvitedEmails } = await addMembersToTrip(
           tripId,
-          user.id,
           memberEmails,
           cookie,
           {
@@ -160,6 +158,11 @@ export const action: ActionFunction = async ({ params, request }) => {
             handleAlreadyInvited: true,
           },
         )
+        if (alreadyInvitedEmails.length > 0) {
+          console.warn(
+            `Skipped (already invited): ${alreadyInvitedEmails.join(', ')}`,
+          )
+        }
       } catch (error) {
         return data<ActionData>(
           {

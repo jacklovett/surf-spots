@@ -15,6 +15,14 @@ if (!API_URL) {
   console.debug('[NetworkService] VITE_API_URL is not set! This will cause API calls to fail.')
 }
 
+// Browsers send Origin on mutating requests; Remix loaders/actions use Node fetch,
+// which does not. The API CsrfOriginFilter requires Origin or Referer on mutating
+// calls, so SSR must supply the public site origin (must match cors.allowed-origins).
+const SERVER_SIDE_ORIGIN =
+  typeof process !== 'undefined' && typeof window === 'undefined'
+    ? process.env?.BASE_URL
+    : undefined
+
 export const cacheControlHeader = {
   'Cache-Control': 'public, max-age=3600, stale-while-revalidate=86400',
 }
@@ -213,6 +221,13 @@ const request = async <T, B = undefined>(
   const isFileOrBlob = body instanceof File || body instanceof Blob
   if (body && !isFileOrBlob) {
     (headers as Record<string, string>)['Content-Type'] = 'application/json'
+  }
+  if (
+    !isFullUrl &&
+    SERVER_SIDE_ORIGIN &&
+    !(headers as Record<string, string>)['Origin']
+  ) {
+    (headers as Record<string, string>)['Origin'] = SERVER_SIDE_ORIGIN
   }
 
   try {

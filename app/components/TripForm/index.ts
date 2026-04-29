@@ -50,7 +50,6 @@ export interface AddMembersResult {
  */
 export const addMembersToTrip = async (
   tripId: string,
-  userId: string,
   memberEmails: string[],
   cookie: string,
   options?: {
@@ -66,7 +65,6 @@ export const addMembersToTrip = async (
     try {
       await addMember(
         tripId,
-        userId,
         { email },
         {
           headers: { Cookie: cookie },

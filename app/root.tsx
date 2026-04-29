@@ -29,12 +29,12 @@ import { ERROR_BOUNDARY_APP } from './utils/errorUtils'
 export { ErrorBoundary } from './RootErrorBoundary'
 
 import { getSession } from './services/session.server'
-import { User } from './types/user'
+import { SessionUser } from './types/user'
 
 import './styles/main.scss'
 
 interface LoaderData {
-  user: User | null
+  user: SessionUser | null
 }
 
 const securityHeaders: Record<string, string> = {

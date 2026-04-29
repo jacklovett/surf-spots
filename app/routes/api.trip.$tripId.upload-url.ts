@@ -19,8 +19,8 @@ interface LoaderData {
 export const loader: LoaderFunction = async ({ request, params }) => {
   const user = await requireSessionCookie(request)
   const tripId = params.tripId
-  if (!user?.id || !tripId) {
-    return data<LoaderData>({ uploadUrl: '', mediaId: '' }, { status: 401 })
+  if (!tripId) {
+    return data<LoaderData>({ uploadUrl: '', mediaId: '' }, { status: 400 })
   }
 
   const url = new URL(request.url)
@@ -30,7 +30,6 @@ export const loader: LoaderFunction = async ({ request, params }) => {
   try {
     const result = await getUploadUrl(
       tripId,
-      user.id,
       { mediaType },
       { headers: { Cookie: cookie } },
     )

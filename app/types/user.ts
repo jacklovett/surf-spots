@@ -1,4 +1,5 @@
-export const usersEndpoint = 'api/users'
+/** Path segment after VITE_API_URL (which already includes `/api`). */
+export const usersEndpoint = 'users'
 
 export type AuthProvider = 'EMAIL' | 'FACEBOOK' | 'GOOGLE'
 
@@ -15,10 +16,22 @@ export interface AuthRequest {
 
 import { EmergencyContactRelationship, SkillLevel } from './surfSpots'
 
-export interface User {
+/**
+ * Minimal identity claims we store in the signed session cookie. Anything
+ * outside this shape must be fetched from GET /api/user/me so that PII
+ * never rides in the cookie. See app/services/auth.server.ts toSessionUser.
+ */
+export interface SessionUser {
   id: string
   name: string
   email: string
+}
+
+/**
+ * Full profile returned by GET /api/user/me. Never store this in the session
+ * cookie; fetch it in a loader/action where you need more than identity.
+ */
+export interface User extends SessionUser {
   country?: string
   city?: string
   age?: number

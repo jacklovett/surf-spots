@@ -12,9 +12,6 @@ interface LoaderData {
 
 export const loader: LoaderFunction = async ({ request }) => {
   const user = await requireSessionCookie(request)
-  if (!user?.id) {
-    return data<LoaderData>({ trips: [] }, { status: 401 })
-  }
 
   const cookie = request.headers.get('Cookie') ?? ''
 

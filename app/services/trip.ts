@@ -15,34 +15,31 @@ export const getTrips = async (
   userId: string,
   options?: RequestInit,
 ): Promise<Trip[]> => {
-  return get<Trip[]>(`${tripsEndpoint}/user/${userId}`, options)
+  return get<Trip[]>(
+    `${tripsEndpoint}/user/${encodeURIComponent(userId)}`,
+    options,
+  )
 }
 
 export const getTrip = async (
   tripId: string,
-  userId: string,
 ): Promise<Trip> => {
-  return get<Trip>(`${tripsEndpoint}/${tripId}?userId=${userId}`)
+  return get<Trip>(`${tripsEndpoint}/${tripId}`)
 }
 
 export const createTrip = async (
-  userId: string,
   request: CreateTripRequest,
 ): Promise<Trip> => {
-  return post<CreateTripRequest, Trip>(
-    `${tripsEndpoint}?userId=${userId}`,
-    request,
-  )
+  return post<CreateTripRequest, Trip>(`${tripsEndpoint}`, request)
 }
 
 export const updateTrip = async (
   tripId: string,
-  userId: string,
   request: UpdateTripRequest,
   options?: RequestInit,
 ): Promise<Trip> => {
   return edit<UpdateTripRequest, Trip>(
-    `${tripsEndpoint}/${tripId}?userId=${userId}`,
+    `${tripsEndpoint}/${tripId}`,
     request,
     options,
   )
@@ -50,18 +47,16 @@ export const updateTrip = async (
 
 export const deleteTrip = async (
   tripId: string,
-  userId: string,
 ): Promise<void> => {
-  return deleteData(`${tripsEndpoint}/${tripId}?userId=${userId}`)
+  return deleteData(`${tripsEndpoint}/${tripId}`)
 }
 
 export const addSpot = async (
   tripId: string,
-  userId: string,
   surfSpotId: number,
 ): Promise<string> => {
   return post<undefined, string>(
-    `${tripsEndpoint}/${tripId}/spots/${surfSpotId}?userId=${userId}`,
+    `${tripsEndpoint}/${tripId}/spots/${surfSpotId}`,
     undefined,
   )
 }
@@ -69,21 +64,17 @@ export const addSpot = async (
 export const removeSpot = async (
   tripId: string,
   tripSpotId: string,
-  userId: string,
 ): Promise<void> => {
-  return deleteData(
-    `${tripsEndpoint}/${tripId}/spots/${tripSpotId}?userId=${userId}`,
-  )
+  return deleteData(`${tripsEndpoint}/${tripId}/spots/${tripSpotId}`)
 }
 
 export const addMember = async (
   tripId: string,
-  userId: string,
   request: AddTripMemberRequest,
   options?: RequestInit,
 ): Promise<void> => {
   return post<AddTripMemberRequest, void>(
-    `${tripsEndpoint}/${tripId}/members?userId=${userId}`,
+    `${tripsEndpoint}/${tripId}/members`,
     request,
     options,
   )
@@ -92,42 +83,34 @@ export const addMember = async (
 export const removeMember = async (
   tripId: string,
   memberUserId: string,
-  currentUserId: string,
 ): Promise<void> => {
-  return deleteData(
-    `${tripsEndpoint}/${tripId}/members/${memberUserId}?currentUserId=${currentUserId}`,
-  )
+  return deleteData(`${tripsEndpoint}/${tripId}/members/${memberUserId}`)
 }
 
 export const cancelInvitation = async (
   tripId: string,
   invitationId: string,
-  userId: string,
 ): Promise<void> => {
-  return deleteData(
-    `${tripsEndpoint}/${tripId}/invitations/${invitationId}?userId=${userId}`,
-  )
+  return deleteData(`${tripsEndpoint}/${tripId}/invitations/${invitationId}`)
 }
 
 export const getUploadUrl = async (
   tripId: string,
-  userId: string,
   request: UploadMediaRequest,
   options?: RequestInit,
 ): Promise<UploadUrlResponse> => post<UploadMediaRequest, UploadUrlResponse>(
-    `${tripsEndpoint}/${tripId}/media/upload-url?userId=${userId}`,
+    `${tripsEndpoint}/${tripId}/media/upload-url`,
     request,
     options,
   )
 
 export const recordMedia = async (
   tripId: string,
-  userId: string,
   request: RecordMediaRequest,
   options?: RequestInit,
 ): Promise<void> => {
   return post<RecordMediaRequest, void>(
-    `${tripsEndpoint}/${tripId}/media?userId=${userId}`,
+    `${tripsEndpoint}/${tripId}/media`,
     request,
     options,
   )
@@ -136,20 +119,16 @@ export const recordMedia = async (
 export const deleteMedia = async (
   tripId: string,
   mediaId: string,
-  userId: string,
 ): Promise<void> => {
-  return deleteData(
-    `${tripsEndpoint}/${tripId}/media/${mediaId}?userId=${userId}`,
-  )
+  return deleteData(`${tripsEndpoint}/${tripId}/media/${mediaId}`)
 }
 
 export const addSurfboard = async (
   tripId: string,
   surfboardId: string,
-  userId: string,
 ): Promise<string> => {
   return post<undefined, string>(
-    `${tripsEndpoint}/${tripId}/surfboards/${surfboardId}?userId=${userId}`,
+    `${tripsEndpoint}/${tripId}/surfboards/${surfboardId}`,
     undefined,
   )
 }
@@ -157,9 +136,6 @@ export const addSurfboard = async (
 export const removeSurfboard = async (
   tripId: string,
   tripSurfboardId: string,
-  userId: string,
 ): Promise<void> => {
-  return deleteData(
-    `${tripsEndpoint}/${tripId}/surfboards/${tripSurfboardId}?userId=${userId}`,
-  )
+  return deleteData(`${tripsEndpoint}/${tripId}/surfboards/${tripSurfboardId}`)
 }

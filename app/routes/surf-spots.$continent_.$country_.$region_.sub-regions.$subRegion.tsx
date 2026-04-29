@@ -9,7 +9,6 @@ import {
 } from 'react-router'
 import { ContentStatus } from '~/components'
 import { cacheControlHeader, get, post } from '~/services/networkService'
-import { getSession } from '~/services/session.server'
 import type { SurfSpot, SubRegion, SurfSpotFilters } from '~/types/surfSpots'
 import { useSurfSpotsContext } from '~/contexts'
 
@@ -25,11 +24,8 @@ export const loader: LoaderFunction = async ({ request, params }) => {
   const searchParams = Object.fromEntries(url.searchParams.entries())
 
   try {
-    const session = await getSession(request.headers.get('Cookie'))
-    const user = session.get('user')
-    const userId = user?.id
-
-    const filters = { ...searchParams, userId }
+    const cookie = request.headers.get('Cookie') ?? ''
+    const filters = { ...searchParams }
 
     // Try to get sub-region details
     const subRegionDetails = await get<SubRegion>(`sub-regions/${subRegion}`)
@@ -38,6 +34,7 @@ export const loader: LoaderFunction = async ({ request, params }) => {
     const surfSpots = await post<typeof filters, SurfSpot[]>(
       `surf-spots/sub-region/${subRegion}`,
       { ...filters },
+      { headers: { Cookie: cookie } },
     )
 
     return data<LoaderData>(
