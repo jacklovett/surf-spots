@@ -697,6 +697,7 @@ export default function TripDetail() {
                           }}
                           iconKey="bin"
                           filled
+                          danger
                         />
                       )}
                     </div>

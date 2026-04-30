@@ -180,6 +180,7 @@ export const TripForm = ({
                     onClick={() => removeMemberField(index)}
                     iconKey="bin"
                     filled
+                    danger
                   />
                 )}
               </div>

@@ -55,6 +55,7 @@ const UrlLinkList = ({
             onClick={() => handleRemove(index)}
             iconKey="bin"
             filled
+            danger
           />
         </div>
       ))}
