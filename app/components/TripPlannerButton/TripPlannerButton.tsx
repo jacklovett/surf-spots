@@ -13,7 +13,7 @@ export const TripPlannerButton = (props: TripPlannerButtonProps) => {
       <FloatingButton
         iconKey="ai"
         onClick={onOpenTripPlanner}
-        ariaLabel="Open Trip Planner"
+        ariaLabel="Trip Planner, coming soon"
         size="large"
         loading={isLoading}
       />

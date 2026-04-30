@@ -9,11 +9,11 @@ export default function AboutUs() {
         <h2>The Story</h2>
         <p>
           I created Surf Spots as a passionate surfer who wanted a way to
-          keep track of the spots I have explored around the world, where I
-          have surfed, which countries and continents, and so on. I thought
-          there might be like-minded surfers out there, so as a solo
-          developer I built this platform to make it easier for everyone to
-          discover and enjoy surfing.
+          remember the spots I have explored around the world, where I have
+          surfed, which countries and continents, and so on. I thought there
+          might be like-minded surfers out there, so as a solo developer I
+          built this platform to make it easier for everyone to discover and
+          enjoy surfing.
         </p>
 
         <h2>Support the Project</h2>

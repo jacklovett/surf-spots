@@ -10,7 +10,7 @@ export const meta: MetaFunction = () => {
     {
       name: 'description',
       content:
-        "Map every surf spot you have surfed, discover new waves, plan trips with friends, manage your surfboards, and build your surf history. Track your journey and remember every session.",
+        'Map surf spots you have surfed, discover new waves, plan trips with friends, manage your quiver, and remember every session—all in one place.',
     },
   ]
 }
@@ -26,7 +26,7 @@ export const links: LinksFunction = () => [
 ]
 
 export default function Index() {
-  const trackFeaturesRef = useScrollReveal()
+  const historyFeaturesRef = useScrollReveal()
   const planFeaturesRef = useScrollReveal()
   const stepsRef = useScrollReveal()
 
@@ -63,16 +63,16 @@ export default function Index() {
           </div>
         </section>
 
-        {/* Track Your Journey Section */}
+        {/* Surf history & gear */}
         <section className="features">
           <div className="container">
             <div className="section-header">
-              <h2>Track Your Journey</h2>
-              <p>Build your personal collection of surfed spots</p>
+              <h2>Your Surf History</h2>
+              <p>Build your personal map of where you have surfed</p>
             </div>
 
             <div
-              ref={trackFeaturesRef as RefObject<HTMLDivElement>}
+              ref={historyFeaturesRef as RefObject<HTMLDivElement>}
               className="features-grid flex-center"
             >
               <div className="feature-card animate-on-scroll">
@@ -92,8 +92,8 @@ export default function Index() {
                 </div>
                 <h3>Stats</h3>
                 <p>
-                  How many spots? Which countries? What wave types? Track your
-                  surf journey.
+                  How many spots? Which countries? What wave types? See your
+                  progression at a glance.
                 </p>
               </div>
 
@@ -174,8 +174,8 @@ export default function Index() {
                 </div>
                 <h3>Trip Planner</h3>
                 <p>
-                  Plan your route between spots. Find the best order for your
-                  surfed spots, watch list, or trip destinations.
+                  Personalized ideas for where to surf next, based
+                  on your surfed spots, watch list, and sessions.
                 </p>
               </div>
             </div>
@@ -187,7 +187,7 @@ export default function Index() {
           <div className="container">
             <div className="section-header">
               <h2>Getting Started is Easy</h2>
-              <p>Start tracking in under a minute</p>
+              <p>Get started in under a minute</p>
             </div>
 
             <div ref={stepsRef as RefObject<HTMLDivElement>} className="steps">
@@ -202,10 +202,10 @@ export default function Index() {
 
               <div className="step animate-on-scroll">
                 <div className="step-number">2</div>
-                <h3>Track</h3>
+                <h3>Record</h3>
                 <p>
-                  Sign up free to record sessions, rate spots, and build your
-                  personal surf history.
+                  Sign up free to log sessions, rate spots, and grow your
+                  personal surf map.
                 </p>
               </div>
 
@@ -226,8 +226,8 @@ export default function Index() {
           <div className="container">
             <h2>Ready to Never Forget a Wave?</h2>
             <p>
-              Join surfers worldwide tracking their sessions and planning their
-              next adventure.
+              Join surfers worldwide logging sessions and planning their next
+              adventure.
             </p>
             <div className="cta-buttons">
               <NavButton

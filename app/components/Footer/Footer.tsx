@@ -52,7 +52,7 @@ export const Footer = ({ isAlternate }: IProps) => {
           <div className="footer-section">
             <h3>Surf Spots</h3>
             <p>
-              Track your surf journey, discover new spots, and plan your next
+              Build your surf history, discover new spots, and plan your next
               adventure.
             </p>
             <SocialLinks />

@@ -22,7 +22,7 @@ const faqSections: FaqSection[] = [
       {
         question: 'What is Surf Spots?',
         answer:
-          'Surf Spots is a surf planning and tracking app. You can discover spots, log sessions, manage your surfboards, and organize trips.',
+          'Surf Spots is for discovering spots, logging sessions, managing your surfboards, and organizing trips with friends.',
       },
       {
         question: 'Do I need an account to use Surf Spots?',
@@ -32,7 +32,7 @@ const faqSections: FaqSection[] = [
       {
         question: 'Can I book lessons, camps, or accommodation in Surf Spots?',
         answer:
-          'No. Surf Spots currently focuses on discovery, planning, and tracking rather than in-app booking and checkout.',
+          'No. Surf Spots focuses on discovery and planning your own trips—not booking lessons, camps, or stays in the app.',
       },
       {
         question: 'How is Surf Spots different from a forecast app?',
@@ -48,7 +48,7 @@ const faqSections: FaqSection[] = [
       {
         question: 'Does Surf Spots provide live forecast data?',
         answer:
-          'Not currently. Use Surf Spots for planning and tracking, and use your preferred forecast tools for live conditions before a session.',
+          'Not currently. Use Surf Spots for your surf map, sessions, and trips, and use your preferred forecast tools for live conditions before a session.',
       },
       {
         question: 'Can I rely on Surf Spots alone for safety decisions?',
@@ -89,7 +89,7 @@ const faqSections: FaqSection[] = [
       {
         question: 'Is Trip Planner available?',
         answer:
-          'Trip Planner is currently marked as coming soon. You can still use Trips, Sessions, and Watch List for planning today.',
+          'Trip Planner is coming soon: personalized ideas for where to surf next. You can plan real trips today with Trips, Sessions, and Watch List.',
       },
     ],
   },

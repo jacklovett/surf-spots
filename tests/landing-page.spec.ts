@@ -36,7 +36,7 @@ test.describe('Landing Page', () => {
     // Check key sections by structure, not exact copy
     await expect(page.locator('section.features').first()).toBeVisible()
 
-    // Check if feature cards are present (8 total: 4 in Track section, 4 in Plan section)
+    // Check if feature cards are present (8 total: 4 history/gear, 4 planning)
     const featureCards = page.locator('.feature-card')
     await expect(featureCards).toHaveCount(8)
 

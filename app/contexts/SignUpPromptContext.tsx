@@ -59,7 +59,7 @@ export const SignUpPromptProvider = ({
         }
       case 'surfed-spots':
         return {
-          title: 'Sign Up to Track Your Surfed Spots',
+          title: 'Sign Up to Save Your Surfed Spots',
           content: (
             <>
               <p>
@@ -68,7 +68,7 @@ export const SignUpPromptProvider = ({
               </p>
               <ul className="benefits-list">
                 <li>Capture every spot you have surfed.</li>
-                <li>Track your exploration across the globe.</li>
+                <li>See your exploration on the map.</li>
                 <li>Discover your favorite wave types and breaks.</li>
                 <li>Share your journey with others.</li>
               </ul>
@@ -126,13 +126,13 @@ export const SignUpPromptProvider = ({
         }
       case 'sessions':
         return {
-          title: 'Sign Up to Track Your Sessions',
+          title: 'Sign Up to Log Your Sessions',
           content: (
             <>
               <p>Save every surf session and build your personal timeline.</p>
               <ul className="benefits-list">
                 <li>See all your sessions in one place</li>
-                <li>Track wave quality and crowd patterns</li>
+                <li>Note wave quality and how crowded it was</li>
                 <li>Remember the board you rode</li>
                 <li>Build a clean history of your progression</li>
               </ul>

@@ -68,7 +68,7 @@ export default function TripPlanner() {
             <p className="mb font-small">
               Be among the first to try the trip planner. Create an account to join
               the waitlist and start adding your surfed spots and watch list. The
-              more you track, the better your recommendations when it launches.
+              more you save, the better your recommendations when it launches.
             </p>
             <div className="mb column center-vertical gap">
               <Button

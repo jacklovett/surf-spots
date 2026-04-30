@@ -37,7 +37,7 @@ test.describe('Global Functionality', () => {
   test('should have proper page structure', async ({ page }) => {
     // Test that pages load correctly and have basic structure
     const routes = [
-      { path: '/', expectedContent: 'Track Your Surf Journey' },
+      { path: '/', expectedContent: 'Never Forget a Wave' },
       { path: '/auth', expectedContent: 'Sign In' },
       { path: '/surf-spots', expectedContent: 'Map' },
       { path: '/about-us', expectedContent: 'About' },

@@ -217,7 +217,7 @@ export default function Sessions() {
             <SessionsHowToSection />
             <EmptyState
               title="No sessions yet"
-              description="Add a session from any surf spot to track conditions and how it went for you."
+              description="Add a session from any surf spot to save conditions and how it went for you."
               ctaText="Explore Surf Spots"
               onCtaClick={() => navigate('/surf-spots')}
             />
