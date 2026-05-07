@@ -106,30 +106,32 @@ export const MediaGallery = ({
                   />
                 )}
 
-                {!previewMediaLoaded && <SkeletonLoader />}
-                {isVideoMediaItem(previewItem) ? (
-                  <video
-                    src={previewItem.url}
-                    controls
-                    autoPlay={false}
-                    muted={false}
-                    playsInline
-                    preload="metadata"
-                    className={classNames('image-preview-full', {
-                      'image-media-loading': !previewMediaLoaded,
-                    })}
-                    onLoadedData={markFullPreviewLoaded}
-                  />
-                ) : (
-                  <img
-                    src={previewItem.url}
-                    alt={previewItem.alt || altText}
-                    className={classNames('image-preview-full', {
-                      'image-media-loading': !previewMediaLoaded,
-                    })}
-                    onLoad={markFullPreviewLoaded}
-                  />
-                )}
+                <div className="media-lightbox-media-wrap">
+                  {!previewMediaLoaded && <SkeletonLoader />}
+                  {isVideoMediaItem(previewItem) ? (
+                    <video
+                      src={previewItem.url}
+                      controls
+                      autoPlay={false}
+                      muted={false}
+                      playsInline
+                      preload="metadata"
+                      className={classNames('image-preview-full', {
+                        'image-media-loading': !previewMediaLoaded,
+                      })}
+                      onLoadedData={markFullPreviewLoaded}
+                    />
+                  ) : (
+                    <img
+                      src={previewItem.url}
+                      alt={previewItem.alt || altText}
+                      className={classNames('image-preview-full', {
+                        'image-media-loading': !previewMediaLoaded,
+                      })}
+                      onLoad={markFullPreviewLoaded}
+                    />
+                  )}
+                </div>
 
                 {list.length > 1 && (
                   <Button
