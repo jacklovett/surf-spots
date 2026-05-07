@@ -98,7 +98,12 @@ export const useMediaGallery = (items: MediaItem[] | undefined) => {
   }, [])
 
   const markThumbnailLoaded = useCallback((id: string) => {
-    setThumbnailLoadedState((prev) => ({ ...prev, [id]: true }))
+    setThumbnailLoadedState((prev) => {
+      if (prev[id]) {
+        return prev
+      }
+      return { ...prev, [id]: true }
+    })
   }, [])
 
   const markFullPreviewLoaded = useCallback(() => {

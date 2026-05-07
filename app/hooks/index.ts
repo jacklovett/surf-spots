@@ -33,3 +33,4 @@ export {
 }
 
 export { useMediaGallery, isVideoMediaItem } from './useMediaGallery'
+export { useGalleryThumbnailSlots } from './useGalleryThumbnailSlots'

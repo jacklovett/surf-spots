@@ -1,13 +1,15 @@
 .image-gallery {
+  // --gallery-column-count and --gallery-min-track-px are set from MediaGallery.tsx (layout measurement).
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
   gap: $spacing-small;
+  grid-auto-rows: auto;
+  grid-auto-flow: row;
+  grid-template-columns: repeat(
+    var(--gallery-column-count, 1),
+    minmax(var(--gallery-min-track-px, 120px), 1fr)
+  );
   margin-top: $spacing-unit;
   margin-bottom: $spacing-unit;
-
-  @media (max-width: 768px) {
-    grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
-  }
 
   .image-thumbnail {
     position: relative;
@@ -35,6 +37,52 @@
     .image-media-loading {
       opacity: 0;
     }
+  }
+
+  .image-gallery-overflow {
+    cursor: pointer;
+
+    img,
+    video {
+      display: block;
+    }
+
+    &:hover .image-gallery-overflow-scrim {
+      background: rgba(0, 0, 0, 0.72);
+    }
+
+    &:focus-visible {
+      outline: 2px solid rgba(255, 255, 255, 0.9);
+      outline-offset: 2px;
+    }
+
+    &:active .image-gallery-overflow-scrim {
+      background: rgba(0, 0, 0, 0.78);
+    }
+  }
+
+  .image-gallery-overflow-scrim {
+    @extend %flex-center;
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    border-radius: inherit;
+    background: rgba(0, 0, 0, 0.58);
+    backdrop-filter: blur(1px);
+    transition: background-color 0.2s ease;
+    pointer-events: none;
+  }
+
+  .image-gallery-overflow-label {
+    position: relative;
+    z-index: 1;
+    font-size: $font-size-x-large;
+    font-weight: 600;
+    color: $white;
+    line-height: 1;
+    letter-spacing: 0.02em;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.55);
+    user-select: none;
   }
 }
 
