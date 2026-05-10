@@ -50,18 +50,9 @@ export const MediaGallery = ({
   const { ref: galleryGridRef, slotsPerRow, minCellPx } =
     useGalleryThumbnailSlots(items.length)
 
-  const handleDeleteFromPreview = async () => {
-    if (!gallery.previewItem || !onDelete) return
-    await onDelete(gallery.previewItem)
-    gallery.closePreview()
-  }
-
-  if (gallery.isEmpty) {
-    return null
-  }
-
   const {
     list,
+    isEmpty,
     thumbnailLoadedState,
     markThumbnailLoaded,
     previewIndex,
@@ -73,6 +64,12 @@ export const MediaGallery = ({
     showNext,
     openPreviewAt,
   } = gallery
+
+  const handleDeleteFromPreview = async () => {
+    if (!gallery.previewItem || !onDelete) return
+    await onDelete(gallery.previewItem)
+    gallery.closePreview()
+  }
 
   const singleColumnOverflow = slotsPerRow === 1 && list.length > 1
   const multiColumnOverflow = slotsPerRow > 1 && list.length > slotsPerRow
@@ -102,13 +99,18 @@ export const MediaGallery = ({
     openPreviewAt(singleColumnOverflow ? 0 : visibleThumbCount)
 
   useEffect(() => {
+    if (isEmpty) return
     const gridRoot = galleryGridRef.current
     if (!gridRoot) {
       return
     }
     gridRoot.style.setProperty('--gallery-column-count', String(columnCount))
     gridRoot.style.setProperty('--gallery-min-track-px', `${minCellPx}px`)
-  }, [columnCount, minCellPx])
+  }, [isEmpty, columnCount, minCellPx])
+
+  if (isEmpty) {
+    return null
+  }
 
   return (
     <>
