@@ -52,7 +52,7 @@
   @extend %flex-column;
   position: absolute;
   top: calc(100% + $spacing-small);
-  z-index: 10000;
+  z-index: $z-index-dropdown;
   background: $white;
   border: 1px solid $outline-color;
   border-radius: $content-border-radius;

@@ -42,10 +42,20 @@
   right: $spacing-small;
   background: none;
   border: none;
+  border-radius: $form-border-radius;
   cursor: pointer;
   padding: $spacing-small;
   color: $text-secondary;
   transition: color 0.2s ease;
+
+  &:focus {
+    outline: none;
+  }
+
+  &:focus-visible {
+    outline: 2px solid $focus-color;
+    outline-offset: 2px;
+  }
 
   &:hover:not(:disabled) {
     color: $primary-color;
@@ -66,7 +76,7 @@
   position: absolute;
   top: calc(100% + $spacing-small);
   left: 0;
-  z-index: 1000;
+  z-index: $z-index-dropdown;
   background: $white;
   border: 1px solid $outline-color;
   border-radius: $content-border-radius;

@@ -169,9 +169,13 @@ export const SessionLogRow = (props: SessionLogRowProps) => {
 
   return (
     <article
-      className={classNames('accordion-card', {
+      className={classNames(
+        'accordion-card',
+        'session-log-accordion-card',
+        {
         'accordion-card-expanded': expanded,
-      })}
+        },
+      )}
     >
       <div className="accordion-card-row">
         <div className="accordion-card-top">

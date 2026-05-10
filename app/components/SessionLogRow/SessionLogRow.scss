@@ -1,3 +1,16 @@
+.accordion-card.session-log-accordion-card {
+  // Allow kebab dropdown to paint outside the card.
+  overflow: visible;
+  
+  .accordion-card-row {
+    border-radius: $content-border-radius;
+  }
+
+  &.accordion-card-expanded .accordion-card-row {
+    border-radius: $content-border-radius $content-border-radius 0 0;
+  }
+}
+
 .session-log-card-spot {
   font-size: $font-size-base;
   font-weight: 600;
@@ -237,6 +250,7 @@
 
 .session-log-card-media-reveal-inner {
   overflow: hidden;
+  min-width: 0;
   transform: translateY(-4px);
   transition: transform 0.26s ease;
 }
