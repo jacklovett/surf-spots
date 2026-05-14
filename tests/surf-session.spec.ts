@@ -8,9 +8,10 @@ import { login } from './utils/auth-helper'
  */
 
 /**
- * Creates one surf session via the first spot in Boumerdes. Returns false if the region has no spots.
+ * From Boumerdes region list: open first spot, ensure surfed, open Add session form.
+ * Returns false if the region has no spots.
  */
-const createSurfSessionIfPossible = async (page: Page): Promise<boolean> => {
+const navigateToAddSessionForm = async (page: Page): Promise<boolean> => {
   await page.goto('/surf-spots/africa/algeria/boumerdes')
   await page.waitForLoadState('networkidle')
 
@@ -47,6 +48,8 @@ const createSurfSessionIfPossible = async (page: Page): Promise<boolean> => {
     timeout: 15000,
   })
 
+  await expect(page.getByRole('heading', { name: /Add session at/i })).not.toBeVisible()
+
   await openMenu()
   await page.locator('.dropdown-menu').waitFor({ state: 'visible', timeout: 5000 })
   await page.getByRole('button', { name: 'Add session' }).click()
@@ -57,7 +60,10 @@ const createSurfSessionIfPossible = async (page: Page): Promise<boolean> => {
   })
 
   await expect(page.locator('input[name="sessionDate"]')).toHaveValue(/\d{4}-\d{2}-\d{2}/)
+  return true
+}
 
+const fillRequiredSurfSessionFields = async (page: Page) => {
   const skillLevelSelect = page.locator('select[name="skillLevel"]')
   if (await skillLevelSelect.isVisible()) {
     await skillLevelSelect.selectOption('INTERMEDIATE')
@@ -80,6 +86,18 @@ const createSurfSessionIfPossible = async (page: Page): Promise<boolean> => {
   await page
     .getByRole('checkbox', { name: /Would surf again in similar conditions/i })
     .check()
+}
+
+/**
+ * Creates one surf session via the first spot in Boumerdes. Returns false if the region has no spots.
+ */
+const createSurfSessionIfPossible = async (page: Page): Promise<boolean> => {
+  const navigated = await navigateToAddSessionForm(page)
+  if (!navigated) {
+    return false
+  }
+
+  await fillRequiredSurfSessionFields(page)
 
   await page.getByRole('button', { name: 'Save session' }).click()
 
@@ -98,79 +116,15 @@ test.describe('Surf session page', () => {
   test('should add to surfed spots without opening session form, then open surf session from actions', async ({
     page,
   }) => {
-    await page.goto('/surf-spots/africa/algeria/boumerdes')
-    await page.waitForLoadState('networkidle')
-
-    const firstSpot = page.locator('.surf-spots .list-map a').first()
-    if (!(await firstSpot.isVisible().catch(() => false))) {
+    const navigated = await navigateToAddSessionForm(page)
+    if (!navigated) {
       test.skip(true, 'No surf spots in region (backend has no spots for this region)')
       return
     }
 
-    await firstSpot.click()
-    await page.waitForLoadState('networkidle')
-
-    const openMenu = () =>
-      page.locator('.actions .dropdown-menu-trigger').first().click()
-
-    await openMenu()
-    await page.locator('.dropdown-menu').waitFor({ state: 'visible', timeout: 5000 })
-
-    const removeBtn = page.getByRole('button', { name: 'Remove from surfed spots' })
-    const addBtn = page.getByRole('button', { name: 'Add to surfed spots' })
-
-    if (await removeBtn.isVisible()) {
-      await removeBtn.click()
-      await expect(addBtn).toBeVisible({ timeout: 15000 })
-    }
-
-    if (!(await addBtn.isVisible())) {
-      await openMenu()
-      await page.locator('.dropdown-menu').waitFor({ state: 'visible', timeout: 5000 })
-    }
-
-    await addBtn.click()
-
-    await expect(page.locator('.toast.toast--success')).toContainText(/Added to your surfed spots/i, {
-      timeout: 15000,
-    })
-
-    await expect(page.getByRole('heading', { name: /Add session at/i })).not.toBeVisible()
-
-    await openMenu()
-    await page.locator('.dropdown-menu').waitFor({ state: 'visible', timeout: 5000 })
-    await page.getByRole('button', { name: 'Add session' }).click()
-
-    await expect(page).toHaveURL(/\/surf-spots\/.+\/session\/?$/, { timeout: 15000 })
-    await expect(page.getByRole('heading', { name: /Add session at/i })).toBeVisible({
-      timeout: 10000,
-    })
     await expect(page.getByRole('button', { name: 'Cancel' })).toBeVisible()
 
-    await expect(page.locator('input[name="sessionDate"]')).toHaveValue(/\d{4}-\d{2}-\d{2}/)
-
-    const skillLevelSelect = page.locator('select[name="skillLevel"]')
-    if (await skillLevelSelect.isVisible()) {
-      await skillLevelSelect.selectOption('INTERMEDIATE')
-    }
-
-    const directionWrappers = page.locator('.direction-selector-wrapper')
-    await directionWrappers
-      .nth(0)
-      .getByRole('button', { name: 'Select N direction' })
-      .click()
-    await directionWrappers
-      .nth(1)
-      .getByRole('button', { name: 'Select SW direction' })
-      .click()
-
-    await page.locator('select[name="tide"]').selectOption('Mid')
-    await page.locator('select[name="waveSize"]').selectOption('SMALL')
-    await page.locator('select[name="crowdLevel"]').selectOption('FEW')
-    await page.locator('select[name="waveQuality"]').selectOption('FUN')
-    await page
-      .getByRole('checkbox', { name: /Would surf again in similar conditions/i })
-      .check()
+    await fillRequiredSurfSessionFields(page)
 
     await page.getByRole('button', { name: 'Save session' }).click()
 
@@ -178,6 +132,56 @@ test.describe('Surf session page', () => {
       timeout: 20000,
     })
     await page.getByRole('button', { name: 'Close' }).click()
+  })
+
+  test('should set session window times, show duration preview, and show timing on My sessions', async ({
+    page,
+  }) => {
+    const navigated = await navigateToAddSessionForm(page)
+    if (!navigated) {
+      test.skip(true, 'No surf spots in region (backend has no spots for this region)')
+      return
+    }
+
+    const spotHeading = page.getByRole('heading', { level: 1 })
+    const spotTitle =
+      (await spotHeading.textContent())?.replace(/^Add session at\s+/i, '').trim() ?? ''
+    expect(spotTitle.length).toBeGreaterThan(0)
+
+    const startField = page.getByRole('textbox', { name: 'Start time' })
+    await startField.click()
+    await startField.pressSequentially('0930')
+
+    const endField = page.getByRole('textbox', { name: 'End time' })
+    await endField.click()
+    await endField.pressSequentially('1100')
+
+    await expect(page.locator('input[name="sessionStartTime"]')).toHaveValue('09:30')
+    await expect(page.locator('input[name="sessionEndTime"]')).toHaveValue('11:00')
+    await expect(page.locator('.surf-session-duration-preview-value')).toHaveText('1h 30m')
+
+    await fillRequiredSurfSessionFields(page)
+
+    await page.getByRole('button', { name: 'Save session' }).click()
+
+    await expect(page.getByText(/Session saved/i)).toBeVisible({
+      timeout: 20000,
+    })
+    await page.getByRole('button', { name: 'Close' }).click()
+
+    await page.goto('/sessions')
+    await page.waitForLoadState('networkidle')
+    await expect(page.getByRole('heading', { name: /My sessions/i })).toBeVisible()
+
+    const meta = page
+      .locator('.accordion-card')
+      .filter({ hasText: spotTitle })
+      .locator('.session-log-card-meta')
+      .first()
+    await expect(meta).toBeVisible({ timeout: 15000 })
+    const metaText = await meta.innerText()
+    expect(metaText).toMatch(/\d/)
+    expect(metaText).toMatch(/\u2013|\u2014|-/)
   })
 })
 

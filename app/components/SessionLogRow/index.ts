@@ -1,1 +1,3 @@
-export { SessionLogRow } from './SessionLogRow'
+import { SessionLogRow } from './SessionLogRow'
+
+export default SessionLogRow

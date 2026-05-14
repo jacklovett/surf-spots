@@ -33,6 +33,7 @@ import NavButton from './NavButton'
 import SurfSpotList from './SurfSpotList'
 import SurfSpotPreview from './SurfSpotPreview'
 import TextButton from './TextButton'
+import TimeInput from './TimeInput'
 import Breadcrumb from './Breadcrumb'
 import SurfMap, { AddSurfSpotMap } from './SurfMap'
 import SkeletonLoader from './SkeletonLoader'
@@ -62,7 +63,7 @@ import TripSelectionModal from './TripSelectionModal'
 import SelectionModal from './SelectionModal'
 import SafeLink from './SafeLink'
 import SurfSessionForm from './SurfSessionForm'
-import { SessionLogRow } from './SessionLogRow'
+import SessionLogRow from './SessionLogRow'
 
 export {
   Accordion,
@@ -119,6 +120,7 @@ export {
   SurfSpotList,
   TextButton,
   TideIcon,
+  TimeInput,
   ToastContainer,
   Toolbar,
   TripForm,

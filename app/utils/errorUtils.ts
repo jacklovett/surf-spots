@@ -64,6 +64,20 @@ export const ERROR_LOGIN_REQUIRED_ADD_SURFBOARD =
 export const ERROR_SAVE_NOTE = 'Failed to save note. Please try again.'
 export const ERROR_SAVE_SURF_SESSION =
   'Could not save your session. Please try again.'
+/** Client + ApiErrors.SESSION_END_TIME_REQUIRES_START */
+export const SESSION_TIMING_END_REQUIRES_START =
+  'Pick a start time first, then an end time.'
+/** Client + ApiErrors.SESSION_END_BEFORE_START */
+export const SESSION_TIMING_END_BEFORE_START =
+  'End time needs to be later than start time.'
+/** Client + ApiErrors.SESSION_DURATION_MINUTES_INVALID (same-day window) */
+export const SESSION_TIMING_WINDOW_TOO_LONG =
+  'That session window is too long (maximum 24 hours).'
+/** Add session form: wall clock is not a valid time of day */
+export const SESSION_TIMING_INVALID_START_TIME =
+  'Enter a valid start time (hour 00–23, minute 00–59).'
+export const SESSION_TIMING_INVALID_END_TIME =
+  'Enter a valid end time (hour 00–23, minute 00–59).'
 /** Add session form: user has no profile skill and did not choose one on the form. */
 export const ERROR_SESSION_SKILL_LEVEL_REQUIRED =
   'Select your skill level before saving this session.'

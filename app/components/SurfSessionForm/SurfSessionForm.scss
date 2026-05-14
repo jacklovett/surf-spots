@@ -10,4 +10,26 @@
     font-size: $font-size-large;
     color: $text-heading;
   }
+
+  .surf-session-timing-inline {
+    margin: $spacing-small 0 0;
+    font-size: $font-size-small;
+    line-height: 1.4;
+  }
+
+  .surf-session-duration-preview {
+    margin: $spacing-small 0 0;
+    font-size: $font-size-small;
+    line-height: 1.4;
+  }
+
+  .surf-session-duration-preview-label {
+    font-weight: 600;
+    color: $text-secondary;
+  }
+
+  .surf-session-duration-preview-value {
+    font-variant-numeric: tabular-nums;
+    letter-spacing: 0.02em;
+  }
 }

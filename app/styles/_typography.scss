@@ -74,7 +74,7 @@ p {
   font-size: $font-size-base;
 }
 
-a {
+a:not(.button) {
   color: $primary-color;
   text-decoration: underline;
 

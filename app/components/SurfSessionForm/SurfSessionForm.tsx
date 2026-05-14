@@ -6,7 +6,7 @@ import {
   useRef,
   useState,
 } from 'react'
-import { useFetcher, useNavigate } from 'react-router'
+import { useFetcher, useNavigate, useNavigation } from 'react-router'
 
 import {
   Button,
@@ -17,6 +17,7 @@ import {
   FormComponent,
   FormInput,
   Icon,
+  TimeInput,
 } from '~/components'
 import { FormField, InputElementType } from '~/components/FormInput'
 import { ActionData } from '~/types/api'
@@ -28,12 +29,20 @@ import {
   SURF_SESSION_WAVE_QUALITY_FIELD,
   SURF_SESSION_WAVE_SIZE_FIELD,
 } from '~/types/formData/surfSessionForm'
-import { formatDateForInput } from '~/utils/dateUtils'
+import {
+  formatDateForInput,
+  formatDurationCompact,
+  sessionWindowMinutesFromTimeInputs,
+} from '~/utils/dateUtils'
 import {
   ERROR_SAVE_SURF_SESSION,
   getFetcherSubmitStatus,
   SUCCESS_SURF_SESSION_SAVED,
 } from '~/utils/errorUtils'
+import {
+  isSurfSessionTimingBannerMessage,
+  validateSurfSessionTimeWindow,
+} from '~/utils/surfSessionTimingValidation'
 import {
   BASE_SKILL_LEVEL_OPTIONS,
   SELECT_OPTION,
@@ -62,6 +71,10 @@ export const SurfSessionForm = (props: SurfSessionFormProps) => {
     onCancel,
   } = props
   const navigate = useNavigate()
+  const navigation = useNavigation()
+  const [successCtaPending, setSuccessCtaPending] = useState<
+    'sessions' | 'spot' | null
+  >(null)
   const [showSuccessScreen, setShowSuccessScreen] = useState(false)
   const [sessionDate, setSessionDate] = useState(() =>
     formatDateForInput(new Date()),
@@ -76,6 +89,8 @@ export const SurfSessionForm = (props: SurfSessionFormProps) => {
   const [wouldSurfAgain, setWouldSurfAgain] = useState(false)
   const [surfboardId, setSurfboardId] = useState('')
   const [sessionNotes, setSessionNotes] = useState('')
+  const [sessionStartTime, setSessionStartTime] = useState('')
+  const [sessionEndTime, setSessionEndTime] = useState('')
   const lastProcessedFetcherDataRef = useRef<typeof fetcher.data>(undefined)
 
   const boardField: FormField = useMemo(
@@ -83,18 +98,55 @@ export const SurfSessionForm = (props: SurfSessionFormProps) => {
     [surfboards],
   )
 
+  const sessionTimingError = useMemo(
+    () => validateSurfSessionTimeWindow(sessionStartTime, sessionEndTime),
+    [sessionStartTime, sessionEndTime],
+  )
+
+  const sessionWindowPreview = useMemo(() => {
+    if (sessionTimingError != null) {
+      return null
+    }
+
+    const mins = sessionWindowMinutesFromTimeInputs(
+      sessionStartTime,
+      sessionEndTime,
+    )
+
+    if (mins == null) {
+      return null
+    }
+
+    return formatDurationCompact(mins)
+  }, [sessionTimingError, sessionStartTime, sessionEndTime])
+
   const fetcherSubmitStatus = getFetcherSubmitStatus(
     fetcher.data,
     ERROR_SAVE_SURF_SESSION,
   )
   const formSubmitStatus =
-    fetcherSubmitStatus != null && fetcherSubmitStatus.isError
+    fetcherSubmitStatus != null &&
+    fetcherSubmitStatus.isError &&
+    !isSurfSessionTimingBannerMessage(fetcherSubmitStatus.message)
       ? fetcherSubmitStatus
       : null
 
+  const fetcherReturnedSaveSuccess =
+    fetcher.state === 'idle' &&
+    fetcher.data != null &&
+    !!fetcher.data.success &&
+    !fetcher.data.hasError
+
+  const keepSubmitBusyUntilSuccessUi =
+    fetcherReturnedSaveSuccess && !showSuccessScreen
+
   const isFormValid = useMemo(() => {
-    return !!sessionDate && (!requiresSkillLevel || !!skillLevel)
-  }, [sessionDate, requiresSkillLevel, skillLevel])
+    return (
+      !!sessionDate &&
+      (!requiresSkillLevel || !!skillLevel) &&
+      sessionTimingError == null
+    )
+  }, [sessionDate, requiresSkillLevel, skillLevel, sessionTimingError])
 
   const resetFields = useCallback(() => {
     setSessionDate(formatDateForInput(new Date()))
@@ -108,11 +160,14 @@ export const SurfSessionForm = (props: SurfSessionFormProps) => {
     setWouldSurfAgain(false)
     setSurfboardId('')
     setSessionNotes('')
+    setSessionStartTime('')
+    setSessionEndTime('')
   }, [])
 
   const handleFormCancel = useCallback(() => {
     resetFields()
     setShowSuccessScreen(false)
+    setSuccessCtaPending(null)
     lastProcessedFetcherDataRef.current = undefined
     onCancel()
   }, [onCancel, resetFields])
@@ -120,8 +175,15 @@ export const SurfSessionForm = (props: SurfSessionFormProps) => {
   useEffect(() => {
     resetFields()
     setShowSuccessScreen(false)
+    setSuccessCtaPending(null)
     lastProcessedFetcherDataRef.current = undefined
   }, [surfSpotId, resetFields])
+
+  useEffect(() => {
+    if (navigation.state === 'idle') {
+      setSuccessCtaPending(null)
+    }
+  }, [navigation.state])
 
   useEffect(() => {
     if (fetcher.state !== 'idle') return
@@ -139,8 +201,8 @@ export const SurfSessionForm = (props: SurfSessionFormProps) => {
 
   return (
     <div
-      className={`info-page-content surf-session-page${
-        showSuccessScreen ? ' surf-spot-form-success-page' : ''
+      className={`info-page-content surf-session-page ${
+        showSuccessScreen ? 'surf-spot-form-success-page' : ''
       }`}
     >
       <h1>Add session at {surfSpotName}</h1>
@@ -161,13 +223,23 @@ export const SurfSessionForm = (props: SurfSessionFormProps) => {
                 <Button
                   label="Sessions"
                   type="button"
-                  onClick={() => navigate('/sessions')}
+                  loading={successCtaPending === 'sessions'}
+                  disabled={successCtaPending === 'spot'}
+                  onClick={() => {
+                    setSuccessCtaPending('sessions')
+                    navigate('/sessions')
+                  }}
                 />
                 <Button
                   label="View spot"
                   type="button"
                   variant="secondary"
-                  onClick={() => onCancel()}
+                  loading={successCtaPending === 'spot'}
+                  disabled={successCtaPending === 'sessions'}
+                  onClick={() => {
+                    setSuccessCtaPending('spot')
+                    onCancel()
+                  }}
                 />
               </div>
             </div>
@@ -183,6 +255,11 @@ export const SurfSessionForm = (props: SurfSessionFormProps) => {
           submitStatus={formSubmitStatus}
           isDisabled={!isFormValid}
           onCancel={handleFormCancel}
+          isSubmitting={
+            fetcher.state === 'submitting' ||
+            fetcher.state === 'loading' ||
+            keepSubmitBusyUntilSuccessUi
+          }
         >
           <>
             <input type="hidden" name="intent" value="saveSurfSession" />
@@ -216,6 +293,44 @@ export const SurfSessionForm = (props: SurfSessionFormProps) => {
                   showLabel
                 />
               </div>
+              <h2 className="surf-session-section-title">Session window (optional)</h2>
+              <div className="surf-session-time-fields form-inline">
+                <TimeInput
+                  label="Start time"
+                  name="sessionStartTime"
+                  value={sessionStartTime}
+                  onChange={(event) => setSessionStartTime(event.target.value)}
+                  showLabel
+                />
+                <TimeInput
+                  label="End time"
+                  name="sessionEndTime"
+                  value={sessionEndTime}
+                  onChange={(event) => setSessionEndTime(event.target.value)}
+                  showLabel
+                />
+              </div>
+              {sessionTimingError != null && (
+                <p
+                  className="surf-session-timing-inline form-error"
+                  role="alert"
+                >
+                  {sessionTimingError}
+                </p>
+              )}
+              {sessionWindowPreview != null && (
+                <p
+                  className="surf-session-duration-preview text-secondary"
+                  aria-live="polite"
+                >
+                  <span className="surf-session-duration-preview-label">
+                    Duration
+                  </span>{' '}
+                  <span className="surf-session-duration-preview-value">
+                    {sessionWindowPreview}
+                  </span>
+                </p>
+              )}
               <h2 className="surf-session-section-title">Conditions</h2>
               <DirectionSelectors
                 swellDirectionArray={swellDirectionArray}

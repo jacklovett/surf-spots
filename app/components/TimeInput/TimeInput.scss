@@ -1,0 +1,195 @@
+@use 'sass:color';
+
+.time-input-wrapper {
+  position: relative;
+
+  &.time-input-wrapper-open {
+    z-index: $z-index-dropdown;
+  }
+}
+
+.time-input-container {
+  @extend %flex-base;
+  align-items: center;
+  position: relative;
+}
+
+.time-input {
+  width: 100%;
+  border: 1px solid $outline-color;
+  border-radius: $form-border-radius;
+  padding: $spacing-small;
+  padding-right: 40px;
+  font-size: $font-size-base;
+  line-height: 1.5;
+  box-sizing: border-box;
+  height: $form-input-height;
+  cursor: text;
+  background-color: $background-color;
+  color: $text-color;
+  font-variant-numeric: tabular-nums;
+
+  &::placeholder {
+    color: $text-secondary;
+    opacity: 1;
+  }
+
+  &:focus {
+    border-color: $focus-color;
+    box-shadow: 0 0 4px rgba(0, 119, 182, 0.5);
+    outline: none;
+  }
+
+  &:disabled {
+    background: $disabled-color;
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+}
+
+.time-input-clock {
+  @extend %flex-center;
+  position: absolute;
+  right: $spacing-small;
+  top: 50%;
+  transform: translateY(-50%);
+  cursor: pointer;
+  color: $text-secondary;
+  line-height: 0;
+
+  .time-input-container:has(.time-input:disabled) & {
+    cursor: not-allowed;
+    pointer-events: none;
+  }
+
+  svg {
+    display: block;
+    width: 18px;
+    height: 18px;
+  }
+}
+
+.time-picker-panel {
+  position: absolute;
+  top: calc(100% + $spacing-small);
+  left: 0;
+  z-index: $z-index-dropdown;
+  background: $white;
+  border: 1px solid $outline-color;
+  border-radius: $content-border-radius;
+  box-shadow: $box-shadow;
+  padding: $spacing-unit;
+  width: 300px;
+  box-sizing: border-box;
+  transform-origin: top center;
+  animation: time-picker-panel-in 0.16s ease-out;
+}
+
+@keyframes time-picker-panel-in {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .time-picker-panel {
+    animation: none;
+  }
+}
+
+.time-picker-panel-header {
+  @extend %flex-base;
+  gap: $spacing-unit;
+  margin-bottom: $spacing-small;
+}
+
+.time-picker-column-label {
+  flex: 1;
+  text-align: center;
+}
+
+.time-picker-columns {
+  @extend %flex-base;
+  align-items: stretch;
+  gap: $spacing-unit;
+}
+
+.time-picker-column {
+  flex: 1;
+  min-width: 0;
+  max-height: 200px;
+  overflow-y: auto;
+  padding: 2px;
+  scroll-snap-type: y mandatory;
+  scroll-behavior: auto;
+  overscroll-behavior: contain;
+  border: 1px solid $border-light;
+  border-radius: $form-border-radius;
+  background: $background-light;
+  @include vertical-scrollbar;
+
+  &:focus {
+    outline: none;
+  }
+
+  &:focus-visible {
+    outline: 2px solid $focus-color;
+    outline-offset: 2px;
+    border-color: color.adjust($outline-color, $lightness: -8%);
+  }
+}
+
+.time-picker-option {
+  @extend %flex-center;
+  flex-shrink: 0;
+  width: 100%;
+  height: 34px;
+  min-height: 34px;
+  margin: 0;
+  padding: 0 $spacing-small;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  font-size: $font-size-base;
+  font-variant-numeric: tabular-nums;
+  color: $text-color;
+  border-radius: $form-border-radius;
+  scroll-snap-align: center;
+  transition:
+    background-color 0.15s ease,
+    color 0.15s ease;
+
+  &:hover:not(.selected) {
+    background-color: $background-color;
+  }
+
+  &.selected {
+    background-color: $primary-color;
+    color: $white;
+
+    &:hover {
+      background-color: color.adjust($primary-color, $lightness: -10%);
+    }
+  }
+
+  &:focus-visible {
+    outline: 2px solid $focus-color;
+    outline-offset: -2px;
+  }
+
+  &:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+}
+
+.form-item.error .time-input {
+  border-color: $outline-color;
+  box-shadow: 0 0 4px $error;
+}

@@ -95,6 +95,8 @@ export const handleSaveSurfSession = async (
   const skillLevel = formData.get('skillLevel')
   const surfboardIdRaw = (formData.get('surfboardId') as string) || ''
   const wouldSurfAgain = formData.get('wouldSurfAgain') === 'on'
+  const sessionStartTimeRaw = (formData.get('sessionStartTime') as string) || ''
+  const sessionEndTimeRaw = (formData.get('sessionEndTime') as string) || ''
 
   if (!sessionDate) {
     return data<ActionData>(
@@ -143,6 +145,15 @@ export const handleSaveSurfSession = async (
     }
     if (surfboardIdRaw) {
       payload.surfboardId = surfboardIdRaw
+    }
+
+    const sessionStartTrimmed = sessionStartTimeRaw.trim()
+    if (sessionStartTrimmed !== '') {
+      payload.sessionStartTime = sessionStartTrimmed
+    }
+    const sessionEndTrimmed = sessionEndTimeRaw.trim()
+    if (sessionEndTrimmed !== '') {
+      payload.sessionEndTime = sessionEndTrimmed
     }
 
     await post('surf-sessions', payload, { headers: { Cookie: cookie } })

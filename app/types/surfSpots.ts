@@ -155,6 +155,23 @@ export enum WaveQuality {
   GREAT = 'GREAT',
 }
 
+/** External integration for session sync idempotency (matches API enum names). */
+export enum ExternalSessionProvider {
+  SURFLINE = 'SURFLINE',
+  GARMIN = 'GARMIN',
+  RIP_CURL_SEARCH_GPS3 = 'RIP_CURL_SEARCH_GPS3',
+}
+
+/** Human-readable names for session log UI (wire values remain ExternalSessionProvider enum strings). */
+export const EXTERNAL_SESSION_PROVIDER_LABELS: Record<
+  ExternalSessionProvider,
+  string
+> = {
+  [ExternalSessionProvider.SURFLINE]: 'Surfline',
+  [ExternalSessionProvider.GARMIN]: 'Garmin',
+  [ExternalSessionProvider.RIP_CURL_SEARCH_GPS3]: 'Rip Curl Search GPS3',
+}
+
 /** Display strings for session log dropdowns (wire values stay the enum strings above). */
 export const SURF_SESSION_WAVE_SIZE_LABELS: Record<SurfSessionWaveSize, string> = {
   [SurfSessionWaveSize.SMALL]: 'Waist high or smaller',
@@ -351,6 +368,18 @@ export interface CreateSurfSessionMediaRequest {
 export interface SurfSessionListItem {
   id: number
   sessionDate: string
+  /** When start and end exist, server-derived minutes for partners and display fallbacks. */
+  durationMinutes?: number | null
+  /** ISO local time from API, e.g. "09:30:00". */
+  sessionStartTime?: string | null
+  sessionEndTime?: string | null
+  /** ISO-8601 UTC instants when stored (wearables / partner sync). */
+  sessionStartInstant?: string | null
+  sessionEndInstant?: string | null
+  /** Integration source when synced; pairs with externalSessionId. */
+  externalSessionProvider?: ExternalSessionProvider | null
+  /** Provider-local id when synced. */
+  externalSessionId?: string | null
   createdAt: string
   surfSpotId: number
   surfSpotName: string
@@ -369,7 +398,7 @@ export interface SurfSessionListItem {
   media?: SurfSessionMedia[]
 }
 
-/** GET /surf-sessions/{userId}: headline stats plus list (same bundle idea as user-spots / watch). */
+/** GET /surf-sessions (authenticated user): headline stats plus session list. */
 export interface UserSurfSessions {
   totalSessions: number
   spotsSurfedCount: number

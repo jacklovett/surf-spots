@@ -16,6 +16,7 @@ import { useToastContext, useUserContext } from '~/contexts'
 import { useFileUpload } from '~/hooks'
 import {
   CROWD_LEVEL_LABELS,
+  EXTERNAL_SESSION_PROVIDER_LABELS,
   SURF_SESSION_WAVE_QUALITY_LABELS,
   SURF_SESSION_WAVE_SIZE_LABELS,
   Tide,
@@ -24,6 +25,7 @@ import {
   SurfSessionMedia,
 } from '~/types/surfSpots'
 import { TIDE_OPTIONS } from '~/types/formData/surfSpots'
+import { formatSurfSessionTimeRange } from '~/utils/dateUtils'
 import {
   ERROR_BOUNDARY_MEDIA,
   ERROR_DELETE_MEDIA,
@@ -80,7 +82,6 @@ const tideDisplay = (tide: Tide | string | null | undefined): string => {
 const formatDirectionDisplay = (value: string | null | undefined): string =>
   value ? value.replace(/-/g, ' to ') : '—'
 
-const SESSION_CONDITION_ICON_COLOR = 'var(--primary-color)'
 const SESSION_CONDITION_ICON_SIZE = 26
 
 export const SessionLogRow = (props: SessionLogRowProps) => {
@@ -93,6 +94,10 @@ export const SessionLogRow = (props: SessionLogRowProps) => {
   const [showMediaSection, setShowMediaSection] = useState(false)
   const panelId = useId()
   const mod = impressionModifier(session.waveQuality)
+  const sessionTimeRange = formatSurfSessionTimeRange(session)
+  const provider = session.externalSessionProvider
+  const externalSyncSourceLabel =
+    provider == null ? null : EXTERNAL_SESSION_PROVIDER_LABELS[provider] ?? provider
 
   const {
     uploadFiles,
@@ -173,7 +178,7 @@ export const SessionLogRow = (props: SessionLogRowProps) => {
         'accordion-card',
         'session-log-accordion-card',
         {
-        'accordion-card-expanded': expanded,
+          'accordion-card-expanded': expanded,
         },
       )}
     >
@@ -204,8 +209,24 @@ export const SessionLogRow = (props: SessionLogRowProps) => {
             </span>
             <span className="accordion-card-primary">
               <span className="session-log-card-spot">{session.surfSpotName}</span>
-              <span className="session-log-card-date text-secondary">
-                {formatSessionDate(session.sessionDate)}
+              <span className="session-log-card-meta text-secondary">
+                <span className="session-log-card-date-line">
+                  {formatSessionDate(session.sessionDate)}
+                </span>
+                {(sessionTimeRange || externalSyncSourceLabel) && (
+                  <span className="session-log-card-meta-detail">
+                    {!!sessionTimeRange && (
+                      <span className="session-log-card-time-range">
+                        {sessionTimeRange}
+                      </span>
+                    )}
+                    {!!externalSyncSourceLabel && (
+                      <span className="session-log-card-sync-line">
+                        Synced from {externalSyncSourceLabel}
+                      </span>
+                    )}
+                  </span>
+                )}
               </span>
             </span>
             <span className="session-log-card-status">
@@ -244,16 +265,16 @@ export const SessionLogRow = (props: SessionLogRowProps) => {
                 <dt>Swell</dt>
                 <dd>
                   <span className="session-log-card-dd-with-condition">
-                    {session.swellDirection ? (
+                    {!!session.swellDirection && (
                       <span className="session-log-card-condition-svg" aria-hidden>
                         <DirectionIcon
                           type="swell"
                           directionRange={session.swellDirection}
-                          color={SESSION_CONDITION_ICON_COLOR}
                           size={SESSION_CONDITION_ICON_SIZE}
+                          color="currentColor"
                         />
                       </span>
-                    ) : null}
+                    )}
                     <span>{formatDirectionDisplay(session.swellDirection)}</span>
                   </span>
                 </dd>
@@ -262,16 +283,16 @@ export const SessionLogRow = (props: SessionLogRowProps) => {
                 <dt>Wind</dt>
                 <dd>
                   <span className="session-log-card-dd-with-condition">
-                    {session.windDirection ? (
+                    {!!session.windDirection && (
                       <span className="session-log-card-condition-svg" aria-hidden>
                         <DirectionIcon
                           type="wind"
                           directionRange={session.windDirection}
-                          color={SESSION_CONDITION_ICON_COLOR}
                           size={SESSION_CONDITION_ICON_SIZE}
+                          color="currentColor"
                         />
                       </span>
-                    ) : null}
+                    )}
                     <span>{formatDirectionDisplay(session.windDirection)}</span>
                   </span>
                 </dd>
@@ -280,15 +301,15 @@ export const SessionLogRow = (props: SessionLogRowProps) => {
                 <dt>Tide</dt>
                 <dd>
                   <span className="session-log-card-dd-with-condition">
-                    {session.tide ? (
+                    {session.tide && (
                       <span className="session-log-card-condition-svg" aria-hidden>
                         <TideIcon
                           tide={session.tide}
-                          color={SESSION_CONDITION_ICON_COLOR}
                           size={SESSION_CONDITION_ICON_SIZE}
+                          color="currentColor"
                         />
                       </span>
-                    ) : null}
+                    )}
                     <span>{tideDisplay(session.tide) || '—'}</span>
                   </span>
                 </dd>
@@ -299,8 +320,8 @@ export const SessionLogRow = (props: SessionLogRowProps) => {
                   <span className="session-log-card-dd-with-condition">
                     <span className="session-log-card-condition-svg" aria-hidden>
                       <SurfHeightIcon
-                        color={SESSION_CONDITION_ICON_COLOR}
                         size={SESSION_CONDITION_ICON_SIZE}
+                        color="currentColor"
                       />
                     </span>
                     <span>
@@ -361,14 +382,14 @@ export const SessionLogRow = (props: SessionLogRowProps) => {
                 </dd>
               </div>
             </div>
-            {session.sessionNotes ? (
+            {session.sessionNotes && (
               <div className="session-log-card-notes">
                 <dt>Your notes</dt>
                 <dd className="session-log-card-notes-body">
                   {session.sessionNotes}
                 </dd>
               </div>
-            ) : null}
+            )}
           </dl>
 
           <ErrorBoundary message={ERROR_BOUNDARY_MEDIA}>
@@ -381,7 +402,13 @@ export const SessionLogRow = (props: SessionLogRowProps) => {
                   setShowMediaSection((isMediaSectionVisible) => !isMediaSectionVisible)
                 }
               >
-                <span>{showMediaSection ? 'Hide media' : 'Show media'}</span>
+                <span>
+                  {showMediaSection
+                    ? 'Hide media'
+                    : mediaItems.length === 0
+                      ? 'Add media'
+                      : 'Show media'}
+                </span>
                 <span
                   className={classNames('session-log-card-media-toggle-chevron', {
                     'session-log-card-media-toggle-chevron-open':
