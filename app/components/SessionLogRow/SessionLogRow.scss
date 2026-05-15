@@ -173,7 +173,7 @@
   display: grid;
   grid-template-columns: minmax(5.5rem, 7.5rem) minmax(0, 1fr);
   gap: $spacing-small $spacing-unit;
-  align-items: baseline;
+  align-items: center;
   font-size: $font-size-small;
   min-width: 0;
 
@@ -311,6 +311,6 @@
   .session-log-card-dl-row {
     grid-template-columns: auto minmax(0, 1fr);
     gap: $spacing-small $spacing-unit;
-    align-items: baseline;
+    align-items: center;
   }
 }
