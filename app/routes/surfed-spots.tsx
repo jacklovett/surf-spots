@@ -23,7 +23,7 @@ import {
   ERROR_LOAD_SURFED_SPOTS,
 } from '~/utils/errorUtils'
 import { useScrollReveal, useSurfSpotActions } from '~/hooks'
-import { cacheControlHeader, get, isNetworkError } from '~/services/networkService'
+import { cacheControlHeader, get, httpStatusFromNetworkError, isNetworkError } from '~/services/networkService'
 import { requireSessionCookie } from '~/services/session.server'
 import { surfSpotAction } from '~/services/surfSpot.server'
 import { SurfedSpotsSummary } from '~/types/surfedSpotsSummary'
@@ -40,11 +40,12 @@ export const loader: LoaderFunction = async ({ request }) => {
   const cookie = request.headers.get('Cookie') ?? ''
 
   try {
-    const surfedSpotsSummary = await get('user-spots', {
+    const userSpotsResponse = await get('user-spots', {
       headers: {
         Cookie: cookie,
       },
     })
+    const surfedSpotsSummary = userSpotsResponse?.data
     return data<LoaderData>(
       { surfedSpotsSummary: surfedSpotsSummary as SurfedSpotsSummary },
       {
@@ -62,7 +63,7 @@ export const loader: LoaderFunction = async ({ request }) => {
     return data<LoaderData>(
       { error: ERROR_LOAD_SURFED_SPOTS },
       {
-        status: status && status >= 400 && status < 600 ? status : 500,
+        status: httpStatusFromNetworkError(error),
       },
     )
   }

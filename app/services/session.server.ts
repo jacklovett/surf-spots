@@ -50,7 +50,10 @@ export const requireFullUserProfile = async (
 ): Promise<User> => {
   await requireSessionCookie(request)
   const cookie = request.headers.get('Cookie') ?? ''
-  return get<User>('user/me', { headers: { Cookie: cookie } })
+  const profileResponse = await get<User>('user/me', {
+    headers: { Cookie: cookie },
+  })
+  return profileResponse?.data as User
 }
 
 export const { getSession, commitSession, destroySession } = sessionStorage

@@ -1,5 +1,10 @@
 import { test, expect } from '@playwright/test'
 
+import {
+  POST_AUTH_REDIRECT_PATH,
+  WELCOME_TOAST_SEARCH_PARAM,
+} from '../app/constants/postAuthRedirect'
+
 test.describe('Authentication', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('/auth')
@@ -153,5 +158,53 @@ test.describe('Authentication', () => {
       await expect(page).toHaveURL(/\/auth/)
       await expect(page.locator('input[name="email"]')).toBeVisible()
     }
+  })
+})
+
+/**
+ * Same app flow as post-register / OAuth redirect (see `buildPostAuthRedirectPathWithSearch`).
+ * Separate describe so we do not run the sign-in `beforeEach` that forces `/auth` first.
+ */
+test.describe('Authentication — post-auth welcome toast', () => {
+  test('shows success toast and removes welcome param on default post-auth path', async ({
+    page,
+  }) => {
+    const welcomeText = 'E2E welcome toast message'
+    const query = `${WELCOME_TOAST_SEARCH_PARAM}=${encodeURIComponent(welcomeText)}`
+    await page.goto(`${POST_AUTH_REDIRECT_PATH}?${query}`)
+
+    await expect(page.locator('.toast--success .toast-message')).toContainText(
+      welcomeText,
+      { timeout: 10000 },
+    )
+
+    await expect(page).toHaveURL(
+      (url) => !new URL(url.href).searchParams.has(WELCOME_TOAST_SEARCH_PARAM),
+      { timeout: 10000 },
+    )
+  })
+
+  test('shows success toast and removes welcome param on another route (shell-wide)', async ({
+    page,
+  }) => {
+    const welcomeText = 'E2E welcome on continents'
+    const pathWithQuery = `/surf-spots/continents?${WELCOME_TOAST_SEARCH_PARAM}=${encodeURIComponent(welcomeText)}`
+    await page.goto(pathWithQuery)
+
+    await expect(page.locator('.toast--success .toast-message')).toContainText(
+      welcomeText,
+      { timeout: 10000 },
+    )
+
+    await expect(page).toHaveURL(
+      (url) => !new URL(url.href).searchParams.has(WELCOME_TOAST_SEARCH_PARAM),
+      { timeout: 10000 },
+    )
+  })
+
+  test('does not show toast when welcome param is empty', async ({ page }) => {
+    await page.goto(`${POST_AUTH_REDIRECT_PATH}?${WELCOME_TOAST_SEARCH_PARAM}=`)
+
+    await expect(page.locator('.toast--success')).toHaveCount(0, { timeout: 3000 })
   })
 })

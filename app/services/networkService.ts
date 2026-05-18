@@ -29,7 +29,7 @@ export const cacheControlHeader = {
 
 export interface NetworkError extends Error {
   status?: number
-  /** When thrown from handleResponse: why we could not use the API body (so callers can log it). */
+  /** When thrown from networkService JSON handling: why we could not use the API body (so callers can log it). */
   responseSummary?: {
     status: number
     statusText: string
@@ -41,15 +41,38 @@ export interface NetworkError extends Error {
 /** Options for API requests. timeoutMs aborts the request after that many milliseconds. */
 export type RequestOptions = RequestInit & { timeoutMs?: number }
 
+/**
+ * Parsed JSON API success: Spring `ApiResponse` payload in `data`, optional user-facing `message`.
+ * Callers that only need the entity should use `.data`; use `.message` when the API supplies success copy.
+ */
+export type ApiResult<T> = {
+  data: T
+  message?: string
+}
+
 // Type guard for NetworkError
 export const isNetworkError = (err: unknown): err is NetworkError => {
   return err instanceof Error && 'status' in err
 }
 
 /**
+ * HTTP status for Remix `data(..., { status })` when a loader/action catches an API error.
+ * Uses `status` from a thrown API/network error when it is in the 400–599 range; otherwise `fallbackStatus` (default 500).
+ */
+export const httpStatusFromNetworkError = (
+  error: unknown,
+  fallbackStatus: number = 500,
+): number => {
+  if (!isNetworkError(error)) return fallbackStatus
+  const status = error.status
+  if (status !== undefined && status >= 400 && status < 600) return status
+  return fallbackStatus
+}
+
+/**
  * Single entry point for user-facing error messages. Use this in routes/actions
  * when returning error text to the client. API errors (NetworkError) are already
- * sanitized in handleResponse so we pass them through; when the API did not
+ * sanitized when parsed from error responses so we pass them through; when the API did not
  * return a specific message we use status to show a clearer fallback (check
  * input for 4xx, our problem for 5xx/network).
  *
@@ -113,7 +136,28 @@ const getMessageFromBody = (data: unknown): string | undefined => {
   return undefined
 }
 
-const handleResponse = async <T>(response: Response): Promise<T> => {
+/** Spring `ApiResponse.success` body: unwrap `data` and optional user-facing `message`. */
+const extractSuccessPayload = (
+  parsedBody: unknown,
+): { payload: unknown; message?: string } => {
+  if (
+    parsedBody &&
+    typeof parsedBody === 'object' &&
+    'data' in parsedBody &&
+    'success' in parsedBody
+  ) {
+    const envelope = parsedBody as Record<string, unknown>
+    const messageValue = envelope.message
+    const userMessage =
+      typeof messageValue === 'string' && messageValue.trim() !== ''
+        ? messageValue.trim()
+        : undefined
+    return { payload: envelope.data, message: userMessage }
+  }
+  return { payload: parsedBody }
+}
+
+const readJsonApiBodyOrThrow = async (response: Response): Promise<unknown> => {
   const contentType = response.headers.get('content-type')
   const isJson = contentType?.includes('application/json')
 
@@ -175,19 +219,20 @@ const handleResponse = async <T>(response: Response): Promise<T> => {
     throw error
   }
 
-  // Extract data from API response wrapper if present
-  if (data && typeof data === 'object' && 'data' in data && 'success' in data) {
-    return data.data as T
-  }
-
-  return data as T
+  return data
 }
 
-const request = async <T, B = undefined>(
+const handleResponse = async <T>(response: Response): Promise<ApiResult<T>> => {
+  const parsedBody = await readJsonApiBodyOrThrow(response)
+  const { payload, message } = extractSuccessPayload(parsedBody)
+  return { data: payload as T, message }
+}
+
+const performFetch = async <B = undefined>(
   endpoint: string,
   options: RequestOptions = {},
-  body?: B,
-): Promise<T> => {
+  requestBody?: B,
+): Promise<Response> => {
   const isFullUrl = endpoint.startsWith('http://') || endpoint.startsWith('https://')
   const fullUrl = isFullUrl ? endpoint : `${API_URL}/${endpoint}`
 
@@ -218,8 +263,8 @@ const request = async <T, B = undefined>(
   if (!isFullUrl) {
     (headers as Record<string, string>)['Accept'] = 'application/json'
   }
-  const isFileOrBlob = body instanceof File || body instanceof Blob
-  if (body && !isFileOrBlob) {
+  const isFileOrBlob = requestBody instanceof File || requestBody instanceof Blob
+  if (requestBody && !isFileOrBlob) {
     (headers as Record<string, string>)['Content-Type'] = 'application/json'
   }
   if (
@@ -236,77 +281,94 @@ const request = async <T, B = undefined>(
       // Always include credentials for API requests to send session cookies
       // Only omit for external URLs (like S3 uploads)
       credentials: isFullUrl ? 'omit' : 'include',
-      body: body ? (isFileOrBlob ? body : JSON.stringify(body)) : undefined,
+      body: requestBody
+        ? isFileOrBlob
+          ? requestBody
+          : JSON.stringify(requestBody)
+        : undefined,
       headers,
     })
     if (timeoutId != null) clearTimeout(timeoutId)
-
-    // External URLs (like S3) don't return JSON - just check status
-    if (isFullUrl) {
-      if (!response.ok) {
-        const error = new Error(
-          `Request failed with status ${response.status} ${response.statusText}`,
-        ) as NetworkError
-        error.status = response.status
-        error.responseSummary = {
-          status: response.status,
-          statusText: response.statusText,
-          contentType: response.headers.get('content-type') ?? 'none',
-          reason: 'S3 or external URL returned non-OK (not our JSON API).',
-        }
-        throw error
-      }
-      return undefined as T
-    }
-
-    return handleResponse<T>(response)
+    return response
   } catch (fetchError) {
     if (timeoutId != null) clearTimeout(timeoutId)
     if (isNetworkError(fetchError)) {
       throw fetchError
     }
-    const isAbort = fetchError instanceof Error && (fetchError as Error & { name?: string }).name === 'AbortError'
+    const isAbort =
+      fetchError instanceof Error &&
+      (fetchError as Error & { name?: string }).name === 'AbortError'
     // Never surface raw fetch/browser errors (e.g. "fetch failed", "Failed to fetch") to the UI
-    const msg = isAbort
-      ? ERROR_REQUEST_TIMEOUT
-      : DEFAULT_ERROR_MESSAGE
+    const msg = isAbort ? ERROR_REQUEST_TIMEOUT : DEFAULT_ERROR_MESSAGE
     const error = new Error(msg) as NetworkError
     error.status = 0
     error.responseSummary = {
       status: 0,
       statusText: isAbort ? 'Timeout' : 'NoResponse',
       contentType: 'none',
-      reason: isAbort ? 'request aborted after timeout' : 'fetch threw before response (connection refused, DNS, CORS, or network failure). message=' + (fetchError instanceof Error ? fetchError.message : String(fetchError)),
+      reason: isAbort
+        ? 'request aborted after timeout'
+        : 'fetch threw before response (connection refused, DNS, CORS, or network failure). message=' +
+          (fetchError instanceof Error ? fetchError.message : String(fetchError)),
     }
     throw error
   }
+}
+
+const request = async <T, B = undefined>(
+  endpoint: string,
+  options: RequestOptions = {},
+  body?: B,
+): Promise<ApiResult<T>> => {
+  const isFullUrl = endpoint.startsWith('http://') || endpoint.startsWith('https://')
+  const response = await performFetch(endpoint, options, body)
+
+  // External URLs (like S3) don't return JSON - just check status
+  if (isFullUrl) {
+    if (!response.ok) {
+      const error = new Error(
+        `Request failed with status ${response.status} ${response.statusText}`,
+      ) as NetworkError
+      error.status = response.status
+      error.responseSummary = {
+        status: response.status,
+        statusText: response.statusText,
+        contentType: response.headers.get('content-type') ?? 'none',
+        reason: 'S3 or external URL returned non-OK (not our JSON API).',
+      }
+      throw error
+    }
+    return { data: undefined as T }
+  }
+
+  return handleResponse<T>(response)
 }
 
 // Specific HTTP method functions
 export const get = async <T>(
   endpoint: string,
   options: RequestOptions = {},
-): Promise<T> => request<T>(endpoint, options)
+): Promise<ApiResult<T>> => request<T>(endpoint, options)
 
 export const post = async <T, R>(
   endpoint: string,
   body: T,
   options: RequestOptions = {},
-): Promise<R> => request<R, T>(endpoint, { ...options, method: 'POST' }, body)
+): Promise<ApiResult<R>> => request<R, T>(endpoint, { ...options, method: 'POST' }, body)
 
 export const edit = async <T, R = void>(
   endpoint: string,
   body: T,
   options: RequestOptions = {},
-): Promise<R> => request<R, T>(endpoint, { ...options, method: 'PUT' }, body)
+): Promise<ApiResult<R>> => request<R, T>(endpoint, { ...options, method: 'PUT' }, body)
 
 export const patch = async <T, R = void>(
   endpoint: string,
   body: T,
   options: RequestOptions = {},
-): Promise<R> => request<R, T>(endpoint, { ...options, method: 'PATCH' }, body)
+): Promise<ApiResult<R>> => request<R, T>(endpoint, { ...options, method: 'PATCH' }, body)
 
 export const deleteData = async (
   endpoint: string,
   options: RequestOptions = {},
-): Promise<void> => request<void>(endpoint, { ...options, method: 'DELETE' })
+): Promise<ApiResult<void>> => request<void>(endpoint, { ...options, method: 'DELETE' })

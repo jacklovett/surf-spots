@@ -207,12 +207,13 @@ export const surfSpotAction: ActionFunction = async ({ request }) => {
             { status: 400 },
           )
         }
-        const tripSpotId = await post<undefined, string>(
+        const addSpotResponse = await post<undefined, string>(
           `trips/${tripId}/spots/${spotSurfSpotId}`,
           undefined,
           { headers: { Cookie: cookie } },
         )
-        return data({ success: true, tripSpotId })
+        const newTripSpotId = addSpotResponse?.data
+        return data({ success: true, tripSpotId: newTripSpotId })
       }
 
       if (intent === 'remove-spot') {

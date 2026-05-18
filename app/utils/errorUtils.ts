@@ -1,6 +1,6 @@
 /**
  * Central place for safe, user-facing error messages and fallbacks.
- * Strategy: API errors are sanitized in networkService (handleResponse) and
+ * Strategy: API errors are sanitized in networkService (error response parsing) and
  * thrown as NetworkError. In routes/actions use getDisplayMessage(error) or getDisplayMessage(error, fallback) — fallback defaults to DEFAULT_ERROR_MESSAGE
  * from networkService so API messages are shown as-is and other errors are
  * sanitized once. Do not call messageForDisplay again on errors that came from
@@ -137,6 +137,17 @@ export const SUCCESS_PASSWORD_UPDATED =
   'Password updated successfully. Please sign in again for security.'
 export const SUCCESS_FORGOT_PASSWORD_EMAIL_SENT =
   'Check your emails. Password reset instructions sent.'
+
+export const SUCCESS_EMAIL_VERIFIED =
+  'Your email is verified. You can sign in.'
+export const ERROR_VERIFY_EMAIL_LINK_MISSING =
+  'Verification link is missing. Use the full link from your email message.'
+export const ERROR_VERIFY_EMAIL_LINK_INVALID =
+  'This verification link is invalid or has expired. Use the latest link from your email, or contact support if it keeps failing.'
+export const ERROR_VERIFY_EMAIL_RATE_LIMIT =
+  'Too many verification attempts from this network. Wait a few minutes and open the link from your email again.'
+export const ERROR_VERIFY_EMAIL_SERVER =
+  'We could not complete email verification right now. Please try again later or contact support if it keeps failing.'
 
 // Settings
 export const ERROR_UPDATE_SETTINGS = 'Unable to update settings. Please try again later.'

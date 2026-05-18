@@ -93,17 +93,19 @@ export const useLocationSelection = ({
     if (continentSlug) {
       const fetchInitialCountries = async () => {
         try {
-          const countries = await get<Country[]>(
+          const response = await get<Country[]>(
             `countries/continent/${continentSlug}`,
           )
+          const countries = response?.data ?? []
           setFilteredCountries(countries)
           filteredCountriesRef.current = countries
 
           if (countryId) {
             try {
-              const regions = await get<Region[]>(
+              const regionsResponse = await get<Region[]>(
                 `regions/country/${countryId}`,
               )
+              const regions = regionsResponse?.data ?? []
               setFilteredRegions(regions)
               filteredRegionsRef.current = regions
             } catch (error) {
@@ -123,9 +125,10 @@ export const useLocationSelection = ({
     const fetchCountries = async () => {
       if (continent) {
         try {
-          const countries = await get<Country[]>(
+          const response = await get<Country[]>(
             `countries/continent/${continent}`,
           )
+          const countries = response?.data ?? []
           setFilteredCountries(countries)
           filteredCountriesRef.current = countries
 
@@ -157,7 +160,8 @@ export const useLocationSelection = ({
     const fetchRegions = async () => {
       if (country) {
         try {
-          const regions = await get<Region[]>(`regions/country/${country}`)
+          const response = await get<Region[]>(`regions/country/${country}`)
+          const regions = response?.data ?? []
           setFilteredRegions(regions)
           filteredRegionsRef.current = regions
 

@@ -6,7 +6,6 @@ import {
   MetaFunction,
   redirect,
   useLoaderData,
-  useNavigation,
 } from 'react-router'
 
 import { ContentStatus, FormComponent, FormInput, Page } from '~/components'
@@ -70,8 +69,6 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
 
 const ResetPassword = () => {
   const { token } = useLoaderData<typeof loader>()
-  const { state } = useNavigation()
-  const loading = state === 'loading'
 
   const { formState, errors, isFormValid, handleChange } = useFormValidation({
     initialFormState: {

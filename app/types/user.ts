@@ -32,6 +32,7 @@ export interface SessionUser {
  * cookie; fetch it in a loader/action where you need more than identity.
  */
 export interface User extends SessionUser {
+  emailVerified?: boolean
   country?: string
   city?: string
   age?: number

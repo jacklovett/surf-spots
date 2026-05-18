@@ -28,7 +28,7 @@ import {
   ERROR_LOAD_WATCH_LIST,
 } from '~/utils/errorUtils'
 import { WatchedSurfSpotsSummary } from '~/types/watchedSurfSpotsSummary'
-import { cacheControlHeader, get, isNetworkError } from '~/services/networkService'
+import { cacheControlHeader, get, httpStatusFromNetworkError, isNetworkError } from '~/services/networkService'
 import { useScrollReveal, useSurfSpotActions } from '~/hooks'
 import { surfSpotAction } from '~/services/surfSpot.server'
 
@@ -43,9 +43,10 @@ export const loader: LoaderFunction = async ({ request }) => {
   const cookie = request.headers.get('Cookie') ?? ''
 
   try {
-    const watchedSurfSpotsSummary = await get('watch', {
+    const watchSummaryResponse = await get('watch', {
       headers: { Cookie: cookie },
     })
+    const watchedSurfSpotsSummary = watchSummaryResponse?.data
     return data<LoaderData>(
       {
         watchedSurfSpotsSummary:
@@ -66,7 +67,7 @@ export const loader: LoaderFunction = async ({ request }) => {
     return data<LoaderData>(
       { error: ERROR_LOAD_WATCH_LIST },
       {
-        status: status && status >= 400 && status < 600 ? status : 500,
+        status: httpStatusFromNetworkError(error),
       },
     )
   }

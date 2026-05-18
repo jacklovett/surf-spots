@@ -54,9 +54,10 @@ export const loader: LoaderFunction = async ({ request, params }) => {
   const cookie = request.headers.get('Cookie') ?? ''
 
   try {
-    const trip = await get<Trip>(`trips/${tripId}`, {
+    const tripResponse = await get<Trip>(`trips/${tripId}`, {
       headers: { Cookie: cookie },
     })
+    const trip = tripResponse?.data as Trip
 
     // Only allow editing if user is owner
     if (!trip.isOwner) {
@@ -194,9 +195,7 @@ export default function EditTrip() {
   const { state } = useNavigation()
   const loading = state === 'loading' || state === 'submitting'
 
-  const handleCancel = () => {
-    navigate(`/trip/${trip.id}`, { replace: true })
-  }
+  const handleCancel = () => navigate(`/trip/${trip.id}`, { replace: true })
 
   if (error) {
     return (

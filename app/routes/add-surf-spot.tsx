@@ -18,11 +18,12 @@ export const loader: LoaderFunction = async ({ request }) => {
   await requireSessionCookie(request)
 
   try {
-    const continents = await get<Continent[]>('continents')
+    const continentsResponse = await get<Continent[]>('continents')
+    const continents = continentsResponse?.data
     // Only load continents on initial page load
     // Countries will be fetched on-demand via Mapbox + backend lookup by name
     return data(
-      { continents },
+      { continents: continents ?? [] },
       {
         headers: cacheControlHeader,
       },
@@ -45,9 +46,14 @@ export const action: ActionFunction = async ({ request }) => {
   try {
     const payload = await createSurfSpotFromFormData(request)
     const cookie = request.headers.get('Cookie') || ''
-    const createdSurfSpot = (await post('surf-spots/management', payload, {
-      headers: { Cookie: cookie },
-    })) as SurfSpot
+    const postResponse = await post<typeof payload, SurfSpot>(
+      'surf-spots/management',
+      payload,
+      {
+        headers: { Cookie: cookie },
+      },
+    )
+    const createdSurfSpot = postResponse?.data
 
     return data(
       {

@@ -28,17 +28,19 @@ export const loader: LoaderFunction = async ({ request, params }) => {
     const filters = { ...searchParams }
 
     // Try to get sub-region details
-    const subRegionDetails = await get<SubRegion>(`sub-regions/${subRegion}`)
+    const subRegionResponse = await get<SubRegion>(`sub-regions/${subRegion}`)
+    const subRegionDetails = subRegionResponse?.data
 
     // Then get surf spots for this sub-region
-    const surfSpots = await post<typeof filters, SurfSpot[]>(
+    const response = await post<typeof filters, SurfSpot[]>(
       `surf-spots/sub-region/${subRegion}`,
       { ...filters },
       { headers: { Cookie: cookie } },
     )
+    const surfSpots = response?.data ?? []
 
     return data<LoaderData>(
-      { surfSpots: surfSpots ?? [], subRegionDetails },
+      { surfSpots, subRegionDetails },
       {
         headers: cacheControlHeader,
       },

@@ -15,22 +15,23 @@ export const getTrips = async (
   userId: string,
   options?: RequestInit,
 ): Promise<Trip[]> => {
-  return get<Trip[]>(
+  const response = await get<Trip[]>(
     `${tripsEndpoint}/user/${encodeURIComponent(userId)}`,
     options,
   )
+  return response?.data ?? []
 }
 
-export const getTrip = async (
-  tripId: string,
-): Promise<Trip> => {
-  return get<Trip>(`${tripsEndpoint}/${tripId}`)
+export const getTrip = async (tripId: string): Promise<Trip> => {
+  const response = await get<Trip>(`${tripsEndpoint}/${tripId}`)
+  return response?.data as Trip
 }
 
 export const createTrip = async (
   request: CreateTripRequest,
 ): Promise<Trip> => {
-  return post<CreateTripRequest, Trip>(`${tripsEndpoint}`, request)
+  const response = await post<CreateTripRequest, Trip>(`${tripsEndpoint}`, request)
+  return response?.data as Trip
 }
 
 export const updateTrip = async (
@@ -38,34 +39,34 @@ export const updateTrip = async (
   request: UpdateTripRequest,
   options?: RequestInit,
 ): Promise<Trip> => {
-  return edit<UpdateTripRequest, Trip>(
+  const response = await edit<UpdateTripRequest, Trip>(
     `${tripsEndpoint}/${tripId}`,
     request,
     options,
   )
+  return response?.data as Trip
 }
 
-export const deleteTrip = async (
-  tripId: string,
-): Promise<void> => {
-  return deleteData(`${tripsEndpoint}/${tripId}`)
+export const deleteTrip = async (tripId: string): Promise<void> => {
+  await deleteData(`${tripsEndpoint}/${tripId}`)
 }
 
 export const addSpot = async (
   tripId: string,
   surfSpotId: number,
 ): Promise<string> => {
-  return post<undefined, string>(
+  const response = await post<undefined, string>(
     `${tripsEndpoint}/${tripId}/spots/${surfSpotId}`,
     undefined,
   )
+  return response?.data as string
 }
 
 export const removeSpot = async (
   tripId: string,
   tripSpotId: string,
 ): Promise<void> => {
-  return deleteData(`${tripsEndpoint}/${tripId}/spots/${tripSpotId}`)
+  await deleteData(`${tripsEndpoint}/${tripId}/spots/${tripSpotId}`)
 }
 
 export const addMember = async (
@@ -73,7 +74,7 @@ export const addMember = async (
   request: AddTripMemberRequest,
   options?: RequestInit,
 ): Promise<void> => {
-  return post<AddTripMemberRequest, void>(
+  await post<AddTripMemberRequest, void>(
     `${tripsEndpoint}/${tripId}/members`,
     request,
     options,
@@ -84,32 +85,35 @@ export const removeMember = async (
   tripId: string,
   memberUserId: string,
 ): Promise<void> => {
-  return deleteData(`${tripsEndpoint}/${tripId}/members/${memberUserId}`)
+  await deleteData(`${tripsEndpoint}/${tripId}/members/${memberUserId}`)
 }
 
 export const cancelInvitation = async (
   tripId: string,
   invitationId: string,
 ): Promise<void> => {
-  return deleteData(`${tripsEndpoint}/${tripId}/invitations/${invitationId}`)
+  await deleteData(`${tripsEndpoint}/${tripId}/invitations/${invitationId}`)
 }
 
 export const getUploadUrl = async (
   tripId: string,
   request: UploadMediaRequest,
   options?: RequestInit,
-): Promise<UploadUrlResponse> => post<UploadMediaRequest, UploadUrlResponse>(
+): Promise<UploadUrlResponse> => {
+  const response = await post<UploadMediaRequest, UploadUrlResponse>(
     `${tripsEndpoint}/${tripId}/media/upload-url`,
     request,
     options,
   )
+  return response?.data as UploadUrlResponse
+}
 
 export const recordMedia = async (
   tripId: string,
   request: RecordMediaRequest,
   options?: RequestInit,
 ): Promise<void> => {
-  return post<RecordMediaRequest, void>(
+  await post<RecordMediaRequest, void>(
     `${tripsEndpoint}/${tripId}/media`,
     request,
     options,
@@ -120,22 +124,23 @@ export const deleteMedia = async (
   tripId: string,
   mediaId: string,
 ): Promise<void> => {
-  return deleteData(`${tripsEndpoint}/${tripId}/media/${mediaId}`)
+  await deleteData(`${tripsEndpoint}/${tripId}/media/${mediaId}`)
 }
 
 export const addSurfboard = async (
   tripId: string,
   surfboardId: string,
 ): Promise<string> => {
-  return post<undefined, string>(
+  const response = await post<undefined, string>(
     `${tripsEndpoint}/${tripId}/surfboards/${surfboardId}`,
     undefined,
   )
+  return response?.data as string
 }
 
 export const removeSurfboard = async (
   tripId: string,
   tripSurfboardId: string,
 ): Promise<void> => {
-  return deleteData(`${tripsEndpoint}/${tripId}/surfboards/${tripSurfboardId}`)
+  await deleteData(`${tripsEndpoint}/${tripId}/surfboards/${tripSurfboardId}`)
 }

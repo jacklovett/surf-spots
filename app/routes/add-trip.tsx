@@ -89,11 +89,12 @@ export const action: ActionFunction = async ({ request }) => {
 
   try {
     const cookie = request.headers.get('Cookie') || ''
-    const trip = await post<CreateTripRequest, Trip>(
+    const createTripResponse = await post<CreateTripRequest, Trip>(
       `trips`,
       tripData,
       { headers: { Cookie: cookie } },
     )
+    const trip = createTripResponse?.data as Trip
 
     // Add members if any emails provided
     if (memberEmails.length > 0 && trip.id) {

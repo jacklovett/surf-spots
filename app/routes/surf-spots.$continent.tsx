@@ -17,12 +17,14 @@ export const loader = async ({ params }: { params: LoaderParams }) => {
   const { continent } = params
 
   try {
-    const continentDetails = await get<Continent>(`continents/${continent}`)
-    const countries = await get<Country[]>(`countries/continent/${continent}`)
+    const continentResponse = await get<Continent>(`continents/${continent}`)
+    const continentDetails = continentResponse?.data
+    const countriesResponse = await get<Country[]>(`countries/continent/${continent}`)
+    const countries = countriesResponse?.data ?? []
 
     return data<LoaderData>(
       {
-        countries: countries ?? [],
+        countries,
         continentDetails,
       },
       {

@@ -38,7 +38,7 @@ export const loader: LoaderFunction = async ({ request, params }) => {
     }
 
     const isNumericId = /^\d+$/.test(routeParam)
-    const surfSpot = await get<SurfSpot>(
+    const surfSpotResponse = await get<SurfSpot>(
       isNumericId
         ? `surf-spots/id/${routeParam}`
         : `surf-spots/${routeParam}`,
@@ -46,6 +46,7 @@ export const loader: LoaderFunction = async ({ request, params }) => {
         headers: { Cookie: cookie },
       },
     )
+    const surfSpot = surfSpotResponse?.data
 
     if (!surfSpot) {
       throw new Error('Surf spot details not found')
@@ -58,10 +59,11 @@ export const loader: LoaderFunction = async ({ request, params }) => {
       throw redirect('/surf-spots')
     }
 
-    const continents = await get<Continent[]>('continents')
+    const continentsResponse = await get<Continent[]>('continents')
+    const continents = continentsResponse?.data
 
     return data<LoaderData>(
-      { continents, surfSpot, error: '' },
+      { continents: continents ?? [], surfSpot, error: '' },
       {
         headers: cacheControlHeader,
       },
@@ -111,11 +113,12 @@ export const action: ActionFunction = async ({ request, params }) => {
   try {
     const payload = await createSurfSpotFromFormData(request)
     const cookie = request.headers.get('Cookie') || ''
-    const updatedSurfSpot = (await patch(
+    const patchResponse = await patch<typeof payload, SurfSpot>(
       `surf-spots/management/${targetSurfSpotId}`,
       payload,
       { headers: { Cookie: cookie } },
-    )) as SurfSpot
+    )
+    const updatedSurfSpot = patchResponse?.data
 
     return data(
       {

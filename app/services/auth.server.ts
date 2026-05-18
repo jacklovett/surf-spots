@@ -3,7 +3,7 @@ import { data, redirect } from 'react-router'
 import type { Session } from 'react-router'
 import { AuthRequest, OAuthProvider, SessionUser, User } from '~/types/user'
 import { getSession, commitSession } from '~/services/session.server'
-import { post, isNetworkError } from './networkService'
+import { post, isNetworkError, getDisplayMessage } from './networkService'
 import { validateEmail, validatePassword } from '~/hooks/useFormValidation'
 import {
   ERROR_ACCOUNT_CANT_SIGN_IN,
@@ -13,6 +13,7 @@ import {
   ERROR_RETRIEVE_PROFILE,
   ERROR_SIGN_IN,
 } from '~/utils/errorUtils'
+import { buildPostAuthRedirectPathWithSearch } from '~/constants/postAuthRedirect'
 
 const OAUTH_STATE_KEY = 'oauth_state'
 
@@ -100,7 +101,10 @@ export const authenticateWithCredentials = async (request: Request) => {
         return { submitStatus: ERROR_CREDENTIALS_DONT_MATCH, hasError: true }
       }
       if (status === 403) {
-        return { submitStatus: ERROR_ACCOUNT_CANT_SIGN_IN, hasError: true }
+        return {
+          submitStatus: getDisplayMessage(error, ERROR_ACCOUNT_CANT_SIGN_IN),
+          hasError: true,
+        }
       }
       // status 0 = no response (connection/CORS/offline) – user-friendly sign-in message, not technical
       if (status === 0) {
@@ -122,13 +126,17 @@ export const setSessionCookieAndRedirect = async (
   request: Request,
   user: User,
   existingSession?: Session,
+  options?: { welcomeMessage?: string },
 ) => {
   const session = existingSession ?? (await getSession(request.headers.get('Cookie')))
   session.set('user', toSessionUser(user))
   const cookie = await commitSession(session)
 
   if (cookie) {
-    return redirect('/surf-spots', {
+    const redirectPath = buildPostAuthRedirectPathWithSearch({
+      welcomeMessage: options?.welcomeMessage,
+    })
+    return redirect(redirectPath, {
       headers: {
         'Set-Cookie': cookie,
       },
@@ -140,12 +148,13 @@ export const setSessionCookieAndRedirect = async (
 
 export const verifyLogin = async (email: string, password: string) => {
   try {
-    // The networkService extracts data.data from ApiResponse, so we get User directly
-    const user = await post<AuthRequest, User>('auth/login', {
+    // The networkService returns Spring `ApiResponse` as `{ data?, message? }`; login uses `data` (the User).
+    const loginResponse = await post<AuthRequest, User>('auth/login', {
       email: formatEmail(email),
       password,
       provider: 'EMAIL',
     })
+    const user = loginResponse?.data
 
     if (!user || !user.id) {
       throw new Error(
@@ -163,11 +172,18 @@ export const registerUser = async (
   request: Request,
   existingSession?: Session,
 ) => {
-  const user = await post<AuthRequest, User>('auth/register', authRequest)
+  const registerResponse = await post<AuthRequest, User>(
+    'auth/register',
+    authRequest,
+  )
+  const user = registerResponse?.data
+  const welcomeMessage = registerResponse?.message
   if (!user) {
     throw new Error('Failed to register user')
   }
-  return await setSessionCookieAndRedirect(request, user, existingSession)
+  return await setSessionCookieAndRedirect(request, user, existingSession, {
+    welcomeMessage,
+  })
 }
 
 export const validate = (email: string, password: string) => {
@@ -210,9 +226,11 @@ export const handleOAuthError = (
   console.error(`${provider} OAuth error:`, error)
 
   const errorMessage = getOAuthErrorMessage(error, provider)
+  // Pass raw strings; URLSearchParams encodes values when building the query string.
+  // Pre-encoding with encodeURIComponent would double-encode and break /auth loader decoding.
   const searchParams = new URLSearchParams({
     error: provider,
-    message: encodeURIComponent(errorMessage),
+    message: errorMessage,
   })
 
   return redirect(`/auth?${searchParams.toString()}`)

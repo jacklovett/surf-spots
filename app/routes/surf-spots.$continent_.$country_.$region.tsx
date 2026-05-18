@@ -36,18 +36,22 @@ export const loader: LoaderFunction = async ({ request, params }) => {
     const filters = { ...searchParams }
 
     // Get region by country + region slug so we get the correct region (e.g. England's South West, not Italy's)
-    const regionDetails = await get<Region>(`regions/country/${country}/${region}`)
+    const regionResponse = await get<Region>(`regions/country/${country}/${region}`)
+    const regionDetails = regionResponse?.data
 
     // Get surf spots by region id; if this fails we still show region name and description
     let surfSpots: SurfSpot[] = []
-    try {
-      surfSpots = await post<typeof filters, SurfSpot[]>(
-        `surf-spots/region-id/${regionDetails.id}`,
-        { ...filters },
-        { headers: { Cookie: cookie } },
-      ) ?? []
-    } catch (spotsError) {
-      console.error('Error loading surf spots for region:', spotsError)
+    if (regionDetails?.id != null) {
+      try {
+        const response = await post<typeof filters, SurfSpot[]>(
+          `surf-spots/region-id/${regionDetails.id}`,
+          { ...filters },
+          { headers: { Cookie: cookie } },
+        )
+        surfSpots = response?.data ?? []
+      } catch (spotsError) {
+        console.error('Error loading surf spots for region:', spotsError)
+      }
     }
 
     return data<LoaderData>(

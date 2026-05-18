@@ -17,11 +17,13 @@ interface LoaderParams {
 export const loader = async ({ params }: { params: LoaderParams }) => {
   const { country } = params
   try {
-    const countryDetails = await get<Country>(`countries/${country}`)
-    const regions = await get<Region[]>(`regions/${country}/regions`)
+    const countryResponse = await get<Country>(`countries/${country}`)
+    const countryDetails = countryResponse?.data
+    const regionsResponse = await get<Region[]>(`regions/${country}/regions`)
+    const regions = regionsResponse?.data ?? []
 
     return data<LoaderData>(
-      { regions: regions ?? [], countryDetails },
+      { regions, countryDetails },
       {
         headers: cacheControlHeader,
       },

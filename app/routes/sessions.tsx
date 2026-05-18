@@ -18,7 +18,7 @@ import {
   cacheControlHeader,
   get,
   getDisplayMessage,
-  isNetworkError,
+  httpStatusFromNetworkError,
 } from '~/services/networkService'
 import {
   addSurfSessionMedia,
@@ -82,15 +82,15 @@ export const loader: LoaderFunction = async ({ request }) => {
   const cookie = request.headers.get('Cookie') ?? ''
 
   try {
-    const userSurfSessions = await get<UserSurfSessions>('surf-sessions', {
+    const sessionsResponse = await get<UserSurfSessions>('surf-sessions', {
       headers: { Cookie: cookie },
     })
+    const userSurfSessions = sessionsResponse?.data
     return data<LoaderData>({ userSurfSessions }, { headers: cacheControlHeader })
   } catch (error) {
-    const status = isNetworkError(error) ? error.status : undefined
     return data<LoaderData>(
       { error: ERROR_LOAD_SESSIONS },
-      { status: status && status >= 400 && status < 600 ? status : 500 },
+      { status: httpStatusFromNetworkError(error) },
     )
   }
 }

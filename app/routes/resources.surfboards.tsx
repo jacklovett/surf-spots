@@ -15,9 +15,10 @@ export const loader: LoaderFunction = async ({ request }) => {
   const cookie = request.headers.get('Cookie') ?? ''
 
   try {
-    const surfboards = await get<Surfboard[]>(`surfboards`, {
+    const surfboardsResponse = await get<Surfboard[]>(`surfboards`, {
       headers: { Cookie: cookie },
     })
+    const surfboards = surfboardsResponse?.data ?? []
     return data<LoaderData>(
       { surfboards },
       {

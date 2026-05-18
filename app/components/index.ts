@@ -1,4 +1,4 @@
-import AuthPage from './AuthPage' 
+import AuthPage from './AuthPage'
 import Accordion from './Accordion'
 import Button from './Button'
 import Card from './Card'

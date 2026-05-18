@@ -48,12 +48,13 @@ export const loader: LoaderFunction = async ({ request, params }) => {
   const cookie = request.headers.get('Cookie') ?? ''
 
   try {
-    const surfboard = await get<Surfboard>(
+    const surfboardResponse = await get<Surfboard>(
       `surfboards/${surfboardId}`,
       {
         headers: { Cookie: cookie },
       },
     )
+    const surfboard = surfboardResponse?.data as Surfboard
 
     return data<LoaderData>(
       { surfboard },

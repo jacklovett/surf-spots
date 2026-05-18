@@ -1,7 +1,7 @@
 import { ActionFunctionArgs, MetaFunction, data, Link, redirect } from 'react-router'
 
 import { FormComponent, FormInput, Page } from '~/components'
-import { edit, getDisplayMessage } from '~/services/networkService'
+import { edit, getDisplayMessage, httpStatusFromNetworkError } from '~/services/networkService'
 import {
   getSession,
   requireSessionCookie,
@@ -67,11 +67,11 @@ export const action = async ({ request }: ActionFunctionArgs) => {
       { submitStatus: SUCCESS_PASSWORD_UPDATED },
       { status: 200, headers },
     )
-  } catch (e) {
-    const submitError = getDisplayMessage(e)
+  } catch (error) {
+    const submitError = getDisplayMessage(error)
     return data(
       { submitStatus: submitError, hasError: true },
-      { status: 500 },
+      { status: httpStatusFromNetworkError(error) },
     )
   }
 }

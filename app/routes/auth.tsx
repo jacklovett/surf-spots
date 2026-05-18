@@ -15,6 +15,11 @@ import {
   ERROR_SIGN_IN,
   ERROR_VALIDATION_FIX,
   SUCCESS_PASSWORD_RESET,
+  SUCCESS_EMAIL_VERIFIED,
+  ERROR_VERIFY_EMAIL_LINK_INVALID,
+  ERROR_VERIFY_EMAIL_LINK_MISSING,
+  ERROR_VERIFY_EMAIL_RATE_LIMIT,
+  ERROR_VERIFY_EMAIL_SERVER,
   messageForDisplay,
 } from '~/utils/errorUtils'
 
@@ -42,13 +47,7 @@ export const loader: LoaderFunction = async ({ request }) => {
   const passwordReset = url.searchParams.get('passwordReset')
 
   if (errorParam && messageParam) {
-    let decoded: string
-    try {
-      decoded = decodeURIComponent(messageParam)
-    } catch {
-      decoded = ''
-    }
-    const errorMessage = messageForDisplay(decoded, DEFAULT_ERROR_MESSAGE)
+    const errorMessage = messageForDisplay(messageParam.trim(), DEFAULT_ERROR_MESSAGE)
     return data({
       submitStatus: errorMessage,
       hasError: true,
@@ -59,6 +58,47 @@ export const loader: LoaderFunction = async ({ request }) => {
     return data({
       submitStatus: SUCCESS_PASSWORD_RESET,
       hasError: false,
+    })
+  }
+
+  const verifiedParam = url.searchParams.get('verified')
+  const emailJustVerified =
+    verifiedParam === 'true' ||
+    (url.searchParams.has('verified') && verifiedParam === '')
+
+  if (emailJustVerified) {
+    return data({
+      submitStatus: SUCCESS_EMAIL_VERIFIED,
+      hasError: false,
+    })
+  }
+
+  const verifyError = url.searchParams.get('verifyError')
+  if (verifyError === 'missing') {
+    return data({
+      submitStatus: ERROR_VERIFY_EMAIL_LINK_MISSING,
+      hasError: true,
+    })
+  }
+
+  if (verifyError === 'invalid') {
+    return data({
+      submitStatus: ERROR_VERIFY_EMAIL_LINK_INVALID,
+      hasError: true,
+    })
+  }
+
+  if (verifyError === 'rate_limit') {
+    return data({
+      submitStatus: ERROR_VERIFY_EMAIL_RATE_LIMIT,
+      hasError: true,
+    })
+  }
+
+  if (verifyError === 'server') {
+    return data({
+      submitStatus: ERROR_VERIFY_EMAIL_SERVER,
+      hasError: true,
     })
   }
 
@@ -110,7 +150,6 @@ export const action: ActionFunction = async ({ request }) => {
 }
 
 export default function Auth() {
-  // useSubmitStatus already handles both actionData and loaderData
   const submitStatus = useSubmitStatus()
 
   const { formState, errors, isFormValid, handleChange } = useFormValidation({
@@ -139,7 +178,7 @@ export default function Auth() {
               type: 'email',
             }}
             value={formState.email}
-            onChange={(e) => handleChange('email', e.target.value)}
+            onChange={(event) => handleChange('email', event.target.value)}
             errorMessage={errors.email || ''}
             showLabel={!!formState.email}
           />
@@ -150,7 +189,7 @@ export default function Auth() {
               type: 'password',
             }}
             value={formState.password}
-            onChange={(e) => handleChange('password', e.target.value)}
+            onChange={(event) => handleChange('password', event.target.value)}
             errorMessage={errors.password || ''}
             showLabel={!!formState.password}
           />

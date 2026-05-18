@@ -78,9 +78,10 @@ export const loader: LoaderFunction = async ({ request, params }) => {
   const cookie = request.headers.get('Cookie') ?? ''
 
   try {
-    const trip = await get<Trip>(`trips/${tripId}`, {
+    const tripResponse = await get<Trip>(`trips/${tripId}`, {
       headers: { Cookie: cookie },
     })
+    const trip = tripResponse?.data as Trip
     return data<LoaderData>(
       { trip },
       {

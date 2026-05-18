@@ -117,11 +117,12 @@ const handleSaveNote = async (
     skillRequirement: skillRequirementValue ? (skillRequirementValue as SkillLevel) : null,
   }
 
-  const savedNote = await post<typeof noteData, SurfSpotNote>(
+  const savedNoteResponse = await post<typeof noteData, SurfSpotNote>(
     `surf-spots/id/${surfSpotId}/notes`,
     noteData,
     { headers: { Cookie: cookie } },
   )
+  const savedNote = savedNoteResponse?.data as SurfSpotNote
 
   return data<ActionData & { note: SurfSpotNote }>({
     success: true,
@@ -150,11 +151,12 @@ const handleTripAction = async (
         { status: 400 },
       )
     }
-    const newTripSpotId = await post<undefined, string>(
+    const addSpotResponse = await post<undefined, string>(
       `trips/${tripId}/spots/${spotSurfSpotId}`,
       undefined,
       { headers: { Cookie: cookie } },
     )
+    const newTripSpotId = addSpotResponse?.data
     return data({ success: true, tripSpotId: newTripSpotId })
   }
 
@@ -277,11 +279,12 @@ const loadUserNote = async (
   cookie: string,
 ): Promise<SurfSpotNote | null> => {
   try {
-    const note = await get<SurfSpotNote>(
+    const noteResponse = await get<SurfSpotNote>(
       `surf-spots/id/${surfSpotId}/notes/${userId}`,
       { headers: { Cookie: cookie } },
     )
-    return note
+    const note = noteResponse?.data
+    return note ?? null
   } catch (error) {
     // 404 means note doesn't exist yet, which is fine.
     // Use status when available because display messages are sanitized.
@@ -305,10 +308,12 @@ const loadSessionSummaryForSpot = async (
 ): Promise<SurfSessionSummary | null> => {
   if (!spotId) return null
   try {
-    return await get<SurfSessionSummary>(
+    const sessionSummaryResponse = await get<SurfSessionSummary>(
       `surf-spots/${spotId}/sessions`,
       { headers: { Cookie: cookie } },
     )
+    const sessionSummary = sessionSummaryResponse?.data
+    return sessionSummary ?? null
   } catch (error) {
     console.error('Error fetching session summary for surf spot:', error)
     return null
@@ -319,9 +324,10 @@ const loadSurfboardsForUser = async (
   cookie: string,
 ): Promise<Surfboard[]> => {
   try {
-    return await get<Surfboard[]>(`surfboards`, {
+    const surfboardsResponse = await get<Surfboard[]>(`surfboards`, {
       headers: { Cookie: cookie },
     })
+    return surfboardsResponse?.data ?? []
   } catch {
     return []
   }
@@ -344,7 +350,10 @@ export const loader: LoaderFunction = async ({ request, params }) => {
       : `surf-spots/${surfSpotSlug}`
 
     const cookie = request.headers.get('Cookie') || ''
-    const surfSpotDetails = await get<SurfSpot>(url, { headers: { Cookie: cookie } })
+    const surfSpotResponse = await get<SurfSpot>(url, {
+      headers: { Cookie: cookie },
+    })
+    const surfSpotDetails = surfSpotResponse?.data as SurfSpot
 
     const spotId = surfSpotDetails?.id
 

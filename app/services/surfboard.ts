@@ -20,19 +20,25 @@ export interface UploadUrlResponse {
 }
 
 export const getSurfboards = async (): Promise<Surfboard[]> => {
-  return get<Surfboard[]>(`${surfboardsEndpoint}`)
+  const response = await get<Surfboard[]>(`${surfboardsEndpoint}`)
+  return response?.data ?? []
 }
 
 export const getSurfboard = async (
   surfboardId: string,
 ): Promise<Surfboard> => {
-  return get<Surfboard>(`${surfboardsEndpoint}/${surfboardId}`)
+  const response = await get<Surfboard>(`${surfboardsEndpoint}/${surfboardId}`)
+  return response?.data as Surfboard
 }
 
 export const createSurfboard = async (
   request: CreateSurfboardRequest,
 ): Promise<Surfboard> => {
-  return post<CreateSurfboardRequest, Surfboard>(`${surfboardsEndpoint}`, request)
+  const response = await post<CreateSurfboardRequest, Surfboard>(
+    `${surfboardsEndpoint}`,
+    request,
+  )
+  return response?.data as Surfboard
 }
 
 export const updateSurfboard = async (
@@ -40,45 +46,50 @@ export const updateSurfboard = async (
   request: UpdateSurfboardRequest,
   options?: RequestInit,
 ): Promise<Surfboard> => {
-  return edit<UpdateSurfboardRequest, Surfboard>(
+  const response = await edit<UpdateSurfboardRequest, Surfboard>(
     `${surfboardsEndpoint}/${surfboardId}`,
     request,
     options,
   )
+  return response?.data as Surfboard
 }
 
 export const deleteSurfboard = async (
   surfboardId: string,
   options?: RequestInit,
-): Promise<void> => deleteData(
-    `${surfboardsEndpoint}/${surfboardId}`,
-    options,
-  )
+): Promise<void> => {
+  await deleteData(`${surfboardsEndpoint}/${surfboardId}`, options)
+}
 
 export const addSurfboardMedia = async (
   surfboardId: string,
   request: CreateSurfboardMediaRequest,
   options?: RequestInit,
-): Promise<SurfboardMedia> => post<CreateSurfboardMediaRequest, SurfboardMedia>(
+): Promise<SurfboardMedia> => {
+  const response = await post<CreateSurfboardMediaRequest, SurfboardMedia>(
     `${surfboardsEndpoint}/${surfboardId}/media`,
     request,
     options,
   )
+  return response?.data as SurfboardMedia
+}
 
 export const getSurfboardMediaUploadUrl = async (
   surfboardId: string,
   request: UploadSurfboardMediaRequest,
   options?: RequestInit,
-): Promise<UploadUrlResponse> => post<UploadSurfboardMediaRequest, UploadUrlResponse>(
+): Promise<UploadUrlResponse> => {
+  const response = await post<UploadSurfboardMediaRequest, UploadUrlResponse>(
     `${surfboardsEndpoint}/${surfboardId}/media/upload-url`,
     request,
     options,
   )
+  return response?.data as UploadUrlResponse
+}
 
 export const deleteSurfboardMedia = async (
   mediaId: string,
   options?: RequestInit,
-): Promise<void> =>  deleteData(
-    `${surfboardsEndpoint}/media/${mediaId}`,
-    options,
-  )
+): Promise<void> => {
+  await deleteData(`${surfboardsEndpoint}/media/${mediaId}`, options)
+}

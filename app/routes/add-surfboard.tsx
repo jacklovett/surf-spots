@@ -68,11 +68,11 @@ export const action: ActionFunction = async ({ request }) => {
 
   try {
     const cookie = request.headers.get('Cookie') || ''
-    const surfboard = await post<CreateSurfboardRequest, Surfboard>(
-      `surfboards`,
-      surfboardData,
-      { headers: { Cookie: cookie } },
-    )
+    const createSurfboardResponse = await post<
+      CreateSurfboardRequest,
+      Surfboard
+    >(`surfboards`, surfboardData, { headers: { Cookie: cookie } })
+    const surfboard = createSurfboardResponse?.data as Surfboard
 
     return redirect(`/surfboard/${surfboard.id}?success`)
   } catch (error) {

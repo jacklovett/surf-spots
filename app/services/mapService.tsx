@@ -9,7 +9,7 @@ import type {
   MapboxReverseGeocodeResult,
   RegionCountryLookupResponse,
 } from '~/types/surfSpots'
-import { NetworkError, post } from './networkService'
+import { type NetworkError, post } from './networkService'
 import { getCssVariable } from '~/utils/commonUtils'
 import {
   convertFiltersToBackendFormat,
@@ -219,7 +219,7 @@ export const getRegionAndCountryFromCoordinates = async (
     try {
       // Using POST to avoid route conflict with GET /{regionSlug}
       // This endpoint is public according to backend config (/api/regions/**)
-      const result = await post<
+      const coordinatesLookupResponse = await post<
         {
           longitude: number
           latitude: number
@@ -232,8 +232,11 @@ export const getRegionAndCountryFromCoordinates = async (
         countryName,
       })
 
+      const lookupPayload = coordinatesLookupResponse?.data
       // Backend returns both region and country (country is always present if result exists)
-      return result
+      return (
+        lookupPayload ?? { region: null, country: null, continent: null }
+      )
     } catch (error) {
       // If country lookup fails, don't continue - country is required
       const networkError = error as NetworkError
@@ -304,12 +307,13 @@ export const fetchSurfSpotsByBounds = async (
     if (userId) {
       payload.userId = userId
     }
-    return await post<
+    const withinBoundsResponse = await post<
       BoundingBox & Partial<BackendFilterFormat> & { userId?: string },
       SurfSpot[]
     >('surf-spots/within-bounds', payload, {
       timeoutMs: options?.timeoutMs ?? WITHIN_BOUNDS_TIMEOUT_MS,
     })
+    return withinBoundsResponse?.data ?? []
   } catch (e) {
     console.error('Unable to fetch surf spots by bounds:', e)
     throw e

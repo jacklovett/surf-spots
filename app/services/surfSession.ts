@@ -16,26 +16,31 @@ export const addSurfSessionMedia = async (
   sessionId: string,
   request: CreateSurfSessionMediaRequest,
   options?: RequestInit,
-): Promise<SurfSessionMedia> =>
-  post<CreateSurfSessionMediaRequest, SurfSessionMedia>(
+): Promise<SurfSessionMedia> => {
+  const response = await post<CreateSurfSessionMediaRequest, SurfSessionMedia>(
     `${surfSessionsEndpoint}/${sessionId}/media`,
     request,
     options,
   )
+  return response?.data as SurfSessionMedia
+}
 
 export const getSurfSessionMediaUploadUrl = async (
   sessionId: string,
   request: UploadSurfSessionMediaRequest,
   options?: RequestInit,
-): Promise<UploadUrlResponse> =>
-  post<UploadSurfSessionMediaRequest, UploadUrlResponse>(
+): Promise<UploadUrlResponse> => {
+  const response = await post<UploadSurfSessionMediaRequest, UploadUrlResponse>(
     `${surfSessionsEndpoint}/${sessionId}/media/upload-url`,
     request,
     options,
   )
+  return response?.data as UploadUrlResponse
+}
 
 export const deleteSurfSessionMedia = async (
   mediaId: string,
   options?: RequestInit,
-): Promise<void> =>
-  deleteData(`${surfSessionsEndpoint}/media/${mediaId}`, options)
+): Promise<void> => {
+  await deleteData(`${surfSessionsEndpoint}/media/${mediaId}`, options)
+}

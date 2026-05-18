@@ -37,9 +37,10 @@ const loadSurfboardsForUser = async (
   cookie: string,
 ): Promise<Surfboard[]> => {
   try {
-    return await get<Surfboard[]>(`surfboards`, {
+    const surfboardsResponse = await get<Surfboard[]>(`surfboards`, {
       headers: { Cookie: cookie },
     })
+    return surfboardsResponse?.data ?? []
   } catch {
     return []
   }
@@ -67,7 +68,10 @@ export const loader: LoaderFunction = async ({ request, params }) => {
 
     const cookie = request.headers.get('Cookie') || ''
     const [surfSpotDetails, surfboards] = await Promise.all([
-      get<SurfSpot>(url, { headers: { Cookie: cookie } }),
+      get<SurfSpot>(url, { headers: { Cookie: cookie } }).then((response) => {
+        const surfSpotDetails = response?.data
+        return surfSpotDetails
+      }),
       loadSurfboardsForUser(cookie),
     ])
 

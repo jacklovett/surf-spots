@@ -12,7 +12,13 @@ import {
 import fs from 'fs/promises'
 import path from 'path'
 
-import { cacheControlHeader, deleteData, edit } from '~/services/networkService'
+import {
+  cacheControlHeader,
+  deleteData,
+  edit,
+  getDisplayMessage,
+  httpStatusFromNetworkError,
+} from '~/services/networkService'
 import {
   commitSession,
   destroySession,
@@ -127,10 +133,10 @@ export const action: ActionFunction = async ({ request }) => {
       console.error('Unable to delete account: ', error)
       return data(
         {
-          submitStatus: ERROR_DELETE_ACCOUNT,
+          submitStatus: getDisplayMessage(error, ERROR_DELETE_ACCOUNT),
           hasError: true,
         },
-        { status: 500 },
+        { status: httpStatusFromNetworkError(error) },
       )
     }
   }

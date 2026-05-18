@@ -14,12 +14,13 @@ interface LoaderData {
 
 export const loader = async () => {
   try {
-    const continents = await get<Continent[]>(`continents`, {
+    const response = await get<Continent[]>(`continents`, {
       timeoutMs: CONTINENTS_REQUEST_TIMEOUT_MS,
     })
+    const continents = response?.data ?? []
     // Cache the response for 1 hour and serve stale data for up to 1 day
     return data<LoaderData>(
-      { continents: continents ?? [] },
+      { continents },
       {
         headers: cacheControlHeader,
       },
