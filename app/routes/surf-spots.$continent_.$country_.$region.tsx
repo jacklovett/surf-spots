@@ -11,7 +11,7 @@ import { ContentStatus } from '~/components'
 import { cacheControlHeader, get, post } from '~/services/networkService'
 import type { SurfSpot, Region, SurfSpotFilters } from '~/types/surfSpots'
 import { useSurfSpotsContext } from '~/contexts'
-import { ERROR_LOAD_REGION_DATA } from '~/utils/errorUtils'
+import { ERROR_LOAD_REGION_DATA, ERROR_SURF_SPOTS_REGION_URL_MISSING } from '~/utils/errorUtils'
 
 interface LoaderData {
   surfSpots: SurfSpot[]
@@ -26,7 +26,7 @@ export const loader: LoaderFunction = async ({ request, params }) => {
 
   if (!country || !region) {
     return data<LoaderData>(
-      { surfSpots: [], regionDetails: undefined, error: 'Missing country or region in URL.' },
+      { surfSpots: [], regionDetails: undefined, error: ERROR_SURF_SPOTS_REGION_URL_MISSING },
       { status: 404 },
     )
   }

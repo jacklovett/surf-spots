@@ -1,5 +1,6 @@
 import { useActionFetcher } from './useActionFetcher'
 import { useClickOutside } from './useClickOutside'
+import { useDestructiveConfirmBusy } from './useDestructiveConfirmBusy'
 import { useDynamicMap } from './useDynamicMap'
 import { useFileUpload } from './useFileUpload'
 import { useFormValidation } from './useFormValidation/useFormValidation'
@@ -17,6 +18,7 @@ import { useSurfSpotWizard } from './useSurfSpotWizard'
 export {
   useActionFetcher,
   useClickOutside,
+  useDestructiveConfirmBusy,
   useDynamicMap,
   useFileUpload,
   useFormValidation,

@@ -133,6 +133,25 @@ export const directionArrayToString = (directionArray: string[]): string => {
   return `${directionArray[0]}-${directionArray[directionArray.length - 1]}`
 }
 
+/**
+ * Restores direction selector arrays from API/session strings (hyphen ranges, comma lists, or a single point).
+ */
+export const sessionDirectionStoredToArray = (
+  stored?: string | null,
+): string[] => {
+  if (!stored?.trim()) {
+    return []
+  }
+  const trimmed = stored.trim()
+  if (trimmed.includes(',')) {
+    return trimmed
+      .split(',')
+      .map((segment) => segment.trim())
+      .filter(Boolean)
+  }
+  return directionStringToArray(trimmed)
+}
+
 /** Returns a label for novelty waves (river / wave pool), or null for regular ocean spots. */
 export const getNoveltyWaveLabel = (spot: {
   isWavepool?: boolean

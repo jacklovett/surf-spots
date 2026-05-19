@@ -3,8 +3,8 @@ import {
   ActionFunction,
   LoaderFunction,
   useLoaderData,
-  useNavigation,
   useNavigate,
+  useNavigation,
 } from 'react-router'
 import {
   ContentStatus,
@@ -22,6 +22,7 @@ import {
 } from '~/services/networkService'
 import {
   addSurfSessionMedia,
+  deleteSurfSession,
   deleteSurfSessionMedia,
 } from '~/services/surfSession'
 import { requireSessionCookie } from '~/services/session.server'
@@ -36,9 +37,11 @@ import {
   ERROR_LOAD_SESSIONS,
   UPLOAD_ERROR_MEDIA_UNAVAILABLE,
   ERROR_DELETE_MEDIA,
+  ERROR_DELETE_SESSION,
   ERROR_MEDIA_ID_REQUIRED,
   ERROR_INVALID_ACTION,
   ERROR_SESSION_MEDIA_FIELDS_REQUIRED,
+  ERROR_SESSION_ID_REQUIRED,
 } from '~/utils/errorUtils'
 
 interface LoaderData {
@@ -102,6 +105,28 @@ export const action: ActionFunction = async ({ request }) => {
   const intent = formData.get('intent') as string
   const cookie = request.headers.get('Cookie') ?? ''
 
+  if (intent === 'delete-session') {
+    const sessionId = formData.get('sessionId') as string
+    if (!sessionId || sessionId.trim() === '') {
+      return data<SessionsActionData>(
+        { error: ERROR_SESSION_ID_REQUIRED },
+        { status: 400 },
+      )
+    }
+    try {
+      await deleteSurfSession(sessionId.trim(), {
+        headers: { Cookie: cookie },
+      })
+      return data<SessionsActionData>({ success: true, hasError: false })
+    } catch (error) {
+      console.error('Sessions action: delete session failed', { sessionId, error })
+      return data<SessionsActionData>(
+        { error: getDisplayMessage(error, ERROR_DELETE_SESSION) },
+        { status: httpStatusFromNetworkError(error) },
+      )
+    }
+  }
+
   if (intent === 'add-media') {
     const sessionId = formData.get('sessionId') as string
     const mediaId = formData.get('mediaId') as string
@@ -119,12 +144,12 @@ export const action: ActionFunction = async ({ request }) => {
         { mediaId, originalUrl: s3Url, thumbUrl: s3Url, mediaType },
         { headers: { Cookie: cookie } },
       )
-      return data<SessionsActionData>({ success: true, media })
+      return data<SessionsActionData>({ success: true, media, hasError: false })
     } catch (error) {
       console.error('Sessions action: add session media failed', { sessionId, error })
       return data<SessionsActionData>(
         { error: getDisplayMessage(error, UPLOAD_ERROR_MEDIA_UNAVAILABLE) },
-        { status: 500 },
+        { status: httpStatusFromNetworkError(error) },
       )
     }
   }
@@ -141,12 +166,12 @@ export const action: ActionFunction = async ({ request }) => {
       await deleteSurfSessionMedia(mediaId, {
         headers: { Cookie: cookie },
       })
-      return data<SessionsActionData>({ success: true })
+      return data<SessionsActionData>({ success: true, hasError: false })
     } catch (error) {
       console.error('Sessions action: delete session media failed', { mediaId, error })
       return data<SessionsActionData>(
         { error: getDisplayMessage(error, ERROR_DELETE_MEDIA) },
-        { status: 500 },
+        { status: httpStatusFromNetworkError(error) },
       )
     }
   }
@@ -156,9 +181,9 @@ export const action: ActionFunction = async ({ request }) => {
 
 export default function Sessions() {
   const navigate = useNavigate()
-  const { state } = useNavigation()
+  const navigation = useNavigation()
   const { userSurfSessions, error } = useLoaderData<LoaderData>()
-  const isLoading = state === 'loading'
+  const isLoading = navigation.state === 'loading'
   const sessions: SurfSessionListItem[] = userSurfSessions?.sessions ?? []
   const totalSessions = userSurfSessions?.totalSessions ?? 0
   const spotsSurfedCount = userSurfSessions?.spotsSurfedCount ?? 0

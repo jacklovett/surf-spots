@@ -11,11 +11,10 @@ import {
 } from 'react-router'
 import {
   ContentStatus,
+  ConfirmDestructiveModal,
   Page,
   TextButton,
   MediaUpload,
-  Modal,
-  Button,
   Details,
   ErrorBoundary,
   MediaGallery,
@@ -44,7 +43,7 @@ import {
   deleteSurfboard,
 } from '~/services/surfboard'
 import { useUserContext, useToastContext } from '~/contexts'
-import { useScrollReveal, useFileUpload, useActionFetcher } from '~/hooks'
+import { useScrollReveal, useFileUpload, useActionFetcher, useDestructiveConfirmBusy } from '~/hooks'
 import { formatLength, formatDimension } from '~/utils/surfboardUtils'
 import { ActionData as BaseActionData } from '~/types/api'
 
@@ -195,12 +194,7 @@ export const action: ActionFunction = async ({ request, params }) => {
     if (error instanceof Response) {
       throw error
     }
-    const e = error as Error
-    console.error(
-      'Surfboard detail action: unhandled error\n\n' +
-        `Message: ${e.message ?? String(error)}\n\n` +
-        `Stack:\n${e.stack ?? '(no stack)'}`,
-    )
+    console.error('Surfboard detail action: unhandled error')
     return data<ActionData>(
       { error: getDisplayMessage(error, DEFAULT_ERROR_MESSAGE) },
       { status: 500 },
@@ -241,6 +235,11 @@ export default function SurfboardDetail() {
     useActionFetcher<ActionData>()
   const { submitAction: submitDeleteAction, fetcher: deleteActionFetcher } =
     useActionFetcher<ActionData>()
+  const {
+    busy: deleteSurfboardModalBusy,
+    beginSubmit: beginDeleteSurfboardSubmit,
+    clearArmed: clearDeleteSurfboardArmed,
+  } = useDestructiveConfirmBusy(showDeleteConfirm, deleteActionFetcher.state !== 'idle')
 
   useEffect(() => {
     if (initialSurfboard) {
@@ -292,7 +291,15 @@ export default function SurfboardDetail() {
       ERROR_DELETE_SURFBOARD,
     )
     showError(message)
-  }, [deleteActionFetcher.data, deleteActionFetcher.state, showDeleteConfirm, navigate, showError])
+    clearDeleteSurfboardArmed()
+  }, [
+    deleteActionFetcher.data,
+    deleteActionFetcher.state,
+    showDeleteConfirm,
+    navigate,
+    showError,
+    clearDeleteSurfboardArmed,
+  ])
 
   const handleFileUpload = (files: FileList) => {
     if (!user?.id || !surfboard?.id) return
@@ -301,7 +308,9 @@ export default function SurfboardDetail() {
 
   const handleDeleteConfirm = () => {
     if (!user?.id || !surfboard?.id) return
-    submitDeleteAction('delete-surfboard', {})
+    beginDeleteSurfboardSubmit(() => {
+      submitDeleteAction('delete-surfboard', {})
+    })
   }
 
   if (error || !initialSurfboard?.id || !surfboard?.id) {
@@ -336,7 +345,9 @@ export default function SurfboardDetail() {
               />
               <TextButton
                 text="Delete"
-                onClick={() => setShowDeleteConfirm(true)}
+                onClick={() => {
+                  setShowDeleteConfirm(true)
+                }}
                 iconKey="bin"
                 filled
                 danger
@@ -421,29 +432,20 @@ export default function SurfboardDetail() {
         </div>
       </div>
 
-      {showDeleteConfirm && (
-        <Modal onClose={() => setShowDeleteConfirm(false)}>
-          <div className="delete-confirm-modal">
-            <h2>Delete Surfboard</h2>
-            <p>
-              Are you sure you want to delete this surfboard? This action cannot
-              be undone.
-            </p>
-            <div className="modal-actions">
-              <Button
-                label="Delete"
-                variant="danger"
-                onClick={handleDeleteConfirm}
-              />
-              <Button
-                label="Cancel"
-                variant="cancel"
-                onClick={() => setShowDeleteConfirm(false)}
-              />
-            </div>
-          </div>
-        </Modal>
-      )}
+      <ConfirmDestructiveModal
+        isOpen={showDeleteConfirm}
+        onClose={() => {
+          setShowDeleteConfirm(false)
+        }}
+        onConfirm={handleDeleteConfirm}
+        title="Delete Surfboard"
+        confirmLabel="Delete"
+        busy={deleteSurfboardModalBusy}
+      >
+        <p>
+          Are you sure you want to delete this surfboard? This action cannot be undone.
+        </p>
+      </ConfirmDestructiveModal>
     </Page>
   )
 }

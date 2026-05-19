@@ -20,10 +20,13 @@ import { Surfboard } from '~/types/surfboard'
 import { ActionData } from '~/types/api'
 import { ErrorBoundary, SurfSessionForm } from '~/components'
 import {
+  ERROR_ADD_SESSION_PAGE_CONTEXT,
   ERROR_BOUNDARY_GENERIC,
+  ERROR_LOAD_SURF_SPOT_FOR_ADD_SESSION,
   ERROR_METHOD_NOT_ALLOWED,
   ERROR_SAVE_SURF_SESSION,
   ERROR_SESSION_SKILL_LEVEL_REQUIRED,
+  ERROR_SURF_SPOT_SLUG_REQUIRED,
 } from '~/utils/errorUtils'
 
 interface LoaderData {
@@ -53,7 +56,7 @@ export const loader: LoaderFunction = async ({ request, params }) => {
 
   if (!surfSpotSlug) {
     return data<LoaderData>(
-      { error: 'Surf spot is required', surfboards: [], requiresSkillLevel: false },
+      { error: ERROR_SURF_SPOT_SLUG_REQUIRED, surfboards: [], requiresSkillLevel: false },
       { status: 400 },
     )
   }
@@ -87,7 +90,7 @@ export const loader: LoaderFunction = async ({ request, params }) => {
       {
         surfboards: [],
         requiresSkillLevel: false,
-        error: `We can't load this surf spot right now. Please try again later.`,
+        error: ERROR_LOAD_SURF_SPOT_FOR_ADD_SESSION,
       },
       { status: 500 },
     )
@@ -150,8 +153,7 @@ export default function SurfSpotAddSessionRoute() {
       <div className="mb-l">
         <ErrorBoundary message={ERROR_BOUNDARY_GENERIC}>
           <p className="ph">
-            {error ||
-              'We could not open this session for the spot. Try again from the surf spot page.'}
+            {error || ERROR_ADD_SESSION_PAGE_CONTEXT}
           </p>
         </ErrorBoundary>
       </div>

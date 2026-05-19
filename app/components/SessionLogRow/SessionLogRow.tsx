@@ -9,11 +9,13 @@ import {
   Icon,
   MediaGallery,
   MediaUpload,
+  ConfirmDestructiveModal,
+  Button,
   SurfHeightIcon,
   TideIcon,
 } from '~/components'
 import { useToastContext, useUserContext } from '~/contexts'
-import { useFileUpload } from '~/hooks'
+import { useFileUpload, useDestructiveConfirmBusy } from '~/hooks'
 import {
   CROWD_LEVEL_LABELS,
   EXTERNAL_SESSION_PROVIDER_LABELS,
@@ -29,6 +31,7 @@ import { formatSurfSessionTimeRange } from '~/utils/dateUtils'
 import {
   ERROR_BOUNDARY_MEDIA,
   ERROR_DELETE_MEDIA,
+  ERROR_DELETE_SESSION,
   getSafeFetcherErrorMessage,
 } from '~/utils/errorUtils'
 
@@ -41,6 +44,11 @@ interface SessionMediaActionData {
   error?: string
   success?: boolean
   media?: SurfSessionMedia
+}
+
+interface SessionDeleteActionData {
+  error?: string
+  success?: boolean
 }
 
 const impressionLabel = (waveQuality: WaveQuality | null | undefined): string => {
@@ -92,6 +100,7 @@ export const SessionLogRow = (props: SessionLogRowProps) => {
   const { pathname } = useLocation()
   const [expanded, setExpanded] = useState(false)
   const [showMediaSection, setShowMediaSection] = useState(false)
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
   const panelId = useId()
   const mod = impressionModifier(session.waveQuality)
   const sessionTimeRange = formatSurfSessionTimeRange(session)
@@ -107,6 +116,7 @@ export const SessionLogRow = (props: SessionLogRowProps) => {
     fetcherData: uploadFetcherData,
   } = useFileUpload({
     directUpload: {
+      // Remix route api.surf-session.$id.upload-url (singular); backend path is surf-sessions/.../media/upload-url.
       getUploadUrlApi: (mediaType: string) =>
         `/api/surf-session/${session.id}/upload-url?mediaType=${encodeURIComponent(mediaType)}`,
       recordActionUrl: pathname,
@@ -115,6 +125,12 @@ export const SessionLogRow = (props: SessionLogRowProps) => {
   })
 
   const mediaActionFetcher = useFetcher<SessionMediaActionData>()
+  const sessionDeleteFetcher = useFetcher<SessionDeleteActionData>()
+  const {
+    busy: deleteModalBusy,
+    beginSubmit: beginSessionDeleteSubmit,
+    clearArmed: clearSessionDeleteArmed,
+  } = useDestructiveConfirmBusy(showDeleteConfirm, sessionDeleteFetcher.state !== 'idle')
 
   useEffect(() => {
     if (uploadFetcherData?.success && uploadFetcherData?.media) {
@@ -142,6 +158,25 @@ export const SessionLogRow = (props: SessionLogRowProps) => {
     showError(message)
   }, [mediaActionFetcher.data, mediaActionFetcher.state, showSuccess, showError])
 
+  useEffect(() => {
+    if (sessionDeleteFetcher.state !== 'idle' || sessionDeleteFetcher.data == null) {
+      return
+    }
+
+    if (sessionDeleteFetcher.data.success) {
+      showSuccess('Session deleted.')
+      setShowDeleteConfirm(false)
+      return
+    }
+
+    const message = getSafeFetcherErrorMessage(
+      sessionDeleteFetcher.data,
+      ERROR_DELETE_SESSION,
+    )
+    showError(message)
+    clearSessionDeleteArmed()
+  }, [sessionDeleteFetcher.data, sessionDeleteFetcher.state, showSuccess, showError, clearSessionDeleteArmed])
+
   const mediaItems = session.media ?? []
 
   const sessionSpotMenuItems = useMemo(() => {
@@ -157,8 +192,20 @@ export const SessionLogRow = (props: SessionLogRowProps) => {
         iconKey: 'stopwatch',
         onClick: () => navigate(`${base}/session`),
       },
+      {
+        label: 'Edit session',
+        iconKey: 'edit',
+        onClick: () => navigate(`/edit-session/${session.id}`),
+      },
+      {
+        label: 'Delete session',
+        iconKey: 'bin',
+        onClick: () => {
+          setShowDeleteConfirm(true)
+        },
+      },
     ]
-  }, [navigate, session.spotPath])
+  }, [navigate, session.spotPath, session.id])
 
   const handleFileUpload = (files: FileList) => {
     if (!user?.id) return
@@ -170,6 +217,15 @@ export const SessionLogRow = (props: SessionLogRowProps) => {
     formData.append('intent', 'delete-media')
     formData.append('mediaId', mediaId)
     mediaActionFetcher.submit(formData, { method: 'POST', action: pathname })
+  }
+
+  const submitDeleteSession = () => {
+    beginSessionDeleteSubmit(() => {
+      const formData = new FormData()
+      formData.append('intent', 'delete-session')
+      formData.append('sessionId', String(session.id))
+      sessionDeleteFetcher.submit(formData, { method: 'POST', action: '/sessions' })
+    })
   }
 
   return (
@@ -256,6 +312,12 @@ export const SessionLogRow = (props: SessionLogRowProps) => {
           role="region"
           aria-label={`Details for ${session.surfSpotName}`}
         >
+          {externalSyncSourceLabel && (
+            <p className="session-log-external-sync-note text-secondary font-small">
+              Editing or deleting here only changes your Surf Spots copy. It does not
+              update or remove the session in {externalSyncSourceLabel}.
+            </p>
+          )}
           <dl className="session-log-card-dl">
             <div
               className="session-log-card-dl-group session-log-card-dl-group-with-icons"
@@ -463,6 +525,22 @@ export const SessionLogRow = (props: SessionLogRowProps) => {
           </ErrorBoundary>
         </div>
       )}
+      <ConfirmDestructiveModal
+        isOpen={showDeleteConfirm}
+        onClose={() => {
+          setShowDeleteConfirm(false)
+        }}
+        onConfirm={submitDeleteSession}
+        title="Delete session"
+        confirmLabel="Delete"
+        busy={deleteModalBusy}
+      >
+        <p>
+          {externalSyncSourceLabel
+            ? `This removes your Surf Spots copy only. The session in ${externalSyncSourceLabel} is not affected.`
+            : 'Permanently remove this session from your history. This cannot be undone.'}
+        </p>
+      </ConfirmDestructiveModal>
     </article>
   )
 }

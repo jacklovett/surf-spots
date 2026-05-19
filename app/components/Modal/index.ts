@@ -18,6 +18,7 @@ export type InfoModalState = {
   message: string
 }
 
+export { ConfirmDestructiveModal } from './ConfirmDestructiveModal'
 export { InfoModal }
 
 export default Modal

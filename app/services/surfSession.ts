@@ -1,5 +1,9 @@
-import { post, deleteData } from './networkService'
-import type { CreateSurfSessionMediaRequest, SurfSessionMedia } from '~/types/surfSpots'
+import { post, deleteData, get } from './networkService'
+import type {
+  CreateSurfSessionMediaRequest,
+  SurfSessionListItem,
+  SurfSessionMedia,
+} from '~/types/surfSpots'
 
 const surfSessionsEndpoint = 'surf-sessions'
 
@@ -12,13 +16,31 @@ export interface UploadUrlResponse {
   mediaId: string
 }
 
+export const getSurfSessionById = async (
+  sessionId: string,
+  options?: RequestInit,
+): Promise<SurfSessionListItem | undefined> => {
+  const response = await get<SurfSessionListItem>(
+    `${surfSessionsEndpoint}/${encodeURIComponent(sessionId)}`,
+    options,
+  )
+  return response?.data
+}
+
+export const deleteSurfSession = async (
+  sessionId: string,
+  options?: RequestInit,
+): Promise<void> => {
+  await deleteData(`${surfSessionsEndpoint}/${encodeURIComponent(sessionId)}`, options)
+}
+
 export const addSurfSessionMedia = async (
   sessionId: string,
   request: CreateSurfSessionMediaRequest,
   options?: RequestInit,
 ): Promise<SurfSessionMedia> => {
   const response = await post<CreateSurfSessionMediaRequest, SurfSessionMedia>(
-    `${surfSessionsEndpoint}/${sessionId}/media`,
+    `${surfSessionsEndpoint}/${encodeURIComponent(sessionId)}/media`,
     request,
     options,
   )
@@ -31,7 +53,7 @@ export const getSurfSessionMediaUploadUrl = async (
   options?: RequestInit,
 ): Promise<UploadUrlResponse> => {
   const response = await post<UploadSurfSessionMediaRequest, UploadUrlResponse>(
-    `${surfSessionsEndpoint}/${sessionId}/media/upload-url`,
+    `${surfSessionsEndpoint}/${encodeURIComponent(sessionId)}/media/upload-url`,
     request,
     options,
   )

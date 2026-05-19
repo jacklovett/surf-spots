@@ -8,16 +8,16 @@ import {
   useParams,
   useLocation,
   redirect,
+  useFetcher,
 } from 'react-router'
 import {
-  Button,
   Chip,
+  ConfirmDestructiveModal,
   ContentStatus,
   EmptyState,
   ErrorBoundary,
   MediaGallery,
   MediaUpload,
-  Modal,
   Page,
   SurfboardSelectionModal,
   TextButton,
@@ -33,7 +33,7 @@ import {
 } from '~/services/networkService'
 import { Trip, TripMedia } from '~/types/trip'
 import { recordMedia } from '~/services/trip'
-import { useScrollReveal, useFileUpload, useActionFetcher } from '~/hooks'
+import { useScrollReveal, useFileUpload, useActionFetcher, useDestructiveConfirmBusy } from '~/hooks'
 import { formatDate } from '~/utils/dateUtils'
 import {
   UPLOAD_ERROR_MEDIA_UNAVAILABLE,
@@ -48,6 +48,11 @@ import {
   ERROR_BOUNDARY_SECTION,
   ERROR_TRIP_NOT_FOUND,
   ERROR_TRIP_ID_REQUIRED,
+  ERROR_LOAD_TRIP_DETAIL,
+  ERROR_TRIP_MEMBER_USER_ID_REQUIRED,
+  ERROR_TRIP_INVITATION_ID_REQUIRED,
+  ERROR_TRIP_SPOT_RECORD_ID_REQUIRED,
+  ERROR_TRIP_SURFBOARD_RECORD_ID_REQUIRED,
   ERROR_SURFBOARD_ID_REQUIRED,
   ERROR_MEDIA_ID_REQUIRED,
   ERROR_MEDIA_RECORD_FIELDS_REQUIRED,
@@ -92,7 +97,7 @@ export const loader: LoaderFunction = async ({ request, params }) => {
     console.error('Error fetching trip:', error)
     return data<LoaderData>(
       {
-        error: `We couldn't load this trip right now. Please try again later.`,
+        error: ERROR_LOAD_TRIP_DETAIL,
         trip: {} as Trip,
       },
       { status: 500 },
@@ -174,7 +179,7 @@ export const action: ActionFunction = async ({ request, params }) => {
         'Trip action: Missing tripSurfboardId for remove-surfboard',
       )
       return data<ActionData>(
-        { error: 'Trip surfboard ID is required' },
+        { error: ERROR_TRIP_SURFBOARD_RECORD_ID_REQUIRED },
         { status: 400 },
       )
     }
@@ -206,7 +211,7 @@ export const action: ActionFunction = async ({ request, params }) => {
     if (!tripSpotId) {
       console.error('Trip action: Missing tripSpotId for remove-spot')
       return data<ActionData>(
-        { error: 'Trip spot ID is required' },
+        { error: ERROR_TRIP_SPOT_RECORD_ID_REQUIRED },
         { status: 400 },
       )
     }
@@ -238,7 +243,7 @@ export const action: ActionFunction = async ({ request, params }) => {
     if (!memberUserId) {
       console.error('Trip action: Missing memberUserId for remove-member')
       return data<ActionData>(
-        { error: 'Member user ID is required' },
+        { error: ERROR_TRIP_MEMBER_USER_ID_REQUIRED },
         { status: 400 },
       )
     }
@@ -272,7 +277,7 @@ export const action: ActionFunction = async ({ request, params }) => {
         'Trip action: Missing invitationId for cancel-invitation',
       )
       return data<ActionData>(
-        { error: 'Invitation ID is required' },
+        { error: ERROR_TRIP_INVITATION_ID_REQUIRED },
         { status: 400 },
       )
     }
@@ -369,10 +374,13 @@ export default function TripDetail() {
   const { showSuccess, showError } = useToastContext()
   const navigate = useNavigate()
   const { fetcher, submitAction } = useActionFetcher<ActionData>()
+  const deleteTripFetcher = useFetcher<ActionData>()
 
   // Use state for optimistic UI updates when removing members/spots/media
   const [trip, setTrip] = useState<Trip | undefined>(initialTrip)
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
+  const { busy: deleteTripModalBusy, beginSubmit: beginDeleteTripSubmit, clearArmed: clearDeleteTripArmed } =
+    useDestructiveConfirmBusy(showDeleteConfirm, deleteTripFetcher.state !== 'idle')
   const [showAddSurfboardModal, setShowAddSurfboardModal] = useState(false)
   const sectionsRef = useScrollReveal()
 
@@ -439,15 +447,19 @@ export default function TripDetail() {
   }, [uploadError, showError, clearUploadError])
 
   useEffect(() => {
-    if (fetcher.state !== 'idle' || !showDeleteConfirm || fetcher.data == null) return
-    const raw = fetcher.data as unknown
-    const msg =
-      typeof raw === 'object' && raw !== null && 'error' in raw && typeof (raw as { error: unknown }).error === 'string'
-        ? (raw as { error: string }).error.trim()
-        : ''
-    const message = msg || ERROR_DELETE_TRIP
+    if (deleteTripFetcher.state !== 'idle' || !showDeleteConfirm || deleteTripFetcher.data == null) {
+      return
+    }
+    const raw = deleteTripFetcher.data as unknown
+    if (typeof raw !== 'object' || raw === null || !('error' in raw)) {
+      return
+    }
+    const candidate = (raw as { error: unknown }).error
+    const message =
+      typeof candidate === 'string' && candidate.trim() ? candidate.trim() : ERROR_DELETE_TRIP
     showError(message)
-  }, [fetcher.data, fetcher.state, showDeleteConfirm, showError])
+    clearDeleteTripArmed()
+  }, [deleteTripFetcher.data, deleteTripFetcher.state, showDeleteConfirm, showError, clearDeleteTripArmed])
 
   if (error || !initialTrip?.id || !trip?.id) {
     return (
@@ -470,9 +482,11 @@ export default function TripDetail() {
   const handleDeleteConfirm = () => {
     if (!user?.id) return
 
-    const formData = new FormData()
-    formData.append('intent', 'delete-trip')
-    fetcher.submit(formData, { method: 'POST' })
+    beginDeleteTripSubmit(() => {
+      const formData = new FormData()
+      formData.append('intent', 'delete-trip')
+      deleteTripFetcher.submit(formData, { method: 'POST' })
+    })
   }
 
   const handleAddSurfboardClick = () => {
@@ -489,7 +503,7 @@ export default function TripDetail() {
       return updater(prev)
     })
 
-    return (
+  return (
     <Page showHeader>
       <div className="info-page-content mv">
         <div ref={sectionsRef as RefObject<HTMLDivElement>}>
@@ -768,36 +782,27 @@ export default function TripDetail() {
         </div>
       </div>
 
-      {showDeleteConfirm && (
-        <Modal onClose={() => setShowDeleteConfirm(false)}>
-          <div className="delete-confirm-modal">
-            <h2>Delete Trip</h2>
-            <p>
-              Are you sure you want to delete this trip? This action cannot be
-              undone.
-            </p>
-            <div className="modal-actions">
-              <Button
-                label="Delete"
-                variant="danger"
-                onClick={handleDeleteConfirm}
-              />
-              <Button
-                label="Cancel"
-                variant="cancel"
-                onClick={() => setShowDeleteConfirm(false)}
-              />
-            </div>
-          </div>
-        </Modal>
-      )}
+      <ConfirmDestructiveModal
+        isOpen={showDeleteConfirm}
+        onClose={() => {
+          setShowDeleteConfirm(false)
+        }}
+        onConfirm={handleDeleteConfirm}
+        title="Delete Trip"
+        confirmLabel="Delete"
+        busy={deleteTripModalBusy}
+      >
+        <p>
+          Are you sure you want to delete this trip? This action cannot be undone.
+        </p>
+      </ConfirmDestructiveModal>
 
       {showAddSurfboardModal && currentTrip && (
         <SurfboardSelectionModal
           isOpen={showAddSurfboardModal}
           onClose={() => setShowAddSurfboardModal(false)}
           trip={currentTrip}
-          userId={user?.id || ''}
+          userId={user?.id ?? ''}
           onSubmitAction={handleSubmitAction}
           onTripUpdate={handleTripUpdate}
           actionState={fetcher.state}

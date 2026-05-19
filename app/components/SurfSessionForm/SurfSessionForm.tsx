@@ -33,11 +33,14 @@ import {
   formatDateForInput,
   formatDurationCompact,
   sessionWindowMinutesFromTimeInputs,
+  timeToHHmm,
 } from '~/utils/dateUtils'
 import {
   ERROR_SAVE_SURF_SESSION,
+  ERROR_UPDATE_SURF_SESSION,
   getFetcherSubmitStatus,
   SUCCESS_SURF_SESSION_SAVED,
+  SUCCESS_SURF_SESSION_UPDATED,
 } from '~/utils/errorUtils'
 import {
   isSurfSessionTimingBannerMessage,
@@ -47,6 +50,9 @@ import {
   BASE_SKILL_LEVEL_OPTIONS,
   SELECT_OPTION,
 } from '~/types/formData/surfSpots'
+import { SurfSessionListItem } from '~/types/surfSpots'
+import { sessionDirectionStoredToArray } from '~/utils/surfSpotUtils'
+
 const valueFromSelectChange = (event: ChangeEvent<InputElementType>) =>
   (event.target as HTMLSelectElement).value
 
@@ -58,6 +64,9 @@ interface SurfSessionFormProps {
   surfboards?: Surfboard[]
   requiresSkillLevel?: boolean
   onCancel: () => void
+  mode?: 'create' | 'edit'
+  initialSession?: SurfSessionListItem
+  externalEditNotice?: string | null
 }
 
 export const SurfSessionForm = (props: SurfSessionFormProps) => {
@@ -69,6 +78,9 @@ export const SurfSessionForm = (props: SurfSessionFormProps) => {
     surfboards = [],
     requiresSkillLevel = false,
     onCancel,
+    mode = 'create',
+    initialSession,
+    externalEditNotice,
   } = props
   const navigate = useNavigate()
   const navigation = useNavigation()
@@ -120,9 +132,19 @@ export const SurfSessionForm = (props: SurfSessionFormProps) => {
     return formatDurationCompact(mins)
   }, [sessionTimingError, sessionStartTime, sessionEndTime])
 
+  const hasManualTimeInputs =
+    sessionStartTime.trim() !== '' || sessionEndTime.trim() !== ''
+
+  const attachStoredSessionInstantsToPayload =
+    mode === 'edit' &&
+    initialSession != null &&
+    !hasManualTimeInputs &&
+    (initialSession.sessionStartInstant != null ||
+      initialSession.sessionEndInstant != null)
+
   const fetcherSubmitStatus = getFetcherSubmitStatus(
     fetcher.data,
-    ERROR_SAVE_SURF_SESSION,
+    mode === 'edit' ? ERROR_UPDATE_SURF_SESSION : ERROR_SAVE_SURF_SESSION,
   )
   const formSubmitStatus =
     fetcherSubmitStatus != null &&
@@ -173,11 +195,41 @@ export const SurfSessionForm = (props: SurfSessionFormProps) => {
   }, [onCancel, resetFields])
 
   useEffect(() => {
+    if (mode === 'edit') {
+      return
+    }
     resetFields()
     setShowSuccessScreen(false)
     setSuccessCtaPending(null)
     lastProcessedFetcherDataRef.current = undefined
-  }, [surfSpotId, resetFields])
+  }, [surfSpotId, mode, resetFields])
+
+  useEffect(() => {
+    if (mode !== 'edit' || initialSession == null) {
+      return
+    }
+    const isoDate = initialSession.sessionDate
+    setSessionDate(
+      isoDate.length >= 10
+        ? isoDate.slice(0, 10)
+        : formatDateForInput(new Date(isoDate)),
+    )
+    setSwellDirectionArray(sessionDirectionStoredToArray(initialSession.swellDirection))
+    setWindDirectionArray(sessionDirectionStoredToArray(initialSession.windDirection))
+    setTide(initialSession.tide ?? '')
+    setWaveSize(initialSession.waveSize ?? '')
+    setCrowdLevel(initialSession.crowdLevel ?? '')
+    setWaveQuality(initialSession.waveQuality ?? '')
+    setSkillLevel(initialSession.skillLevel ?? '')
+    setWouldSurfAgain(initialSession.wouldSurfAgain === true)
+    setSurfboardId(initialSession.surfboardId ?? '')
+    setSessionNotes(initialSession.sessionNotes ?? '')
+    setSessionStartTime(timeToHHmm(initialSession.sessionStartTime ?? ''))
+    setSessionEndTime(timeToHHmm(initialSession.sessionEndTime ?? ''))
+    setShowSuccessScreen(false)
+    setSuccessCtaPending(null)
+    lastProcessedFetcherDataRef.current = undefined
+  }, [mode, initialSession])
 
   useEffect(() => {
     if (navigation.state === 'idle') {
@@ -187,17 +239,21 @@ export const SurfSessionForm = (props: SurfSessionFormProps) => {
 
   useEffect(() => {
     if (fetcher.state !== 'idle') return
-
     if (fetcher.data && fetcher.data !== lastProcessedFetcherDataRef.current) {
       lastProcessedFetcherDataRef.current = fetcher.data
       setShowSuccessScreen(!!fetcher.data.success && !fetcher.data.hasError)
     }
   }, [fetcher.state, fetcher.data])
 
+  const defaultSuccessMessage =
+    mode === 'edit'
+      ? SUCCESS_SURF_SESSION_UPDATED
+      : SUCCESS_SURF_SESSION_SAVED
+
   const successMessage =
     fetcherSubmitStatus != null && !fetcherSubmitStatus.isError
       ? fetcherSubmitStatus.message
-      : SUCCESS_SURF_SESSION_SAVED
+      : defaultSuccessMessage
 
   return (
     <div
@@ -205,7 +261,11 @@ export const SurfSessionForm = (props: SurfSessionFormProps) => {
         showSuccessScreen ? 'surf-spot-form-success-page' : ''
       }`}
     >
-      <h1>Add session at {surfSpotName}</h1>
+      <h1>
+        {mode === 'edit'
+          ? `Edit session at ${surfSpotName}`
+          : `Add session at ${surfSpotName}`}
+      </h1>
       {showSuccessScreen && (
         <div className="surf-spot-form-success-wrapper">
           <div className="surf-spot-form-success column">
@@ -217,7 +277,9 @@ export const SurfSessionForm = (props: SurfSessionFormProps) => {
                 {successMessage}
               </p>
               <p className="surf-spot-form-success-subtext">
-                Open Sessions to see your log, or return to this spot.
+                {mode === 'edit'
+                  ? 'Return to My sessions to see the updated entry.'
+                  : 'Open Sessions to see your log, or return to this spot.'}
               </p>
               <div className="surf-spot-form-success-actions">
                 <Button
@@ -251,7 +313,7 @@ export const SurfSessionForm = (props: SurfSessionFormProps) => {
           fetcher={fetcher}
           action={formActionPath}
           method="post"
-          submitLabel="Save session"
+          submitLabel={mode === 'edit' ? 'Save changes' : 'Save session'}
           submitStatus={formSubmitStatus}
           isDisabled={!isFormValid}
           onCancel={handleFormCancel}
@@ -262,10 +324,42 @@ export const SurfSessionForm = (props: SurfSessionFormProps) => {
           }
         >
           <>
-            <input type="hidden" name="intent" value="saveSurfSession" />
+            <input
+              type="hidden"
+              name="intent"
+              value={mode === 'edit' ? 'updateSurfSession' : 'saveSurfSession'}
+            />
             <input type="hidden" name="surfSpotId" value={surfSpotId} />
+            {attachStoredSessionInstantsToPayload &&
+              initialSession?.sessionStartInstant != null &&
+              initialSession.sessionStartInstant !== '' && (
+                <input
+                  type="hidden"
+                  name="sessionStartInstant"
+                  value={initialSession.sessionStartInstant}
+                />
+              )}
+            {attachStoredSessionInstantsToPayload &&
+              initialSession?.sessionEndInstant != null &&
+              initialSession.sessionEndInstant !== '' && (
+                <input
+                  type="hidden"
+                  name="sessionEndInstant"
+                  value={initialSession.sessionEndInstant}
+                />
+              )}
+            {externalEditNotice != null && externalEditNotice !== '' && (
+              <p
+                className="surf-session-external-notice text-secondary"
+                role="note"
+              >
+                {externalEditNotice}
+              </p>
+            )}
             <p className="surf-session-lead text-secondary">
-              Add as much or as little as you like; only the session date is required.
+              {mode === 'edit'
+                ? 'Update the fields you want for this session, then save.'
+                : 'Add as much or as little as you like; only the session date is required.'}
             </p>
             <div className="column">
               <div className="form-inline">

@@ -3,8 +3,8 @@ import type { Page } from '@playwright/test'
 import { login } from './utils/auth-helper'
 
 /**
- * Surf session flow: `{SurfSpot.path}/session`, save, success screen; and /sessions list with Media on expanded rows.
- * Requires VITE_API_URL and a running API (POST /surf-sessions, session media / presigned upload for upload test).
+ * Surf session flow: `{SurfSpot.path}/session`, save, success screen; My sessions list (media, edit, delete, import copy when seeded).
+ * Requires VITE_API_URL and a running API (POST/PUT/DELETE /surf-sessions, session media / presigned upload for upload test).
  */
 
 /**
@@ -86,6 +86,13 @@ const fillRequiredSurfSessionFields = async (page: Page) => {
   await page
     .getByRole('checkbox', { name: /Would surf again in similar conditions/i })
     .check()
+}
+
+const openSessionRowDropdown = async (page: Page, cardIndex: number = 0) => {
+  const sessionCard = page.locator('.session-log-accordion-card').nth(cardIndex)
+  await expect(sessionCard).toBeVisible({ timeout: 15000 })
+  await sessionCard.locator('.dropdown-menu-trigger').click()
+  await page.locator('.dropdown-menu').waitFor({ state: 'visible', timeout: 5000 })
 }
 
 /**
@@ -252,5 +259,98 @@ test.describe('My sessions list', () => {
         'Session media upload test: fixture missing, storage unavailable, or upload timed out (same as surfboards image test)',
       )
     }
+  })
+
+  test('should open edit from row menu, save notes, and show updated text on My sessions', async ({
+    page,
+  }) => {
+    const created = await createSurfSessionIfPossible(page)
+    if (!created) {
+      test.skip(true, 'No surf spots in region (backend has no spots for this region)')
+      return
+    }
+
+    await page.goto('/sessions')
+    await page.waitForLoadState('networkidle')
+    await expect(page.getByRole('heading', { name: /My sessions/i })).toBeVisible()
+
+    await openSessionRowDropdown(page, 0)
+    await page.getByRole('button', { name: 'Edit session' }).click()
+
+    await expect(page).toHaveURL(/\/edit-session\/\d+\/?$/, { timeout: 15000 })
+    await expect(page.getByRole('heading', { name: /Edit session at/i })).toBeVisible({
+      timeout: 10000,
+    })
+
+    const uniqueNotes = `E2E session edit ${Date.now()}`
+    await page.locator('textarea[name="sessionNotes"]').fill(uniqueNotes)
+    await page.getByRole('button', { name: 'Save changes' }).click()
+
+    await expect(page.getByText(/session was updated/i)).toBeVisible({
+      timeout: 20000,
+    })
+    await page.getByRole('button', { name: 'Sessions' }).click()
+    await expect(page).toHaveURL(/\/sessions\/?$/, { timeout: 15000 })
+
+    await page.waitForLoadState('networkidle')
+    const firstToggle = page.locator('.session-log-card-toggle').first()
+    await firstToggle.click()
+    const firstPanel = page.locator('.session-log-card-panel').first()
+    await expect(firstPanel.getByText(uniqueNotes)).toBeVisible({ timeout: 15000 })
+  })
+
+  test('should delete session from row menu and show success toast', async ({ page }) => {
+    const created = await createSurfSessionIfPossible(page)
+    if (!created) {
+      test.skip(true, 'No surf spots in region (backend has no spots for this region)')
+      return
+    }
+
+    await page.goto('/sessions')
+    await page.waitForLoadState('networkidle')
+    await expect(page.getByRole('heading', { name: /My sessions/i })).toBeVisible()
+
+    const cardsBefore = await page.locator('.session-log-accordion-card').count()
+
+    await openSessionRowDropdown(page, 0)
+    await page.getByRole('button', { name: 'Delete session' }).click()
+
+    const confirmModal = page.locator('.delete-confirm-modal')
+    await expect(confirmModal).toBeVisible({ timeout: 5000 })
+    await confirmModal.getByRole('button', { name: 'Delete' }).click()
+
+    await expect(
+      page.locator('.toast--success').filter({ hasText: /Session deleted/i }),
+    ).toBeVisible({ timeout: 20000 })
+
+    await page.waitForLoadState('networkidle')
+    const cardsAfter = await page.locator('.session-log-accordion-card').count()
+    expect(cardsAfter).toBeLessThan(cardsBefore)
+  })
+
+  test('should show external-import notice on edit when list shows Synced from', async ({
+    page,
+  }) => {
+    await page.goto('/sessions')
+    await page.waitForLoadState('networkidle')
+    await expect(page.getByRole('heading', { name: /My sessions/i })).toBeVisible()
+
+    const syncedCard = page
+      .locator('.session-log-accordion-card')
+      .filter({ hasText: /Synced from/i })
+      .first()
+    if (!(await syncedCard.isVisible().catch(() => false))) {
+      test.skip(true, 'Test account has no externally synced sessions to assert import copy')
+      return
+    }
+
+    await syncedCard.locator('.dropdown-menu-trigger').click()
+    await page.locator('.dropdown-menu').waitFor({ state: 'visible', timeout: 5000 })
+    await page.getByRole('button', { name: 'Edit session' }).click()
+
+    await expect(page).toHaveURL(/\/edit-session\/\d+\/?$/, { timeout: 15000 })
+    await expect(
+      page.getByText(/Edits and deletes here apply only in Surf Spots/i),
+    ).toBeVisible({ timeout: 10000 })
   })
 })

@@ -2,6 +2,7 @@ import { data, Link, useLoaderData, useParams } from 'react-router'
 import { ContentStatus } from '~/components'
 import { cacheControlHeader, get } from '~/services/networkService'
 import type { Continent, Country } from '~/types/surfSpots'
+import { ERROR_LOAD_COUNTRIES_FOR_CONTINENT } from '~/utils/errorUtils'
 
 interface LoaderData {
   countries: Country[]
@@ -36,7 +37,7 @@ export const loader = async ({ params }: { params: LoaderParams }) => {
     return data<LoaderData>(
       {
         countries: [],
-        error: `We're having trouble finding countries right now. Please try again later.`,
+        error: ERROR_LOAD_COUNTRIES_FOR_CONTINENT,
       },
       {
         status: 500,

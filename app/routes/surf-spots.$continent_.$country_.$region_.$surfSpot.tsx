@@ -52,6 +52,7 @@ import {
   ERROR_INVALID_SURF_SPOT_ID,
   ERROR_INVALID_TRIP_ACTION,
   ERROR_SAVE_NOTE,
+  ERROR_SURF_SPOT_DETAIL_NOT_LOCATED,
   ERROR_SURF_SPOT_ID_REQUIRED,
   ERROR_TRIP_AND_SPOT_IDS_REQUIRED,
   ERROR_TRIP_AND_TRIP_SPOT_IDS_REQUIRED,
@@ -382,7 +383,7 @@ export const loader: LoaderFunction = async ({ request, params }) => {
     return data<LoaderData>(
       {
         surfboards: [],
-        error: `We can't seem to locate this surf spot. Please try again later.`,
+        error: ERROR_SURF_SPOT_DETAIL_NOT_LOCATED,
       },
       {
         status: 500,

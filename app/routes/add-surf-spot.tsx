@@ -10,6 +10,7 @@ import { Page, ErrorBoundary } from '~/components'
 import {
   ERROR_BOUNDARY_GENERIC,
   ERROR_ADD_SURF_SPOT,
+  ERROR_LOAD_CONTINENTS_ADD_SURF_SPOT,
   SUCCESS_SURF_SPOT_ADDED,
   httpStatusFromActionError,
 } from '~/utils/errorUtils'
@@ -33,7 +34,7 @@ export const loader: LoaderFunction = async ({ request }) => {
     return data<LoaderData>(
       {
         continents: [],
-        error: `We could not load continent data right now. Please try again later.`,
+        error: ERROR_LOAD_CONTINENTS_ADD_SURF_SPOT,
       },
       {
         status: 500,

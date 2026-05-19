@@ -31,6 +31,7 @@ import {
   ERROR_TRIP_DATES_REQUIRED,
   ERROR_TITLE_REQUIRED,
   ERROR_TRIP_NOT_FOUND,
+  ERROR_LOAD_TRIP_DETAIL,
   ERROR_UPDATE_TRIP,
   ERROR_BOUNDARY_SECTION,
 } from '~/utils/errorUtils'
@@ -74,7 +75,7 @@ export const loader: LoaderFunction = async ({ request, params }) => {
     console.error('Error fetching trip:', error)
     return data<LoaderData>(
       {
-        error: `We couldn't load this trip right now. Please try again later.`,
+        error: ERROR_LOAD_TRIP_DETAIL,
         trip: {} as Trip,
       },
       { status: 500 },

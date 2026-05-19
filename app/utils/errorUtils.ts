@@ -40,6 +40,9 @@ export const ERROR_CANCEL_INVITATION = 'Failed to cancel invitation. Please try 
 export const ERROR_DELETE_MEDIA = 'Failed to delete media. Please try again.'
 export const ERROR_LOAD_TRIPS =
   "We couldn't load your trips right now. Please try again later."
+/** Loader: single trip GET failed (network/server). */
+export const ERROR_LOAD_TRIP_DETAIL =
+  "We couldn't load this trip right now. Please try again later."
 export const ERROR_TRIP_NOT_FOUND = 'Trip not found'
 export const ERROR_TITLE_REQUIRED = 'Title is required'
 export const ERROR_TRIP_DATES_REQUIRED = 'Start date and end date are required'
@@ -47,6 +50,11 @@ export const ERROR_INVALID_MEMBER_EMAILS =
   'Please enter valid email addresses for all members.'
 export const ERROR_LOGIN_REQUIRED_CREATE_TRIP =
   'Sign in to create trips'
+export const ERROR_TRIP_SURFBOARD_RECORD_ID_REQUIRED =
+  'Trip surfboard ID is required'
+export const ERROR_TRIP_SPOT_RECORD_ID_REQUIRED = 'Trip spot ID is required'
+export const ERROR_TRIP_MEMBER_USER_ID_REQUIRED = 'Member user ID is required'
+export const ERROR_TRIP_INVITATION_ID_REQUIRED = 'Invitation ID is required'
 
 // Surfboards
 export const ERROR_DELETE_SURFBOARD = 'Failed to delete surfboard. Please try again.'
@@ -56,6 +64,11 @@ export const ERROR_LOAD_SURFBOARDS =
   "We couldn't load your surfboards right now. Please try again later."
 export const ERROR_LOAD_SESSIONS =
   "We couldn't load your sessions right now. Please try again later."
+export const ERROR_LOAD_SURF_SESSION =
+  "We couldn't load this session right now. Please try again later."
+/** Edit session loader: valid id but no session (removed, wrong id, or not permitted). */
+export const ERROR_SURF_SESSION_NOT_FOUND =
+  'We could not load this session. It may have been deleted.'
 export const ERROR_SURFBOARD_NOT_FOUND = 'Surfboard not found'
 export const ERROR_LOGIN_REQUIRED_ADD_SURFBOARD =
   'Sign in to add surfboards'
@@ -64,6 +77,11 @@ export const ERROR_LOGIN_REQUIRED_ADD_SURFBOARD =
 export const ERROR_SAVE_NOTE = 'Failed to save note. Please try again.'
 export const ERROR_SAVE_SURF_SESSION =
   'Could not save your session. Please try again.'
+export const ERROR_UPDATE_SURF_SESSION =
+  'Could not update your session. Please try again.'
+export const ERROR_DELETE_SESSION =
+  'Could not delete this session. Please try again.'
+export const ERROR_SESSION_ID_REQUIRED = 'Session id is required.'
 /** Client + ApiErrors.SESSION_END_TIME_REQUIRES_START */
 export const SESSION_TIMING_END_REQUIRES_START =
   'Pick a start time first, then an end time.'
@@ -82,8 +100,12 @@ export const SESSION_TIMING_INVALID_END_TIME =
 export const ERROR_SESSION_SKILL_LEVEL_REQUIRED =
   'Select your skill level before saving this session.'
 export const SUCCESS_SURF_SESSION_SAVED = 'Your session was saved.'
+export const SUCCESS_SURF_SESSION_UPDATED = 'Your session was updated.'
 export const ERROR_LOAD_REGION_DATA = 'Failed to load region data. Please try again later.'
 export const ERROR_LOAD_CONTINENTS = "We couldn't load the continents. Please try again."
+/** Loader: continents for add-surf-spot form failed. */
+export const ERROR_LOAD_CONTINENTS_ADD_SURF_SPOT =
+  'We could not load continent data right now. Please try again later.'
 export const ERROR_LOAD_MAP_DATA =
   "We couldn't load surf spots for this map. Please try again."
 export const ERROR_LOAD_MAP = "We couldn't load the map. Please try again."
@@ -93,6 +115,20 @@ export const ERROR_EDIT_SURF_SPOT_FORBIDDEN =
   'You do not have permission to edit this surf spot.'
 export const ERROR_LOAD_EDIT_SURF_SPOT =
   "We're having trouble finding the data for this surf spot right now. Please try again later."
+/** Loader: surf spot detail GET failed (catch-all). */
+export const ERROR_SURF_SPOT_DETAIL_NOT_LOCATED =
+  "We can't seem to locate this surf spot. Please try again later."
+/** Loader: surf spot for add-session page failed. */
+export const ERROR_LOAD_SURF_SPOT_FOR_ADD_SESSION =
+  "We can't load this surf spot right now. Please try again later."
+/** Loader: continent countries list failed. */
+export const ERROR_LOAD_COUNTRIES_FOR_CONTINENT =
+  "We're having trouble finding countries right now. Please try again later."
+/** Loader: region route missing URL segments. */
+export const ERROR_SURF_SPOTS_REGION_URL_MISSING =
+  'Missing country or region in URL.'
+/** Loader: add-session route missing spot slug. */
+export const ERROR_SURF_SPOT_SLUG_REQUIRED = 'Surf spot is required'
 export const SUCCESS_SURF_SPOT_UPDATED = 'Surf spot updated'
 export const ERROR_SURF_SPOT_ID_REQUIRED = 'Surf spot ID is required'
 export const SUCCESS_SURF_SPOT_ADDED = 'Surf spot added'
@@ -156,6 +192,8 @@ export const SUCCESS_SETTINGS_UPDATED = 'Settings updated'
 // Location
 export const ERROR_DETERMINE_REGION =
   'Unable to determine region for this location. Please try entering manually.'
+export const ERROR_LOCATION_REQUEST_TIMEOUT =
+  'Location request timed out. Please try again.'
 
 // Error boundary fallbacks (React ErrorBoundary message prop – shown when a component tree throws)
 export const ERROR_BOUNDARY_GENERIC = 'Something went wrong.'
@@ -189,6 +227,9 @@ export const ERROR_OPEN_SURF_SPOT =
   'Unable to open this surf spot right now. Please try again.'
 export const ERROR_OPEN_SESSION_LOG =
   'Unable to open the surf session for this spot right now. Please try again.'
+/** Add-session route: spot missing in context (navigation or loader edge case). */
+export const ERROR_ADD_SESSION_PAGE_CONTEXT =
+  'We could not open this session for the spot. Try again from the surf spot page.'
 
 /**
  * Status code for `data(..., { status })` in an action `catch` after `post`/`patch` throws

@@ -1,5 +1,5 @@
 import { ActionFunction, data } from 'react-router'
-import { post, deleteData, getDisplayMessage } from './networkService'
+import { post, deleteData, getDisplayMessage, edit, httpStatusFromNetworkError } from './networkService'
 import { getSession, commitSession } from './session.server'
 import { requireSessionCookie } from './session.server'
 import { CrowdLevel, SurfSpotStatus } from '~/types/surfSpots'
@@ -8,11 +8,14 @@ import {
   ERROR_CHECK_INPUT,
   ERROR_MISSING_REQUIRED_FIELDS,
   ERROR_SAVE_SURF_SESSION,
+  ERROR_SESSION_ID_REQUIRED,
   ERROR_SURF_SPOT_ID_REQUIRED,
   ERROR_TRIP_AND_SPOT_IDS_REQUIRED,
   ERROR_TRIP_AND_TRIP_SPOT_IDS_REQUIRED,
+  ERROR_UPDATE_SURF_SESSION,
   ERROR_UPDATE_TRIP,
   SUCCESS_SURF_SESSION_SAVED,
+  SUCCESS_SURF_SESSION_UPDATED,
 } from '~/utils/errorUtils'
 import { isPublicSurfSpotPayloadComplete } from '~/utils/surfSpotWizardValidation'
 import { safeLinkHref } from '~/utils/commonUtils'
@@ -66,21 +69,27 @@ const parseUrlList = (
   return urls
 }
 
-export const handleSaveSurfSession = async (
+type SurfSessionJsonBuildResult =
+  | { ok: false; response: ReturnType<typeof data<ActionData>> }
+  | { ok: true; payload: Record<string, unknown> }
+
+const buildSurfSessionJsonFromFormData = (
   formData: FormData,
-  cookie: string,
-): Promise<ReturnType<typeof data>> => {
+): SurfSessionJsonBuildResult => {
   const surfSpotIdRaw = formData.get('surfSpotId') as string
   const surfSpotId = Number(surfSpotIdRaw)
   if (surfSpotIdRaw == null || surfSpotIdRaw === '' || Number.isNaN(surfSpotId)) {
-    return data<ActionData>(
-      {
-        success: false,
-        submitStatus: ERROR_SURF_SPOT_ID_REQUIRED,
-        hasError: true,
-      },
-      { status: 400 },
-    )
+    return {
+      ok: false,
+      response: data<ActionData>(
+        {
+          success: false,
+          submitStatus: ERROR_SURF_SPOT_ID_REQUIRED,
+          hasError: true,
+        },
+        { status: 400 },
+      ),
+    }
   }
 
   const sessionDate = (formData.get('sessionDate') as string) || ''
@@ -99,64 +108,90 @@ export const handleSaveSurfSession = async (
   const sessionEndTimeRaw = (formData.get('sessionEndTime') as string) || ''
 
   if (!sessionDate) {
-    return data<ActionData>(
-      {
-        success: false,
-        submitStatus: ERROR_CHECK_INPUT,
-        hasError: true,
-      },
-      { status: 400 },
-    )
+    return {
+      ok: false,
+      response: data<ActionData>(
+        {
+          success: false,
+          submitStatus: ERROR_CHECK_INPUT,
+          hasError: true,
+        },
+        { status: 400 },
+      ),
+    }
+  }
+
+  const payload: Record<string, unknown> = {
+    surfSpotId,
+    sessionDate,
+    wouldSurfAgain,
+  }
+  const skillLevelStr =
+    typeof skillLevel === 'string' && skillLevel.trim() !== ''
+      ? skillLevel.trim()
+      : undefined
+  if (skillLevelStr) {
+    payload.skillLevel = skillLevelStr
+  }
+  if (waveSize) {
+    payload.waveSize = waveSize
+  }
+  if (crowdLevel) {
+    payload.crowdLevel = crowdLevel
+  }
+  if (waveQuality) {
+    payload.waveQuality = waveQuality
+  }
+  if (tide) {
+    payload.tide = tide
+  }
+  if (swellDirection.trim()) {
+    payload.swellDirection = swellDirection.trim()
+  }
+  if (windDirection.trim()) {
+    payload.windDirection = windDirection.trim()
+  }
+  if (sessionNotes) {
+    payload.sessionNotes = sessionNotes
+  }
+  if (surfboardIdRaw) {
+    payload.surfboardId = surfboardIdRaw
+  }
+
+  const sessionStartTrimmed = sessionStartTimeRaw.trim()
+  if (sessionStartTrimmed !== '') {
+    payload.sessionStartTime = sessionStartTrimmed
+  }
+  const sessionEndTrimmed = sessionEndTimeRaw.trim()
+  if (sessionEndTrimmed !== '') {
+    payload.sessionEndTime = sessionEndTrimmed
+  }
+
+  const sessionStartInstantRaw = (formData.get('sessionStartInstant') as string) || ''
+  const sessionEndInstantRaw = (formData.get('sessionEndInstant') as string) || ''
+  const sessionStartInstantTrimmed = sessionStartInstantRaw.trim()
+  const sessionEndInstantTrimmed = sessionEndInstantRaw.trim()
+  if (sessionStartInstantTrimmed !== '') {
+    payload.sessionStartInstant = sessionStartInstantTrimmed
+  }
+  if (sessionEndInstantTrimmed !== '') {
+    payload.sessionEndInstant = sessionEndInstantTrimmed
+  }
+
+  return { ok: true, payload }
+}
+
+export const handleSaveSurfSession = async (
+  formData: FormData,
+  cookie: string,
+): Promise<ReturnType<typeof data>> => {
+  const built = buildSurfSessionJsonFromFormData(formData)
+  if (!built.ok) {
+    return built.response
   }
 
   try {
-    const payload: Record<string, unknown> = {
-      surfSpotId,
-      sessionDate,
-      wouldSurfAgain,
-    }
-    const skillLevelStr =
-      typeof skillLevel === 'string' && skillLevel.trim() !== ''
-        ? skillLevel.trim()
-        : undefined
-    if (skillLevelStr) {
-      payload.skillLevel = skillLevelStr
-    }
-    if (waveSize) {
-      payload.waveSize = waveSize
-    }
-    if (crowdLevel) {
-      payload.crowdLevel = crowdLevel
-    }
-    if (waveQuality) {
-      payload.waveQuality = waveQuality
-    }
-    if (tide) {
-      payload.tide = tide
-    }
-    if (swellDirection.trim()) {
-      payload.swellDirection = swellDirection.trim()
-    }
-    if (windDirection.trim()) {
-      payload.windDirection = windDirection.trim()
-    }
-    if (sessionNotes) {
-      payload.sessionNotes = sessionNotes
-    }
-    if (surfboardIdRaw) {
-      payload.surfboardId = surfboardIdRaw
-    }
-
-    const sessionStartTrimmed = sessionStartTimeRaw.trim()
-    if (sessionStartTrimmed !== '') {
-      payload.sessionStartTime = sessionStartTrimmed
-    }
-    const sessionEndTrimmed = sessionEndTimeRaw.trim()
-    if (sessionEndTrimmed !== '') {
-      payload.sessionEndTime = sessionEndTrimmed
-    }
-
-    await post('surf-sessions', payload, { headers: { Cookie: cookie } })
+    await post('surf-sessions', built.payload, { headers: { Cookie: cookie } })
 
     return data<ActionData>({
       success: true,
@@ -164,12 +199,56 @@ export const handleSaveSurfSession = async (
       hasError: false,
     })
   } catch (error) {
-    console.error('Save surf session failed:', error)
+    console.error('Save surf session failed')
     const message = getDisplayMessage(error, ERROR_SAVE_SURF_SESSION)
-    const status =
-      error instanceof Error && 'status' in error
-        ? (error as { status?: number }).status ?? 500
-        : 500
+    const status = httpStatusFromNetworkError(error)
+    return data<ActionData>(
+      {
+        success: false,
+        submitStatus: message,
+        hasError: true,
+      },
+      { status },
+    )
+  }
+}
+
+export const handleUpdateSurfSession = async (
+  formData: FormData,
+  sessionId: string,
+  cookie: string,
+): Promise<ReturnType<typeof data>> => {
+  const trimmedSessionId = sessionId.trim()
+  if (!trimmedSessionId) {
+    return data<ActionData>(
+      {
+        success: false,
+        submitStatus: ERROR_SESSION_ID_REQUIRED,
+        hasError: true,
+      },
+      { status: 400 },
+    )
+  }
+
+  const built = buildSurfSessionJsonFromFormData(formData)
+  if (!built.ok) {
+    return built.response
+  }
+
+  try {
+    await edit(`surf-sessions/${encodeURIComponent(trimmedSessionId)}`, built.payload, {
+      headers: { Cookie: cookie },
+    })
+
+    return data<ActionData>({
+      success: true,
+      submitStatus: SUCCESS_SURF_SESSION_UPDATED,
+      hasError: false,
+    })
+  } catch (error) {
+    console.error('Update surf session failed')
+    const message = getDisplayMessage(error, ERROR_UPDATE_SURF_SESSION)
+    const status = httpStatusFromNetworkError(error)
     return data<ActionData>(
       {
         success: false,
@@ -230,14 +309,7 @@ export const surfSpotAction: ActionFunction = async ({ request }) => {
         return data({ success: true })
       }
     } catch (error) {
-      console.error('Surf spot action: trip action failed:', {
-        error,
-        message: error instanceof Error ? error.message : String(error),
-        status:
-          error instanceof Error && 'status' in error
-            ? (error as { status?: number }).status
-            : undefined,
-      })
+      console.error('Surf spot action: trip action failed')
       return data(
         { error: getDisplayMessage(error, ERROR_UPDATE_TRIP) },
         { status: 500 },
@@ -247,11 +319,7 @@ export const surfSpotAction: ActionFunction = async ({ request }) => {
 
   // ——— Surf spot actions (watch list / surfed spots) ———
   if (!actionType || !target || !surfSpotId) {
-    console.error('Missing required fields:', {
-      actionType,
-      target,
-      surfSpotId,
-    })
+    console.error('Surf spot action: missing required fields')
     return data(
       { error: ERROR_MISSING_REQUIRED_FIELDS },
       { status: 400 },
@@ -287,7 +355,7 @@ export const surfSpotAction: ActionFunction = async ({ request }) => {
       { headers: { 'Set-Cookie': await commitSession(session) } },
     )
   } catch (error) {
-    console.error('Error occurred in surfSpotAction:', error)
+    console.error('Surf spot action: request failed')
     if (error instanceof Response) return error
 
     const status =

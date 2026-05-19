@@ -29,6 +29,7 @@ import MediaGallery from './MediaGallery'
 import MediaUpload from './MediaUpload'
 import Menu from './Menu'
 import Modal from './Modal'
+import { ConfirmDestructiveModal } from './Modal/ConfirmDestructiveModal'
 import NavButton from './NavButton'
 import SurfSpotList from './SurfSpotList'
 import SurfSpotPreview from './SurfSpotPreview'
@@ -76,6 +77,7 @@ export {
   ChipSelector,
   Card,
   ContentStatus,
+  ConfirmDestructiveModal,
   DatePicker,
   Details,
   DirectionIcon,

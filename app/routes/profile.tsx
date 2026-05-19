@@ -31,17 +31,17 @@ import type { User } from '~/types/user'
 
 import {
   ContentStatus,
+  ConfirmDestructiveModal,
   Page,
   EmergencyContactPhoneField,
   FormInput,
   FormComponent,
   LocationSelector,
   NavButton,
-  Modal,
   Button,
 } from '~/components'
 import { Location } from '~/components/LocationSelector'
-import { useSubmitStatus, useFormSubmission } from '~/hooks'
+import { useSubmitStatus, useFormSubmission, useDestructiveConfirmBusy } from '~/hooks'
 import useFormValidation, {
   validateEmail,
   validateRequired,
@@ -275,6 +275,20 @@ const Profile = () => {
   const submitStatus = useSubmitStatus()
   const deleteFetcher = useFetcher()
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
+  const {
+    busy: deleteAccountModalBusy,
+    beginSubmit: beginDeleteAccountSubmit,
+    clearArmed: clearDeleteAccountArmed,
+  } = useDestructiveConfirmBusy(showDeleteConfirm, deleteFetcher.state !== 'idle')
+
+  useEffect(() => {
+    if (deleteFetcher.state !== 'idle' || !showDeleteConfirm) {
+      return
+    }
+    if (deleteFetcher.data?.hasError) {
+      clearDeleteAccountArmed()
+    }
+  }, [deleteFetcher.state, deleteFetcher.data, showDeleteConfirm, clearDeleteAccountArmed])
 
   // Convert stored values (cm/kg) to display units for form initialization
   const getDisplayValue = (storedValue: number | undefined, converter: (val: number, units: 'metric' | 'imperial') => string | number | undefined) =>
@@ -311,11 +325,14 @@ const Profile = () => {
 
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false)
 
-  const handleDeleteAccount = () => 
-    deleteFetcher.submit(
-      { intent: 'delete-account' },
-      { method: 'post' },
-    )
+  const handleDeleteAccount = () => {
+    beginDeleteAccountSubmit(() => {
+      deleteFetcher.submit(
+        { intent: 'delete-account' },
+        { method: 'post' },
+      )
+    })
+  }
 
   useEffect(
     () => {
@@ -548,50 +565,38 @@ const Profile = () => {
             <Button
               label="Delete Account"
               variant="danger"
-              onClick={() => setShowDeleteConfirm(true)}
+              onClick={() => {
+                setShowDeleteConfirm(true)
+              }}
             />
           </div>
         </div>
       </div>
 
-      {showDeleteConfirm && (
-        <Modal onClose={() => setShowDeleteConfirm(false)}>
-          <div className="delete-confirm-modal">
-            <h2>Delete Your Account?</h2>
-            <p>
-              This will permanently delete your account and all your data,
-              including trips, surfboards, watch lists, and profile information.
-            </p>
-            <p className="warning">
-              This action cannot be undone.
-            </p>
-            {deleteFetcher.data?.hasError && (
-              <p className="delete-error">
-                {typeof deleteFetcher.data.submitStatus === 'string' && deleteFetcher.data.submitStatus.trim()
-                  ? deleteFetcher.data.submitStatus.trim()
-                  : ERROR_DELETE_ACCOUNT}
-              </p>
-            )}
-            <div className="modal-actions">
-              <Button
-                label="Delete Account"
-                variant="danger"
-                onClick={handleDeleteAccount}
-                disabled={deleteFetcher.state === 'submitting'}
-                loading={deleteFetcher.state === 'submitting'}
-              />
-              <Button
-                label="Cancel"
-                variant="cancel"
-                onClick={() => {
-                  setShowDeleteConfirm(false)
-                }}
-                disabled={deleteFetcher.state === 'submitting'}
-              />
-            </div>
-          </div>
-        </Modal>
-      )}
+      <ConfirmDestructiveModal
+        isOpen={showDeleteConfirm}
+        onClose={() => {
+          setShowDeleteConfirm(false)
+        }}
+        onConfirm={handleDeleteAccount}
+        title="Delete Your Account?"
+        confirmLabel="Delete Account"
+        busy={deleteAccountModalBusy}
+      >
+        <p>
+          This will permanently delete your account and all your data, including
+          trips, surfboards, watch lists, and profile information.
+        </p>
+        <p className="warning">This action cannot be undone.</p>
+        {deleteFetcher.data?.hasError && (
+          <p className="delete-error">
+            {typeof deleteFetcher.data.submitStatus === 'string' &&
+            deleteFetcher.data.submitStatus.trim()
+              ? deleteFetcher.data.submitStatus.trim()
+              : ERROR_DELETE_ACCOUNT}
+          </p>
+        )}
+      </ConfirmDestructiveModal>
     </Page>
   )
 }

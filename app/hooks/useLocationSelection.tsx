@@ -12,7 +12,7 @@ import {
 } from '~/types/surfSpots'
 import type { AddSurfSpotMapRef } from '~/components/SurfMap/AddSurfSpotMap'
 import { useToastContext } from '~/contexts'
-import { ERROR_DETERMINE_REGION } from '~/utils/errorUtils'
+import { ERROR_DETERMINE_REGION, ERROR_LOCATION_REQUEST_TIMEOUT } from '~/utils/errorUtils'
 import { roundCoordinate } from '~/utils/coordinateUtils'
 
 type FormChangeHandler = <K extends keyof SurfSpotFormState>(
@@ -452,7 +452,7 @@ export const useLocationSelection = ({
                 'Location information is unavailable. This may be affected by your VPN. Please enter manually or disable VPN.'
               break
             case error.TIMEOUT:
-              errorMessage += 'Location request timed out. Please try again.'
+              errorMessage += ERROR_LOCATION_REQUEST_TIMEOUT
               break
             default:
               errorMessage += 'Please enter manually.'

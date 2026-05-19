@@ -6,10 +6,16 @@ interface IProps {
   children: ReactNode
   onClose: () => void
   containerClassName?: string
+  /**
+   * When true, the header close control is disabled (e.g. pass `busy` from
+   * `useDestructiveConfirmBusy` while a destructive `useFetcher` submit is in flight
+   * so users cannot dismiss and tap again).
+   */
+  disableClose?: boolean
 }
 
 export const Modal = (props: IProps) => {
-  const { children, onClose, containerClassName } = props
+  const { children, onClose, containerClassName, disableClose = false } = props
   const modalContainerClass = ['modal-container', containerClassName]
     .filter(Boolean)
     .join(' ')
@@ -18,7 +24,13 @@ export const Modal = (props: IProps) => {
     <div className="modal-overlay">
       <div className={modalContainerClass}>
         <div className="modal-header flex-end">
-          <Button label="×" onClick={onClose} variant="icon" />
+          <Button
+            label="×"
+            onClick={disableClose ? undefined : onClose}
+            variant="icon"
+            disabled={disableClose}
+            ariaLabel="Close"
+          />
         </div>
         <div className="modal-content">{children}</div>
       </div>

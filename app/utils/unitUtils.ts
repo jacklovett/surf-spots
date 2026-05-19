@@ -3,6 +3,8 @@
  * All values are stored in metric (cm for height, kg for weight, meters for distance)
  */
 
+import { ERROR_INVALID_HEIGHT, ERROR_INVALID_WEIGHT } from './errorUtils'
+
 /**
  * Converts meters to feet - 1m ≈ 3.28ft
  * @param meters - distance in meters
@@ -244,12 +246,12 @@ export const validateAndConvertHeight = (
   if (units === 'metric') {
     const heightNum = parseFloat(heightDisplay)
     if (isNaN(heightNum) || heightNum < 50 || heightNum > 300) {
-      return { isValid: false, error: 'Please enter a valid height' }
+      return { isValid: false, error: ERROR_INVALID_HEIGHT }
     }
   } else {
     const totalInches = parseHeightImperial(heightDisplay)
     if (totalInches === undefined || totalInches < 20 || totalInches > 120) {
-      return { isValid: false, error: 'Please enter a valid height' }
+      return { isValid: false, error: ERROR_INVALID_HEIGHT }
     }
   }
 
@@ -274,12 +276,12 @@ export const validateAndConvertWeight = (
   if (units === 'metric') {
     const weightNum = parseFloat(weightDisplay)
     if (isNaN(weightNum) || weightNum < 10 || weightNum > 500) {
-      return { isValid: false, error: 'Please enter a valid weight' }
+      return { isValid: false, error: ERROR_INVALID_WEIGHT }
     }
   } else {
     const totalLbs = parseWeightImperial(weightDisplay)
     if (totalLbs === undefined || totalLbs < 20 || totalLbs > 1100) {
-      return { isValid: false, error: 'Please enter a valid weight' }
+      return { isValid: false, error: ERROR_INVALID_WEIGHT }
     }
   }
 
