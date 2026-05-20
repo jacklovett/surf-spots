@@ -27,7 +27,7 @@ import { cacheControlHeader, get, httpStatusFromNetworkError, isNetworkError } f
 import { requireSessionCookie } from '~/services/session.server'
 import { surfSpotAction } from '~/services/surfSpot.server'
 import { SurfedSpotsSummary } from '~/types/surfedSpotsSummary'
-import { SurfSpot } from '~/types/surfSpots'
+import { formatDate } from '~/utils/dateUtils'
 
 interface LoaderData {
   surfedSpotsSummary?: SurfedSpotsSummary
@@ -80,35 +80,6 @@ const getSurfExplorerLevel = (countryCount: number) => {
   return 'World Nomad'
 }
 
-// Helper function to get favorite wave direction based on surfed spots
-const getFavoriteWaveDirection = (surfedSpots: SurfSpot[]) => {
-  if (!surfedSpots || surfedSpots.length === 0) return null
-
-  // Count spots by wave direction
-  const waveDirectionCounts = surfedSpots.reduce(
-    (acc, spot) => {
-      if (spot.waveDirection) {
-        acc[spot.waveDirection] = (acc[spot.waveDirection] || 0) + 1
-      }
-      return acc
-    },
-    {} as Record<string, number>,
-  )
-
-  // Find the most common wave direction
-  let maxCount = 0
-  let favoriteDirection: string | null = null
-
-  Object.entries(waveDirectionCounts).forEach(([direction, count]) => {
-    if (count > maxCount) {
-      maxCount = count
-      favoriteDirection = direction
-    }
-  })
-
-  return favoriteDirection
-}
-
 export default function SurfedSpots() {
   const navigation = useNavigation()
   const navigate = useNavigate()
@@ -150,17 +121,14 @@ export default function SurfedSpots() {
     continentCount = 0,
     mostSurfedSpotType = null,
     mostSurfedBeachBottomType = null,
+    mostSurfedWaveDirection = null,
   } = surfedSpotsSummary
 
   const surfedSpotsFound = surfedSpots.length > 0
   // Extract surfSpot from each SurfedSpotItem - backend should already set flags
   const surfSpots = surfedSpots.map((item) => item.surfSpot)
 
-  // TODO: Refine and move calculation to backend
-  const favoriteWaveDirection = getFavoriteWaveDirection(surfSpots)
-
-  // Get most recent surf spots (last 5)
-  const recentSpots = surfSpots.slice(0, 5)
+  const recentSurfedSpots = surfedSpots.slice(0, 5)
 
   return (
     <Page showHeader>
@@ -212,32 +180,32 @@ export default function SurfedSpots() {
             <div className="preference-card animate-on-scroll">
               <span className="preference-label bold">Favorite Direction</span>
               <span className="preference-value">
-                {favoriteWaveDirection || '-'}
+                {mostSurfedWaveDirection || '-'}
               </span>
             </div>
           </div>
         </div>
 
         {/* Recent Surf Spots */}
-        {recentSpots.length > 0 && (
+        {recentSurfedSpots.length > 0 && (
           <div className="recent-spots-section">
             <h2>Recently Surfed</h2>
             <div
               ref={recentSpotsRef as RefObject<HTMLDivElement>}
               className="recent-spots-grid"
             >
-              {recentSpots.map((spot: SurfSpot) => (
+              {recentSurfedSpots.map(({ surfSpot, addedAt }) => (
                 <div
-                  key={spot.id}
+                  key={surfSpot.id}
                   className="recent-spot-card animate-on-scroll"
-                  onClick={() => navigate(spot.path)}
+                  onClick={() => navigate(surfSpot.path)}
                 >
                   <div className="spot-info">
-                    <h4 className="bold">{spot.name}</h4>
+                    <h4 className="bold">{surfSpot.name}</h4>
                     <p className="spot-location">
-                      {spot.country?.name}, {spot.continent?.name}
+                      {surfSpot.country?.name}, {surfSpot.continent?.name}
                     </p>
-                    <p>{`Added: ${new Date().toLocaleDateString()}`}</p>
+                    <p>{`Added: ${formatDate(addedAt)}`}</p>
                   </div>
                 </div>
               ))}

@@ -3,6 +3,7 @@ import {
   SkillLevel,
   SurfSpot,
   SurfSpotType,
+  WaveDirection,
 } from './surfSpots'
 
 export interface SurfedSpotItem {
@@ -17,6 +18,7 @@ interface SurfedSpotsSummary {
   continentCount: number
   mostSurfedSpotType: SurfSpotType
   mostSurfedBeachBottomType: BeachBottomType
+  mostSurfedWaveDirection: WaveDirection | null
   skillLevel: SkillLevel
   surfedSpots: SurfedSpotItem[]
 }
