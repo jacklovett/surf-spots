@@ -12,7 +12,14 @@ import {
 } from '~/types/surfSpots'
 import type { AddSurfSpotMapRef } from '~/components/SurfMap/AddSurfSpotMap'
 import { useToastContext } from '~/contexts'
-import { ERROR_DETERMINE_REGION, ERROR_LOCATION_REQUEST_TIMEOUT } from '~/utils/errorUtils'
+import {
+  ERROR_DETERMINE_REGION,
+  ERROR_GEOLOCATION_NOT_SUPPORTED,
+  ERROR_LOCATION_FALLBACK,
+  ERROR_LOCATION_PERMISSION_DENIED,
+  ERROR_LOCATION_POSITION_UNAVAILABLE,
+  ERROR_LOCATION_REQUEST_TIMEOUT,
+} from '~/utils/errorUtils'
 import { roundCoordinate } from '~/utils/coordinateUtils'
 
 type FormChangeHandler = <K extends keyof SurfSpotFormState>(
@@ -62,6 +69,18 @@ export const useLocationSelection = ({
   const [userLocation, setUserLocation] = useState<Coordinates | null>(
     initialUserLocation || null,
   )
+  const [isRequestingUserLocation, setIsRequestingUserLocation] =
+    useState(false)
+  const isRequestingUserLocationRef = useRef(false)
+  const isMountedRef = useRef(true)
+
+  useEffect(() => {
+    isMountedRef.current = true
+    return () => {
+      isMountedRef.current = false
+      isRequestingUserLocationRef.current = false
+    }
+  }, [])
 
   // Update user location when initialUserLocation changes
   useEffect(() => {
@@ -409,67 +428,91 @@ export const useLocationSelection = ({
     onLocationChangeRef.current('latitude', roundCoordinate(coordinates.latitude))
   }, [])
 
-  const handleUseMyLocation = useCallback(() => {
-    if (navigator.geolocation) {
-      // Use high accuracy options to prefer GPS over IP-based location
-      // This helps avoid VPN interference on devices with GPS
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          const coords: Coordinates = {
-            longitude: roundCoordinate(position.coords.longitude),
-            latitude: roundCoordinate(position.coords.latitude),
-          }
-
-          // Log accuracy info for debugging
-          console.log('Location obtained:', {
-            coords,
-            accuracy: position.coords.accuracy, // in meters
-            source:
-              position.coords.accuracy < 100
-                ? 'GPS'
-                : 'Network/IP (may be affected by VPN)',
-          })
-
-          setUserLocation(coords)
-          onLocationChangeRef.current('longitude', coords.longitude)
-          onLocationChangeRef.current('latitude', coords.latitude)
-
-          if (mapRef.current) {
-            mapRef.current.addPinToMap(coords)
-          }
-        },
-        (error) => {
-          console.error('Error getting location:', error)
-          let errorMessage = 'Could not get your location. '
-
-          switch (error.code) {
-            case error.PERMISSION_DENIED:
-              errorMessage +=
-                'Please allow location access in your browser settings.'
-              break
-            case error.POSITION_UNAVAILABLE:
-              errorMessage +=
-                'Location information is unavailable. This may be affected by your VPN. Please enter manually or disable VPN.'
-              break
-            case error.TIMEOUT:
-              errorMessage += ERROR_LOCATION_REQUEST_TIMEOUT
-              break
-            default:
-              errorMessage += 'Please enter manually.'
-          }
-
-          showError(errorMessage)
-        },
-        {
-          enableHighAccuracy: true, // Prefer GPS over IP-based location
-          timeout: 15000, // Increased timeout to allow GPS to get a fix
-          maximumAge: 0, // Don't use cached location, always get fresh location
-        },
-      )
-    } else {
-      showError('Geolocation is not supported by your browser.')
+  const clearUserLocationRequest = useCallback(() => {
+    isRequestingUserLocationRef.current = false
+    if (isMountedRef.current) {
+      setIsRequestingUserLocation(false)
     }
   }, [])
+
+  const handleUseMyLocation = useCallback(() => {
+    if (isRequestingUserLocationRef.current) {
+      return
+    }
+
+    if (!navigator.geolocation) {
+      showError(ERROR_GEOLOCATION_NOT_SUPPORTED)
+      return
+    }
+
+    isRequestingUserLocationRef.current = true
+    if (isMountedRef.current) {
+      setIsRequestingUserLocation(true)
+    }
+
+    // Use high accuracy options to prefer GPS over IP-based location
+    // This helps avoid VPN interference on devices with GPS
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        clearUserLocationRequest()
+
+        if (!isMountedRef.current) {
+          return
+        }
+
+        const coords: Coordinates = {
+          longitude: roundCoordinate(position.coords.longitude),
+          latitude: roundCoordinate(position.coords.latitude),
+        }
+
+        // Log accuracy info for debugging
+        console.log('Location obtained:', {
+          coords,
+          accuracy: position.coords.accuracy, // in meters
+          source:
+            position.coords.accuracy < 100
+              ? 'GPS'
+              : 'Network/IP (may be affected by VPN)',
+        })
+
+        setUserLocation(coords)
+        onLocationChangeRef.current('longitude', coords.longitude)
+        onLocationChangeRef.current('latitude', coords.latitude)
+
+        if (mapRef.current) {
+          mapRef.current.addPinToMap(coords)
+        }
+      },
+      (error) => {
+        clearUserLocationRequest()
+
+        console.error('Error getting location:', error)
+
+        if (!isMountedRef.current) {
+          return
+        }
+
+        switch (error.code) {
+          case error.PERMISSION_DENIED:
+            showError(ERROR_LOCATION_PERMISSION_DENIED)
+            break
+          case error.POSITION_UNAVAILABLE:
+            showError(ERROR_LOCATION_POSITION_UNAVAILABLE)
+            break
+          case error.TIMEOUT:
+            showError(ERROR_LOCATION_REQUEST_TIMEOUT)
+            break
+          default:
+            showError(ERROR_LOCATION_FALLBACK)
+        }
+      },
+      {
+        enableHighAccuracy: true, // Prefer GPS over IP-based location
+        timeout: 15000, // Increased timeout to allow GPS to get a fix
+        maximumAge: 0, // Don't use cached location, always get fresh location
+      },
+    )
+  }, [clearUserLocationRequest, showError])
 
   // Check if current pin location matches user location (within ~200m tolerance)
   const isAtUserLocation = useCallback(() => {
@@ -498,6 +541,7 @@ export const useLocationSelection = ({
     regionName,
     handleLocationUpdate,
     handleUseMyLocation,
+    isRequestingUserLocation,
     isAtUserLocation: isAtUserLocation(),
   } as const
 }

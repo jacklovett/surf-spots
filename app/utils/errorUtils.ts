@@ -192,8 +192,16 @@ export const SUCCESS_SETTINGS_UPDATED = 'Settings updated'
 // Location
 export const ERROR_DETERMINE_REGION =
   'Unable to determine region for this location. Please try entering manually.'
+export const ERROR_GEOLOCATION_NOT_SUPPORTED =
+  'Geolocation is not supported by your browser.'
+export const ERROR_LOCATION_PERMISSION_DENIED =
+  'Could not get your location. Please allow location access in your browser settings.'
+export const ERROR_LOCATION_POSITION_UNAVAILABLE =
+  'Could not get your location. Location information is unavailable. This may be affected by your VPN. Please enter manually or disable VPN.'
 export const ERROR_LOCATION_REQUEST_TIMEOUT =
-  'Location request timed out. Please try again.'
+  'Could not get your location. Location request timed out. Please try again.'
+export const ERROR_LOCATION_FALLBACK =
+  'Could not get your location. Please enter manually.'
 
 // Error boundary fallbacks (React ErrorBoundary message prop – shown when a component tree throws)
 export const ERROR_BOUNDARY_GENERIC = 'Something went wrong.'

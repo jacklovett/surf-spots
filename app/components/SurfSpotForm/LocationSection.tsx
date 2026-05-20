@@ -1,10 +1,11 @@
+import classNames from 'classnames'
 import {
   AddSurfSpotMap,
   FormInput,
   InfoMessage,
   ViewSwitch,
-  TextButton,
   ErrorBoundary,
+  Icon,
 } from '~/components'
 import { ERROR_BOUNDARY_MAP } from '~/utils/errorUtils'
 import { roundCoordinate } from '~/utils/coordinateUtils'
@@ -51,6 +52,7 @@ export const LocationSection = ({
     filteredCountries,
     filteredRegions,
     isDeterminingLocation,
+    isRequestingUserLocation,
     countryName,
     regionName,
     regionNotFoundMessage,
@@ -58,6 +60,7 @@ export const LocationSection = ({
     mapRef,
     handleLocationUpdate,
     handleUseMyLocation,
+    isAtUserLocation,
     setIsMapReady,
   } = locationSelection
   return (
@@ -72,13 +75,38 @@ export const LocationSection = ({
         />
         {findOnMap && (
           <div className="find-by-location">
-            <TextButton
-              text="Use my location"
+            <button
+              type="button"
+              className={classNames('text-button', 'use-my-location-button', {
+                'use-my-location-button-requesting': isRequestingUserLocation,
+              })}
               onClick={handleUseMyLocation}
-              iconKey="crosshair"
-              filled
-              disabled={!isMapReady || locationSelection.isAtUserLocation}
-            />
+              disabled={
+                !isMapReady || isAtUserLocation || isRequestingUserLocation
+              }
+              aria-busy={isRequestingUserLocation}
+              aria-label={
+                isRequestingUserLocation
+                  ? 'Use my location - Processing'
+                  : 'Use my location'
+              }
+            >
+              <span className="text-button-content">
+                <span
+                  className={classNames('text-button-icon', {
+                    filled: !isRequestingUserLocation,
+                  })}
+                  aria-hidden="true"
+                >
+                  {isRequestingUserLocation ? (
+                    <span className="button-loading-spinner use-my-location-spinner" />
+                  ) : (
+                    <Icon iconKey="crosshair" useCurrentColor />
+                  )}
+                </span>
+                <span className="text-button-text">Use my location</span>
+              </span>
+            </button>
           </div>
         )}
       </div>

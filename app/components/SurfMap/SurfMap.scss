@@ -95,12 +95,6 @@ ellipse {
   }
 }
 
-.find-by-location {
-  @media (max-width: 435px) {
-    margin-top: $spacing-unit;
-  }
-}
-
 /* Spots fetch failed: overlay so map stays visible and usable */
 .map-spots-error-overlay {
   @extend %flex-center;
