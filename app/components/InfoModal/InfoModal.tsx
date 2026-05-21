@@ -1,5 +1,3 @@
-import './InfoModal.scss'
-
 import { Modal, Button } from '~/components'
 
 interface InfoModalProps {
