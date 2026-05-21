@@ -1,6 +1,5 @@
 import { ReactNode } from 'react'
 import { Modal } from './Modal'
-import { InfoModal } from './InfoModal'
 
 export interface IModalState {
   content: ReactNode
@@ -18,7 +17,8 @@ export type InfoModalState = {
   message: string
 }
 
-export { ConfirmDestructiveModal } from './ConfirmDestructiveModal'
-export { InfoModal }
+import ConfirmDestructiveModal from '../ConfirmDestructiveModal'
+import InfoModal from '../InfoModal'
 
+export { ConfirmDestructiveModal, InfoModal }
 export default Modal

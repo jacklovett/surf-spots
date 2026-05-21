@@ -1,0 +1,35 @@
+let activeScrollAnimation = 0
+
+export const scrollPageToTop = (options?: { smooth?: boolean }) => {
+  if (typeof window === 'undefined') {
+    return
+  }
+
+  cancelAnimationFrame(activeScrollAnimation)
+
+  const prefersReducedMotion = window.matchMedia(
+    '(prefers-reduced-motion: reduce)',
+  ).matches
+  const smooth = options?.smooth !== false && !prefersReducedMotion
+  const startY = window.scrollY
+
+  if (startY <= 0 || !smooth) {
+    window.scrollTo(0, 0)
+    return
+  }
+
+  const duration = Math.min(450, Math.max(220, startY * 0.35))
+  const startTime = performance.now()
+
+  const step = (now: number) => {
+    const elapsed = now - startTime
+    const progress = Math.min(elapsed / duration, 1)
+    const ease = 1 - Math.pow(1 - progress, 3)
+    window.scrollTo(0, Math.round(startY * (1 - ease)))
+    if (progress < 1) {
+      activeScrollAnimation = requestAnimationFrame(step)
+    }
+  }
+
+  activeScrollAnimation = requestAnimationFrame(step)
+}

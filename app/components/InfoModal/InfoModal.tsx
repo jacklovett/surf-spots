@@ -1,6 +1,8 @@
+import './InfoModal.scss'
+
 import { Modal, Button } from '~/components'
 
-export interface InfoModalProps {
+interface InfoModalProps {
   isOpen: boolean
   onClose: () => void
   title?: string

@@ -10,8 +10,6 @@ import {
   Scripts,
   ScrollRestoration,
   useLoaderData,
-  useLocation,
-  useNavigation,
 } from 'react-router'
 
 import {
@@ -23,12 +21,12 @@ import {
   ToastProvider,
   SignUpPromptProvider,
 } from './contexts'
-import { ErrorBoundary as AppErrorBoundary, ToastContainer } from './components'
-import { WelcomeFromUrlToast } from './components/WelcomeFromUrlToast'
+import { ErrorBoundary as AppErrorBoundary, ToastContainer, WelcomeFromUrlToast } from './components'
 import { ERROR_BOUNDARY_APP } from './utils/errorUtils'
 
 export { ErrorBoundary } from './RootErrorBoundary'
 
+import { useScrollToTopOnNavigation } from './hooks'
 import { getSession } from './services/session.server'
 import { SessionUser } from './types/user'
 
@@ -81,6 +79,8 @@ export const links: LinksFunction = () => [
 ]
 
 export function Layout({ children }: { children: React.ReactNode }) {
+  useScrollToTopOnNavigation()
+
   return (
     <html lang="en">
       <head>
@@ -100,19 +100,6 @@ export function Layout({ children }: { children: React.ReactNode }) {
 
 export default function App() {
   const { user } = useLoaderData<LoaderData>()
-  const location = useLocation()
-  const navigation = useNavigation()
-
-  // Scroll to top when navigation starts (loading state) to ensure loading animation is visible
-  useEffect(() => {
-    if (
-      navigation.state === 'loading' &&
-      navigation.location &&
-      navigation.location.pathname !== location.pathname
-    ) {
-      window.scrollTo(0, 0)
-    }
-  }, [navigation.state, navigation.location, location.pathname])
 
   // Set CSS custom property for accurate mobile viewport height
   // This fixes the issue where 100vh includes browser UI on mobile

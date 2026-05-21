@@ -7,6 +7,7 @@ import {
 } from './index'
 import { ErrorBoundary } from '../index'
 import { ERROR_BOUNDARY_SECTION } from '~/utils/errorUtils'
+import { scrollPageToTop } from '~/utils/scrollPageToTop'
 import { MenuSection } from './MenuSection'
 import { useLayoutContext, useUserContext } from '~/contexts'
 
@@ -42,6 +43,7 @@ const Menu = () => {
       return
     }
 
+    scrollPageToTop({ smooth: true })
     navigate(path)
     closeDrawer()
   }

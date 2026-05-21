@@ -1,5 +1,6 @@
 import { Link, useNavigate } from 'react-router'
 import { useUserContext } from '~/contexts'
+import { scrollPageToTop } from '~/utils/scrollPageToTop'
 
 import Menu from '../Menu'
 
@@ -10,7 +11,13 @@ export const Header = () => {
 
   return (
     <header className="header space-between">
-      <div className="center logo" onClick={() => navigate('/')}>
+      <div
+        className="center logo"
+        onClick={() => {
+          scrollPageToTop({ smooth: true })
+          navigate('/')
+        }}
+      >
         <img
           src="/images/png/logo-with-text.png"
           alt="Surf Spots logo - Return to home"

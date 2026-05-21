@@ -29,7 +29,7 @@ import MediaGallery from './MediaGallery'
 import MediaUpload from './MediaUpload'
 import Menu from './Menu'
 import Modal from './Modal'
-import { ConfirmDestructiveModal } from './Modal/ConfirmDestructiveModal'
+import ConfirmDestructiveModal from './ConfirmDestructiveModal'
 import NavButton from './NavButton'
 import SurfSpotList from './SurfSpotList'
 import SurfSpotPreview from './SurfSpotPreview'
@@ -65,6 +65,7 @@ import SelectionModal from './SelectionModal'
 import SafeLink from './SafeLink'
 import SurfSessionForm from './SurfSessionForm'
 import SessionLogRow from './SessionLogRow'
+import WelcomeFromUrlToast from './WelcomeFromUrlToast'
 
 export {
   Accordion,
@@ -133,4 +134,5 @@ export {
   SessionLogRow,
   UrlLinkList,
   ViewSwitch,
+  WelcomeFromUrlToast,
 }

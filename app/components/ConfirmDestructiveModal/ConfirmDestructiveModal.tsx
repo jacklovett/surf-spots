@@ -1,9 +1,9 @@
 import type { ReactNode } from 'react'
 
-import Button from '../Button'
-import { Modal } from './Modal'
+import Button from '~/components/Button'
+import Modal from '~/components/Modal'
 
-export interface ConfirmDestructiveModalProps {
+interface ConfirmDestructiveModalProps {
   isOpen: boolean
   onClose: () => void
   onConfirm: () => void

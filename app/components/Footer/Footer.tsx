@@ -1,7 +1,9 @@
 import { MouseEvent } from 'react'
 import classNames from 'classnames'
+import { Link } from 'react-router'
 import { SocialLinks } from '../index'
 import { useUserContext, useSignUpPromptContext } from '~/contexts'
+import { scrollPageToTop } from '~/utils/scrollPageToTop'
 
 export const COPYRIGHT_TEXT = `© ${new Date().getFullYear()} Surf Spots. All rights reserved.`
 
@@ -31,15 +33,22 @@ export const Footer = ({ isAlternate }: IProps) => {
     '/sessions': 'sessions',
   }
 
-  const handleLinkClick = (e: MouseEvent<HTMLAnchorElement>, path: string) => {
+  const handleLinkClick = (event: MouseEvent<HTMLAnchorElement>, path: string) => {
     const routeKey = protectedRoutes[path]
     if (routeKey && !user) {
-      e.preventDefault()
+      event.preventDefault()
       showSignUpPrompt(routeKey)
       return
     }
-    // Allow default navigation for non-protected routes or authenticated users
+    scrollPageToTop({ smooth: true })
   }
+
+  const protectedLinkProps = (path: string) => ({
+    to: path,
+    prefetch: 'intent' as const,
+    'data-suppress-scroll-on-navigate': true,
+    onClick: (event: MouseEvent<HTMLAnchorElement>) => handleLinkClick(event, path),
+  })
 
   return (
     <footer
@@ -62,34 +71,23 @@ export const Footer = ({ isAlternate }: IProps) => {
             <h4>Spots</h4>
             <ul>
               <li>
-                <a href="/surf-spots">Surf Spots</a>
+                <Link to="/surf-spots" prefetch="intent">
+                  Surf Spots
+                </Link>
               </li>
               <li>
-                <a
-                  href="/surfed-spots"
-                  onClick={(e) => handleLinkClick(e, '/surfed-spots')}
-                >
-                  Surfed Spots
-                </a>
+                <Link {...protectedLinkProps('/surfed-spots')}>Surfed Spots</Link>
               </li>
               <li>
-                <a
-                  href="/watch-list"
-                  onClick={(e) => handleLinkClick(e, '/watch-list')}
-                >
-                  Watch List
-                </a>
+                <Link {...protectedLinkProps('/watch-list')}>Watch List</Link>
               </li>
               <li>
-                <a
-                  href="/add-surf-spot"
-                  onClick={(e) => handleLinkClick(e, '/add-surf-spot')}
-                >
-                  Add Spot
-                </a>
+                <Link {...protectedLinkProps('/add-surf-spot')}>Add Spot</Link>
               </li>
               <li>
-                <a href="/trip-planner">Trip Planner</a>
+                <Link to="/trip-planner" prefetch="intent">
+                  Trip Planner
+                </Link>
               </li>
             </ul>
           </nav>
@@ -98,22 +96,13 @@ export const Footer = ({ isAlternate }: IProps) => {
             <h4>Collections</h4>
             <ul>
               <li>
-                <a href="/sessions" onClick={(e) => handleLinkClick(e, '/sessions')}>
-                  Sessions
-                </a>
+                <Link {...protectedLinkProps('/sessions')}>Sessions</Link>
               </li>
               <li>
-                <a href="/trips" onClick={(e) => handleLinkClick(e, '/trips')}>
-                  Trips
-                </a>
+                <Link {...protectedLinkProps('/trips')}>Trips</Link>
               </li>
               <li>
-                <a
-                  href="/surfboards"
-                  onClick={(e) => handleLinkClick(e, '/surfboards')}
-                >
-                  Surfboards
-                </a>
+                <Link {...protectedLinkProps('/surfboards')}>Surfboards</Link>
               </li>
             </ul>
           </nav>
@@ -122,16 +111,24 @@ export const Footer = ({ isAlternate }: IProps) => {
             <h4>Account</h4>
             <ul>
               <li>
-                <a href="/profile">Profile</a>
+                <Link to="/profile" prefetch="intent">
+                  Profile
+                </Link>
               </li>
               <li>
-                <a href="/settings">Settings</a>
+                <Link to="/settings" prefetch="intent">
+                  Settings
+                </Link>
               </li>
               <li>
-                <a href="/auth">Sign in</a>
+                <Link to="/auth" prefetch="intent">
+                  Sign in
+                </Link>
               </li>
               <li>
-                <a href="/auth/sign-up">Sign Up</a>
+                <Link to="/auth/sign-up" prefetch="intent">
+                  Sign Up
+                </Link>
               </li>
             </ul>
           </nav>
@@ -140,16 +137,24 @@ export const Footer = ({ isAlternate }: IProps) => {
             <h4>Info</h4>
             <ul>
               <li>
-                <a href="/about-us">About Us</a>
+                <Link to="/about-us" prefetch="intent">
+                  About Us
+                </Link>
               </li>
               <li>
-                <a href="/faq">FAQ</a>
+                <Link to="/faq" prefetch="intent">
+                  FAQ
+                </Link>
               </li>
               <li>
-                <a href="/data-policy">Data Policy</a>
+                <Link to="/data-policy" prefetch="intent">
+                  Data Policy
+                </Link>
               </li>
               <li>
-                <a href="/contact">Contact</a>
+                <Link to="/contact" prefetch="intent">
+                  Contact
+                </Link>
               </li>
             </ul>
           </nav>

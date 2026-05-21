@@ -9,6 +9,7 @@ import { useLocationSelection } from './useLocationSelection'
 import { useMapDrawer } from './useMapDrawer'
 import { useResizeObserver } from './useResizeObserver'
 import { useScrollReveal } from './useScrollReveal'
+import { useScrollToTopOnNavigation } from './useScrollToTopOnNavigation'
 import { useStaticMap } from './useStaticMap'
 import { useSubmitStatus } from './useSubmitStatus'
 import { useFormSubmission } from './useFormSubmission'
@@ -28,6 +29,7 @@ export {
   useMapDrawer,
   useResizeObserver,
   useScrollReveal,
+  useScrollToTopOnNavigation,
   useStaticMap,
   useSubmitStatus,
   useSurfSpotActions,

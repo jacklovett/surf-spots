@@ -7,13 +7,15 @@ import { useNavigation, useLocation } from 'react-router'
  */
 export const useFormSubmission = () => {
   const navigation = useNavigation()
-  const { pathname } = useLocation()
-  
+  const { pathname, search } = useLocation()
+
   const isSubmitting = navigation.state === 'submitting'
-  const isNavigatingAway = 
-    navigation.state === 'loading' && 
-    navigation.location?.pathname && 
-    navigation.location.pathname !== pathname
+  const pendingLocation = navigation.location
+  const isNavigatingAway =
+    (navigation.state === 'submitting' || navigation.state === 'loading') &&
+    pendingLocation != null &&
+    (pendingLocation.pathname !== pathname ||
+      pendingLocation.search !== search)
   
   // Form is submitting if:
   // 1. Currently submitting, OR
