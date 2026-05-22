@@ -47,13 +47,12 @@ export const SurfSpotsProvider = ({ children }: SurfSpotsProviderProps) => {
     useState<boolean>(false)
 
   const updateSurfSpot = useCallback(
-    (surfSpotId: string, updates: Partial<SurfSpot>) => {
+    (surfSpotId: string, updates: Partial<SurfSpot>) => 
       setSurfSpots((prev) =>
         prev.map((spot) =>
           spot.id === surfSpotId ? { ...spot, ...updates } : spot,
         ),
-      )
-    },
+      ),
     [],
   )
 
@@ -64,13 +63,9 @@ export const SurfSpotsProvider = ({ children }: SurfSpotsProviderProps) => {
 
     setSurfSpots((prev) => {
       const existingMap = new Map(prev.map((spot) => [spot.id, spot]))
-      const merged = [...prev]
-      newSurfSpots.forEach((newSpot) => {
-        if (!existingMap.has(newSpot.id)) {
-          merged.push(newSpot)
-        }
-      })
-      return merged
+      const addedSpots = newSurfSpots.filter((spot) => !existingMap.has(spot.id))
+      if (addedSpots.length === 0) return prev
+      return [...prev, ...addedSpots]
     })
   }, [])
 

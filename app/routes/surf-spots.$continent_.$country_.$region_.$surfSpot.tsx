@@ -410,7 +410,9 @@ export default function SurfSpotDetails() {
   const noteFetcher = useFetcher<ActionData & { note?: SurfSpotNote }>()
   const lastProcessedDataRef = useRef<typeof noteFetcher.data>(undefined)
   const lastFetcherDataRef = useRef<typeof fetcher.data>(undefined)
-  const pendingSurfActionSubmitResolversRef = useRef<Array<() => void>>([])
+  const pendingSurfActionSubmitResolversRef = useRef<
+    Array<(result: { success: boolean }) => void>
+  >([])
 
   useEffect(() => {
     if (searchParams.has('success')) {
@@ -459,10 +461,14 @@ export default function SurfSpotDetails() {
     ) {
       return
     }
+    const data = fetcher.data as ActionData | undefined
+    const hasError = data
+      ? !!data.error || !!(data.hasError && data.submitStatus)
+      : false
     const pending = pendingSurfActionSubmitResolversRef.current
     pendingSurfActionSubmitResolversRef.current = []
-    pending.forEach((resolve) => resolve())
-  }, [fetcher.state])
+    pending.forEach((resolve) => resolve({ success: !hasError }))
+  }, [fetcher.state, fetcher.data])
 
   // Handle note form submission - show toast and update context
   useEffect(() => {
@@ -499,7 +505,7 @@ export default function SurfSpotDetails() {
    
   const onFetcherSubmit = useCallback<SurfSpotQuickActionSubmitHandler>(
     (params) => {
-      return new Promise<void>((resolve) => {
+      return new Promise<{ success: boolean }>((resolve) => {
         try {
           pendingSurfActionSubmitResolversRef.current.push(resolve)
           submitFetcher(
@@ -513,7 +519,7 @@ export default function SurfSpotDetails() {
             pendingSurfActionSubmitResolversRef.current.filter(
               (pendingResolve) => pendingResolve !== resolve,
             )
-          resolve()
+          resolve({ success: false })
           showError(DEFAULT_ERROR_MESSAGE)
         }
       })

@@ -2,14 +2,15 @@ import {
   useState,
   memo,
   useCallback,
-  useEffect,
-  useRef,
 } from 'react'
 import { FetcherWithComponents } from 'react-router'
 
 import { SurfSpot } from '~/types/surfSpots'
 import { User } from '~/types/user'
-import { ActionData } from '~/types/api'
+import {
+  ActionData,
+  SurfSpotQuickActionSubmitHandler,
+} from '~/types/api'
 import DropdownMenu from '../DropdownMenu'
 import TripSelectionModal from '../TripSelectionModal'
 
@@ -19,7 +20,6 @@ import {
   useLayoutContext,
   useToastContext,
 } from '~/contexts'
-import { SurfSpotQuickActionSubmitHandler } from '~/types/api'
 import { ERROR_OPEN_SESSION_LOG } from '~/utils/errorUtils'
 
 /** Matches the `target` field sent to the surf-spot quick-action action. */
@@ -61,8 +61,6 @@ export const SurfSpotActions = memo((props: IProps) => {
   const { closeDrawer } = useLayoutContext()
   const { showError } = useToastContext()
 
-  const lastSurfActionDataRef = useRef(surfActionFetcher?.data)
-
   const { id: surfSpotId, isSurfedSpot, isWatched, createdBy } = surfSpotState
 
   const canEdit = user && createdBy === user.id
@@ -70,35 +68,9 @@ export const SurfSpotActions = memo((props: IProps) => {
   const watchRowLoading = submitSpinnerTarget === 'watch'
   const surfedSpotsRowLoading = submitSpinnerTarget === 'user-spots'
 
-  useEffect(() => {
-    setSurfSpotState(surfSpot)
-  }, [surfSpot])
-
-  // Track last action response for toast consumers; clear row spinner when fetcher settles.
-  useEffect(() => {
-    if (!surfActionFetcher) return
-
-    if (surfActionFetcher.state === 'idle') {
-      setSubmitSpinnerTarget(null)
-      if (
-        surfActionFetcher.data &&
-        surfActionFetcher.data !== lastSurfActionDataRef.current
-      ) {
-        lastSurfActionDataRef.current = surfActionFetcher.data
-      }
-    }
-
-    if (
-      surfActionFetcher.state === 'submitting' ||
-      surfActionFetcher.state === 'loading'
-    ) {
-      lastSurfActionDataRef.current = undefined
-    }
-  }, [surfActionFetcher?.data, surfActionFetcher?.state, surfActionFetcher])
-
   const closeTripModal = useCallback(() => setTripSelectionModalOpen(false), [])
 
-  const handleAction = async (
+  const handleAction = (
     actionType: 'add' | 'remove',
     target: SurfSpotQuickActionTarget,
   ) => {
@@ -113,24 +85,18 @@ export const SurfSpotActions = memo((props: IProps) => {
       }
 
       const field = TARGET_TO_SURF_SPOT_FIELD[target]
-      const currentValue = surfSpotState[field]
-      const newValue = !currentValue
-
-      const updatedSurfSpot = {
-        ...surfSpotState,
-        [field]: newValue,
-      }
-
-      setSurfSpotState(updatedSurfSpot)
-
-      try {
-        updateSurfSpot(surfSpotId, { [field]: newValue })
-      } catch (contextError) {
-        console.error('Error updating surf spot in context:', contextError)
-        setSurfSpotState(surfSpot)
-      }
+      const newValue = !surfSpotState[field]
+      const updatedSurfSpot = { ...surfSpotState, [field]: newValue }
 
       if (!onFetcherSubmit) {
+        // No fetcher — apply immediately since there is no server round-trip.
+        setSurfSpotState(updatedSurfSpot)
+        try {
+          updateSurfSpot(surfSpotId, { [field]: newValue })
+        } catch (contextError) {
+          console.error('Error updating surf spot in context:', contextError)
+          setSurfSpotState(surfSpot)
+        }
         return
       }
 
@@ -142,21 +108,31 @@ export const SurfSpotActions = memo((props: IProps) => {
         formData.append('actionType', actionType)
         formData.append('target', target)
         formData.append('surfSpotId', surfSpotId)
-        const submitOutcome = onFetcherSubmit(formData)
-        if (submitOutcome instanceof Promise) {
-          submitOutcome.finally(() => {
+
+        onFetcherSubmit(formData)
+          .then((result) => {
+            // Only update label and context once the server confirms success.
+            // setSurfSpotState and updateSurfSpot are bound to this component
+            // instance so they work even inside the frozen drawer ReactNode.
+            if (result?.success) {
+              setSurfSpotState(updatedSurfSpot)
+              try {
+                updateSurfSpot(surfSpotId, { [field]: newValue })
+              } catch (contextError) {
+                console.error('Error updating surf spot in context:', contextError)
+              }
+            }
+          })
+          .finally(() => {
             setSubmitSpinnerTarget(null)
           })
-        }
       } catch (submitError) {
         console.error('Error submitting fetcher:', submitError)
-        setSurfSpotState(surfSpot)
         setSubmitSpinnerTarget(null)
         throw submitError
       }
     } catch (error) {
       console.error('Error in handleAction:', error)
-      setSurfSpotState(surfSpot)
       setSubmitSpinnerTarget(null)
     }
   }

@@ -7,6 +7,13 @@ import {
 
 import { scrollPageToTop } from '~/utils/scrollPageToTop'
 
+// useLayoutEffect triggers an SSR warning because it can't run on the server.
+// This substitutes useEffect during SSR so the warning is suppressed, while
+// keeping useLayoutEffect on the client where synchronous timing matters for
+// preventing scroll flicker before paint.
+const useClientLayoutEffect =
+  typeof window !== 'undefined' ? useLayoutEffect : useEffect
+
 const isNavigatingAwayFrom = (
   pathname: string,
   search: string,
@@ -87,7 +94,7 @@ export const useScrollToTopOnNavigation = () => {
   }, [location.pathname, location.search])
 
   // Forms and navigate(): scroll when the router reports a pending route change.
-  useLayoutEffect(() => {
+  useClientLayoutEffect(() => {
     if (!isNavigatingAway) {
       return
     }
@@ -95,7 +102,7 @@ export const useScrollToTopOnNavigation = () => {
   }, [isNavigatingAway])
 
   // Forward navigations: stay at top after ScrollRestoration runs (child effect order).
-  useLayoutEffect(() => {
+  useClientLayoutEffect(() => {
     if (navigationType === 'POP') {
       return
     }

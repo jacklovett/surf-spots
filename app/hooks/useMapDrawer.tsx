@@ -2,7 +2,7 @@ import { useCallback } from 'react'
 import { useNavigate } from 'react-router'
 import { MapMouseEvent } from 'mapbox-gl'
 
-import { useLayoutContext, useUserContext } from '~/contexts'
+import { useLayoutContext, useUserContext, useSurfSpotsContext } from '~/contexts'
 import { SurfSpot } from '~/types/surfSpots'
 import { FetcherWithComponents } from 'react-router'
 
@@ -17,6 +17,7 @@ export const useMapDrawer = (
   const navigate = useNavigate()
   const { user } = useUserContext()
   const { openDrawer } = useLayoutContext()
+  const { mergeSurfSpots } = useSurfSpotsContext()
 
   const handleMarkerClick = useCallback(
     (event: MapMouseEvent) => {
@@ -34,6 +35,10 @@ export const useMapDrawer = (
         if (!surfSpot) {
           throw new Error('No surf spot data found.')
         }
+
+        // Keep the spot in context so updateSurfSpot (called on confirmed action)
+        // can update map markers and other context consumers.
+        mergeSurfSpots([surfSpot])
 
         // Open drawer with surf spot content
         const drawerContent = (
@@ -62,7 +67,7 @@ export const useMapDrawer = (
         console.error('Error handling marker click:', error)
       }
     },
-    [user, navigate, openDrawer, onFetcherSubmit, surfActionFetcher],
+    [user, navigate, openDrawer, onFetcherSubmit, surfActionFetcher, mergeSurfSpots],
   )
 
   return { handleMarkerClick }

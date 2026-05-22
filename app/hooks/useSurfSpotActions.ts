@@ -20,20 +20,35 @@ export const useSurfSpotActions = (actionRoute?: string) => {
   const { pathname } = useLocation()
   const { showError, showSuccess } = useToastContext()
   const fetcher = useFetcher<ActionData>()
-  const pendingSubmitResolversRef = useRef<Array<() => void>>([])
+  const pendingSubmitResolversRef = useRef<
+    Array<(result: { success: boolean }) => void>
+  >([])
 
-  // Handle fetcher results with mutually exclusive toast behavior.
+  // Handle fetcher results: show toast and resolve pending Promise with success/error.
   useEffect(() => {
-    if (fetcher.state !== 'idle' || !fetcher.data) return
+    if (fetcher.state !== 'idle') return
+
     const data = fetcher.data
-    const hasError = !!data.error || !!(data.hasError && data.submitStatus)
+    const hasError = data
+      ? !!data.error || !!(data.hasError && data.submitStatus)
+      : false
+
+    if (pendingSubmitResolversRef.current.length > 0) {
+      const pending = pendingSubmitResolversRef.current
+      pendingSubmitResolversRef.current = []
+      pending.forEach((resolve) => resolve({ success: !hasError }))
+    }
+
+    if (!data) return
+
     if (hasError) {
       const rawMessage = data.error || data.submitStatus
-      const errorMessage = messageForDisplay(
-        typeof rawMessage === 'string' ? rawMessage : undefined,
-        DEFAULT_ERROR_MESSAGE,
+      showError(
+        messageForDisplay(
+          typeof rawMessage === 'string' ? rawMessage : undefined,
+          DEFAULT_ERROR_MESSAGE,
+        ),
       )
-      showError(errorMessage)
       return
     }
     if (data.success && data.surfSpotAction) {
@@ -44,19 +59,9 @@ export const useSurfSpotActions = (actionRoute?: string) => {
     }
   }, [fetcher.data, fetcher.state, showError, showSuccess])
 
-  useEffect(() => {
-    if (fetcher.state !== 'idle' || pendingSubmitResolversRef.current.length === 0) {
-      return
-    }
-
-    const pendingResolvers = pendingSubmitResolversRef.current
-    pendingSubmitResolversRef.current = []
-    pendingResolvers.forEach((resolve) => resolve())
-  }, [fetcher.state])
-
   const onFetcherSubmit = useCallback<SurfSpotQuickActionSubmitHandler>(
     (params) => {
-      return new Promise<void>((resolve) => {
+      return new Promise<{ success: boolean }>((resolve) => {
         try {
           // Use provided actionRoute or default to current pathname
           const route = actionRoute || pathname
@@ -67,7 +72,7 @@ export const useSurfSpotActions = (actionRoute?: string) => {
           pendingSubmitResolversRef.current = pendingSubmitResolversRef.current.filter(
             (pendingResolve) => pendingResolve !== resolve,
           )
-          resolve()
+          resolve({ success: false })
           showError(DEFAULT_ERROR_MESSAGE)
         }
       })
