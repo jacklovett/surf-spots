@@ -82,10 +82,7 @@ const fillRequiredSurfSessionFields = async (page: Page) => {
   await page.locator('select[name="tide"]').selectOption('Mid')
   await page.locator('select[name="waveSize"]').selectOption('SMALL')
   await page.locator('select[name="crowdLevel"]').selectOption('FEW')
-  await page.locator('select[name="waveQuality"]').selectOption('FUN')
-  await page
-    .getByRole('checkbox', { name: /Would surf again in similar conditions/i })
-    .check()
+  await page.getByRole('button', { name: 'Rate 4 out of 5' }).click()
 }
 
 const openSessionRowDropdown = async (page: Page, cardIndex: number = 0) => {

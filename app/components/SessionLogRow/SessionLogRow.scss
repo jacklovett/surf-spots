@@ -69,34 +69,19 @@
   align-items: center;
 }
 
-.session-log-card-badge {
+.session-log-card-rating-unset {
   font-size: $font-size-x-small;
-  font-weight: 700;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-  padding: 3px 8px;
-  border-radius: 20px;
-  white-space: nowrap;
-}
-
-.session-log-card-badge-good {
-  background: color-mix(in srgb, $success 18%, transparent);
-  color: $success;
-}
-
-.session-log-card-badge-ok {
-  background: color-mix(in srgb, $text-secondary 12%, transparent);
-  color: $text-color;
-}
-
-.session-log-card-badge-tough {
-  background: color-mix(in srgb, $error 14%, transparent);
-  color: $error;
-}
-
-.session-log-card-badge-unset {
-  background: color-mix(in srgb, $text-secondary 10%, transparent);
   color: $text-secondary;
+}
+
+.session-log-card-rating-detail {
+  @extend %flex-column;
+  align-items: flex-start;
+  gap: 2px;
+
+  .rating {
+    margin-top: 0;
+  }
 }
 
 .session-log-card-board-link {
@@ -167,13 +152,17 @@
 .session-log-card-dl-group-text-fields {
   padding-top: $spacing-large;
   border-top: 1px solid $border-medium;
+
+  @include media(mobile) {
+    grid-template-columns: 1fr;
+  }
 }
 
 .session-log-card-dl-row {
   display: grid;
   grid-template-columns: minmax(5.5rem, 7.5rem) minmax(0, 1fr);
   gap: $spacing-small $spacing-unit;
-  align-items: center;
+  align-items: baseline;
   font-size: $font-size-small;
   min-width: 0;
 
@@ -190,6 +179,20 @@
     min-width: 0;
     overflow-wrap: break-word;
     word-break: normal;
+  }
+
+  @include media(mobile) {
+    @extend %flex-between;
+    align-items: baseline;
+    gap: $spacing-unit;
+
+    dt {
+      flex-shrink: 0;
+    }
+
+    dd {
+      text-align: right;
+    }
   }
 }
 

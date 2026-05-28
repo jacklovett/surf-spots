@@ -94,8 +94,9 @@ const buildSurfSessionJsonFromFormData = (
 
   const sessionDate = (formData.get('sessionDate') as string) || ''
   const waveSize = (formData.get('waveSize') as string) || ''
+  const waveFace = (formData.get('waveFace') as string) || ''
   const crowdLevel = (formData.get('crowdLevel') as string) || ''
-  const waveQuality = (formData.get('waveQuality') as string) || ''
+  const sessionRatingRaw = (formData.get('sessionRating') as string) || ''
   const tide = (formData.get('tide') as string) || ''
   const swellDirection = (formData.get('swellDirection') as string) || ''
   const windDirection = (formData.get('windDirection') as string) || ''
@@ -103,7 +104,6 @@ const buildSurfSessionJsonFromFormData = (
   const sessionNotes = sessionNotesRaw.trim().slice(0, 2000)
   const skillLevel = formData.get('skillLevel')
   const surfboardIdRaw = (formData.get('surfboardId') as string) || ''
-  const wouldSurfAgain = formData.get('wouldSurfAgain') === 'on'
   const sessionStartTimeRaw = (formData.get('sessionStartTime') as string) || ''
   const sessionEndTimeRaw = (formData.get('sessionEndTime') as string) || ''
 
@@ -124,7 +124,6 @@ const buildSurfSessionJsonFromFormData = (
   const payload: Record<string, unknown> = {
     surfSpotId,
     sessionDate,
-    wouldSurfAgain,
   }
   const skillLevelStr =
     typeof skillLevel === 'string' && skillLevel.trim() !== ''
@@ -136,11 +135,14 @@ const buildSurfSessionJsonFromFormData = (
   if (waveSize) {
     payload.waveSize = waveSize
   }
+  if (waveFace) {
+    payload.waveFace = waveFace
+  }
   if (crowdLevel) {
     payload.crowdLevel = crowdLevel
   }
-  if (waveQuality) {
-    payload.waveQuality = waveQuality
+  if (sessionRatingRaw) {
+    payload.sessionRating = Number(sessionRatingRaw)
   }
   if (tide) {
     payload.tide = tide

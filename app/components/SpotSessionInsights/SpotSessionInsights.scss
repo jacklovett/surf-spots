@@ -1,0 +1,38 @@
+.spot-session-insights-card {
+  border: 1px solid $outline-color;
+  border-radius: $content-border-radius;
+  padding: $spacing-unit $spacing-large;
+}
+
+.spot-session-insights-summary {
+  @extend %flex-column;
+  gap: $spacing-small;
+  list-style: none;
+  margin: 0 0 $spacing-small 0;
+  padding: 0;
+
+  li {
+    position: relative;
+    padding-left: $spacing-unit;
+    line-height: 1.5;
+
+    &::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0.55em;
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: $primary-color;
+    }
+  }
+}
+
+.spot-session-insights-footnote {
+  margin: 0;
+}
+
+.content section.spot-session-insights p {
+  margin-bottom: 0;
+}

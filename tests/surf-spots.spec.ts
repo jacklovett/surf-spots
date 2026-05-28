@@ -1,5 +1,6 @@
 import { test, expect } from '@playwright/test'
 import { getDrawer, getVisibleDrawerOrNull } from './utils/drawer'
+import { login } from './utils/auth-helper'
 
 test.describe('Surf Spots', () => {
   test.beforeEach(async ({ page }) => {
@@ -274,6 +275,35 @@ test.describe('Surf Spots', () => {
 
     // Check if the page loads correctly
     await expect(page).toHaveURL(/\/surf-spots\/africa\/algeria/)
+  })
+
+  test('should show Surfers like you when spot has ratings for logged-in users', async ({
+    page,
+  }) => {
+    await login(page)
+    await page.goto('/surf-spots/africa/algeria/boumerdes')
+    await page.waitForLoadState('networkidle')
+
+    const firstSpot = page.locator('.surf-spots .list-map a').first()
+    const hasSpot = await firstSpot.isVisible().catch(() => false)
+    if (!hasSpot) {
+      test.skip(true, 'No surf spots in region (backend has no spots for this region)')
+      return
+    }
+
+    await firstSpot.click()
+    await page.waitForLoadState('networkidle')
+
+    const insightsSection = page.getByTestId('spot-session-insights')
+    const hasInsights = await insightsSection.isVisible().catch(() => false)
+    if (!hasInsights) {
+      test.skip(true, 'No spot ratings yet for this spot (insights hidden until data exists)')
+      return
+    }
+
+    await expect(
+      page.getByRole('heading', { name: 'Surfers like you' }),
+    ).toBeVisible()
   })
 
   test('should navigate to specific region', async ({ page }) => {

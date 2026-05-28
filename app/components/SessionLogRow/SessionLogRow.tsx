@@ -10,7 +10,7 @@ import {
   MediaGallery,
   MediaUpload,
   ConfirmDestructiveModal,
-  Button,
+  Rating,
   SurfHeightIcon,
   TideIcon,
 } from '~/components'
@@ -19,10 +19,10 @@ import { useFileUpload, useDestructiveConfirmBusy } from '~/hooks'
 import {
   CROWD_LEVEL_LABELS,
   EXTERNAL_SESSION_PROVIDER_LABELS,
-  SURF_SESSION_WAVE_QUALITY_LABELS,
+  SURF_SESSION_RATING_LABELS,
   SURF_SESSION_WAVE_SIZE_LABELS,
+  WAVE_FACE_LABELS,
   Tide,
-  WaveQuality,
   SurfSessionListItem,
   SurfSessionMedia,
 } from '~/types/surfSpots'
@@ -51,32 +51,11 @@ interface SessionDeleteActionData {
   success?: boolean
 }
 
-const impressionLabel = (waveQuality: WaveQuality | null | undefined): string => {
-  if (waveQuality == null) {
+const sessionRatingLabel = (sessionRating?: number | null): string => {
+  if (sessionRating == null) {
     return '—'
   }
-  if (waveQuality === WaveQuality.GREAT || waveQuality === WaveQuality.FUN) {
-    return 'Good'
-  }
-  if (waveQuality === WaveQuality.OKAY) {
-    return 'OK'
-  }
-  return 'Tough'
-}
-
-const impressionModifier = (
-  waveQuality: WaveQuality | null | undefined,
-): 'good' | 'ok' | 'tough' | 'unset' => {
-  if (waveQuality == null) {
-    return 'unset'
-  }
-  if (waveQuality === WaveQuality.GREAT || waveQuality === WaveQuality.FUN) {
-    return 'good'
-  }
-  if (waveQuality === WaveQuality.OKAY) {
-    return 'ok'
-  }
-  return 'tough'
+  return SURF_SESSION_RATING_LABELS[sessionRating] ?? `${sessionRating} out of 5`
 }
 
 const tideDisplay = (tide: Tide | string | null | undefined): string => {
@@ -102,7 +81,6 @@ export const SessionLogRow = (props: SessionLogRowProps) => {
   const [showMediaSection, setShowMediaSection] = useState(false)
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
   const panelId = useId()
-  const mod = impressionModifier(session.waveQuality)
   const sessionTimeRange = formatSurfSessionTimeRange(session)
   const provider = session.externalSessionProvider
   const externalSyncSourceLabel =
@@ -286,14 +264,15 @@ export const SessionLogRow = (props: SessionLogRowProps) => {
               </span>
             </span>
             <span className="session-log-card-status">
-              <span
-                className={classNames(
-                  'session-log-card-badge',
-                  `session-log-card-badge-${mod}`,
-                )}
-              >
-                {impressionLabel(session.waveQuality)}
-              </span>
+              {session.sessionRating != null ? (
+                <Rating
+                  value={session.sessionRating}
+                  readOnly
+                  size="compact"
+                />
+              ) : (
+                <span className="session-log-card-rating-unset">—</span>
+              )}
             </span>
           </button>
         </div>
@@ -418,6 +397,14 @@ export const SessionLogRow = (props: SessionLogRowProps) => {
                 </dd>
               </div>
               <div className="session-log-card-dl-row">
+                <dt>Wave face</dt>
+                <dd>
+                  {session.waveFace
+                    ? WAVE_FACE_LABELS[session.waveFace]
+                    : '—'}
+                </dd>
+              </div>
+              <div className="session-log-card-dl-row">
                 <dt>Crowd</dt>
                 <dd>
                   {session.crowdLevel
@@ -426,27 +413,22 @@ export const SessionLogRow = (props: SessionLogRowProps) => {
                 </dd>
               </div>
               <div className="session-log-card-dl-row">
-                <dt>How it felt</dt>
-                <dd>
-                  {session.waveQuality
-                    ? SURF_SESSION_WAVE_QUALITY_LABELS[session.waveQuality]
-                    : '—'}
-                </dd>
-              </div>
-              <div className="session-log-card-dl-row">
-                <dt>Surf again (similar conditions)</dt>
-                <dd>
-                  {session.wouldSurfAgain === true
-                    ? 'Yes'
-                    : session.wouldSurfAgain === false
-                      ? 'No'
-                      : '—'}
+                <dt>Overall rating</dt>
+                <dd className="session-log-card-rating-detail">
+                  {session.sessionRating != null ? (
+                    <>
+                      <Rating value={session.sessionRating} readOnly size="compact" />
+                      <span>{sessionRatingLabel(session.sessionRating)}</span>
+                    </>
+                  ) : (
+                    '—'
+                  )}
                 </dd>
               </div>
             </div>
             {session.sessionNotes && (
               <div className="session-log-card-notes">
-                <dt>Your notes</dt>
+                <dt>Notes</dt>
                 <dd className="session-log-card-notes-body">
                   {session.sessionNotes}
                 </dd>

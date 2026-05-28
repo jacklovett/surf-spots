@@ -10,13 +10,13 @@ import { useFetcher, useNavigate, useNavigation } from 'react-router'
 
 import {
   Button,
-  CheckboxOption,
   DatePicker,
   DirectionSelectors,
   EmptyState,
   FormComponent,
   FormInput,
   Icon,
+  Rating,
   TimeInput,
 } from '~/components'
 import { FormField, InputElementType } from '~/components/FormInput'
@@ -26,7 +26,7 @@ import {
   buildSurfSessionSurfboardField,
   SURF_SESSION_CROWD_LEVEL_FIELD,
   SURF_SESSION_TIDE_FIELD,
-  SURF_SESSION_WAVE_QUALITY_FIELD,
+  SURF_SESSION_WAVE_FACE_FIELD,
   SURF_SESSION_WAVE_SIZE_FIELD,
 } from '~/types/formData/surfSessionForm'
 import {
@@ -50,7 +50,9 @@ import {
   BASE_SKILL_LEVEL_OPTIONS,
   SELECT_OPTION,
 } from '~/types/formData/surfSpots'
-import { SurfSessionListItem } from '~/types/surfSpots'
+import {
+  SurfSessionListItem
+} from '~/types/surfSpots'
 import { sessionDirectionStoredToArray } from '~/utils/surfSpotUtils'
 
 const valueFromSelectChange = (event: ChangeEvent<InputElementType>) =>
@@ -95,10 +97,10 @@ export const SurfSessionForm = (props: SurfSessionFormProps) => {
   const [windDirectionArray, setWindDirectionArray] = useState<string[]>([])
   const [tide, setTide] = useState('')
   const [waveSize, setWaveSize] = useState('')
+  const [waveFace, setWaveFace] = useState('')
   const [crowdLevel, setCrowdLevel] = useState('')
-  const [waveQuality, setWaveQuality] = useState('')
+  const [sessionRating, setSessionRating] = useState<number | undefined>()
   const [skillLevel, setSkillLevel] = useState('')
-  const [wouldSurfAgain, setWouldSurfAgain] = useState(false)
   const [surfboardId, setSurfboardId] = useState('')
   const [sessionNotes, setSessionNotes] = useState('')
   const [sessionStartTime, setSessionStartTime] = useState('')
@@ -176,10 +178,10 @@ export const SurfSessionForm = (props: SurfSessionFormProps) => {
     setWindDirectionArray([])
     setTide('')
     setWaveSize('')
+    setWaveFace('')
     setCrowdLevel('')
-    setWaveQuality('')
+    setSessionRating(undefined)
     setSkillLevel('')
-    setWouldSurfAgain(false)
     setSurfboardId('')
     setSessionNotes('')
     setSessionStartTime('')
@@ -218,10 +220,10 @@ export const SurfSessionForm = (props: SurfSessionFormProps) => {
     setWindDirectionArray(sessionDirectionStoredToArray(initialSession.windDirection))
     setTide(initialSession.tide ?? '')
     setWaveSize(initialSession.waveSize ?? '')
+    setWaveFace(initialSession.waveFace ?? '')
     setCrowdLevel(initialSession.crowdLevel ?? '')
-    setWaveQuality(initialSession.waveQuality ?? '')
+    setSessionRating(initialSession.sessionRating ?? undefined)
     setSkillLevel(initialSession.skillLevel ?? '')
-    setWouldSurfAgain(initialSession.wouldSurfAgain === true)
     setSurfboardId(initialSession.surfboardId ?? '')
     setSessionNotes(initialSession.sessionNotes ?? '')
     setSessionStartTime(timeToHHmm(initialSession.sessionStartTime ?? ''))
@@ -425,44 +427,58 @@ export const SurfSessionForm = (props: SurfSessionFormProps) => {
                   </span>
                 </p>
               )}
-              <h2 className="surf-session-section-title">Conditions</h2>
-              <DirectionSelectors
-                swellDirectionArray={swellDirectionArray}
-                windDirectionArray={windDirectionArray}
-                onSwellDirectionChange={setSwellDirectionArray}
-                onWindDirectionChange={setWindDirectionArray}
-              />
-              <div className="form-inline">
-                <FormInput
-                  field={SURF_SESSION_TIDE_FIELD}
-                  value={tide}
-                  onChange={(event) => setTide(valueFromSelectChange(event))}
-                  showLabel
+              <div className="surf-session-conditions-block">
+                <h2 className="surf-session-section-title">Conditions</h2>
+                <DirectionSelectors
+                  swellDirectionArray={swellDirectionArray}
+                  windDirectionArray={windDirectionArray}
+                  onSwellDirectionChange={setSwellDirectionArray}
+                  onWindDirectionChange={setWindDirectionArray}
                 />
-                <FormInput
-                  field={SURF_SESSION_WAVE_SIZE_FIELD}
-                  value={waveSize}
-                  onChange={(event) => setWaveSize(valueFromSelectChange(event))}
-                  showLabel
-                />
-              </div>
-              <div className="form-inline">
-                <FormInput
-                  field={SURF_SESSION_WAVE_QUALITY_FIELD}
-                  value={waveQuality}
-                  onChange={(event) =>
-                    setWaveQuality(valueFromSelectChange(event))
-                  }
-                  showLabel
-                />
-                <FormInput
-                  field={SURF_SESSION_CROWD_LEVEL_FIELD}
-                  value={crowdLevel}
-                  onChange={(event) =>
-                    setCrowdLevel(valueFromSelectChange(event))
-                  }
-                  showLabel
-                />
+                <div className="form-inline">
+                  <FormInput
+                    field={SURF_SESSION_TIDE_FIELD}
+                    value={tide}
+                    onChange={(event) => setTide(valueFromSelectChange(event))}
+                    showLabel
+                  />
+                  <FormInput
+                    field={SURF_SESSION_WAVE_SIZE_FIELD}
+                    value={waveSize}
+                    onChange={(event) => setWaveSize(valueFromSelectChange(event))}
+                    showLabel
+                  />
+                </div>
+                <div className="form-inline">
+                  <FormInput
+                    field={SURF_SESSION_WAVE_FACE_FIELD}
+                    value={waveFace}
+                    onChange={(event) => setWaveFace(valueFromSelectChange(event))}
+                    showLabel
+                  />
+                  <FormInput
+                    field={SURF_SESSION_CROWD_LEVEL_FIELD}
+                    value={crowdLevel}
+                    onChange={(event) =>
+                      setCrowdLevel(valueFromSelectChange(event))
+                    }
+                    showLabel
+                  />
+                </div>
+                <div className="surf-session-rating-field">
+                  <div className="surf-session-rating-row">
+                    <label className="bold">Overall rating</label>
+                    <Rating
+                      value={sessionRating}
+                      onChange={setSessionRating}
+                      inputName="sessionRating"
+                      size="compact"
+                    />
+                  </div>
+                  <p className="surf-session-rating-caption text-secondary">
+                    How was the session overall? Your rating helps build an honest picture of this spot for surfers like you.
+                  </p>
+                </div>
               </div>
               {surfboards.length > 0 ? (
                 <FormInput
@@ -481,17 +497,9 @@ export const SurfSessionForm = (props: SurfSessionFormProps) => {
                   onCtaClick={() => navigate('/add-surfboard')}
                 />
               )}
-              <div className="column mv">
-                <CheckboxOption
-                  name="wouldSurfAgain"
-                  title="Would surf again in similar conditions"
-                  checked={wouldSurfAgain}
-                  onChange={setWouldSurfAgain}
-                />
-              </div>
               <FormInput
                 field={{
-                  label: 'Session notes',
+                  label: 'Notes',
                   name: 'sessionNotes',
                   type: 'textarea',
                   validationRules: { maxLength: 2000 },

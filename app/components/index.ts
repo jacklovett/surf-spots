@@ -25,6 +25,7 @@ import FormInput from './FormInput'
 import Icon from './Icon'
 import Loading from './Loading'
 import Page from './Page'
+import Rating from './Rating'
 import MediaGallery from './MediaGallery'
 import MediaUpload from './MediaUpload'
 import Menu from './Menu'
@@ -65,6 +66,7 @@ import SelectionModal from './SelectionModal'
 import SafeLink from './SafeLink'
 import SurfSessionForm from './SurfSessionForm'
 import SessionLogRow from './SessionLogRow'
+import SpotSessionInsights from './SpotSessionInsights'
 import WelcomeFromUrlToast from './WelcomeFromUrlToast'
 
 export {
@@ -107,6 +109,7 @@ export {
   Modal,
   NavButton,
   Page,
+  Rating,
   SafeLink,
   SignInOptions,
   SkeletonLoader,
@@ -132,6 +135,7 @@ export {
   TripSelectionModal,
   SelectionModal,
   SessionLogRow,
+  SpotSessionInsights,
   UrlLinkList,
   ViewSwitch,
   WelcomeFromUrlToast,

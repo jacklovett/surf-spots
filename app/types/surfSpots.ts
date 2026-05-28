@@ -139,7 +139,11 @@ export enum SurfSessionWaveSize {
   GIANT = 'GIANT',
 }
 
-/** Crowd / lineup scale: surf sessions and surf spot typical crowd (API enum names). */
+/**
+ * Crowd / lineup scale: surf sessions and surf spot typical crowd.
+ * Uses raw API enum names (no @JsonValue on the API side), so the crowd distribution
+ * map keys ("EMPTY", "BUSY" etc.) match these values directly.
+ */
 export enum CrowdLevel {
   EMPTY = 'EMPTY',
   FEW = 'FEW',
@@ -147,12 +151,12 @@ export enum CrowdLevel {
   PACKED = 'PACKED',
 }
 
-/** Surf session log only (API enum names). */
-export enum WaveQuality {
-  POOR = 'POOR',
-  OKAY = 'OKAY',
-  FUN = 'FUN',
-  GREAT = 'GREAT',
+/** Wave surface feel on a session log (values match API @JsonValue display names). */
+export enum WaveFace {
+  CLEAN = 'Clean',
+  MUSHY = 'Mushy',
+  CHOPPY = 'Choppy',
+  BLOWN_OUT = 'Blown out',
 }
 
 /** External integration for session sync idempotency (matches API enum names). */
@@ -181,18 +185,27 @@ export const SURF_SESSION_WAVE_SIZE_LABELS: Record<SurfSessionWaveSize, string> 
 }
 
 export const CROWD_LEVEL_LABELS: Record<CrowdLevel, string> = {
-  [CrowdLevel.EMPTY]: 'Empty lineup',
-  [CrowdLevel.FEW]: 'A few surfers',
-  [CrowdLevel.BUSY]: 'Busy lineup',
-  [CrowdLevel.PACKED]: 'Packed',
+  [CrowdLevel.EMPTY]: 'Quiet, just me or nearly empty',
+  [CrowdLevel.FEW]: 'Small group, easy to get waves',
+  [CrowdLevel.BUSY]: 'Competitive, working for sets',
+  [CrowdLevel.PACKED]: 'Overcrowded, long waits or hassles',
 }
 
-export const SURF_SESSION_WAVE_QUALITY_LABELS: Record<WaveQuality, string> = {
-  [WaveQuality.POOR]: 'Weak / mushy',
-  [WaveQuality.OKAY]: 'Okay',
-  [WaveQuality.FUN]: 'Fun',
-  [WaveQuality.GREAT]: 'Really good',
+export const WAVE_FACE_LABELS: Record<WaveFace, string> = {
+  [WaveFace.CLEAN]: 'Clean / glassy',
+  [WaveFace.MUSHY]: 'Mushy / soft',
+  [WaveFace.CHOPPY]: 'Choppy / bumpy',
+  [WaveFace.BLOWN_OUT]: 'Blown out / messy',
 }
+
+export const SURF_SESSION_RATING_LABELS: Record<number, string> = {
+  1: 'Not worth it',
+  2: 'Meh',
+  3: 'Solid',
+  4: 'Really good',
+  5: 'All-timer',
+}
+
 
 export enum Direction {
   N = 'N',
@@ -337,16 +350,8 @@ export interface SurfSessionSummary {
   sampleSize: number
   waveSizeDistribution: Record<string, number>
   crowdDistribution: Record<string, number>
-  waveQualityDistribution: Record<string, number>
-  /** Counts of sessions where wouldSurfAgain was true vs false (per-session field is boolean). */
-  wouldSurfAgainTrueCount: number
-  wouldSurfAgainFalseCount: number
+  sessionRatingDistribution: Record<string, number>
   fallbackToAllSkills: boolean
-  /** Server-built copy for the "Surfers like you" block (keep in sync with API). */
-  segmentHeadline: string
-  waveQualityTrendLine: string | null
-  crowdTrendLine: string | null
-  wouldSurfAgainLine: string | null
 }
 
 export interface SurfSessionMedia {
@@ -386,8 +391,8 @@ export interface SurfSessionListItem {
   spotPath: string
   waveSize?: SurfSessionWaveSize | null
   crowdLevel?: CrowdLevel | null
-  waveQuality?: WaveQuality | null
-  wouldSurfAgain?: boolean | null
+  waveFace?: WaveFace | null
+  sessionRating?: number | null
   skillLevel?: SkillLevel
   surfboardId?: string | null
   surfboardName?: string | null

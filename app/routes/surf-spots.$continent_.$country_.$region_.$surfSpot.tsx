@@ -32,6 +32,7 @@ import {
   ErrorBoundary,
   InfoMessage,
   SafeLink,
+  SpotSessionInsights,
   SurfHeightIcon,
   SurfMap,
   SurfSpotActions,
@@ -825,22 +826,8 @@ if (error || !surfSpotDetails) {
             </div>
           </div>
         </section>
-        {sessionSummary && sessionSummary.sampleSize > 0 && (
-          <section>
-            <h3>Surfers like you</h3>
-            <div className="column gap">
-              <p className="bold">{sessionSummary.segmentHeadline}</p>
-              {sessionSummary.waveQualityTrendLine && (
-                <p>{sessionSummary.waveQualityTrendLine}</p>
-              )}
-              {sessionSummary.crowdTrendLine && (
-                <p>{sessionSummary.crowdTrendLine}</p>
-              )}
-              {sessionSummary.wouldSurfAgainLine && (
-                <p>{sessionSummary.wouldSurfAgainLine}</p>
-              )}
-            </div>
-          </section>
+        {sessionSummary != null && (
+          <SpotSessionInsights sessionSummary={sessionSummary} />
         )}
         {showReportIssueMessage && (
           <InfoMessage message="See something not right? Let us know so we can get it fixed" />

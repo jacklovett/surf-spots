@@ -1,0 +1,57 @@
+.rating {
+  display: flex;
+  gap: $spacing-small;
+  margin-top: -$spacing-small;
+
+  &-compact {
+    gap: 2px;
+    margin-top: 0;
+
+    .star {
+      font-size: $font-size-small;
+    }
+  }
+
+  &-read-only {
+    margin-top: 0;
+  }
+
+  &-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: $spacing-small;
+    margin-top: $spacing-small;
+    padding-bottom: $spacing-unit;
+
+    @media (min-width: 768px) {
+      flex-wrap: nowrap;
+    }
+  }
+
+  &-description {
+    font-size: $font-size-small;
+    margin: 0;
+    line-height: 1.5;
+
+    @media (min-width: 768px) {
+      margin-top: 8px;
+      margin-left: $spacing-unit;
+    }
+  }
+}
+
+.star {
+  cursor: pointer;
+  font-size: $spacing-large;
+  opacity: 0.6;
+  color: $disabled-color;
+  transition: color 0.2s ease-in-out;
+
+  &.filled {
+    color: $accent-color;
+  }
+
+  &.read-only {
+    cursor: default;
+  }
+}

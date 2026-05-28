@@ -32,4 +32,35 @@
     font-variant-numeric: tabular-nums;
     letter-spacing: 0.02em;
   }
+
+  .surf-session-conditions-block {
+    padding-bottom: $spacing-large;
+    margin-bottom: $spacing-large;
+    border-bottom: 1px solid color-mix(in srgb, $text-secondary 16%, transparent);
+  }
+
+  .surf-session-rating-field {
+    margin-top: $spacing-unit;
+
+    .rating {
+      margin-top: 0;
+    }
+  }
+
+  .surf-session-rating-row {
+    display: flex;
+    flex-wrap: nowrap;
+    align-items: center;
+    gap: $spacing-unit;
+
+    .rating-compact {
+      margin-top: 0;
+    }
+  }
+
+  .surf-session-rating-caption {
+    margin: $spacing-small 0 0;
+    font-size: $font-size-small;
+    line-height: 1.4;
+  }
 }
