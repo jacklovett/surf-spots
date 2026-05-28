@@ -182,7 +182,7 @@
   }
 
   @include media(mobile) {
-    @extend %flex-between;
+    @extend %flex-space-between;
     align-items: baseline;
     gap: $spacing-unit;
 
