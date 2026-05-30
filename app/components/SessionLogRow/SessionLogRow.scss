@@ -78,10 +78,6 @@
   @extend %flex-column;
   align-items: flex-start;
   gap: 2px;
-
-  .rating {
-    margin-top: 0;
-  }
 }
 
 .session-log-card-board-link {
@@ -201,7 +197,6 @@
   @extend %flex-base;
   align-items: center;
   gap: $spacing-small;
-  min-width: 0;
 }
 
 .session-log-card-condition-svg {

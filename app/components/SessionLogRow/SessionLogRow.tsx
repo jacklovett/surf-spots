@@ -304,73 +304,61 @@ export const SessionLogRow = (props: SessionLogRowProps) => {
             >
               <div className="session-log-card-dl-row">
                 <dt>Swell</dt>
-                <dd>
-                  <span className="session-log-card-dd-with-condition">
-                    {!!session.swellDirection && (
-                      <span className="session-log-card-condition-svg" aria-hidden>
-                        <DirectionIcon
-                          type="swell"
-                          directionRange={session.swellDirection}
-                          size={SESSION_CONDITION_ICON_SIZE}
-                          color="currentColor"
-                        />
-                      </span>
-                    )}
-                    <span>{formatDirectionDisplay(session.swellDirection)}</span>
-                  </span>
-                </dd>
-              </div>
-              <div className="session-log-card-dl-row">
-                <dt>Wind</dt>
-                <dd>
-                  <span className="session-log-card-dd-with-condition">
-                    {!!session.windDirection && (
-                      <span className="session-log-card-condition-svg" aria-hidden>
-                        <DirectionIcon
-                          type="wind"
-                          directionRange={session.windDirection}
-                          size={SESSION_CONDITION_ICON_SIZE}
-                          color="currentColor"
-                        />
-                      </span>
-                    )}
-                    <span>{formatDirectionDisplay(session.windDirection)}</span>
-                  </span>
-                </dd>
-              </div>
-              <div className="session-log-card-dl-row">
-                <dt>Tide</dt>
-                <dd>
-                  <span className="session-log-card-dd-with-condition">
-                    {session.tide && (
-                      <span className="session-log-card-condition-svg" aria-hidden>
-                        <TideIcon
-                          tide={session.tide}
-                          size={SESSION_CONDITION_ICON_SIZE}
-                          color="currentColor"
-                        />
-                      </span>
-                    )}
-                    <span>{tideDisplay(session.tide) || '—'}</span>
-                  </span>
-                </dd>
-              </div>
-              <div className="session-log-card-dl-row">
-                <dt>Wave size</dt>
-                <dd>
-                  <span className="session-log-card-dd-with-condition">
+                <dd className="session-log-card-dd-with-condition">
+                  {!!session.swellDirection && (
                     <span className="session-log-card-condition-svg" aria-hidden>
-                      <SurfHeightIcon
+                      <DirectionIcon
+                        type="swell"
+                        directionRange={session.swellDirection}
                         size={SESSION_CONDITION_ICON_SIZE}
                         color="currentColor"
                       />
                     </span>
-                    <span>
-                      {session.waveSize
-                        ? SURF_SESSION_WAVE_SIZE_LABELS[session.waveSize]
-                        : '—'}
+                  )}
+                  {formatDirectionDisplay(session.swellDirection)}
+                </dd>
+              </div>
+              <div className="session-log-card-dl-row">
+                <dt>Wind</dt>
+                <dd className="session-log-card-dd-with-condition">
+                  {!!session.windDirection && (
+                    <span className="session-log-card-condition-svg" aria-hidden>
+                      <DirectionIcon
+                        type="wind"
+                        directionRange={session.windDirection}
+                        size={SESSION_CONDITION_ICON_SIZE}
+                        color="currentColor"
+                      />
                     </span>
+                  )}
+                  {formatDirectionDisplay(session.windDirection)}
+                </dd>
+              </div>
+              <div className="session-log-card-dl-row">
+                <dt>Tide</dt>
+                <dd className="session-log-card-dd-with-condition">
+                  {session.tide && (
+                    <span className="session-log-card-condition-svg" aria-hidden>
+                      <TideIcon
+                        tide={session.tide}
+                        size={SESSION_CONDITION_ICON_SIZE}
+                        color="currentColor"
+                      />
+                    </span>
+                  )}
+                  {tideDisplay(session.tide) || '—'}
+                </dd>
+              </div>
+              <div className="session-log-card-dl-row">
+                <dt>Wave size</dt>
+                <dd className="session-log-card-dd-with-condition">
+                  <span className="session-log-card-condition-svg" aria-hidden>
+                    <SurfHeightIcon
+                      size={SESSION_CONDITION_ICON_SIZE}
+                      color="currentColor"
+                    />
                   </span>
+                  {session.waveSize ? SURF_SESSION_WAVE_SIZE_LABELS[session.waveSize] : '—'}
                 </dd>
               </div>
             </div>
@@ -418,7 +406,7 @@ export const SessionLogRow = (props: SessionLogRowProps) => {
                   {session.sessionRating != null ? (
                     <>
                       <Rating value={session.sessionRating} readOnly size="compact" />
-                      <span>{sessionRatingLabel(session.sessionRating)}</span>
+                      {sessionRatingLabel(session.sessionRating)}
                     </>
                   ) : (
                     '—'

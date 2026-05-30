@@ -466,16 +466,15 @@ export const SurfSessionForm = (props: SurfSessionFormProps) => {
                   />
                 </div>
                 <div className="surf-session-rating-field">
-                  <div className="surf-session-rating-row">
+                  <div>
                     <label className="bold">Overall rating</label>
                     <Rating
                       value={sessionRating}
                       onChange={setSessionRating}
                       inputName="sessionRating"
-                      size="compact"
                     />
                   </div>
-                  <p className="surf-session-rating-caption text-secondary">
+                  <p className="surf-session-rating-caption  surf-session-rating-row text-secondary">
                     How was the session overall? Your rating helps build an honest picture of this spot for surfers like you.
                   </p>
                 </div>
