@@ -185,10 +185,10 @@ export const SURF_SESSION_WAVE_SIZE_LABELS: Record<SurfSessionWaveSize, string> 
 }
 
 export const CROWD_LEVEL_LABELS: Record<CrowdLevel, string> = {
-  [CrowdLevel.EMPTY]: 'Quiet, just me or nearly empty',
-  [CrowdLevel.FEW]: 'Small group, easy to get waves',
-  [CrowdLevel.BUSY]: 'Competitive, working for sets',
-  [CrowdLevel.PACKED]: 'Overcrowded, long waits or hassles',
+  [CrowdLevel.EMPTY]: 'Empty or near-empty lineup',
+  [CrowdLevel.FEW]: 'A few people out, easy to get waves',
+  [CrowdLevel.BUSY]: 'Busy lineup, competing for waves',
+  [CrowdLevel.PACKED]: 'Crowded, hard to get waves',
 }
 
 export const WAVE_FACE_LABELS: Record<WaveFace, string> = {
