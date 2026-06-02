@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, FormEvent } from 'react'
+import { useState, useEffect, useLayoutEffect, useCallback, FormEvent } from 'react'
 import { useLoaderData, useFetcher, useNavigate } from 'react-router'
 
 import { useSettingsContext } from '~/contexts'
@@ -429,9 +429,9 @@ export const SurfSpotForm = (props: SurfSpotFormProps) => {
     ? '/add-surf-spot'
     : urlToOpenSurfSpotDetails
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (showSuccessScreen) {
-      scrollPageToTop()
+      scrollPageToTop({ smooth: false })
     }
   }, [showSuccessScreen])
 

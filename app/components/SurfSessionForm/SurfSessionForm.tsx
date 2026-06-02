@@ -245,10 +245,10 @@ export const SurfSessionForm = (props: SurfSessionFormProps) => {
     if (fetcher.data && fetcher.data !== lastProcessedFetcherDataRef.current) {
       lastProcessedFetcherDataRef.current = fetcher.data
       const shouldShowSuccess = !!fetcher.data.success && !fetcher.data.hasError
-      setShowSuccessScreen(shouldShowSuccess)
       if (shouldShowSuccess) {
-        scrollPageToTop()
+        scrollPageToTop({ smooth: false })
       }
+      setShowSuccessScreen(shouldShowSuccess)
     }
   }, [fetcher.state, fetcher.data])
 
