@@ -42,6 +42,7 @@ import {
   SUCCESS_SURF_SESSION_SAVED,
   SUCCESS_SURF_SESSION_UPDATED,
 } from '~/utils/errorUtils'
+import { scrollPageToTop } from '~/utils/scrollPageToTop'
 import {
   isSurfSessionTimingBannerMessage,
   validateSurfSessionTimeWindow,
@@ -243,7 +244,11 @@ export const SurfSessionForm = (props: SurfSessionFormProps) => {
     if (fetcher.state !== 'idle') return
     if (fetcher.data && fetcher.data !== lastProcessedFetcherDataRef.current) {
       lastProcessedFetcherDataRef.current = fetcher.data
-      setShowSuccessScreen(!!fetcher.data.success && !fetcher.data.hasError)
+      const shouldShowSuccess = !!fetcher.data.success && !fetcher.data.hasError
+      setShowSuccessScreen(shouldShowSuccess)
+      if (shouldShowSuccess) {
+        scrollPageToTop()
+      }
     }
   }, [fetcher.state, fetcher.data])
 
@@ -263,11 +268,13 @@ export const SurfSessionForm = (props: SurfSessionFormProps) => {
         showSuccessScreen ? 'surf-spot-form-success-page' : ''
       }`}
     >
-      <h1>
-        {mode === 'edit'
-          ? `Edit session at ${surfSpotName}`
-          : `Add session at ${surfSpotName}`}
-      </h1>
+      {!showSuccessScreen && (
+        <h1>
+          {mode === 'edit'
+            ? `Edit session at ${surfSpotName}`
+            : `Add session at ${surfSpotName}`}
+        </h1>
+      )}
       {showSuccessScreen && (
         <div className="surf-spot-form-success-wrapper">
           <div className="surf-spot-form-success column">

@@ -11,16 +11,14 @@
   }
 }
 
-/* Success step (add flow) – centered in viewport */
+/* Success step – strips info-page-content padding/margin so the content sits flush */
 .surf-spot-form-success-page {
-  @extend %flex-column;
-  min-height: 100vh;
+  padding: 0;
+  margin-top: 0;
 }
 
 .surf-spot-form-success-wrapper {
-  @extend %flex-column;
-  flex: 1;
-  justify-content: center;
+  padding: $spacing-x-large 0;
 }
 
 .surf-spot-form-success {

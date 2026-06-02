@@ -12,6 +12,7 @@ import {
 } from '~/hooks'
 import { validateUrl } from '~/hooks/useFormValidation'
 import { SurfSpot, SurfSpotStatus, SurfSpotFormState } from '~/types/surfSpots'
+import { scrollPageToTop } from '~/utils/scrollPageToTop'
 import {
   directionStringToArray,
   directionArrayToString,
@@ -428,6 +429,12 @@ export const SurfSpotForm = (props: SurfSpotFormProps) => {
     ? '/add-surf-spot'
     : urlToOpenSurfSpotDetails
 
+  useEffect(() => {
+    if (showSuccessScreen) {
+      scrollPageToTop()
+    }
+  }, [showSuccessScreen])
+
   return (
     <div
       className={`info-page-content mv map-content ${
@@ -445,7 +452,7 @@ export const SurfSpotForm = (props: SurfSpotFormProps) => {
           />
         </div>
       )}
-      <h1>{`${actionType} Surf Spot`}</h1>
+      {!showSuccessScreen && <h1>{`${actionType} Surf Spot`}</h1>}
 
       <WizardStepper
         steps={wizardSteps}
