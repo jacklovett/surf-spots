@@ -68,6 +68,8 @@ $spacing-x-large: 3rem;
 
 $header-height: 56px;
 $toolbar-height: 64px; // Approximate height: 32px padding (16px top + 16px bottom) + button content (~32px)
+// Upward bias for loading/error states centered in the main viewport (header reads heavier than footer gap).
+$status-viewport-offset: $spacing-x-large;
 $form-input-height: 40px;
 $button-height: 56px;
 

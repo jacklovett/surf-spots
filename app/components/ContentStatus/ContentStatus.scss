@@ -6,8 +6,18 @@
   }
 }
 
-// Less margin on surf-spots routes because toolbar takes up space
-.surf-spots-list-view .content-status,
+// Full-page status: flex-center in the main content area with a slight upward bias
 .content-container > .content-status {
+  @extend %flex-center;
+  flex: 1;
+  margin-top: 0;
+  padding-bottom: $status-viewport-offset;
+  box-sizing: border-box;
+}
+
+// Less margin on surf-spots routes because toolbar takes up space
+.surf-spots-list-view .content-status {
+  flex: initial;
+  padding-bottom: 0;
   margin-top: $spacing-large;
 }
