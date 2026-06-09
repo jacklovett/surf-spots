@@ -66,12 +66,13 @@ test.describe('Navigation', () => {
   test('should handle auth guard redirects', async ({ page }) => {
     await page.context().clearCookies()
 
-    // Routes whose loader redirects to /auth when unauthenticated (edit-surf-spot catches redirect and renders error instead)
     const authGuardedRoutes = [
       '/profile',
       '/surfed-spots',
       '/watch-list',
       '/add-surf-spot',
+      '/add-trip',
+      '/add-surfboard',
       '/surfboards',
       '/trips',
     ]

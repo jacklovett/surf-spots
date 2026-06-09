@@ -48,8 +48,6 @@ export const ERROR_TITLE_REQUIRED = 'Title is required'
 export const ERROR_TRIP_DATES_REQUIRED = 'Start date and end date are required'
 export const ERROR_INVALID_MEMBER_EMAILS =
   'Please enter valid email addresses for all members.'
-export const ERROR_LOGIN_REQUIRED_CREATE_TRIP =
-  'Sign in to create trips'
 export const ERROR_TRIP_SURFBOARD_RECORD_ID_REQUIRED =
   'Trip surfboard ID is required'
 export const ERROR_TRIP_SPOT_RECORD_ID_REQUIRED = 'Trip spot ID is required'
@@ -70,8 +68,6 @@ export const ERROR_LOAD_SURF_SESSION =
 export const ERROR_SURF_SESSION_NOT_FOUND =
   'We could not load this session. It may have been deleted.'
 export const ERROR_SURFBOARD_NOT_FOUND = 'Surfboard not found'
-export const ERROR_LOGIN_REQUIRED_ADD_SURFBOARD =
-  'Sign in to add surfboards'
 
 // Surf spots
 export const ERROR_SAVE_NOTE = 'Failed to save note. Please try again.'

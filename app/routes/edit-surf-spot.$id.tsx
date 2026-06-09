@@ -26,17 +26,17 @@ import { ContentStatus, ErrorBoundary, Page } from '~/components'
 import { useToastContext } from '~/contexts'
 
 export const loader: LoaderFunction = async ({ request, params }) => {
+  const cookie = request.headers.get('Cookie') ?? ''
+  const user = await requireSessionCookie(request)
+
+  const { id: routeParam } = params
+
+  if (!routeParam) {
+    console.error('No id parameter found in route')
+    throw new Error('Surf spot ID is required')
+  }
+
   try {
-    const cookie = request.headers.get('Cookie') ?? ''
-    const user = await requireSessionCookie(request)
-
-    const { id: routeParam } = params
-
-    if (!routeParam) {
-      console.error('No id parameter found in route')
-      throw new Error('Surf spot ID is required')
-    }
-
     const isNumericId = /^\d+$/.test(routeParam)
     const surfSpotResponse = await get<SurfSpot>(
       isNumericId
@@ -69,6 +69,10 @@ export const loader: LoaderFunction = async ({ request, params }) => {
       },
     )
   } catch (error) {
+    if (error instanceof Response) {
+      throw error
+    }
+
     console.error('Error fetching data for edit form:', error)
     const status = httpStatusFromActionError(error)
 
@@ -129,6 +133,9 @@ export const action: ActionFunction = async ({ request, params }) => {
       { status: 200 },
     )
   } catch (error) {
+    if (error instanceof Response) {
+      throw error
+    }
     console.error('Unable to edit surf spot: ', error)
     const message = getDisplayMessage(error, ERROR_EDIT_SURF_SPOT)
     return data(

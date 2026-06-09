@@ -13,21 +13,13 @@ import { useSubmitStatus } from '~/hooks'
 import { parseLength, parseDimension } from '~/utils/surfboardUtils'
 import {
   ERROR_CREATE_SURFBOARD,
-  ERROR_LOGIN_REQUIRED_ADD_SURFBOARD,
   ERROR_NAME_REQUIRED,
 } from '~/utils/errorUtils'
 import { normalizeUserUrl } from '~/utils/commonUtils'
 
 export const loader: LoaderFunction = async ({ request }) => {
-  try {
-    await requireSessionCookie(request)
-    return data({})
-  } catch (error) {
-    return data(
-      { error: ERROR_LOGIN_REQUIRED_ADD_SURFBOARD },
-      { status: 401 },
-    )
-  }
+  await requireSessionCookie(request)
+  return data({})
 }
 
 export const action: ActionFunction = async ({ request }) => {
@@ -76,6 +68,9 @@ export const action: ActionFunction = async ({ request }) => {
 
     return redirect(`/surfboard/${surfboard.id}?success`)
   } catch (error) {
+    if (error instanceof Response) {
+      throw error
+    }
     console.error('Error creating surfboard:', error)
     const errorMessage = getDisplayMessage(
       error,

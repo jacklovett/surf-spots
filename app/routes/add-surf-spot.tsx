@@ -65,6 +65,9 @@ export const action: ActionFunction = async ({ request }) => {
       { status: 201 },
     )
   } catch (error) {
+    if (error instanceof Response) {
+      throw error
+    }
     console.error('Unable to add surf spot: ', error)
     const message = getDisplayMessage(error, ERROR_ADD_SURF_SPOT)
     return data(

@@ -2,7 +2,6 @@ import {
   data,
   LoaderFunction,
   ActionFunction,
-  useLoaderData,
   useActionData,
   useNavigation,
   useNavigate,
@@ -28,20 +27,12 @@ import {
   ERROR_CREATE_TRIP,
   ERROR_TRIP_DATES_REQUIRED,
   ERROR_INVALID_MEMBER_EMAILS,
-  ERROR_LOGIN_REQUIRED_CREATE_TRIP,
   ERROR_TITLE_REQUIRED,
 } from '~/utils/errorUtils'
 
 export const loader: LoaderFunction = async ({ request }) => {
-  try {
-    await requireSessionCookie(request)
-    return data({})
-  } catch (error) {
-    return data(
-      { error: ERROR_LOGIN_REQUIRED_CREATE_TRIP },
-      { status: 401 },
-    )
-  }
+  await requireSessionCookie(request)
+  return data({})
 }
 
 export const action: ActionFunction = async ({ request }) => {
@@ -127,28 +118,13 @@ export const action: ActionFunction = async ({ request }) => {
   }
 }
 
-interface LoaderData {
-  error?: string
-}
-
 export default function AddTrip() {
-  const loaderData = useLoaderData<LoaderData>()
   const actionData = useActionData<ActionData>()
   const navigate = useNavigate()
   const { state } = useNavigation()
   const loading = state === 'loading' || state === 'submitting'
 
   const handleCancel = () => navigate('/trips')
-
-  if (loaderData?.error) {
-    return (
-      <Page showHeader>
-        <ContentStatus isError>
-          <p>{loaderData.error}</p>
-        </ContentStatus>
-      </Page>
-    )
-  }
 
   if (loading) {
     return (
