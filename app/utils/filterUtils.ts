@@ -28,6 +28,7 @@ export interface BackendFilterFormat {
   boatRequired?: boolean
   isWavepool?: boolean
   isRiverWave?: boolean
+  isWslTourStop?: boolean
   foodOptions?: string[]
   accommodationOptions?: string[]
   facilities?: string[]
@@ -90,6 +91,10 @@ export const convertFiltersToBackendFormat = (
 
   if (filters.isRiverWave !== undefined) {
     backendFilters.isRiverWave = filters.isRiverWave
+  }
+
+  if (filters.isWslTourStop !== undefined) {
+    backendFilters.isWslTourStop = filters.isWslTourStop
   }
 
   // Convert Option arrays to string arrays

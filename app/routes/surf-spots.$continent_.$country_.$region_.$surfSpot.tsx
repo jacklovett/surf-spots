@@ -66,6 +66,7 @@ import {
   formatSurfHeightRange,
   formatSeason,
   getNoveltyWaveLabel,
+  getWslTourLabel,
   resolveSurfSpotActionUrl,
 } from '~/utils/surfSpotUtils'
 
@@ -575,6 +576,8 @@ if (error || !surfSpotDetails) {
     isWavepool,
     wavepoolUrl,
     isRiverWave,
+    isWslTourStop,
+    isOnWslTourThisSeason,
     parking,
     foodNearby,
     foodOptions,
@@ -595,6 +598,7 @@ if (error || !surfSpotDetails) {
   const accommodationLabels = accommodationOptions ?? []
 
   const noveltyLabel = getNoveltyWaveLabel({ isWavepool, isRiverWave })
+  const wslTourLabel = getWslTourLabel({ isWslTourStop, isOnWslTourThisSeason })
 
   const viewerUserId = user?.id
   const isCreator = !!viewerUserId && viewerUserId === surfSpotDetails.createdBy
@@ -623,8 +627,9 @@ if (error || !surfSpotDetails) {
           </div>
         </div>
         <div className="row space-between mb surf-spot-detail-meta-row">
-          <div className="surf-spot-novelty-chip-wrap">
+          <div className="surf-spot-status-chip-wrap">
             {noveltyLabel && <Chip label={noveltyLabel} isFilled={false} />}
+            {wslTourLabel && <Chip label={wslTourLabel} isFilled={false} />}
           </div>
           <div className="surf-spot-detail-meta-row-notes row gap">
             <TextButton

@@ -10,7 +10,10 @@
     padding-bottom: $spacing-x-large;
   }
 
-  .surf-spot-preview-novelty {
+  .surf-spot-preview-status-chips {
+    @extend %flex-row;
+    flex-wrap: wrap;
+    gap: $spacing-small;
     margin-bottom: $spacing-unit;
 
     .chip {

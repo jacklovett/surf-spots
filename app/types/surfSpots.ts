@@ -258,6 +258,8 @@ export interface NewSurfSpot extends Coordinates {
   isWavepool: boolean
   wavepoolUrl?: string
   isRiverWave: boolean
+  isWslTourStop: boolean
+  isOnWslTourThisSeason: boolean
   parking: string
   foodNearby: boolean
   foodOptions: string[]
@@ -313,6 +315,7 @@ export interface SurfSpotFilters {
   seasons: string[] // Array of month names (e.g., "January", "February", etc.)
   isWavepool?: boolean
   isRiverWave?: boolean
+  isWslTourStop?: boolean
 }
 
 export const defaultSurfSpotFilters: SurfSpotFilters = {
@@ -332,6 +335,7 @@ export const defaultSurfSpotFilters: SurfSpotFilters = {
   seasons: [],
   isWavepool: undefined,
   isRiverWave: undefined,
+  isWslTourStop: undefined,
 }
 
 export interface SurfSpotNote {

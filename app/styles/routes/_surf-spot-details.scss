@@ -208,8 +208,11 @@
   gap: $spacing-unit;
   justify-content: flex-start;
 
-  .surf-spot-novelty-chip-wrap {
+  .surf-spot-status-chip-wrap {
+    @extend %flex-row;
     flex: 0 0 auto;
+    flex-wrap: wrap;
+    gap: $spacing-small;
     min-width: 0;
 
     &:empty {

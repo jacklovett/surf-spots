@@ -13,7 +13,7 @@ import {
   SurfHeightIcon,
   CalendarIcon,
 } from '../ConditionIcons'
-import { formatSurfHeightRange, formatSeason, getNoveltyWaveLabel } from '~/utils/surfSpotUtils'
+import { formatSurfHeightRange, formatSeason, getNoveltyWaveLabel, getWslTourLabel } from '~/utils/surfSpotUtils'
 import { ERROR_OPEN_SURF_SPOT } from '~/utils/errorUtils'
 
 interface IProps {
@@ -40,10 +40,14 @@ export const SurfSpotPreview = memo((props: IProps) => {
     swellSeason,
     isWavepool,
     isRiverWave,
+    isWslTourStop,
+    isOnWslTourThisSeason,
   } = surfSpot
 
   const isNoveltyWave = isWavepool || isRiverWave
   const noveltyLabel = getNoveltyWaveLabel({ isWavepool, isRiverWave })
+  const wslTourLabel = getWslTourLabel({ isWslTourStop, isOnWslTourThisSeason })
+  const hasStatusChips = noveltyLabel != null || wslTourLabel != null
   const { closeDrawer } = useLayoutContext()
   const { settings } = useSettingsContext()
   const { showError } = useToastContext()
@@ -52,9 +56,10 @@ export const SurfSpotPreview = memo((props: IProps) => {
   return (
     <div className="surf-spot-preview">
       <div className="surf-spot-preview-content">
-        {noveltyLabel && (
-          <div className="surf-spot-preview-novelty">
-            <Chip label={noveltyLabel} isFilled={false} />
+        {hasStatusChips && (
+          <div className="surf-spot-preview-status-chips">
+            {noveltyLabel && <Chip label={noveltyLabel} isFilled={false} />}
+            {wslTourLabel && <Chip label={wslTourLabel} isFilled={false} />}
           </div>
         )}
         <div className="surf-spot-preview-details">

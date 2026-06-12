@@ -118,6 +118,12 @@ export const Filters = memo(() => {
       isRiverWave: checked ? true : undefined,
     }))
 
+  const handleWslTourStopChange = (checked: boolean) =>
+    setSelectedFilters((prev) => ({
+      ...prev,
+      isWslTourStop: checked ? true : undefined,
+    }))
+
   // Apply filters: update global context
   const handleApplyFilters = () => {
     setFilters(selectedFilters)
@@ -387,6 +393,13 @@ export const Filters = memo(() => {
               description="Show only river waves"
               checked={selectedFilters.isRiverWave === true}
               onChange={handleRiverWaveChange}
+            />
+            <CheckboxOption
+              name="wslTourStop"
+              title="WSL Championship Tour"
+              description="Championship Tour venues — past stops and this season"
+              checked={selectedFilters.isWslTourStop === true}
+              onChange={handleWslTourStopChange}
             />
           </div>
         </div>

@@ -147,8 +147,8 @@ test.describe('Surf Spots', () => {
     await page.waitForLoadState('networkidle')
 
     // If this spot is a novelty wave, the chip should be next to the title and ocean Best Conditions hidden
-    const riverChip = page.locator('.page-title-with-status .chip:has-text("River wave")')
-    const poolChip = page.locator('.page-title-with-status .chip:has-text("Wave pool")')
+    const riverChip = page.locator('.surf-spot-status-chip-wrap .chip:has-text("River wave")')
+    const poolChip = page.locator('.surf-spot-status-chip-wrap .chip:has-text("Wave pool")')
     const hasNoveltyChip =
       (await riverChip.isVisible().catch(() => false)) ||
       (await poolChip.isVisible().catch(() => false))
@@ -175,7 +175,7 @@ test.describe('Surf Spots', () => {
     }
 
     // If the opened spot is a novelty wave, the preview should show the chip inside the drawer
-    const noveltyChipInDrawer = drawer.locator('.surf-spot-preview-novelty .chip')
+    const noveltyChipInDrawer = drawer.locator('.surf-spot-preview-status-chips .chip')
     const hasNoveltyChip = await noveltyChipInDrawer.isVisible().catch(() => false)
 
     if (hasNoveltyChip) {

@@ -162,6 +162,20 @@ export const getNoveltyWaveLabel = (spot: {
   return null
 }
 
+/** Chip on spot detail/preview when linked to the WSL CT. */
+export const getWslTourLabel = (spot: {
+  isWslTourStop?: boolean
+  isOnWslTourThisSeason?: boolean
+}): string | null => {
+  if (spot.isOnWslTourThisSeason) {
+    return 'WSL this season'
+  }
+  if (spot.isWslTourStop) {
+    return 'Past WSL stop'
+  }
+  return null
+}
+
 /**
  * Where to POST for `surfSpotAction` (watch list / surfed spots, trips, etc.).
  * On a `/surf-spots/...` URL other than the bare index, use that path; otherwise `/surf-spots`.
