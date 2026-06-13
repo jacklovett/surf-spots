@@ -2,6 +2,7 @@ import { CSSProperties, useEffect, useRef, useState } from 'react'
 import classNames from 'classnames'
 
 import { useLayoutContext } from '~/contexts'
+import { lockBodyScroll, unlockBodyScroll } from '~/utils/bodyScrollLock'
 
 interface TouchState {
   startX: number
@@ -23,6 +24,21 @@ export const Drawer = () => {
   const isSwipingRef = useRef(false)
 
   const touchStateRef = useRef<TouchState | null>(null)
+
+  useEffect(() => {
+    if (!isOpen) {
+      document.body.classList.remove('drawer-open')
+      return
+    }
+
+    lockBodyScroll()
+    document.body.classList.add('drawer-open')
+
+    return () => {
+      unlockBodyScroll()
+      document.body.classList.remove('drawer-open')
+    }
+  }, [isOpen])
 
   // Handle escape key to close drawer
   useEffect(() => {
@@ -55,21 +71,12 @@ export const Drawer = () => {
         })
       }
       document.addEventListener('keydown', handleEscape)
-      // Prevent body scroll when drawer is open while maintaining scrollbar space
-      const scrollbarWidth =
-        window.innerWidth - document.documentElement.clientWidth
-      document.body.style.overflow = 'hidden'
-      document.body.style.paddingRight = `${scrollbarWidth}px`
-      // Add class to body to disable pointer events on floating buttons
-      document.body.classList.add('drawer-open')
     } else {
       // Start close animation
       setIsAnimating(false)
       // Reset swiping state
       setIsSwiping(false)
       isSwipingRef.current = false
-      // Remove drawer-open class from body
-      document.body.classList.remove('drawer-open')
       // Remove from DOM after animation completes
       setTimeout(() => {
         setShouldRender(false)
@@ -80,8 +87,6 @@ export const Drawer = () => {
 
     return () => {
       document.removeEventListener('keydown', handleEscape)
-      document.body.style.overflow = 'unset'
-      document.body.style.paddingRight = 'unset'
       setTranslateX(0)
     }
   }, [isOpen, closeDrawer, shouldRender])

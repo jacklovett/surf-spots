@@ -103,7 +103,7 @@ export default function Index() {
                 </div>
                 <h3>Discoveries</h3>
                 <p>
-                  Found a new break? Add it public or private. Keep your secret
+                  Found a new break? Add it public or private. We'll keep your secret
                   spots secret.
                 </p>
               </div>
@@ -140,9 +140,7 @@ export default function Index() {
                 </div>
                 <h3>Explore Worldwide</h3>
                 <p>
-                  Search thousands of spots by location, wave type, and
-                  difficulty. Filter by best seasons to time your travels
-                  perfectly.
+                  Search thousands of spots with helpful filters like wave types, direction, skill levels and many more.
                 </p>
               </div>
 
@@ -152,8 +150,8 @@ export default function Index() {
                 </div>
                 <h3>Watch List Alerts</h3>
                 <p>
-                  Get notified when swell season starts, travel deals drop, or
-                  events happen at spots you're following.
+                  Get notified on swell seasons, travel deals, or
+                  events happening at spots you follow.
                 </p>
               </div>
 
@@ -163,8 +161,8 @@ export default function Index() {
                 </div>
                 <h3>Trips</h3>
                 <p>
-                  Create trips with multiple spots, add your quiver, invite
-                  friends to join, and document your journey with shared photos.
+                  Create trips, plan out the spots you want to surf, which boards to take, invite
+                  friends to join, and document the journey.
                 </p>
               </div>
 
@@ -174,8 +172,8 @@ export default function Index() {
                 </div>
                 <h3>Trip Planner</h3>
                 <p>
-                  Personalized ideas for where to surf next, based
-                  on your surfed spots, watch list, and sessions.
+                  Get personalized ideas for where to surf next, based
+                  on your surfed spots, skill level and personal preferences.
                 </p>
               </div>
             </div>

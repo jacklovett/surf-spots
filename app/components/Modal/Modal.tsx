@@ -1,5 +1,6 @@
-import { ReactNode } from 'react'
+import { MouseEvent, ReactNode, useEffect } from 'react'
 import { createPortal } from 'react-dom'
+import { lockBodyScroll, unlockBodyScroll } from '~/utils/bodyScrollLock'
 import Button from '../Button'
 
 interface IProps {
@@ -19,9 +20,32 @@ export const Modal = (props: IProps) => {
   const modalContainerClass = ['modal-container', containerClassName]
     .filter(Boolean)
     .join(' ')
+
+  useEffect(() => {
+    lockBodyScroll()
+    return () => unlockBodyScroll()
+  }, [])
+
+  useEffect(() => {
+    const handleEscape = (event: KeyboardEvent) => {
+      if (event.key === 'Escape' && !disableClose) {
+        onClose()
+      }
+    }
+
+    document.addEventListener('keydown', handleEscape)
+    return () => document.removeEventListener('keydown', handleEscape)
+  }, [onClose, disableClose])
+
+  const handleOverlayClick = (event: MouseEvent<HTMLDivElement>) => {
+    if (!disableClose && event.target === event.currentTarget) {
+      onClose()
+    }
+  }
+
   // Use a portal to enforce rendering the modal in the body
   return createPortal(
-    <div className="modal-overlay">
+    <div className="modal-overlay" onClick={handleOverlayClick}>
       <div className={modalContainerClass}>
         <div className="modal-header flex-end">
           <Button

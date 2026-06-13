@@ -197,6 +197,29 @@ test.describe('Navigation', () => {
     }
   })
 
+  test('should close sign-up prompt modal with Escape and backdrop click', async ({
+    page,
+  }) => {
+    await page.goto('/')
+    await page.context().clearCookies()
+    await page.reload()
+
+    await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight))
+    await page.locator('footer a:has-text("Surfboards")').click()
+
+    const modal = page.locator('.modal-overlay')
+    await expect(modal).toBeVisible({ timeout: 15000 })
+
+    await page.keyboard.press('Escape')
+    await expect(modal).toBeHidden()
+
+    await page.locator('footer a:has-text("Surfboards")').click()
+    await expect(modal).toBeVisible({ timeout: 15000 })
+
+    await modal.click({ position: { x: 5, y: 5 } })
+    await expect(modal).toBeHidden()
+  })
+
   test('should handle 404 errors gracefully', async ({ page }) => {
     // Try to access a non-existent route
     await page.goto('/non-existent-route')

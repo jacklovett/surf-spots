@@ -87,7 +87,7 @@ export const SignUpPromptProvider = ({
                 <li>Share your favorite spots with other surfers</li>
                 <li>Help others discover new waves</li>
                 <li>Add spots and grow the map</li>
-                <li>Keep your secret spots private if you prefer</li>
+                <li>We'll keep your secret spots private if you prefer</li>
               </ul>
             </>
           ),
