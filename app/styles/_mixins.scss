@@ -65,6 +65,22 @@
 }
 
 /* Hero Background Mixin */
+$wave-tile-pattern: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="waves" x="0" y="0" width="100" height="100" patternUnits="userSpaceOnUse"><path d="M0 50 Q25 40 50 50 T100 50 V100 H0 Z" fill="rgba(255,255,255,0.1)"/></pattern></defs><rect width="100" height="100" fill="url(%23waves)"/></svg>');
+
+@mixin wave-tile-overlay($opacity: 0.3) {
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: $wave-tile-pattern;
+    opacity: $opacity;
+    pointer-events: none;
+  }
+}
+
 @mixin hero-background {
   background: linear-gradient(
     135deg,
@@ -74,21 +90,22 @@
   position: relative;
   overflow: hidden;
 
-  &::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="waves" x="0" y="0" width="100" height="100" patternUnits="userSpaceOnUse"><path d="M0 50 Q25 40 50 50 T100 50 V100 H0 Z" fill="rgba(255,255,255,0.1)"/></pattern></defs><rect width="100" height="100" fill="url(%23waves)"/></svg>');
-    opacity: 0.3;
-  }
+  @include wave-tile-overlay(0.3);
 
   & > * {
     position: relative;
     z-index: 2;
   }
+}
+
+@mixin feed-banner-wave-background($base-color, $wave-opacity: 0.35) {
+  background: linear-gradient(
+    135deg,
+    $base-color 0%,
+    darken($base-color, 15%) 100%
+  );
+
+  @include wave-tile-overlay($wave-opacity);
 }
 
 /* Scrollbar Mixin - works for both horizontal and vertical scrollbars */

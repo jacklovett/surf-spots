@@ -1,13 +1,9 @@
-import { CSSProperties } from 'react'
+import { Link } from 'react-router'
 import type { WatchListNotification } from '~/types/watchedSurfSpotsSummary'
 import Icon, { type IconKey } from '../Icon'
-import {
-  getNotificationIcon,
-  getNotificationLabel,
-  getDefaultImage,
-} from './index'
-import { safeLinkHref } from '~/utils/commonUtils'
-import { formatTimeAgo } from '~/utils/dateUtils'
+import { getFeedBadgeLabel, getNotificationIcon } from './index'
+import { resolveNotificationLink } from '~/utils/commonUtils'
+import { formatDateRange, formatTimeAgo } from '~/utils/dateUtils'
 
 interface FeedItemProps {
   notification: WatchListNotification
@@ -19,98 +15,76 @@ export const FeedItem = ({ notification }: FeedItemProps) => {
     description,
     type,
     link,
-    imageUrl,
-    location,
     surfSpotName,
+    startDate,
+    endDate,
+    status,
     createdAt,
   } = notification
-  const iconKey = getNotificationIcon(type) as IconKey
-  const label = getNotificationLabel(type)
-  const bannerImage = imageUrl || getDefaultImage(type)
-  const timeAgo = formatTimeAgo(createdAt)
 
-  const safeHref = safeLinkHref(link)
+  const iconKey = getNotificationIcon(type) as IconKey
+  const badgeLabel = getFeedBadgeLabel(type, status)
+  const timeAgo = formatTimeAgo(createdAt)
+  const dateRange =
+    startDate && endDate ? formatDateRange(startDate, endDate) : null
+  const { externalHref, internalPath } = resolveNotificationLink(link)
+  const isClickable = Boolean(externalHref || internalPath)
+  const spotLabel = surfSpotName || 'Watch list'
+
+  const body = (
+    <>
+      <div className="feed-item-banner feed-item-banner-default">
+        <div className="feed-item-banner-overlay">
+          <div className="feed-item-badge">{badgeLabel}</div>
+        </div>
+      </div>
+      <div className="feed-item-body">
+        <div className="feed-item-row">
+          <div className="feed-item-avatar">
+            <Icon iconKey={iconKey} useAccentColor={false} />
+          </div>
+          <div className="feed-item-main">
+            <div className="feed-item-topline">
+              <span className="feed-item-spot bold">{spotLabel}</span>
+              {timeAgo && (
+                <span className="feed-item-time text-secondary font-small">
+                  {timeAgo}
+                </span>
+              )}
+            </div>
+            <p className="feed-item-headline bold">{title}</p>
+            {dateRange && (
+              <p className="feed-item-date-range font-small">{dateRange}</p>
+            )}
+            {description && (
+              <p className="feed-item-body-text text-secondary font-small">
+                {description}
+              </p>
+            )}
+          </div>
+        </div>
+      </div>
+    </>
+  )
+
   return (
     <article className="feed-item animate-on-scroll" data-type={type}>
-      {safeHref ? (
+      {internalPath && (
+        <Link to={internalPath} className="feed-item-link-wrapper">
+          {body}
+        </Link>
+      )}
+      {!internalPath && externalHref && (
         <a
-          href={safeHref}
+          href={externalHref}
           target="_blank"
           rel="noopener noreferrer"
           className="feed-item-link-wrapper"
         >
-          <div
-            className="feed-item-banner"
-            style={
-              typeof bannerImage === 'string' &&
-              bannerImage.startsWith('linear-gradient')
-                ? ({ '--banner-image': bannerImage } as CSSProperties)
-                : ({ '--banner-image': `url(${bannerImage})` } as CSSProperties)
-            }
-          >
-            <div className="feed-item-banner-overlay">
-              <div className="feed-item-badge">{label}</div>
-            </div>
-          </div>
-          <div className="feed-item-body">
-            <div className="feed-item-header">
-              <div className="feed-item-icon">
-                <Icon iconKey={iconKey} useAccentColor={false} />
-              </div>
-              <div className="feed-item-meta">
-                {(surfSpotName || location) && (
-                  <span className="feed-item-location bold">
-                    {surfSpotName || location}
-                  </span>
-                )}
-                <span className="feed-item-time">{timeAgo}</span>
-              </div>
-            </div>
-            <div className="feed-item-content">
-              <h3 className="feed-item-title">{title}</h3>
-              <p className="feed-item-description">{description}</p>
-              <span className="feed-item-cta">View Details →</span>
-            </div>
-          </div>
+          {body}
         </a>
-      ) : (
-        <>
-          <div
-            className="feed-item-banner"
-            style={
-              typeof bannerImage === 'string' &&
-              bannerImage.startsWith('linear-gradient')
-                ? ({ '--banner-image': bannerImage } as CSSProperties)
-                : ({
-                    '--banner-image': `url(${bannerImage})`,
-                  } as React.CSSProperties)
-            }
-          >
-            <div className="feed-item-banner-overlay">
-              <div className="feed-item-badge">{label}</div>
-            </div>
-          </div>
-          <div className="feed-item-body">
-            <div className="feed-item-header">
-              <div className="feed-item-icon">
-                <Icon iconKey={iconKey} useAccentColor={false} />
-              </div>
-              <div className="feed-item-meta">
-                {(surfSpotName || location) && (
-                  <span className="feed-item-location bold">
-                    {surfSpotName || location}
-                  </span>
-                )}
-                <span className="feed-item-time">{timeAgo}</span>
-              </div>
-            </div>
-            <div className="feed-item-content">
-              <h3 className="feed-item-title">{title}</h3>
-              <p className="feed-item-description">{description}</p>
-            </div>
-          </div>
-        </>
       )}
+      {!isClickable && <div className="feed-item-static">{body}</div>}
     </article>
   )
 }

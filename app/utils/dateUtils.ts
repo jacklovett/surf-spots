@@ -331,3 +331,28 @@ export const formatTimeAgo = (createdAt?: string): string => {
   if (diffDays < 7) return `${diffDays} day${diffDays > 1 ? 's' : ''} ago`
   return `${Math.floor(diffDays / 7)} week${Math.floor(diffDays / 7) > 1 ? 's' : ''} ago`
 }
+
+const parseIsoDateOnly = (dateString: string): Date => {
+  const [year, month, day] = dateString.split('-').map(Number)
+  return new Date(year, month - 1, day)
+}
+
+/** Formats an inclusive ISO date range for notification feeds (e.g. "1 Feb – 15 Feb 2026"). */
+export const formatDateRange = (startDate: string, endDate: string): string => {
+  const start = parseIsoDateOnly(startDate)
+  const end = parseIsoDateOnly(endDate)
+  const sameYear = start.getFullYear() === end.getFullYear()
+
+  const startLabel = start.toLocaleDateString('en-GB', {
+    day: 'numeric',
+    month: 'short',
+    ...(sameYear ? {} : { year: 'numeric' }),
+  })
+  const endLabel = end.toLocaleDateString('en-GB', {
+    day: 'numeric',
+    month: 'short',
+    year: 'numeric',
+  })
+
+  return `${startLabel} – ${endLabel}`
+}

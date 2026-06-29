@@ -11,6 +11,9 @@ export interface WatchListNotification {
   imageUrl?: string
   location?: string
   surfSpotName?: string
+  startDate?: string
+  endDate?: string
+  status?: string
   createdAt?: string
 }
 

@@ -22,6 +22,33 @@ export const safeLinkHref = (
   return parseAllowedHttpUrl(trimmed) != null ? trimmed : null
 }
 
+export type ResolvedNotificationLink = {
+  externalHref: string | null
+  internalPath: string | null
+}
+
+/**
+ * App routes (e.g. surf spot path from the API) vs external http(s) URLs for feed CTAs.
+ */
+export const resolveNotificationLink = (
+  link: string | null | undefined,
+): ResolvedNotificationLink => {
+  if (link == null || typeof link !== 'string') {
+    return { externalHref: null, internalPath: null }
+  }
+
+  const trimmed = link.trim()
+  if (trimmed.length === 0 || trimmed.length > MAX_SAFE_URL_LENGTH) {
+    return { externalHref: null, internalPath: null }
+  }
+
+  if (trimmed.startsWith('/') && !trimmed.startsWith('//')) {
+    return { externalHref: null, internalPath: trimmed }
+  }
+
+  return { externalHref: safeLinkHref(trimmed), internalPath: null }
+}
+
 const parseAllowedHttpUrl = (value: string): URL | null => {
   try {
     const parsed = new URL(value)

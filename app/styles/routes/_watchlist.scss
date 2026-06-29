@@ -21,90 +21,19 @@
 }
 
 .feed-section-title {
-  font-size: $font-size-x-large;
+  font-size: $font-size-large;
   color: $text-heading;
-  margin: 0 0 $spacing-large 0;
-  padding-bottom: $spacing-unit;
-  border-bottom: 2px solid $border-light;
+  margin: 0 0 $spacing-unit 0;
 }
 
 .feed-container {
   @extend %flex-column;
-  gap: $spacing-unit;
-  max-width: 800px;
+  max-width: 640px;
   margin: 0 auto;
-}
-
-.watchlist-empty-state {
-  text-align: center;
-  padding: $spacing-x-large 0;
-  color: $text-secondary;
-
-  .text-secondary {
-    color: $text-secondary;
-    font-size: $font-size-small;
-    margin-top: $spacing-small;
-  }
-}
-
-/* Notification cards (watch list updates) */
-.notifications-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: $spacing-large;
-
-  @media (max-width: 640px) {
-    grid-template-columns: 1fr;
-    gap: $spacing-unit;
-  }
-}
-
-.notification-card {
-  @extend .card;
+  background: $white;
   border: 1px solid $border-light;
+  border-radius: $content-border-radius;
   overflow: hidden;
-  margin: 0;
-  transition:
-    transform 0.2s ease,
-    box-shadow 0.2s ease;
-
-  &:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
-  }
-}
-
-.notification-header {
-  background: linear-gradient(
-    135deg,
-    $primary-color,
-    darken($primary-color, 10%)
-  );
-  color: $white;
-  padding: $spacing-large;
-}
-
-.notification-header h3 {
-  margin: 0;
-}
-
-.notification-content {
-  padding: $spacing-large;
-}
-
-.notification-content p {
-  color: $text-secondary;
-  line-height: 1.6;
-  margin-bottom: $spacing-unit;
-}
-
-.notification-link {
-  color: $primary-color;
-  text-decoration: none;
-
-  &:hover {
-    text-decoration: underline;
-  }
 }
 
 @media (max-width: 768px) {

@@ -156,22 +156,26 @@ export default function Watchlist() {
               )}
             </ErrorBoundary>
 
-            <div id="watchlist-map" className="map-wrapper center mt-l">
-              <ErrorBoundary message={ERROR_BOUNDARY_MAP}>
-                <SurfMap
-                  surfSpots={surfSpots}
-                  onFetcherSubmit={onFetcherSubmit}
-                  surfActionFetcher={fetcher}
-                />
-              </ErrorBoundary>
-            </div>
+            {surfSpotsFound && (
+              <>
+                <div id="watchlist-map" className="map-wrapper center mt-l">
+                  <ErrorBoundary message={ERROR_BOUNDARY_MAP}>
+                    <SurfMap
+                      surfSpots={surfSpots}
+                      onFetcherSubmit={onFetcherSubmit}
+                      surfActionFetcher={fetcher}
+                    />
+                  </ErrorBoundary>
+                </div>
 
-            <div id="watched-spots" className="mt-l">
-              <h2 className="watched-spots-title">Your Watched Surf Spots</h2>
-              <ErrorBoundary message={ERROR_BOUNDARY_SURF_SPOT_LIST}>
-                <SurfSpotList surfSpots={surfSpots} />
-              </ErrorBoundary>
-            </div>
+                <div id="watched-spots" className="mt-l">
+                  <h2 className="watched-spots-title">Your Watched Surf Spots</h2>
+                  <ErrorBoundary message={ERROR_BOUNDARY_SURF_SPOT_LIST}>
+                    <SurfSpotList surfSpots={surfSpots} />
+                  </ErrorBoundary>
+                </div>
+              </>
+            )}
           </>
         ) : (
           <div ref={emptyStateRef as RefObject<HTMLDivElement>}>
