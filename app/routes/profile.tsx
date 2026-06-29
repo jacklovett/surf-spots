@@ -531,6 +531,7 @@ const Profile = () => {
                     showLabel={!!formState.emergencyContactRelationship}
                   />
               </div>
+              <div className="form-inline">
               <FormInput
                 field={{ label: 'Email', name: 'emergencyContactEmail', type: 'email' }}
                 value={formState.emergencyContactEmail}
@@ -549,6 +550,7 @@ const Profile = () => {
                 showLabel={!!formState.emergencyContactPhone}
                 profileCountryName={formState.country}
               />
+              </div>
             </div>
           </div>
           
