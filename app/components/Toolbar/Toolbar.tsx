@@ -1,11 +1,7 @@
-import FloatingButton from '../FloatingButton'
 import TextButton from '../TextButton'
 import ViewSwitch from '../ViewSwitch'
 
 interface ToolbarProps {
-  showAddButton: boolean
-  onAddNewSpot: () => void
-  addButtonLoading?: boolean
   onOpenFilters: () => void
   filtersBadge?: number
   isMapView: boolean
@@ -16,9 +12,6 @@ interface ToolbarProps {
 
 export const Toolbar = (props: ToolbarProps) => {
   const {
-    showAddButton,
-    onAddNewSpot,
-    addButtonLoading = false,
     onOpenFilters,
     filtersBadge,
     isMapView,
@@ -28,50 +21,26 @@ export const Toolbar = (props: ToolbarProps) => {
   } = props
 
   return (
-    <>
-      <div
-        className={`row toolbar flex-end space-between ${hideToolbarBorder ? ' toolbar--map-view' : ''}`}
-      >
-        <div className="row flex-1">
-          {!hideFilters && (
-            <TextButton
-              text="Filters"
-              onClick={onOpenFilters}
-              iconKey="filters"
-              badge={filtersBadge}
-            />
-          )}
-          {showAddButton && (
-            <div className="toolbar-add">
-              <TextButton
-                text="Add new spot"
-                onClick={onAddNewSpot}
-                iconKey="plus"
-                filled
-              />
-            </div>
-          )}
-        </div>
-        <ViewSwitch
-          isPrimaryView={isMapView}
-          onToggleView={onToggleView}
-          primaryLabel="Map"
-          secondaryLabel="List"
-        />
-      </div>
-
-      <div className="floating-add-button">
-        {showAddButton && (
-          <FloatingButton
-            iconKey="plus"
-            onClick={onAddNewSpot}
-            ariaLabel="Add new spot"
-            size="medium"
-            loading={addButtonLoading}
+    <div
+      className={`row toolbar flex-end space-between ${hideToolbarBorder ? ' toolbar--map-view' : ''}`}
+    >
+      <div className="row flex-1">
+        {!hideFilters && (
+          <TextButton
+            text="Filters"
+            onClick={onOpenFilters}
+            iconKey="filters"
+            badge={filtersBadge}
           />
         )}
       </div>
-    </>
+      <ViewSwitch
+        isPrimaryView={isMapView}
+        onToggleView={onToggleView}
+        primaryLabel="Map"
+        secondaryLabel="List"
+      />
+    </div>
   )
 }
 

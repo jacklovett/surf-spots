@@ -1,29 +1,3 @@
-// Mobile toolbar layout
-// Hide the toolbar Add button on small screens (use floating button instead)
-.toolbar-add {
-  @media (max-width: 420px) {
-    display: none;
-  }
-}
-
-// Floating add button for mobile
-.floating-add-button {
-  display: none;
-
-  @media (max-width: 420px) {
-    display: block;
-    position: fixed;
-    bottom: calc(80px + $spacing-unit); // Above TripPlannerButton with spacing
-    right: $spacing-unit;
-    z-index: 10;
-
-    // Disable pointer events when drawer is open to prevent touch event interception
-    body.drawer-open & {
-      pointer-events: none;
-    }
-  }
-}
-
 .toolbar {
   padding: $spacing-unit $spacing-small;
   border-bottom: 1px solid $outline-color;

@@ -33,7 +33,6 @@ import { surfSpotAction } from '~/services/surfSpot.server'
 import {
   useLayoutContext,
   useSurfSpotsContext,
-  useUserContext,
 } from '~/contexts'
 import { useSurfSpotActions } from '~/hooks'
 
@@ -54,7 +53,6 @@ export const loader: LoaderFunction = async ({ request }) => {
 export const action: ActionFunction = surfSpotAction
 
 export default function SurfSpots() {
-  const { user } = useUserContext()
   const { openDrawer } = useLayoutContext()
   const navigate = useNavigate()
   const { pathname } = useLocation()
@@ -160,12 +158,6 @@ export default function SurfSpots() {
       {!isAddSessionRoute && (
         <>
           <Toolbar
-            showAddButton={!!user}
-            onAddNewSpot={() => navigate('/add-surf-spot')}
-            addButtonLoading={
-              isNavigating &&
-              navigation.location?.pathname === '/add-surf-spot'
-            }
             onOpenFilters={handleOpenFilters}
             filtersBadge={getAppliedFiltersCount(filters)}
             isMapView={isMapView}

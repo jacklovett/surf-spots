@@ -19,6 +19,7 @@ import ErrorBoundary from './ErrorBoundary'
 import FeedItem from './FeedItem'
 import Filters from './Filters'
 import FloatingButton from './FloatingButton'
+import FloatingSpeedDial from './FloatingSpeedDial'
 import Footer from './Footer'
 import FormComponent from './FormComponent'
 import FormInput from './FormInput'
@@ -94,6 +95,7 @@ export {
   FeedItem,
   Filters,
   FloatingButton,
+  FloatingSpeedDial,
   Footer,
   FormComponent,
   FormInput,

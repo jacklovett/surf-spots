@@ -1,0 +1,134 @@
+.floating-speed-dial {
+  position: fixed;
+  // Sits above TripPlannerButton (64px large button + spacing below it + gap)
+  bottom: calc(64px + #{$spacing-unit} * 2);
+  right: $spacing-unit;
+  z-index: 11;
+
+  body.drawer-open & {
+    pointer-events: none;
+  }
+}
+
+.speed-dial-backdrop {
+  position: fixed;
+  inset: 0;
+  background: transparent;
+  z-index: -1;
+  cursor: default;
+  border: none;
+  padding: 0;
+  margin: 0;
+}
+
+.speed-dial-container {
+  @extend %flex-column;
+  align-items: flex-end;
+  gap: $spacing-small;
+}
+
+// Rotate the + icon to form an × when the dial is open
+.floating-speed-dial.open .speed-dial-trigger .floating-button-icon svg {
+  transform: rotate(45deg);
+  transition: transform 0.25s ease;
+}
+
+.floating-speed-dial:not(.open) .speed-dial-trigger .floating-button-icon svg {
+  transition: transform 0.25s ease;
+}
+
+.speed-dial-actions {
+  display: flex;
+  // column-reverse so index 0 (Add Surf Spot) sits closest to the trigger at bottom
+  flex-direction: column-reverse;
+  align-items: flex-end;
+  gap: $spacing-small;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.speed-dial-action {
+  @extend %flex-base;
+  align-items: center;
+  gap: $spacing-small;
+  justify-content: flex-end;
+
+  opacity: 0;
+  transform: translateY(12px) scale(0.85);
+  transition:
+    opacity 0.2s ease,
+    transform 0.2s ease;
+  transition-delay: calc(var(--action-index) * 40ms);
+  pointer-events: none;
+
+  .floating-speed-dial.open & {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    pointer-events: auto;
+  }
+}
+
+.speed-dial-action-label {
+  background: $white;
+  color: $text-color;
+  font-size: $font-size-small;
+  font-weight: 500;
+  padding: 4px 10px;
+  border-radius: 8px;
+  box-shadow: 0 1px 6px rgba(0, 0, 0, 0.12);
+  white-space: nowrap;
+  border: 1px solid rgba(13, 22, 25, 0.08);
+  user-select: none;
+}
+
+.speed-dial-action-btn {
+  @extend %flex-center;
+  flex-shrink: 0;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: $white;
+  border: 1px solid rgba(13, 22, 25, 0.1);
+  cursor: pointer;
+  padding: 0;
+  transition:
+    transform 0.15s ease,
+    border-color 0.2s ease;
+
+  &:focus-visible {
+    outline: 2px solid $focus-color;
+    outline-offset: 3px;
+  }
+
+  &:focus:not(:focus-visible) {
+    outline: none;
+  }
+
+  &:hover {
+    transform: translateY(-2px);
+    border-color: rgba(13, 22, 25, 0.14);
+
+    .speed-dial-action-icon {
+      background: $button-primary-hover-bg;
+    }
+  }
+
+  &:active {
+    transform: translateY(0);
+  }
+}
+
+.speed-dial-action-icon {
+  @extend %flex-center;
+  width: 30px;
+  height: 30px;
+  background: $button-primary-bg;
+  border-radius: 50%;
+  color: $white;
+
+  svg {
+    width: 16px;
+    height: 16px;
+  }
+}
