@@ -41,6 +41,7 @@ export interface User extends SessionUser {
   weight?: number
   skillLevel?: SkillLevel
   emergencyContactName?: string
+  emergencyContactEmail?: string
   emergencyContactPhone?: string
   emergencyContactRelationship?: EmergencyContactRelationship
   settings?: UserSettings
@@ -57,6 +58,7 @@ export interface ProfileState {
   weight: string
   skillLevel: string
   emergencyContactName: string
+  emergencyContactEmail: string
   emergencyContactPhone: string
   emergencyContactRelationship: string
 }

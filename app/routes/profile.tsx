@@ -193,6 +193,8 @@ export const action: ActionFunction = async ({ request }) => {
 
   const emergencyContactName =
     formData.get('emergencyContactName')?.toString().trim() || undefined
+  const emergencyContactEmail =
+    formData.get('emergencyContactEmail')?.toString().trim() || undefined
   const emergencyContactPhone =
     formData.get('emergencyContactPhone')?.toString().trim() || undefined
   if (emergencyContactPhone) {
@@ -221,6 +223,7 @@ export const action: ActionFunction = async ({ request }) => {
     weight,
     skillLevel,
     emergencyContactName,
+    emergencyContactEmail,
     emergencyContactPhone,
     emergencyContactRelationship,
   }
@@ -310,6 +313,7 @@ const Profile = () => {
         weight: weightDisplay?.toString() || '',
         skillLevel: user?.skillLevel ? String(user.skillLevel) : '',
         emergencyContactName: user?.emergencyContactName || '',
+        emergencyContactEmail: user?.emergencyContactEmail || '',
         emergencyContactPhone: user?.emergencyContactPhone || '',
         emergencyContactRelationship: user?.emergencyContactRelationship || '',
       },
@@ -319,20 +323,17 @@ const Profile = () => {
         age: (value?: string) => validateAge(value),
         height: (value?: string) => validateHeight(value, settings.preferredUnits),
         weight: (value?: string) => validateWeight(value, settings.preferredUnits),
+        emergencyContactEmail: (value: string) => value ? validateEmail(value) : '',
         emergencyContactPhone: validateEmergencyContactPhone,
       },
     })
 
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false)
 
-  const handleDeleteAccount = () => {
-    beginDeleteAccountSubmit(() => {
-      deleteFetcher.submit(
-        { intent: 'delete-account' },
-        { method: 'post' },
-      )
-    })
-  }
+  const handleDeleteAccount = () => beginDeleteAccountSubmit(() => deleteFetcher.submit(
+    { intent: 'delete-account' },
+    { method: 'post' },
+  ))
 
   useEffect(
     () => {
@@ -355,6 +356,7 @@ const Profile = () => {
           weightFormValue !== (user?.weight ?? undefined) ||
           formSkillLevel !== userSkillLevel ||
           (formState.emergencyContactName || '') !== (user?.emergencyContactName || '') ||
+          (formState.emergencyContactEmail || '') !== (user?.emergencyContactEmail || '') ||
           (formState.emergencyContactPhone || '') !== (user?.emergencyContactPhone || '') ||
           (formState.emergencyContactRelationship || '') !==
             (user?.emergencyContactRelationship || ''),
@@ -529,6 +531,14 @@ const Profile = () => {
                     showLabel={!!formState.emergencyContactRelationship}
                   />
               </div>
+              <FormInput
+                field={{ label: 'Email', name: 'emergencyContactEmail', type: 'email' }}
+                value={formState.emergencyContactEmail}
+                onChange={(event) => handleChange('emergencyContactEmail', event.target.value)}
+                onBlur={() => handleBlur('emergencyContactEmail')}
+                errorMessage={errors.emergencyContactEmail || ''}
+                showLabel={!!formState.emergencyContactEmail}
+              />
               <EmergencyContactPhoneField
                 value={formState.emergencyContactPhone}
                 onChange={(phone) =>
