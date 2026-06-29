@@ -1,10 +1,28 @@
 import { useState, useEffect } from 'react'
-import { useNavigate } from 'react-router'
+import { useNavigate, useLocation } from 'react-router'
 import classNames from 'classnames'
 
 import FloatingButton from '../FloatingButton'
 import Icon, { IconKey } from '../Icon'
 import { useUserContext } from '~/contexts'
+
+// Routes where the quick-add dial is relevant — new content routes must be opted in here
+const CONTENT_PATH_PREFIXES = [
+  '/surf-spots',
+  '/surfboards',
+  '/surfboard',
+  '/trips',
+  '/trip',
+  '/sessions',
+  '/surfed-spots',
+  '/watch-list',
+  '/add-',
+  '/edit-',
+]
+
+const shouldShowDial = (pathname: string) =>
+  CONTENT_PATH_PREFIXES.some(prefix => pathname.startsWith(prefix)) &&
+  !/\/session\/?$/.test(pathname)
 
 interface SpeedDialAction {
   label: string
@@ -24,6 +42,7 @@ export const FloatingSpeedDial = () => {
   const { user } = useUserContext()
   const [isOpen, setIsOpen] = useState(false)
   const navigate = useNavigate()
+  const { pathname } = useLocation()
 
   const toggle = () => setIsOpen(prev => !prev)
   const close = () => setIsOpen(false)
@@ -42,7 +61,7 @@ export const FloatingSpeedDial = () => {
     return () => document.removeEventListener('keydown', handleKeyDown)
   }, [isOpen])
 
-  if (!user) return null
+  if (!user || !shouldShowDial(pathname)) return null
 
   return (
     <div className={classNames('floating-speed-dial', { open: isOpen })}>
