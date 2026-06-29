@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, CSSProperties } from 'react'
 import { useNavigate, useLocation } from 'react-router'
 import classNames from 'classnames'
 
@@ -33,8 +33,8 @@ interface SpeedDialAction {
 
 const SPEED_DIAL_ACTIONS: SpeedDialAction[] = [
   { label: 'Add Surf Spot', iconKey: 'pin', to: '/add-surf-spot', ariaLabel: 'Add surf spot' },
-  { label: 'Add Surfboard', iconKey: 'surfboard', to: '/add-surfboard', ariaLabel: 'Add surfboard' },
   { label: 'Add Trip', iconKey: 'plane', to: '/add-trip', ariaLabel: 'Add trip' },
+  { label: 'Add Surfboard', iconKey: 'surfboard', to: '/add-surfboard', ariaLabel: 'Add surfboard' },
   { label: 'Add Session', iconKey: 'stopwatch', to: '/sessions', ariaLabel: 'Go to sessions' },
 ]
 
@@ -84,7 +84,7 @@ export const FloatingSpeedDial = () => {
               key={action.to}
               role="none"
               className="speed-dial-action"
-              style={{ '--action-index': index } as React.CSSProperties}
+              style={{ '--action-index': index } as CSSProperties}
             >
               <span className="speed-dial-action-label">{action.label}</span>
               <button

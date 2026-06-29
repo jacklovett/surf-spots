@@ -15,7 +15,6 @@ import {
   EmptyState,
   ErrorBoundary,
   FeedItem,
-  TripPlannerButton,
   Loading,
   Page,
   SurfMap,
@@ -79,7 +78,6 @@ export default function Watchlist() {
   const navigation = useNavigation()
   const navigate = useNavigate()
   const loading = navigation.state === 'loading'
-  const navigatingTo = navigation.location?.pathname
 
   const { watchedSurfSpotsSummary, error } = useLoaderData<LoaderData>()
   const { fetcher, onFetcherSubmit } = useSurfSpotActions()
@@ -118,7 +116,6 @@ export default function Watchlist() {
 
   return (
     <Page showHeader>
-      <TripPlannerButton onOpenTripPlanner={() => navigate('/trip-planner')} isLoading={loading && navigatingTo === '/trip-planner'} />
       <div className="info-page-content mv map-content">
         <h1>Watch List</h1>
         {surfSpotsFound && (

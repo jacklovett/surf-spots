@@ -18,7 +18,6 @@ import {
   SurfMap,
   Page,
   Toolbar,
-  TripPlannerButton,
 } from '~/components'
 import {
   ERROR_BOUNDARY_SECTION,
@@ -164,13 +163,6 @@ export default function SurfSpots() {
             onToggleView={handleToggleView}
             hideFilters={isDetailPage}
             hideToolbarBorder={isMapView && !loading && !isMapViewTransition}
-          />
-          <TripPlannerButton
-            onOpenTripPlanner={() => navigate('/trip-planner')}
-            isLoading={
-              isNavigating &&
-              navigation.location?.pathname === '/trip-planner'
-            }
           />
         </>
       )}

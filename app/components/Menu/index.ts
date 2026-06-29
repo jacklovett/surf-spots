@@ -8,7 +8,7 @@ export interface MenuItem {
   path: string
 }
 
-// Spots category - surf spots, surfed spots, and watch list
+// Spots category - surf spots, surfed spots, watch list, and trip planner
 export const spotsMenuItems: MenuItem[] = [
   {
     key: 'surf-spots',
@@ -27,6 +27,12 @@ export const spotsMenuItems: MenuItem[] = [
     icon: 'heart',
     label: 'Watch List',
     path: '/watch-list',
+  },
+  {
+    key: 'trip-planner',
+    icon: 'ai',
+    label: 'Trip Planner',
+    path: '/trip-planner',
   },
 ]
 

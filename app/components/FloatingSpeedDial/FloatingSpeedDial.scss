@@ -1,7 +1,6 @@
 .floating-speed-dial {
   position: fixed;
-  // Sits above TripPlannerButton (64px large button + spacing below it + gap)
-  bottom: calc(64px + #{$spacing-unit} * 2);
+  bottom: $spacing-unit;
   right: $spacing-unit;
   z-index: 11;
 

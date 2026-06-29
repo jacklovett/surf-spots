@@ -11,7 +11,6 @@ import {
   ContentStatus,
   EmptyState,
   ErrorBoundary,
-  TripPlannerButton,
   Loading,
   Page,
   SurfMap,
@@ -84,7 +83,6 @@ export default function SurfedSpots() {
   const navigation = useNavigation()
   const navigate = useNavigate()
   const loading = navigation.state === 'loading'
-  const navigatingTo = navigation.location?.pathname
 
   const { surfedSpotsSummary, error } = useLoaderData<LoaderData>()
   const { fetcher, onFetcherSubmit } = useSurfSpotActions()
@@ -132,7 +130,6 @@ export default function SurfedSpots() {
 
   return (
     <Page showHeader>
-      <TripPlannerButton onOpenTripPlanner={() => navigate('/trip-planner')} isLoading={loading && navigatingTo === '/trip-planner'} />
       <div className="info-page-content mv map-content">
         <h1>Surfed Spots</h1>
 

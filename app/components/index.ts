@@ -60,7 +60,6 @@ import SurfSpotNoteForm from './SurfSpotNoteForm'
 import ToastContainer from './ToastContainer'
 import Toolbar from './Toolbar'
 import TripForm from './TripForm'
-import TripPlannerButton from './TripPlannerButton'
 import SurfboardSelectionModal from './SurfboardSelectionModal'
 import TripSelectionModal from './TripSelectionModal'
 import SelectionModal from './SelectionModal'
@@ -132,7 +131,6 @@ export {
   ToastContainer,
   Toolbar,
   TripForm,
-  TripPlannerButton,
   SurfboardSelectionModal,
   TripSelectionModal,
   SelectionModal,
