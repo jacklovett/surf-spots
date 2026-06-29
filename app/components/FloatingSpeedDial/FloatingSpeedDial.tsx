@@ -32,10 +32,10 @@ interface SpeedDialAction {
 }
 
 const SPEED_DIAL_ACTIONS: SpeedDialAction[] = [
-  { label: 'Add Surf Spot', iconKey: 'pin', to: '/add-surf-spot', ariaLabel: 'Add surf spot' },
-  { label: 'Add Trip', iconKey: 'plane', to: '/add-trip', ariaLabel: 'Add trip' },
-  { label: 'Add Surfboard', iconKey: 'surfboard', to: '/add-surfboard', ariaLabel: 'Add surfboard' },
-  { label: 'Add Session', iconKey: 'stopwatch', to: '/sessions', ariaLabel: 'Go to sessions' },
+  { label: 'Surf Spot', iconKey: 'pin', to: '/add-surf-spot', ariaLabel: 'Add surf spot' },
+  { label: 'Trip', iconKey: 'plane', to: '/add-trip', ariaLabel: 'Add trip' },
+  { label: 'Surfboard', iconKey: 'surfboard', to: '/add-surfboard', ariaLabel: 'Add surfboard' },
+  { label: 'Session', iconKey: 'stopwatch', to: '/sessions', ariaLabel: 'Go to sessions' },
 ]
 
 export const FloatingSpeedDial = () => {
