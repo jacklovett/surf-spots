@@ -1,5 +1,14 @@
 let activeScrollAnimation = 0
 
+const getScrollY = (): number =>
+  Math.max(window.scrollY, document.documentElement.scrollTop, document.body.scrollTop)
+
+const setScrollY = (y: number): void => {
+  window.scrollTo(0, y)
+  document.documentElement.scrollTop = y
+  document.body.scrollTop = y
+}
+
 export const scrollPageToTop = (options?: { smooth?: boolean }) => {
   if (typeof window === 'undefined') {
     return
@@ -11,10 +20,10 @@ export const scrollPageToTop = (options?: { smooth?: boolean }) => {
     '(prefers-reduced-motion: reduce)',
   ).matches
   const smooth = options?.smooth !== false && !prefersReducedMotion
-  const startY = window.scrollY
+  const startY = getScrollY()
 
   if (startY <= 0 || !smooth) {
-    window.scrollTo(0, 0)
+    setScrollY(0)
     return
   }
 
@@ -25,7 +34,7 @@ export const scrollPageToTop = (options?: { smooth?: boolean }) => {
     const elapsed = now - startTime
     const progress = Math.min(elapsed / duration, 1)
     const ease = 1 - Math.pow(1 - progress, 3)
-    window.scrollTo(0, Math.round(startY * (1 - ease)))
+    setScrollY(Math.round(startY * (1 - ease)))
     if (progress < 1) {
       activeScrollAnimation = requestAnimationFrame(step)
     }
