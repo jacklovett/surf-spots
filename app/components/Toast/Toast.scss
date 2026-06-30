@@ -2,7 +2,7 @@
 
 .toast {
   @include flex-base;
-  align-items: center;
+  align-items: flex-start;
   gap: $spacing-small;
   border-radius: $content-border-radius;
   box-shadow: $box-shadow;
