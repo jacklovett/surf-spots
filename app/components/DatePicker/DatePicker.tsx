@@ -265,7 +265,8 @@ export const DatePicker = (props: DatePickerProps) => {
         </button>
       </div>
       {isOpen && (
-        <div className="date-picker-calendar">
+        // Prevent mousedown from blurring the input before the day click fires
+        <div className="date-picker-calendar" onMouseDown={(event) => event.preventDefault()}>
           <div className="date-picker-header">
             <div className="date-picker-nav-group">
               <button
