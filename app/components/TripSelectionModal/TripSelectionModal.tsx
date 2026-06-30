@@ -1,7 +1,7 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import { useNavigate, useFetcher, useLocation } from 'react-router'
 import { SelectionModal } from '~/components'
-import { useTripContext, useLayoutContext } from '~/contexts'
+import { useTripContext, useLayoutContext, useToastContext } from '~/contexts'
 import { Trip } from '~/types/trip'
 import { SurfSpot } from '~/types/surfSpots'
 import { formatDate } from '~/utils/dateUtils'
@@ -11,12 +11,10 @@ import {
   DEFAULT_ERROR_MESSAGE,
 } from '~/utils/errorUtils'
 import { SelectionItem } from '../SelectionModal'
-import { FetcherSubmitParams } from '~/types/api'
 
 interface TripSelectionModalProps {
   isOpen: boolean
   onClose: () => void
-  onError: (message: string) => void
   surfSpot: SurfSpot
   userId: string
   trips?: Trip[]
@@ -25,7 +23,6 @@ interface TripSelectionModalProps {
 export const TripSelectionModal = ({
   isOpen,
   onClose,
-  onError,
   surfSpot,
   userId,
   trips: tripsFromProps,
@@ -33,8 +30,11 @@ export const TripSelectionModal = ({
   const navigate = useNavigate()
   const location = useLocation()
   const { closeDrawer } = useLayoutContext()
+  const { showSuccess, showError } = useToastContext()
   const { trips: tripsFromContext, hydrateTrips, updateTripLocal } =
     useTripContext()
+
+  const lastActionRef = useRef<{ type: 'add' | 'remove'; tripName: string } | null>(null)
   const tripsFetcher = useFetcher<{ trips: Trip[]; error?: string }>()
   const actionFetcher = useFetcher<{ success?: boolean; error?: string }>()
   
@@ -96,12 +96,12 @@ export const TripSelectionModal = ({
         hydrateTrips(trips)
       }
       if (tripsFetcher.data.error) {
-        onError(getSafeFetcherErrorMessage(tripsFetcher.data, ERROR_LOAD_TRIPS))
+        showError(getSafeFetcherErrorMessage(tripsFetcher.data, ERROR_LOAD_TRIPS))
       }
     } else if (tripsFetcher.state === 'loading' && !tripsFetcher.data) {
       setIsLoadingTrips(true)
     }
-  }, [tripsFetcher.state, tripsFetcher.data, hydrateTrips, onError])
+  }, [tripsFetcher.state, tripsFetcher.data, hydrateTrips, showError])
 
   // Initialize trips from props into context when modal opens
   useEffect(() => {
@@ -110,18 +110,26 @@ export const TripSelectionModal = ({
     }
   }, [isOpen, tripsFromProps, hydrateTrips])
 
-  // Clear loading states when action completes
+  // Clear loading states when action completes and show feedback toast
   useEffect(() => {
     if (actionFetcher.state === 'idle' && actionFetcher.data !== undefined) {
-      // Action completed (success or error) - clear loading states
+      const pending = lastActionRef.current
+      lastActionRef.current = null
       setAddingToTripId(null)
       setRemovingFromTripId(null)
-      
+
       if (actionFetcher.data.error) {
-        onError(getSafeFetcherErrorMessage(actionFetcher.data, DEFAULT_ERROR_MESSAGE))
+        showError(getSafeFetcherErrorMessage(actionFetcher.data, DEFAULT_ERROR_MESSAGE))
+      } else if (pending) {
+        const tripLabel = pending.tripName ? `"${pending.tripName}"` : 'trip'
+        if (pending.type === 'add') {
+          showSuccess(`Surf spot added to ${tripLabel}.`)
+        } else {
+          showSuccess(`Surf spot removed from ${tripLabel}.`)
+        }
       }
     }
-  }, [actionFetcher.state, actionFetcher.data, onError])
+  }, [actionFetcher.state, actionFetcher.data, showError, showSuccess])
 
   const getTripSpotId = useCallback(
     (trip: Trip): string | null => {
@@ -135,6 +143,8 @@ export const TripSelectionModal = ({
     if (!userId) return
 
     const spotSurfSpotId = Number(surfSpot.id)
+    const tripToAdd = trips.find((t) => t.id === tripId)
+    lastActionRef.current = { type: 'add', tripName: tripToAdd?.title ?? '' }
     setAddingToTripId(tripId)
 
     // Submit action using internal fetcher to track completion
@@ -158,10 +168,11 @@ export const TripSelectionModal = ({
 
     const tripSpotId = getTripSpotId(trip)
     if (!tripSpotId) {
-      onError('Could not find spot in trip. Please try refreshing the page.')
+      showError('Could not find spot in trip. Please try refreshing the page.')
       return
     }
 
+    lastActionRef.current = { type: 'remove', tripName: trip.title ?? '' }
     setRemovingFromTripId(tripId)
 
     // Optimistic update - we have a real ID so this is safe

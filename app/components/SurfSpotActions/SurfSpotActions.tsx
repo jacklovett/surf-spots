@@ -206,7 +206,6 @@ export const SurfSpotActions = memo((props: IProps) => {
         <TripSelectionModal
           isOpen={tripSelectionModalOpen}
           onClose={closeTripModal}
-          onError={showError}
           surfSpot={surfSpotState}
           userId={user.id}
         />

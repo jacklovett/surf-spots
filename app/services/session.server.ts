@@ -1,6 +1,6 @@
 import { createCookieSessionStorage, redirect } from 'react-router'
 import { SessionUser, User } from '~/types/user'
-import { get } from '~/services/networkService'
+import { get, isNetworkError } from '~/services/networkService'
 
 const sessionSecret = process.env.SESSION_SECRET
 if (!sessionSecret) {
@@ -40,20 +40,44 @@ export const requireSessionCookie = async (
 }
 
 /**
+ * Throws a redirect to /auth and destroys the session when an API call returns
+ * 401 (session cookie valid but user no longer exists in the database).
+ * Call this in action/loader catch blocks before other error handling.
+ */
+export const redirectOnUnauthorized = async (
+  error: unknown,
+  request: Request,
+): Promise<never | void> => {
+  if (isNetworkError(error) && error.status === 401) {
+    const session = await getSession(request.headers.get('Cookie'))
+    throw redirect('/auth', {
+      headers: { 'Set-Cookie': await destroySession(session) },
+    })
+  }
+}
+
+/**
  * Require an authenticated session and fetch the current profile from the API.
  * Use this in loaders/actions that need fields beyond id/email/name (settings,
  * skill level, emergency contact, etc.). The session cookie is forwarded so
  * the API can authenticate the call.
+ *
+ * Automatically redirects to /auth if the API returns 401 (user no longer exists).
  */
 export const requireFullUserProfile = async (
   request: Request,
 ): Promise<User> => {
   await requireSessionCookie(request)
   const cookie = request.headers.get('Cookie') ?? ''
-  const profileResponse = await get<User>('user/me', {
-    headers: { Cookie: cookie },
-  })
-  return profileResponse?.data as User
+  try {
+    const profileResponse = await get<User>('user/me', {
+      headers: { Cookie: cookie },
+    })
+    return profileResponse?.data as User
+  } catch (error) {
+    await redirectOnUnauthorized(error, request)
+    throw error
+  }
 }
 
 export const { getSession, commitSession, destroySession } = sessionStorage
