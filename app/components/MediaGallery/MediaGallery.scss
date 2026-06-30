@@ -1,3 +1,5 @@
+@use 'styles/shared' as *;
+
 .image-gallery {
   // --gallery-column-count and --gallery-min-track-px are set from MediaGallery.tsx (layout measurement).
   // Fixed-size columns (no 1fr) so thumbnail pixels stay consistent wherever the gallery is embedded.
@@ -73,7 +75,7 @@
   }
 
   .image-gallery-overflow-scrim {
-    @extend %flex-center;
+    @include flex-center;
     position: absolute;
     inset: 0;
     z-index: 2;
@@ -98,7 +100,7 @@
 }
 
 .media-lightbox-overlay {
-  @extend %flex-center;
+  @include flex-center;
   position: fixed;
   inset: 0;
   z-index: 1100;
@@ -108,7 +110,7 @@
 }
 
 .button.media-lightbox-control.icon {
-  @extend %flex-center;
+  @include flex-center;
   border-radius: $circle-border-radius;
   border: none;
   background: rgba(255, 255, 255, 0.1);
@@ -147,7 +149,7 @@
 }
 
 .media-lightbox-content {
-  @extend %flex-column;
+  @include flex-column;
   gap: $spacing-unit;
   width: 100%;
   max-width: 1600px;
@@ -156,14 +158,14 @@
 }
 
 .media-lightbox-stage {
-  @extend %flex-center;
+  @include flex-center;
   position: relative;
   flex: 1;
   min-height: 0;
 }
 
 .media-lightbox-media-wrap {
-  @extend %flex-center;
+  @include flex-center;
   flex: 1;
   min-height: 0;
   width: 100%;
@@ -188,7 +190,7 @@
 }
 
 .button.image-preview-nav.icon {
-  @extend %flex-center;
+  @include flex-center;
   position: absolute;
   top: 50%;
   transform: translateY(-50%);
@@ -304,7 +306,7 @@
 }
 
 .image-preview-actions {
-  @extend %flex-base;
+  @include flex-base;
   justify-content: flex-end;
   grid-column: 3;
   justify-self: end;

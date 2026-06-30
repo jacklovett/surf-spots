@@ -1,5 +1,7 @@
+@use 'styles/shared' as *;
+
 .checkbox-option {
-  @extend %flex-center;
+  @include flex-center;
   gap: $spacing-unit;
   position: relative;
 

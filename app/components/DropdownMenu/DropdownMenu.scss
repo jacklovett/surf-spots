@@ -1,10 +1,12 @@
+@use 'styles/shared' as *;
+
 .dropdown-menu-wrapper {
   position: relative;
   display: inline-block;
 }
 
 .dropdown-menu-trigger {
-  @extend %flex-center;
+  @include flex-center;
   background: none;
   border: none;
   cursor: pointer;
@@ -49,7 +51,7 @@
 }
 
 .dropdown-menu {
-  @extend %flex-column;
+  @include flex-column;
   position: absolute;
   top: calc(100% + $spacing-small);
   z-index: $z-index-dropdown;
@@ -70,7 +72,7 @@
 }
 
 .dropdown-menu-item {
-  @extend %flex-base;
+  @include flex-base;
   align-items: center;
   gap: $spacing-unit;
   width: 100%;
@@ -102,7 +104,7 @@
   }
 
   .dropdown-menu-item-icon-slot {
-    @extend %flex-center;
+    @include flex-center;
     width: 20px;
     height: 20px;
     flex-shrink: 0;

@@ -1,8 +1,9 @@
 @use 'sass:color';
+@use 'styles/shared' as *;
 
 // Shared mixin for menu section header styles
 @mixin menu-section-header-base {
-  @extend %flex-space-between;
+  @include flex-space-between;
   width: 100%;
   padding: $spacing-unit $spacing-large;
   background: none;
@@ -21,20 +22,20 @@
 }
 
 .menu {
-  @extend %flex-base;
+  @include flex-base;
   position: relative;
 
   .desktop-menu {
-    @extend %flex-base;
+    @include flex-base;
     cursor: pointer;
     margin-right: 1px;
 
     ul {
-      @extend %flex-base;
+      @include flex-base;
     }
 
     .nav-item {
-      @extend %flex-base;
+      @include flex-base;
       align-items: center;
       gap: $spacing-small;
       padding: $spacing-unit;
@@ -67,7 +68,7 @@
   }
 
   .hamburger-icon {
-    @extend %flex-center;
+    @include flex-center;
     flex-direction: column;
     cursor: pointer;
     padding: $spacing-unit;
@@ -103,7 +104,7 @@
       transition: background-color 0.2s ease;
 
       .menu-section-icon {
-        @extend %flex-center;
+        @include flex-center;
         width: 20px;
         height: 20px;
         transition: transform 0.2s ease;
@@ -139,7 +140,7 @@
       transition: background-color 0.15s ease;
 
       .menu-section-icon {
-        @extend %flex-center;
+        @include flex-center;
         width: 18px;
         height: 18px;
         transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
@@ -182,7 +183,7 @@
   }
 
   .menu-item {
-    @extend %flex-base;
+    @include flex-base;
     height: $header-height;
     gap: $spacing-unit;
     align-items: center;

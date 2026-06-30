@@ -1,9 +1,12 @@
+@use 'sass:color';
+@use 'styles/shared' as *;
+
 .media-upload-container {
   margin-top: $spacing-unit;
 }
 
 .media-upload-card {
-  @extend %flex-center;
+  @include flex-center;
   border: 2px dashed $outline-color;
   border-radius: $content-border-radius;
   padding: $spacing-x-large;
@@ -20,7 +23,7 @@
 
   &.dragging {
     border-color: $primary-color;
-    background: rgba($primary-color, 0.05);
+    background: color.change($primary-color, $alpha: 0.05);
     border-style: solid;
   }
 
@@ -35,13 +38,13 @@
 }
 
 .media-upload-content {
-  @extend %flex-column;
+  @include flex-column;
   align-items: center;
   gap: $spacing-unit;
 }
 
 .media-upload-icon {
-  @extend %flex-center;
+  @include flex-center;
   width: 64px;
   height: 64px;
   border-radius: 50%;

@@ -1,4 +1,5 @@
 @use 'sass:color';
+@use 'styles/shared' as *;
 
 /* Mapbox styles */
 
@@ -27,7 +28,7 @@
 
   // Full-page map view (for surf-spots page)
   &.h-full {
-    @extend %flex-column;
+    @include flex-column;
     flex: 1;
     min-height: 0;
     margin-bottom: 0;
@@ -97,7 +98,7 @@ ellipse {
 
 /* Spots fetch failed: overlay so map stays visible and usable */
 .map-spots-error-overlay {
-  @extend %flex-center;
+  @include flex-center;
   position: absolute;
   inset: 0;
   z-index: 10;
@@ -111,7 +112,7 @@ ellipse {
 }
 
 .map-error-retry-wrap {
-  @extend %flex-base;
+  @include flex-base;
   justify-content: center;
 
   .button {

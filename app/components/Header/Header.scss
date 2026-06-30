@@ -1,3 +1,5 @@
+@use 'styles/shared' as *;
+
 header {
   text-align: center;
   border-bottom: solid 1px $outline-color;

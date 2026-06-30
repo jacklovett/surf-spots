@@ -1,10 +1,12 @@
 /* Surfboards Page Styles */
+@use './shared' as *;
+
 .surfboards-header {
-  @extend .page-header;
+  @include page-header;
 }
 
 .surfboards-empty {
-  @extend .page-empty;
+  @include page-empty;
 }
 
 .surfboards-section {
@@ -12,7 +14,7 @@
 }
 
 .surfboard-card {
-  @extend .page-card;
+  @include page-card;
 
   .surfboard-image {
     width: 100%;
@@ -46,7 +48,7 @@
 
 /* Surfboard Detail Page Styles */
 .surfboard-header {
-  @extend %flex-space-between;
+  @include flex-space-between;
   margin-bottom: $spacing-large;
   flex-wrap: wrap;
   gap: $spacing-unit;
@@ -59,7 +61,7 @@
 }
 
 .surfboard-actions {
-  @extend .page-actions;
+  @include page-actions;
 }
 
 .surfboard-images {
@@ -153,7 +155,7 @@
   }
 
   .surfboard-selection-list {
-    @extend %flex-column;
+    @include flex-column;
     gap: $spacing-small;
     margin: $spacing-unit 0;
     max-height: 400px;
@@ -162,7 +164,7 @@
   }
 
   .surfboard-selection-item {
-    @extend %flex-space-between;
+    @include flex-space-between;
     width: 100%;
     padding: $spacing-unit;
     background: $background-light;
@@ -172,7 +174,7 @@
     align-items: center;
 
     > div {
-      @extend %flex-base;
+      @include flex-base;
       align-items: center;
       gap: $spacing-small;
       flex: 1;
@@ -198,7 +200,7 @@
   }
 
   .surfboard-selection-actions {
-    @extend %flex-column;
+    @include flex-column;
     gap: $spacing-unit;
     margin-top: $spacing-unit;
     width: 100%;

@@ -1,4 +1,5 @@
 /* Surf Spot Details Page Styling */
+@use './shared' as *;
 
 .content h1 {
   font-size: 2.5rem;
@@ -38,7 +39,7 @@
 
 /* Best Conditions Section */
 .best-conditions {
-  @extend %flex-column;
+  @include flex-column;
   gap: $spacing-large;
   border: solid 1px $outline-color;
   border-radius: $content-border-radius;
@@ -123,7 +124,7 @@
 
 /* Amenities Section Styling */
 .amenities-content {
-  @extend %flex-column;
+  @include flex-column;
   gap: $spacing-large;
 }
 
@@ -142,7 +143,7 @@
 }
 
 .amenities-details {
-  @extend %flex-column;
+  @include flex-column;
   gap: $spacing-small;
 }
 
@@ -201,7 +202,7 @@
 /* Novelty chip left, Add/Show notes pinned to the far right of the content row.
    space-between is unreliable with an empty first column; margin-left: auto on notes works for both cases. */
 .content > .surf-spot-detail-meta-row {
-  @extend %flex-row;
+  @include flex-row;
   width: 100%;
   align-items: center;
   flex-wrap: nowrap;
@@ -209,7 +210,7 @@
   justify-content: flex-start;
 
   .surf-spot-status-chip-wrap {
-    @extend %flex-row;
+    @include flex-row;
     flex: 0 0 auto;
     flex-wrap: wrap;
     gap: $spacing-small;

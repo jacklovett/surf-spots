@@ -1,6 +1,8 @@
 /* Modern Landing Page */
+@use './shared' as *;
+
 .landing-page {
-  @extend %flex-column;
+  @include flex-column;
   width: 100%;
   margin: 0;
   padding: 0;
@@ -9,7 +11,7 @@
 }
 
 .landing-page .main-content {
-  @extend %flex-column;
+  @include flex-column;
   flex: 1;
 }
 
@@ -63,7 +65,7 @@
 }
 
 .hero-text {
-  @extend %flex-column;
+  @include flex-column;
   align-items: flex-start;
 
   @media (max-width: 768px) {
@@ -113,7 +115,7 @@
 }
 
 .hero-cta {
-  @extend %flex-base;
+  @include flex-base;
   gap: $spacing-unit;
   flex-wrap: wrap;
   align-items: flex-start;
@@ -130,7 +132,7 @@
 }
 
 .hero-visual {
-  @extend %flex-center;
+  @include flex-center;
 }
 
 .hero-logo {
@@ -253,7 +255,7 @@
   text-align: center;
 
   .step-number {
-    @extend %flex-center;
+    @include flex-center;
     width: 60px;
     height: 60px;
     background: $primary-color;

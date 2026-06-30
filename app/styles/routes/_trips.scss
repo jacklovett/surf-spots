@@ -1,10 +1,12 @@
 /* Trips Page Styles */
+@use './shared' as *;
+
 .trips-header {
-  @extend .page-header;
+  @include page-header;
 }
 
 .trips-empty {
-  @extend .page-empty;
+  @include page-empty;
 }
 
 .trips-section {
@@ -17,11 +19,11 @@
 }
 
 .trips-grid {
-  @extend .page-grid;
+  @include page-grid;
 }
 
 .trip-card {
-  @extend .page-card;
+  @include page-card;
 
   h3 {
     font-size: $font-size-large;
@@ -47,7 +49,7 @@
 
 .trip-spots-list,
 .trip-members-list {
-  @extend %flex-column;
+  @include flex-column;
   gap: 0;
   border: solid 1px $outline-color;
   border-radius: $content-border-radius;
@@ -56,7 +58,7 @@
   margin-bottom: 0;
 
   &.empty {
-    @extend %flex-center;
+    @include flex-center;
     min-height: 100px;
     padding: $spacing-x-large;
 
@@ -69,7 +71,7 @@
 
 .trip-spot-item,
 .trip-member-item {
-  @extend %flex-space-between;
+  @include flex-space-between;
   align-items: center;
   padding: $spacing-unit;
   border-bottom: 1px solid $outline-color;
@@ -243,15 +245,12 @@ input[type='date'] {
 
 // Global date picker calendar styling (limited - mostly browser controlled)
 // Note: Native date picker calendars are mostly controlled by the browser/OS
-// These styles attempt to influence appearance where possible
 input[type='date']:focus {
   &::-webkit-calendar-picker-indicator {
     background-color: $text-hover-background;
     border-radius: 4px;
   }
 }
-
-// Form inline is now in _shared.scss
 
 .delete-error {
   color: $error;

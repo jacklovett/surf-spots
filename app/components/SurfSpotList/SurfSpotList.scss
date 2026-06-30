@@ -1,10 +1,11 @@
 @use 'sass:color';
+@use 'styles/shared' as *;
 
 .surf-spot-container {
   overflow-x: auto;
   -webkit-overflow-scrolling: touch; /* Smooth scrolling for mobile */
   font-size: $font-size-small;
-  @include horizontal-scrollbar(4px, $scrollbar-color, darken($scrollbar-color, 10%));
+  @include horizontal-scrollbar(4px, $scrollbar-color, color.adjust($scrollbar-color, $lightness: -10%));
 }
 
 .surf-spot-table {

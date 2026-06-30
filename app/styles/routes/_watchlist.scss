@@ -1,4 +1,6 @@
 /* Watch List Page Styles */
+@use './shared' as *;
+
 .watchlist-header-actions {
   margin-bottom: $spacing-large;
   text-align: right;
@@ -27,7 +29,7 @@
 }
 
 .feed-container {
-  @extend %flex-column;
+  @include flex-column;
   max-width: 640px;
   margin: 0 auto;
   background: $white;

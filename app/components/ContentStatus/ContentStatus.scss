@@ -1,3 +1,5 @@
+@use 'styles/shared' as *;
+
 .content-status {
   margin-top: $spacing-x-large;
 
@@ -8,7 +10,7 @@
 
 // Full-page status: flex-center in the main content area with a slight upward bias
 .content-container > .content-status {
-  @extend %flex-center;
+  @include flex-center;
   flex: 1;
   margin-top: 0;
   padding-bottom: $status-viewport-offset;

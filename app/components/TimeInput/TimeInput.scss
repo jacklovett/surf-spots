@@ -1,4 +1,5 @@
 @use 'sass:color';
+@use 'styles/shared' as *;
 
 .time-input-wrapper {
   position: relative;
@@ -9,7 +10,7 @@
 }
 
 .time-input-container {
-  @extend %flex-base;
+  @include flex-base;
   align-items: center;
   position: relative;
 }
@@ -48,7 +49,7 @@
 }
 
 .time-input-clock {
-  @extend %flex-center;
+  @include flex-center;
   position: absolute;
   right: $spacing-small;
   top: 50%;
@@ -104,7 +105,7 @@
 }
 
 .time-picker-panel-header {
-  @extend %flex-base;
+  @include flex-base;
   gap: $spacing-unit;
   margin-bottom: $spacing-small;
 }
@@ -115,7 +116,7 @@
 }
 
 .time-picker-columns {
-  @extend %flex-base;
+  @include flex-base;
   align-items: stretch;
   gap: $spacing-unit;
 }
@@ -146,7 +147,7 @@
 }
 
 .time-picker-option {
-  @extend %flex-center;
+  @include flex-center;
   flex-shrink: 0;
   width: 100%;
   height: 34px;

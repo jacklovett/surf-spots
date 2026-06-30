@@ -1,5 +1,7 @@
+@use 'styles/shared' as *;
+
 .info-message {
-  @extend %flex-center;
+  @include flex-center;
   padding: $spacing-unit;
   margin: $spacing-unit 0;
   border: solid 1px $outline-color;
@@ -9,7 +11,7 @@
 }
 
 .info-icon {
-  @extend %flex-center;
+  @include flex-center;
   width: 24px;
   height: 24px;
   flex-shrink: 0;

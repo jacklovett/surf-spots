@@ -1,5 +1,8 @@
+@use 'sass:color';
+@use 'styles/shared' as *;
+
 .footer {
-  background: darken($primary-color, 10%);
+  background: color.adjust($primary-color, $lightness: -10%);
   color: $white;
   padding: $spacing-large 0 $spacing-large;
 }

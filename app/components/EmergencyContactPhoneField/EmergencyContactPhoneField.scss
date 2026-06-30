@@ -1,10 +1,12 @@
+@use 'styles/shared' as *;
+
 // Match shared form controls (_form.scss): one bordered row; country control shows flag + "Name (+dial)".
 .emergency-contact-phone {
   --PhoneInput-color--focus: #{$focus-color};
   $circular-flag-size: 22px;
 
   .PhoneInput {
-    @extend %flex-base;
+    @include flex-base;
     align-items: stretch;
     width: 100%;
     min-height: $form-input-height;
@@ -33,13 +35,13 @@
   }
 
   .PhoneInputCountry.emergency-contact-country-select {
-    @extend %flex-base;
+    @include flex-base;
     align-items: center;
     position: relative;
   }
 
   .emergency-contact-country-select-trigger {
-    @extend %flex-base;
+    @include flex-base;
     align-items: center;
     gap: $spacing-small;
     width: auto;
@@ -63,7 +65,7 @@
   }
 
   .emergency-contact-country-select-trigger-main {
-    @extend %flex-base;
+    @include flex-base;
     align-items: center;
     gap: $spacing-small;
     min-width: 0;
@@ -72,7 +74,7 @@
   // Circular flag (common on checkout UIs; fits rounded form controls).
   .emergency-contact-country-select-trigger-flag,
   .emergency-contact-country-select-option-flag {
-    @extend %flex-center;
+    @include flex-center;
     flex-shrink: 0;
 
     .PhoneInputCountryIcon {
@@ -154,7 +156,7 @@
   }
 
   .emergency-contact-country-select-option {
-    @extend %flex-base;
+    @include flex-base;
     align-items: center;
     gap: $spacing-small;
     width: 100%;
@@ -181,7 +183,7 @@
   }
 
   .emergency-contact-country-select-option-label {
-    @extend %flex-space-between;
+    @include flex-space-between;
     flex: 1;
     min-width: 0;
     gap: $spacing-small;

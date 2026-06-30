@@ -1,14 +1,19 @@
+import { fileURLToPath } from 'url'
+import path from 'path'
 import { reactRouter } from '@react-router/dev/vite'
 import { defineConfig } from 'vite'
 import tsconfigPaths from 'vite-tsconfig-paths'
+
+const projectRoot = path.dirname(fileURLToPath(import.meta.url))
 
 export default defineConfig({
   plugins: [reactRouter(), tsconfigPaths()],
   css: {
     preprocessorOptions: {
       scss: {
-        // Enable source maps for better debugging
+        api: 'modern',
         sourceMap: true,
+        loadPaths: [path.join(projectRoot, 'app')],
       },
     },
   },

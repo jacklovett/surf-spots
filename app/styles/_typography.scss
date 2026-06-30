@@ -1,4 +1,5 @@
 /* _typography.scss */
+@use './variables' as *;
 
 body {
   font-family: $font-family-base;

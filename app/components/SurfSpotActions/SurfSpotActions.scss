@@ -1,5 +1,7 @@
+@use 'styles/shared' as *;
+
 .actions {
-  @extend %flex-base;
+  @include flex-base;
   flex-wrap: wrap;
   width: 100%;
 

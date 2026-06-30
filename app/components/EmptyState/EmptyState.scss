@@ -1,3 +1,5 @@
+@use 'styles/shared' as *;
+
 .empty-state {
   text-align: center;
   padding: $spacing-x-large;
@@ -32,7 +34,7 @@
   }
 
   .empty-actions {
-    @extend %flex-center;
+    @include flex-center;
 
     .button {
       max-width: 300px;

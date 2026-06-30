@@ -1,5 +1,7 @@
+@use 'styles/shared' as *;
+
 button.floating-button {
-  @extend %flex-center;
+  @include flex-center;
   position: relative;
   background: $white;
   border: 1px solid rgba(13, 22, 25, 0.1);
@@ -50,7 +52,7 @@ button.floating-button {
   }
 
   .floating-button-icon {
-    @extend %flex-center;
+    @include flex-center;
     background: $button-primary-bg;
     color: $white;
     border-radius: 50%;
@@ -72,7 +74,7 @@ button.floating-button {
   }
 
   .floating-button-badge {
-    @extend %flex-center;
+    @include flex-center;
     position: absolute;
     top: -4px;
     right: -4px;

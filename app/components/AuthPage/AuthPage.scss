@@ -1,5 +1,8 @@
+@use 'sass:color';
+@use 'styles/shared' as *;
+
 .auth-cta {
-  @extend %flex-base;
+  @include flex-base;
   gap: $spacing-small;
 }
 
@@ -19,7 +22,7 @@
 }
 
 .auth-layout {
-  @extend %flex-row;
+  @include flex-row;
   width: 100%;
   height: 100%;
 
@@ -29,11 +32,11 @@
 }
 
 .auth-options {
-  @extend %flex-column;
+  @include flex-column;
 }
 
 .auth-content {
-  @extend %flex-column;
+  @include flex-column;
   position: relative;
   width: 100%;
   max-width: 420px;
@@ -70,7 +73,7 @@
 }
 
 .auth-hero {
-  @extend %flex-center;
+  @include flex-center;
   flex-direction: column;
   @include hero-background;
 }
@@ -82,7 +85,7 @@
 }
 
 .sign-in-nav {
-  @extend %flex-base;
+  @include flex-base;
   align-items: center;
   margin: 0 $spacing-unit;
   gap: $spacing-small;
@@ -95,7 +98,7 @@
 
 .page-content {
   h1 {
-    @extend .bold;
+    font-weight: 600;
     font-size: 2.5rem;
     margin-bottom: $spacing-unit;
     text-align: center;
@@ -135,7 +138,7 @@
     transition: color 0.3s ease;
 
     &:hover {
-      color: darken($primary-color, 10%);
+      color: color.adjust($primary-color, $lightness: -10%);
     }
   }
 }

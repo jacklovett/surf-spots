@@ -1,5 +1,7 @@
+@use 'styles/shared' as *;
+
 .toast-container {
-  @extend %flex-column;
+  @include flex-column;
   gap: $spacing-small;
   position: fixed;
   top: calc($header-height + $spacing-unit);

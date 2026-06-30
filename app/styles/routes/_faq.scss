@@ -1,3 +1,5 @@
+@use './shared' as *;
+
 .faq-page {
   .faq-intro {
     color: $text-secondary;

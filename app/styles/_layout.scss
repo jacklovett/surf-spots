@@ -1,4 +1,7 @@
 /* _layout.scss */
+@use './variables' as *;
+@use './mixins' as *;
+@use './flex' as *;
 
 .fill {
   width: 100%;
@@ -22,93 +25,45 @@
   border-radius: $content-border-radius;
 }
 
-/* Base Flexbox Utilities */
-%flex-base {
-  display: flex;
-}
-
-%flex-center {
-  @extend %flex-base;
-  justify-content: center;
-  align-items: center;
-}
-
-%flex-column {
-  @extend %flex-base;
-  flex-direction: column;
-}
-
-%flex-row {
-  @extend %flex-base;
-  flex-direction: row;
-}
-
-%flex-space-between {
-  @extend %flex-base;
-  justify-content: space-between;
-  align-items: center;
-}
-
-%flex-space-around {
-  @extend %flex-base;
-  justify-content: space-around;
-  align-items: center;
-}
-
-%flex-start {
-  @extend %flex-base;
-  justify-content: start;
-}
-
-%flex-end {
-  @extend %flex-base;
-  justify-content: end;
-}
-
-%flex-wrap {
-  @extend %flex-base;
-  flex-wrap: wrap;
-}
-
 /* Flexbox Utilities */
 .row {
-  @extend %flex-row;
+  @include flex-row;
   width: 100%;
   flex-wrap: wrap;
 }
 
 .column {
-  @extend %flex-column;
+  @include flex-column;
 }
 
 .center {
-  @extend %flex-center;
+  @include flex-center;
 }
 
 .center-horizontal {
-  @extend %flex-base;
+  @include flex-base;
   justify-content: center;
 }
 
 .center-vertical {
-  @extend %flex-base;
+  @include flex-base;
   align-items: center;
 }
 
 .space-between {
-  @extend %flex-space-between;
+  @include flex-space-between;
 }
 
 .space-around {
-  @extend %flex-space-around;
+  @include flex-space-around;
 }
 
 .flex-start {
-  @extend %flex-start;
+  @include flex-start;
 }
 
 .flex-end {
-  @extend %flex-end;
+  @include flex-end;
 }
 
 .flex-1 {
@@ -124,7 +79,7 @@
 }
 
 .content-container {
-  @extend %flex-column;
+  @include flex-column;
   flex: 1;
   min-height: calc(100vh - $header-height);
   margin-bottom: $spacing-unit;
@@ -132,12 +87,11 @@
     100%,
     560px,
     720px
-  ); // Full width on mobile, 640px on tablet, 960px on desktop
-  
-  // Allow map-wrapper to fill available space when in full-page mode
+  );
+
   .map-wrapper.h-full {
     flex: 1;
-    min-height: 0; // Allow flexbox to shrink within parent
+    min-height: 0;
   }
 }
 

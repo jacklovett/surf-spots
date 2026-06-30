@@ -1,5 +1,7 @@
+@use 'styles/shared' as *;
+
 .details {
-  @extend %flex-base;
+  @include flex-base;
   gap: $spacing-small;
   padding-right: $spacing-unit;
   align-items: center;

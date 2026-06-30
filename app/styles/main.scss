@@ -1,19 +1,17 @@
 /* main.scss */
-
-// Import order matters
-@import 'reset';
-@import 'variables';
-@import 'mixins';
-@import 'typography';
-@import 'layout';
-@import 'form';
-@import 'components';
-@import 'routes';
+@use './variables' as *;
+@use './flex' as *;
+@use './reset';
+@use './typography';
+@use './layout';
+@use './form';
+@use './components';
+@use './routes';
 
 /* Base Styles */
 
 body {
-  @extend %flex-column;
+  @include flex-column;
   background: $background-color;
 }
 

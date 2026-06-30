@@ -1,3 +1,5 @@
+@use 'styles/shared' as *;
+
 .floating-speed-dial {
   position: fixed;
   bottom: $spacing-unit;
@@ -21,9 +23,16 @@
 }
 
 .speed-dial-container {
-  @extend %flex-column;
+  @include flex-column;
   align-items: flex-end;
   gap: $spacing-small;
+  // The invisible action items above the trigger inflate this container's hit area.
+  // Disable pointer events on the container and re-enable them per interactive child.
+  pointer-events: none;
+}
+
+.speed-dial-trigger {
+  pointer-events: auto;
 }
 
 // Rotate the + icon to form an × when the dial is open
@@ -48,7 +57,7 @@
 }
 
 .speed-dial-action {
-  @extend %flex-base;
+  @include flex-base;
   align-items: center;
   gap: $spacing-small;
   justify-content: flex-end;
@@ -82,7 +91,7 @@
 }
 
 .speed-dial-action-btn {
-  @extend %flex-center;
+  @include flex-center;
   flex-shrink: 0;
   width: 44px;
   height: 44px;
@@ -119,7 +128,7 @@
 }
 
 .speed-dial-action-icon {
-  @extend %flex-center;
+  @include flex-center;
   width: 30px;
   height: 30px;
   background: $button-primary-bg;

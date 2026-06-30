@@ -1,0 +1,4 @@
+/* _shared.scss — design token barrel for component and route SCSS files */
+@forward './variables';
+@forward './mixins';
+@forward './flex';

@@ -1,5 +1,7 @@
+@use 'styles/shared' as *;
+
 .toast {
-  @extend %flex-base;
+  @include flex-base;
   align-items: center;
   gap: $spacing-small;
   border-radius: $content-border-radius;
@@ -36,14 +38,14 @@
 }
 
 .toast-icon {
-  @extend %flex-center;
+  @include flex-center;
   flex-shrink: 0;
   width: 24px;
   height: 24px;
 }
 
 .toast-content {
-  @extend %flex-column;
+  @include flex-column;
   flex: 1;
   gap: $spacing-small;
 }
@@ -56,7 +58,7 @@
 }
 
 .toast-close {
-  @extend %flex-center;
+  @include flex-center;
   background: transparent;
   border: none;
   color: inherit;

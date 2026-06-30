@@ -1,3 +1,5 @@
+@use 'styles/shared' as *;
+
 /* SurfSpotForm – spot type step badge */
 
 .spot-type {
@@ -37,7 +39,7 @@
 }
 
 .surf-spot-form-success {
-  @extend %flex-center;
+  @include flex-center;
   gap: $spacing-large;
 
   .surf-spot-form-success-icon {
@@ -60,7 +62,7 @@
   }
 
   .surf-spot-form-success-actions {
-    @extend %flex-center;
+    @include flex-center;
     flex-wrap: wrap;
     gap: $spacing-unit;
     margin-top: $spacing-unit;
@@ -93,7 +95,7 @@
 }
 
 .surf-spot-form-error-state-actions {
-  @extend %flex-center;
+  @include flex-center;
   flex-wrap: wrap;
   gap: $spacing-unit;
   margin-top: $spacing-unit;

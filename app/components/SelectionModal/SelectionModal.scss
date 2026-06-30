@@ -1,10 +1,12 @@
+@use 'styles/shared' as *;
+
 .selection-modal {
-  @extend %flex-column;
+  @include flex-column;
   flex: 1;
   min-height: 0;
 
   .selection-header {
-    @extend %flex-column;
+    @include flex-column;
     margin-bottom: $spacing-unit;
     flex-shrink: 0;
 
@@ -19,21 +21,21 @@
   }
 
   .selection-loading {
-    @extend %flex-center;
+    @include flex-center;
     padding: $spacing-x-large;
     text-align: center;
     min-height: 200px; // Match minimum height to prevent shift
   }
 
   .selection-content {
-    @extend %flex-column;
+    @include flex-column;
     flex: 1;
     min-height: 0;
     overflow: hidden;
   }
 
   .selection-list {
-    @extend %flex-column;
+    @include flex-column;
     gap: $spacing-small;
     margin: $spacing-unit 0;
     flex: 1;
@@ -46,7 +48,7 @@
   }
 
   .selection-item {
-    @extend %flex-column;
+    @include flex-column;
     width: 100%;
     padding: $spacing-unit;
     background: $background-light;
@@ -59,12 +61,12 @@
     }
 
     .selection-item-content {
-      @extend %flex-column;
+      @include flex-column;
       width: 100%;
     }
 
     .selection-item-header {
-      @extend %flex-space-between;
+      @include flex-space-between;
       align-items: flex-start;
       gap: $spacing-unit;
       width: 100%;
@@ -74,7 +76,7 @@
       }
 
       .selection-item-info {
-        @extend %flex-column;
+        @include flex-column;
         flex: 1;
         min-width: 0;
         gap: 4px;
@@ -127,7 +129,7 @@
   }
 
   .selection-empty-state {
-    @extend %flex-column;
+    @include flex-column;
     text-align: center;
     padding-top: $spacing-unit;
 
@@ -144,7 +146,7 @@
   }
 
   .selection-actions {
-    @extend %flex-center;
+    @include flex-center;
     gap: $spacing-unit;
     width: 100%;
     flex-shrink: 0;

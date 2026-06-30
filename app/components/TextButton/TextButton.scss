@@ -1,7 +1,8 @@
 @use 'sass:color';
+@use 'styles/shared' as *;
 
 button.text-button {
-  @extend %flex-center;
+  @include flex-center;
   background: none;
   border: none;
   cursor: pointer;
@@ -26,7 +27,7 @@ button.text-button {
   }
 
   .text-button-icon {
-    @extend %flex-center;
+    @include flex-center;
     width: 24px;
     height: 24px;
     border-radius: 50%;

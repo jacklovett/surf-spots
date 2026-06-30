@@ -1,5 +1,7 @@
+@use 'styles/shared' as *;
+
 .modal-overlay {
-  @extend %flex-center;
+  @include flex-center;
   position: fixed;
   top: 0;
   left: 0;
@@ -11,7 +13,7 @@
 }
 
 .modal-container {
-  @extend %flex-column;
+  @include flex-column;
   background-color: $white;
   color: $text-color;
   border: 1px solid $outline-color;
@@ -33,7 +35,7 @@
 }
 
 .modal-content {
-  @extend %flex-column;
+  @include flex-column;
   gap: $spacing-unit;
   padding: $spacing-unit;
   flex: 1;
@@ -74,7 +76,7 @@
 }
 
 .modal-actions {
-  @extend %flex-column;
+  @include flex-column;
   gap: $spacing-unit;
   margin-top: $spacing-large;
   padding-top: $spacing-unit;

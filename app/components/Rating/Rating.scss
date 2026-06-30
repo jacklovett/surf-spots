@@ -1,3 +1,5 @@
+@use 'styles/shared' as *;
+
 .rating {
   display: flex;
   gap: $spacing-small;

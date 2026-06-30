@@ -1,5 +1,7 @@
+@use 'styles/shared' as *;
+
 .info-modal-content {
-  @extend %flex-column;
+  @include flex-column;
 
   h2 {
     margin: 0 0 $spacing-small 0;

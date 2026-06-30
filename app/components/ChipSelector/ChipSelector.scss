@@ -1,7 +1,8 @@
 @use 'sass:color';
+@use 'styles/shared' as *;
 
 .chip-selector {
-  @extend %flex-wrap;
+  @include flex-wrap;
   gap: $spacing-unit;
 
   > div {

@@ -1,3 +1,5 @@
+@use 'styles/shared' as *;
+
 // Card component - must override base .card utility class
 // Using more specific selector to ensure it overrides base .card styles
 .card {

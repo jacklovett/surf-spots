@@ -1,4 +1,5 @@
 @use 'sass:color';
+@use 'styles/shared' as *;
 
 .view-switch {
   cursor: pointer;

@@ -1,3 +1,6 @@
+@use './variables' as *;
+@use './flex' as *;
+
 form {
   width: 100%;
 }
@@ -7,7 +10,7 @@ form {
 }
 
 .form-item {
-  @extend %flex-column;
+  @include flex-column;
   width: 100%;
   padding-top: $spacing-small;
   text-align: start;
@@ -116,7 +119,7 @@ select:focus {
 }
 
 .form-inline {
-  @extend %flex-base;
+  @include flex-base;
   align-items: flex-start;
   gap: $spacing-unit;
   flex-wrap: wrap;
@@ -137,7 +140,7 @@ select:focus {
 }
 
 .profile-links {
-  @extend %flex-column;
+  @include flex-column;
   gap: $spacing-small;
   margin-top: $spacing-unit;
   font-size: $font-size-small;

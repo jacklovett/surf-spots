@@ -1,5 +1,7 @@
+@use 'styles/shared' as *;
+
 .filters-container {
-  @extend %flex-column;
+  @include flex-column;
   height: 100%;
   min-height: 0;
 }
@@ -19,7 +21,7 @@
   }
 
   .filters-content-title {
-    @extend .bold;
+    font-weight: 600;
     font-size: $font-size-small;
     margin-bottom: $spacing-unit;
     color: $text-color;
@@ -28,7 +30,7 @@
   }
 
   .filters-content-options {
-    @extend %flex-column;
+    @include flex-column;
     gap: $spacing-small;
 
     .checkbox-option {

@@ -1,4 +1,6 @@
 /* Contact Page */
+@use './shared' as *;
+
 .contact-page {
   max-width: 800px;
   margin: 0 auto;
@@ -20,12 +22,12 @@
 }
 
 .contact-form {
-  @extend %flex-column;
+  @include flex-column;
   gap: $spacing-small;
 }
 
 .contact-form .form-row {
-  @extend %flex-base;
+  @include flex-base;
   gap: $spacing-small;
   align-items: flex-start;
 

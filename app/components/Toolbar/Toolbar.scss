@@ -1,3 +1,5 @@
+@use 'styles/shared' as *;
+
 .toolbar {
   padding: $spacing-unit $spacing-small;
   border-bottom: 1px solid $outline-color;

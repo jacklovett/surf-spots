@@ -1,14 +1,14 @@
-// Import route-specific styles
-@import 'routes/shared';
-@import 'routes/landing';
-@import 'routes/surf-spot-details';
-@import 'routes/surfed-spots';
-@import 'routes/watchlist';
-@import 'routes/trips';
-@import 'routes/sessions';
-@import 'routes/surfboards';
-@import 'routes/settings';
-@import 'routes/contact';
-@import 'routes/faq';
-@import 'routes/skill-levels';
-@import 'routes/countries';
+/* Route-specific styles */
+@use './routes/shared';
+@use './routes/landing';
+@use './routes/surf-spot-details';
+@use './routes/surfed-spots';
+@use './routes/watchlist';
+@use './routes/trips';
+@use './routes/sessions';
+@use './routes/surfboards';
+@use './routes/settings';
+@use './routes/contact';
+@use './routes/faq';
+@use './routes/skill-levels';
+@use './routes/countries';

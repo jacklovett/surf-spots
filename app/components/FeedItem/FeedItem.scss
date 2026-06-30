@@ -1,4 +1,5 @@
 @use 'sass:color';
+@use 'styles/shared' as *;
 
 .feed-item {
   border-bottom: 1px solid $border-light;
@@ -95,7 +96,7 @@ a.feed-item-link-wrapper {
 }
 
 .feed-item-row {
-  @extend %flex-base;
+  @include flex-base;
   align-items: flex-start;
   gap: $spacing-unit;
 }
@@ -104,7 +105,7 @@ a.feed-item-link-wrapper {
   width: 44px;
   height: 44px;
   border-radius: 50%;
-  @extend %flex-center;
+  @include flex-center;
   flex-shrink: 0;
 
   svg {
@@ -149,14 +150,14 @@ a.feed-item-link-wrapper {
 }
 
 .feed-item-main {
-  @extend %flex-column;
+  @include flex-column;
   gap: 4px;
   flex: 1;
   min-width: 0;
 }
 
 .feed-item-topline {
-  @extend %flex-space-between;
+  @include flex-space-between;
   align-items: baseline;
   gap: $spacing-small;
   flex-wrap: wrap;

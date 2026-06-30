@@ -1,7 +1,8 @@
 @use 'sass:color';
+@use 'styles/shared' as *;
 
 .button {
-  @extend %flex-center;
+  @include flex-center;
   gap: $spacing-small;
   background-color: $button-primary-bg;
   color: $white;
@@ -189,7 +190,7 @@
 }
 
 .button.icon {
-  @extend %flex-center;
+  @include flex-center;
   width: $spacing-large;
   height: $spacing-large;
   min-height: unset;
@@ -206,7 +207,7 @@
     transform 0.15s ease;
 
   .button-content {
-    @extend %flex-center;
+    @include flex-center;
     // Adjust vertical alignment for text characters like '×'
     transform: translateY(-1px);
   }

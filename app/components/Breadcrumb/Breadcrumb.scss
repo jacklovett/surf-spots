@@ -1,6 +1,8 @@
+@use 'styles/shared' as *;
+
 .breadcrumb {
   .breadcrumb-list {
-    @extend %flex-base;
+    @include flex-base;
     list-style: none;
     padding: 0;
     margin: 0;
