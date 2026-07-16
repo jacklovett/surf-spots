@@ -16,6 +16,7 @@ export type IconKey =
   | 'filters'
   | 'google'
   | 'heart'
+  | 'hourglass'
   | 'info'
   | 'info-inverted'
   | 'instagram'

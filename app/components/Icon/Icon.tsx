@@ -100,6 +100,21 @@ export const Icon = (props: IProps) => {
             <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
           </svg>
         )
+      case 'hourglass':
+        return (
+          <svg {...commonIconStyles}>
+            <path d="M5.5 3h13" />
+            <path d="M5.5 21h13" />
+            <path d="M7 3l5 8.5L7 21" />
+            <path d="M17 3l-5 8.5L17 21" />
+            <path
+              d="M8.75 8.25h6.5L12 10.75Z"
+              fill={color}
+              stroke="none"
+            />
+            <line x1="12" y1="10.75" x2="12" y2="12.5" strokeWidth="1.5" />
+          </svg>
+        )
       case 'info':
         return (
           <svg {...commonIconStyles}>
