@@ -1,4 +1,6 @@
 import { Component, ReactNode } from 'react'
+
+import ErrorRecoveryActions from '~/components/ErrorRecoveryActions'
 import Icon from '../Icon'
 import { ERROR_BOUNDARY_GENERIC } from '~/utils/errorUtils'
 
@@ -10,6 +12,7 @@ interface ErrorBoundaryProps {
 interface ErrorBoundaryState {
   hasError: boolean
   error?: Error
+  retryLoading: boolean
 }
 
 export class ErrorBoundary extends Component<
@@ -18,15 +21,14 @@ export class ErrorBoundary extends Component<
 > {
   constructor(props: ErrorBoundaryProps) {
     super(props)
-    this.state = { hasError: false }
+    this.state = { hasError: false, retryLoading: false }
   }
 
   static getDerivedStateFromError(error: Error) {
-    return { hasError: true, error }
+    return { hasError: true, error, retryLoading: false }
   }
 
-  componentDidCatch(error: Error, errorInfo: any) {
-    // You can log the error to an external service (i.e. sentry) if needed
+  componentDidCatch(error: Error, errorInfo: unknown) {
     console.error('Error caught in ErrorBoundary:', error, errorInfo)
   }
 
@@ -38,11 +40,28 @@ export class ErrorBoundary extends Component<
           <h4 className="mt">
             {this.props.message ?? ERROR_BOUNDARY_GENERIC}
           </h4>
+          <ErrorRecoveryActions
+            onRetry={() => {
+              this.setState({ retryLoading: true })
+              this.setState({
+                hasError: false,
+                error: undefined,
+                retryLoading: false,
+              })
+            }}
+            retryLoading={this.state.retryLoading}
+            secondaryAction={{
+              label: 'Go home',
+              onClick: () => {
+                this.setState({ retryLoading: true })
+                window.location.assign('/')
+              },
+            }}
+          />
         </div>
       )
     }
 
-    // If no error, render children
     return this.props.children
   }
 }

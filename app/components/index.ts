@@ -16,6 +16,9 @@ import DropdownMenu from './DropdownMenu'
 import EmergencyContactPhoneField from './EmergencyContactPhoneField'
 import EmptyState from './EmptyState'
 import ErrorBoundary from './ErrorBoundary'
+import ErrorRecoveryActions, {
+  PageErrorRecoveryActions,
+} from './ErrorRecoveryActions'
 import FeedItem from './FeedItem'
 import Filters from './Filters'
 import FloatingButton from './FloatingButton'
@@ -91,6 +94,8 @@ export {
   EmergencyContactPhoneField,
   EmptyState,
   ErrorBoundary,
+  ErrorRecoveryActions,
+  PageErrorRecoveryActions,
   FeedItem,
   Filters,
   FloatingButton,

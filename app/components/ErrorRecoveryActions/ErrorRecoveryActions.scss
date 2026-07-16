@@ -1,0 +1,14 @@
+@use 'styles/shared' as *;
+
+.error-recovery-actions {
+  @include flex-base;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: $spacing-small;
+  margin-top: $spacing-unit;
+  width: 100%;
+
+  .button {
+    width: auto;
+  }
+}
