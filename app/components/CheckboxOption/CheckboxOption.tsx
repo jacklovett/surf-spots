@@ -5,6 +5,7 @@ interface IProps {
   description?: string
   checked: boolean
   onChange: (value: boolean) => void
+  disabled?: boolean
 }
 
 export const CheckboxOption = ({
@@ -13,8 +14,13 @@ export const CheckboxOption = ({
   description,
   checked,
   onChange,
+  disabled = false,
 }: IProps) => (
-  <label className="checkbox-option space-between gap">
+  <label
+    className={`checkbox-option space-between gap ${
+      disabled ? 'checkbox-option-disabled' : ''
+    }`}
+  >
     <span className="flex-1">
       <p className="bold">{title}</p>
       {description ? (
@@ -25,7 +31,8 @@ export const CheckboxOption = ({
       name={name}
       type="checkbox"
       checked={checked}
-      onChange={(e) => onChange(e.target.checked)}
+      disabled={disabled}
+      onChange={(event) => onChange(event.target.checked)}
     />
     <span className="custom-checkbox"></span>
   </label>

@@ -58,4 +58,13 @@
   input[type='checkbox']:focus + .custom-checkbox {
     box-shadow: 0 0 4px rgba(0, 119, 182, 0.5);
   }
+
+  &.checkbox-option-disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+
+    .custom-checkbox {
+      cursor: not-allowed;
+    }
+  }
 }
