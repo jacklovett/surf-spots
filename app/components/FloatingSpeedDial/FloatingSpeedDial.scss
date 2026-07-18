@@ -2,9 +2,13 @@
 
 .floating-speed-dial {
   position: fixed;
+  right: $spacing-small;
   bottom: $spacing-unit;
-  right: $spacing-unit;
-  z-index: 11;
+  z-index: $z-index-floating;
+
+  @include media(desktop) {
+    right: $spacing-unit;
+  }
 
   body.drawer-open & {
     pointer-events: none;
@@ -53,6 +57,7 @@
   gap: $spacing-small;
   list-style: none;
   margin: 0;
+  margin-right: $spacing-unit;
   padding: 0;
 }
 

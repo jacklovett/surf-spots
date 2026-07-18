@@ -105,34 +105,3 @@
     flex: 0 0 auto;
   }
 }
-
-/* Location step – Use my location (matches DropdownMenu action spinner, not TextButton.loading) */
-.find-by-location {
-  @media (max-width: 435px) {
-    margin-top: $spacing-unit;
-  }
-}
-
-// Do not use .loading — shared with TextButton and hides .text-button-content.
-// TextButton.scss loads after this file; use higher specificity for disabled / loading.
-// Softer than default TextButton disabled ($disabled-color + icon 0.6), still clearly disabled.
-button.text-button.use-my-location-button:disabled {
-  color: $disabled-text-color;
-  cursor: not-allowed;
-
-  .text-button-icon {
-    opacity: 0.7;
-  }
-}
-
-.use-my-location-button-requesting {
-  pointer-events: none;
-}
-
-.use-my-location-spinner {
-  width: 18px;
-  height: 18px;
-  border-width: 2px;
-  border-color: $primary-color;
-  border-top-color: transparent;
-}

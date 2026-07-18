@@ -40,7 +40,7 @@ export const Footer = ({ isAlternate }: IProps) => {
       showSignUpPrompt(routeKey)
       return
     }
-    scrollPageToTop({ smooth: true })
+    scrollPageToTop()
   }
 
   const protectedLinkProps = (path: string) => ({

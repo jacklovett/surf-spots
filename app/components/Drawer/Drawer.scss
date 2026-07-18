@@ -7,7 +7,7 @@
   width: 100%;
   height: 100%;
   background: rgba(0, 0, 0, 0.5);
-  z-index: 30;
+  z-index: $z-index-drawer;
 }
 
 .drawer {
@@ -18,7 +18,7 @@
   max-width: 444px;
   height: 100%;
   background: $white;
-  z-index: 50;
+  z-index: $z-index-drawer + 10;
   transform: translateX(-100%);
   transition:
     transform 0.3s cubic-bezier(0.4, 0, 0.2, 1),
@@ -83,6 +83,10 @@
     align-items: center;
     gap: 4px;
     flex-shrink: 0;
+
+    .button {
+      width: auto;
+    }
 
     .dropdown-menu-trigger {
       padding: 4px;

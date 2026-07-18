@@ -11,6 +11,7 @@ import {
   EmptyState,
   Loading,
   Page,
+  PageErrorRecoveryActions,
   SessionLogRow,
   TextButton,
 } from '~/components'
@@ -25,7 +26,10 @@ import {
   deleteSurfSession,
   deleteSurfSessionMedia,
 } from '~/services/surfSession'
-import { requireSessionCookie } from '~/services/session.server'
+import {
+  redirectOnUnauthorized,
+  requireSessionCookie,
+} from '~/services/session.server'
 import {
   SurfSessionListItem,
   SurfSessionMedia,
@@ -91,6 +95,7 @@ export const loader: LoaderFunction = async ({ request }) => {
     const userSurfSessions = sessionsResponse?.data
     return data<LoaderData>({ userSurfSessions }, { headers: cacheControlHeader })
   } catch (error) {
+    await redirectOnUnauthorized(error, request)
     return data<LoaderData>(
       { error: ERROR_LOAD_SESSIONS },
       { status: httpStatusFromNetworkError(error) },
@@ -192,7 +197,7 @@ export default function Sessions() {
   if (error) {
     return (
       <Page showHeader>
-        <ContentStatus isError>
+        <ContentStatus isError actions={<PageErrorRecoveryActions />}>
           <p>{error}</p>
         </ContentStatus>
       </Page>

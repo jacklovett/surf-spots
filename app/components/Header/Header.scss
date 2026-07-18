@@ -1,6 +1,10 @@
 @use 'styles/shared' as *;
 
 header {
+  position: sticky;
+  top: 0;
+  z-index: $z-index-header;
+  background-color: $white;
   text-align: center;
   border-bottom: solid 1px $outline-color;
   padding-left: $spacing-unit;

@@ -22,7 +22,7 @@ import {
   httpStatusFromActionError,
 } from '~/utils/errorUtils'
 import SurfSpotForm, { LoaderData } from '~/components/SurfSpotForm'
-import { ContentStatus, ErrorBoundary, Page } from '~/components'
+import { ContentStatus, ErrorBoundary, Page, PageErrorRecoveryActions } from '~/components'
 import { useToastContext } from '~/contexts'
 
 export const loader: LoaderFunction = async ({ request, params }) => {
@@ -163,7 +163,7 @@ export default function EditSurfSpot() {
   if (!surfSpot) {
     return (
       <Page showHeader>
-        <ContentStatus isError>
+        <ContentStatus isError actions={<PageErrorRecoveryActions />}>
           <p>
             {error || ERROR_LOAD_EDIT_SURF_SPOT}
           </p>

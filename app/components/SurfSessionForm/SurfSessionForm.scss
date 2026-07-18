@@ -3,66 +3,245 @@
 .surf-session-page {
   .surf-session-lead {
     margin: 0 0 $spacing-unit;
-    line-height: 1.55;
     max-width: 40rem;
   }
 
-  .surf-session-section-title {
-    margin: $spacing-unit 0 $spacing-small;
-    font-size: $font-size-large;
-    color: $text-heading;
+  .surf-session-fields,
+  .start-live-session-fields {
+    gap: $spacing-large;
   }
 
-  .surf-session-timing-inline {
-    margin: $spacing-small 0 0;
-    font-size: $font-size-small;
-    line-height: 1.4;
-  }
-
-  .surf-session-duration-preview {
-    margin: $spacing-small 0 0;
-    font-size: $font-size-small;
-    line-height: 1.4;
-  }
-
-  .surf-session-duration-preview-label {
-    font-weight: 600;
-    color: $text-secondary;
-  }
-
-  .surf-session-duration-preview-value {
-    font-variant-numeric: tabular-nums;
-    letter-spacing: 0.02em;
-  }
-
-  .surf-session-conditions-block {
-    padding-bottom: $spacing-large;
-    margin-bottom: $spacing-large;
-    border-bottom: 1px solid color-mix(in srgb, $text-secondary 16%, transparent);
-  }
-
+  .surf-session-timing-section,
+  .surf-session-live-location,
+  .end-session-spot-section,
+  .end-session-spot-header,
+  .surf-session-conditions-block,
   .surf-session-rating-field {
-    margin-top: $spacing-unit;
+    @include flex-column;
+    gap: $spacing-unit;
+  }
 
-    .rating {
-      margin-top: 0;
-    }
+  .surf-session-timing-section,
+  .end-session-spot-header {
+    gap: $spacing-small;
+  }
+
+  .surf-session-rating-field .rating {
+    margin-top: $spacing-small;
   }
 
   .surf-session-rating-row {
-    display: flex;
+    @include flex-base;
     flex-wrap: nowrap;
     align-items: center;
     gap: $spacing-unit;
+  }
 
-    .rating-compact {
-      margin-top: 0;
+  .surf-session-rating-row .rating-compact {
+    margin-top: 0;
+  }
+
+  .surf-session-recorded-details {
+    @include flex-column;
+    gap: $spacing-unit;
+    padding-top: $spacing-unit;
+    padding-bottom: $spacing-unit;
+    border: 1px solid $outline-color;
+    border-radius: $content-border-radius;
+    background: $background-light;
+  }
+
+  .end-session-spot-list-panel {
+    @include flex-column;
+    gap: $spacing-small;
+    margin-top: $spacing-small;
+  }
+
+  .end-session-spot-list {
+    @include flex-column;
+    gap: $spacing-small;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    max-height: 12.5rem;
+    overflow-y: auto;
+    @include vertical-scrollbar;
+  }
+
+  .end-session-spot-list-button {
+    @include flex-space-between;
+    width: 100%;
+    padding: $spacing-small $spacing-unit;
+    border: 1px solid $outline-color;
+    border-radius: $content-border-radius;
+    background: $white;
+    text-align: left;
+    cursor: pointer;
+
+    &:focus-visible {
+      outline: 2px solid $primary-color;
+      outline-offset: 2px;
     }
   }
 
-  .surf-session-rating-caption {
-    margin: $spacing-small 0 0;
-    font-size: $font-size-small;
-    line-height: 1.4;
+  .end-session-spot-list-button-selected {
+    border-color: $primary-color;
+  }
+
+  .end-session-spot-list-selected-badge {
+    @include flex-base;
+    align-items: center;
+    gap: 4px;
+    color: $primary-color;
+    flex-shrink: 0;
+    margin-left: $spacing-small;
+
+    svg {
+      width: 14px;
+      height: 14px;
+    }
+  }
+
+  .surf-session-recorded-dl {
+    @include flex-column;
+    margin: 0;
+    gap: $spacing-unit;
+  }
+
+  .surf-session-recorded-row {
+    display: grid;
+    grid-template-columns: minmax(5.5rem, 7.5rem) minmax(0, 1fr);
+    gap: $spacing-small $spacing-unit;
+    align-items: baseline;
+    min-width: 0;
+
+    dt,
+    dd {
+      margin: 0;
+      min-width: 0;
+    }
+
+    dd {
+      overflow-wrap: break-word;
+    }
+  }
+
+  .session-inline-map {
+    margin-top: $spacing-unit;
+    margin-bottom: 0;
+    padding-bottom: 0;
+
+    .map-container {
+      min-height: 220px;
+      aspect-ratio: 4 / 3;
+    }
+  }
+
+  .end-session-spot-map .map-container {
+    position: relative;
+  }
+
+  .end-session-spot-map-legend {
+    @include flex-base;
+    flex-wrap: wrap;
+    gap: $spacing-unit;
+    margin: $spacing-unit 0 0;
+    padding: 0 $spacing-unit;
+    list-style: none;
+  }
+
+  &.start-live-session-page,
+  &.surf-session-form-with-map {
+    .start-live-session-fields > *:not(.start-live-session-location-section),
+    .surf-session-fields > *:not(.surf-session-live-location),
+    .form-submit,
+    .mt {
+      padding-left: $spacing-unit;
+      padding-right: $spacing-unit;
+
+      @include media(md) {
+        padding-left: $spacing-small;
+        padding-right: $spacing-small;
+      }
+    }
+  }
+}
+
+.end-session-spot-drawer {
+  @include flex-column;
+  height: 100%;
+  min-height: 0;
+}
+
+.end-session-spot-drawer-body {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  @include vertical-scrollbar;
+}
+
+.end-session-spot-drawer-footer {
+  flex-shrink: 0;
+  border-top: solid 1px $outline-color;
+}
+
+.end-session-spot-drawer-footer-hint {
+  @include flex-base;
+  align-items: center;
+  gap: $spacing-small;
+  padding: $spacing-unit $spacing-large $spacing-small;
+}
+
+.end-session-spot-drawer-footer-hint-icon {
+  @include flex-center;
+  color: $primary-color;
+  flex-shrink: 0;
+  line-height: 0;
+
+  svg {
+    width: 14px;
+    height: 14px;
+    display: block;
+  }
+}
+
+.start-live-session-page {
+  padding-bottom: $spacing-large;
+
+  .start-live-session-location-section {
+    gap: $spacing-small;
+  }
+
+  .start-live-session-expected-return {
+    width: 100%;
+  }
+
+  .start-live-session-expected-return-layout {
+    @include flex-column;
+    gap: $spacing-small;
+    width: 100%;
+
+    @media (min-width: 641px) {
+      @include flex-row;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: $spacing-unit;
+    }
+  }
+
+  .start-live-session-expected-return-copy {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .start-live-session-expected-return-layout .time-input-wrapper {
+    width: 100%;
+    flex-shrink: 0;
+
+    @media (min-width: 641px) {
+      width: auto;
+      min-width: 10rem;
+      max-width: 12rem;
+    }
   }
 }

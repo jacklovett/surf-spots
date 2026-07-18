@@ -10,6 +10,7 @@ import {
   ErrorBoundary,
   ContentStatus,
   Page,
+  PageErrorRecoveryActions,
   SurfboardForm,
 } from '~/components'
 import { requireSessionCookie } from '~/services/session.server'
@@ -153,7 +154,7 @@ export default function EditSurfboard() {
   if (error) {
     return (
       <Page showHeader>
-        <ContentStatus isError>
+        <ContentStatus isError actions={<PageErrorRecoveryActions />}>
           <p>{error}</p>
         </ContentStatus>
       </Page>

@@ -6,7 +6,7 @@ import {
   useLoaderData,
   useNavigate
 } from 'react-router'
-import { Page, TextButton, ContentStatus, Card } from '~/components'
+import { Page, PageErrorRecoveryActions, TextButton, ContentStatus, Card } from '~/components'
 import { requireSessionCookie } from '~/services/session.server'
 import { cacheControlHeader } from '~/services/networkService'
 import { getTrips } from '~/services/trip'
@@ -74,7 +74,7 @@ export default function Trips() {
   if (error) {
     return (
       <Page showHeader>
-        <ContentStatus isError>
+        <ContentStatus isError actions={<PageErrorRecoveryActions />}>
           <p>{error}</p>
         </ContentStatus>
       </Page>

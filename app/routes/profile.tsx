@@ -33,12 +33,14 @@ import {
   ContentStatus,
   ConfirmDestructiveModal,
   Page,
+  PageErrorRecoveryActions,
   EmergencyContactPhoneField,
   FormInput,
   FormComponent,
   LocationSelector,
   NavButton,
   Button,
+  SkillLevelHelpLink,
 } from '~/components'
 import { Location } from '~/components/LocationSelector'
 import { useSubmitStatus, useFormSubmission, useDestructiveConfirmBusy } from '~/hooks'
@@ -368,7 +370,7 @@ const Profile = () => {
   if (error || !user) {
     return (
       <Page showHeader>
-        <ContentStatus isError>
+        <ContentStatus isError actions={<PageErrorRecoveryActions />}>
           <p>{error ?? ERROR_RETRIEVE_PROFILE}</p>
         </ContentStatus>
       </Page>
@@ -498,11 +500,10 @@ const Profile = () => {
               onChange={(e) => handleChange('skillLevel', e.target.value)}
               showLabel={!!formState.skillLevel}
             />
-            <div className="profile-links">
-              <Link to="/skill-levels" prefetch="intent" className="text-link">
-                What do these skill levels mean?
-              </Link>
-            </div>
+            <p className="text-secondary font-small">
+              Used for spot insights and ratings from surfers at your level.
+            </p>
+            <SkillLevelHelpLink />
 
             <div className="mt-l" data-testid="profile-emergency-contact">
               <h3>Emergency contact</h3>
@@ -577,9 +578,7 @@ const Profile = () => {
             <Button
               label="Delete Account"
               variant="danger"
-              onClick={() => {
-                setShowDeleteConfirm(true)
-              }}
+              onClick={() => setShowDeleteConfirm(true)}
             />
           </div>
         </div>
@@ -587,9 +586,7 @@ const Profile = () => {
 
       <ConfirmDestructiveModal
         isOpen={showDeleteConfirm}
-        onClose={() => {
-          setShowDeleteConfirm(false)
-        }}
+        onClose={() => setShowDeleteConfirm(false)}
         onConfirm={handleDeleteAccount}
         title="Delete Your Account?"
         confirmLabel="Delete Account"

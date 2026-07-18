@@ -31,6 +31,7 @@ import {
   DirectionIcon,
   ErrorBoundary,
   InfoMessage,
+  PageErrorRecoveryActions,
   SafeLink,
   SpotSessionInsights,
   SurfHeightIcon,
@@ -554,7 +555,7 @@ export default function SurfSpotDetails() {
 
 if (error || !surfSpotDetails) {
     return (
-      <ContentStatus isError>
+      <ContentStatus isError actions={<PageErrorRecoveryActions />}>
         <p>{error ?? 'Surf spot details not found.'}</p>
       </ContentStatus>
     )

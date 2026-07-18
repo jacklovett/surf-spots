@@ -13,6 +13,7 @@ import {
   ContentStatus,
   Loading,
   Page,
+  PageErrorRecoveryActions,
   TripForm,
 } from '~/components'
 import {
@@ -200,7 +201,7 @@ export default function EditTrip() {
 
   if (error) {
     return (
-      <ContentStatus isError>
+      <ContentStatus isError actions={<PageErrorRecoveryActions />}>
         <p>{error}</p>
       </ContentStatus>
     )

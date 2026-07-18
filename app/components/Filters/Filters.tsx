@@ -417,5 +417,3 @@ export const Filters = memo(() => {
     </div>
   )
 })
-
-Filters.displayName = 'Filters'

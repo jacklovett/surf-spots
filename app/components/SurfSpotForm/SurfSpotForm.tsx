@@ -1,5 +1,5 @@
 import { useState, useEffect, useLayoutEffect, useCallback, FormEvent } from 'react'
-import { useLoaderData, useFetcher, useNavigate } from 'react-router'
+import { useLoaderData, useFetcher, useNavigate, useSearchParams } from 'react-router'
 
 import { useSettingsContext } from '~/contexts'
 import { defaultMapCenter } from '~/services/mapService'
@@ -64,16 +64,16 @@ interface SurfSpotFormProps {
 const detailsPagePathFromSurfSpot = (
   surfSpot: SurfSpot | null,
 ): string | null => {
-  if (surfSpot == null) return null
+  if (!surfSpot) return null
   const path = surfSpot.path
-  if (typeof path !== 'string' || path.trim() === '') return null
-  return path.trim()
+  if (typeof path !== 'string' || !path) return null
+  return path
 }
 
 const toUrlLinkItems = (urls?: string[]): UrlLinkItem[] =>
   (urls ?? [])
-    .filter((url): url is string => typeof url === 'string' && url.trim() !== '')
-    .map((url) => ({ url: url.trim(), errorMessage: '' }))
+    .filter((url): url is string => typeof url === 'string' && !!url)
+    .map((url) => ({ url, errorMessage: '' }))
 
 export const SurfSpotForm = (props: SurfSpotFormProps) => {
   const { actionType, onCancel } = props
@@ -87,16 +87,27 @@ export const SurfSpotForm = (props: SurfSpotFormProps) => {
   const waveUnits = preferredUnits === 'metric' ? 'm' : 'ft'
 
   const fetcher = useFetcher<ActionData>()
+  const [searchParams] = useSearchParams()
+  const isAddMode = actionType === 'Add'
+  const prefilledLatitude = searchParams.get('latitude')
+  const prefilledLongitude = searchParams.get('longitude')
+  const prefilledSessionId = searchParams.get('sessionId')
+  const addSpotSessionLinkParams =
+    isAddMode && prefilledLatitude && prefilledLongitude
+      ? {
+          sessionId: prefilledSessionId ?? '',
+          anchorLatitude: prefilledLatitude,
+          anchorLongitude: prefilledLongitude,
+        }
+      : null
   const actionSubmitStatus = useSubmitStatus()
   const fetcherSubmitStatus = getFetcherSubmitStatus(
     fetcher.data,
     ERROR_ADD_SURF_SPOT,
   )
-  const submitStatus =
-    fetcherSubmitStatus != null ? fetcherSubmitStatus : actionSubmitStatus
+  const submitStatus = fetcherSubmitStatus ?? actionSubmitStatus
 
   const [findOnMap, setFindOnMap] = useState(true)
-  const isAddMode = actionType === 'Add'
 
   // Fetch user's location immediately for "Add" mode
   // Start with default, then update when user location is fetched
@@ -108,6 +119,19 @@ export const SurfSpotForm = (props: SurfSpotFormProps) => {
 
   useEffect(() => {
     if (!isAddMode || surfSpot) return
+
+    if (addSpotSessionLinkParams) {
+      const latitude = roundCoordinate(
+        Number(addSpotSessionLinkParams.anchorLatitude),
+      )
+      const longitude = roundCoordinate(
+        Number(addSpotSessionLinkParams.anchorLongitude),
+      )
+      if (!Number.isNaN(latitude) && !Number.isNaN(longitude)) {
+        setInitialUserCoords({ latitude, longitude })
+        return
+      }
+    }
 
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
@@ -130,7 +154,7 @@ export const SurfSpotForm = (props: SurfSpotFormProps) => {
         },
       )
     }
-  }, [actionType, surfSpot])
+  }, [actionType, surfSpot, prefilledLatitude, prefilledLongitude, isAddMode])
   const [spotStatus, setSpotStatus] = useState(
     surfSpot?.status || SurfSpotStatus.PENDING,
   )
@@ -381,6 +405,19 @@ export const SurfSpotForm = (props: SurfSpotFormProps) => {
       if (!isAddMode && surfSpot?.id) {
         formData.append('surfSpotId', String(surfSpot.id))
       }
+      if (addSpotSessionLinkParams) {
+        if (addSpotSessionLinkParams.sessionId) {
+          formData.append('linkSessionId', addSpotSessionLinkParams.sessionId)
+        }
+        formData.append(
+          'linkSessionLatitude',
+          addSpotSessionLinkParams.anchorLatitude,
+        )
+        formData.append(
+          'linkSessionLongitude',
+          addSpotSessionLinkParams.anchorLongitude,
+        )
+      }
       fetcher.submit(formData, { method: isAddMode ? 'post' : 'patch' })
     },
     [
@@ -399,6 +436,7 @@ export const SurfSpotForm = (props: SurfSpotFormProps) => {
       hazards,
       isAddMode,
       surfSpot?.id,
+      addSpotSessionLinkParams,
     ],
   )
 
@@ -407,7 +445,7 @@ export const SurfSpotForm = (props: SurfSpotFormProps) => {
     fetcher.data?.surfSpot ?? null
 
   const submitCompletedWithoutError =
-    fetcher.data != null && fetcher.data.hasError !== true
+    !!fetcher.data && !fetcher.data.hasError
 
   const detailsPathFromSavedSpot = detailsPagePathFromSurfSpot(
     surfSpotFromActionResponse,
@@ -420,9 +458,9 @@ export const SurfSpotForm = (props: SurfSpotFormProps) => {
 
   const showSuccessScreen = isAddMode
     ? submitCompletedWithoutError &&
-      surfSpotFromActionResponse != null &&
-      detailsPathFromSavedSpot != null
-    : submitCompletedWithoutError && urlToOpenSurfSpotDetails != null
+      !!surfSpotFromActionResponse &&
+      !!detailsPathFromSavedSpot
+    : submitCompletedWithoutError && !!urlToOpenSurfSpotDetails
 
   const afterSuccessLabel = isAddMode ? 'Add another' : 'Back to spot details'
   const afterSuccessPath = isAddMode
@@ -431,7 +469,7 @@ export const SurfSpotForm = (props: SurfSpotFormProps) => {
 
   useLayoutEffect(() => {
     if (showSuccessScreen) {
-      scrollPageToTop({ smooth: false })
+      scrollPageToTop()
     }
   }, [showSuccessScreen])
 

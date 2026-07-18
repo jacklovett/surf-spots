@@ -73,12 +73,35 @@ type SurfSessionJsonBuildResult =
   | { ok: false; response: ReturnType<typeof data<ActionData>> }
   | { ok: true; payload: Record<string, unknown> }
 
+type BuildSurfSessionJsonOptions = {
+  allowOptionalSurfSpotId?: boolean
+}
+
 const buildSurfSessionJsonFromFormData = (
   formData: FormData,
+  options: BuildSurfSessionJsonOptions = {},
 ): SurfSessionJsonBuildResult => {
-  const surfSpotIdRaw = formData.get('surfSpotId') as string
-  const surfSpotId = Number(surfSpotIdRaw)
-  if (surfSpotIdRaw == null || surfSpotIdRaw === '' || Number.isNaN(surfSpotId)) {
+  const surfSpotIdRaw = formData.get('surfSpotId') as string | null
+  let surfSpotId: number | undefined
+
+  if (options.allowOptionalSurfSpotId) {
+    if (surfSpotIdRaw != null && surfSpotIdRaw.trim() !== '') {
+      surfSpotId = Number(surfSpotIdRaw)
+      if (Number.isNaN(surfSpotId)) {
+        return {
+          ok: false,
+          response: data<ActionData>(
+            {
+              success: false,
+              submitStatus: ERROR_SURF_SPOT_ID_REQUIRED,
+              hasError: true,
+            },
+            { status: 400 },
+          ),
+        }
+      }
+    }
+  } else if (surfSpotIdRaw == null || surfSpotIdRaw === '' || Number.isNaN(Number(surfSpotIdRaw))) {
     return {
       ok: false,
       response: data<ActionData>(
@@ -90,6 +113,8 @@ const buildSurfSessionJsonFromFormData = (
         { status: 400 },
       ),
     }
+  } else {
+    surfSpotId = Number(surfSpotIdRaw)
   }
 
   const sessionDate = (formData.get('sessionDate') as string) || ''
@@ -122,8 +147,10 @@ const buildSurfSessionJsonFromFormData = (
   }
 
   const payload: Record<string, unknown> = {
-    surfSpotId,
     sessionDate,
+  }
+  if (surfSpotId != null) {
+    payload.surfSpotId = surfSpotId
   }
   const skillLevelStr =
     typeof skillLevel === 'string' && skillLevel.trim() !== ''
@@ -219,6 +246,7 @@ export const handleUpdateSurfSession = async (
   formData: FormData,
   sessionId: string,
   cookie: string,
+  options: BuildSurfSessionJsonOptions = {},
 ): Promise<ReturnType<typeof data>> => {
   const trimmedSessionId = sessionId.trim()
   if (!trimmedSessionId) {
@@ -232,7 +260,7 @@ export const handleUpdateSurfSession = async (
     )
   }
 
-  const built = buildSurfSessionJsonFromFormData(formData)
+  const built = buildSurfSessionJsonFromFormData(formData, options)
   if (!built.ok) {
     return built.response
   }
@@ -372,11 +400,14 @@ export const surfSpotAction: ActionFunction = async ({ request }) => {
   }
 }
 
-export const createSurfSpotFromFormData = async (request: Request) => {
+export const createSurfSpotFromFormData = async (
+  request: Request,
+  existingFormData?: FormData,
+) => {
   const user = await requireSessionCookie(request)
   const userId = user.id
 
-  const formData = await request.formData()
+  const formData = existingFormData ?? (await request.formData())
 
   // Handle boolean fields
   const isPrivate = formData.get('isPrivate') === 'on'

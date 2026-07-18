@@ -15,7 +15,10 @@ import {
   TideIcon,
 } from '~/components'
 import { useToastContext, useUserContext } from '~/contexts'
-import { useFileUpload, useDestructiveConfirmBusy } from '~/hooks'
+import { liveSessionDetailsPath } from '~/constants/liveSessionPaths'
+import { buildAddSurfSpotPathForUnassignedSession } from '~/utils/surfSessionFormUtils'
+import { useEndLiveSession, useFileUpload, useDestructiveConfirmBusy } from '~/hooks'
+import type { BaseActionData } from '~/hooks/useActionFetcher'
 import {
   CROWD_LEVEL_LABELS,
   EXTERNAL_SESSION_PROVIDER_LABELS,
@@ -24,6 +27,7 @@ import {
   WAVE_FACE_LABELS,
   Tide,
   SurfSessionListItem,
+  SessionStatus,
   SurfSessionMedia,
 } from '~/types/surfSpots'
 import { TIDE_OPTIONS } from '~/types/formData/surfSpots'
@@ -40,15 +44,8 @@ interface SessionLogRowProps {
   formatSessionDate: (isoDate: string) => string
 }
 
-interface SessionMediaActionData {
-  error?: string
-  success?: boolean
+interface SessionMediaActionData extends BaseActionData {
   media?: SurfSessionMedia
-}
-
-interface SessionDeleteActionData {
-  error?: string
-  success?: boolean
 }
 
 const sessionRatingLabel = (sessionRating?: number | null): string => {
@@ -58,7 +55,7 @@ const sessionRatingLabel = (sessionRating?: number | null): string => {
   return SURF_SESSION_RATING_LABELS[sessionRating] ?? `${sessionRating} out of 5`
 }
 
-const tideDisplay = (tide: Tide | string | null | undefined): string => {
+const tideDisplay = (tide?: Tide | string | null): string => {
   if (tide == null || tide === '') {
     return ''
   }
@@ -66,7 +63,7 @@ const tideDisplay = (tide: Tide | string | null | undefined): string => {
   return opt?.label ?? String(tide)
 }
 
-const formatDirectionDisplay = (value: string | null | undefined): string =>
+const formatDirectionDisplay = (value?: string | null): string =>
   value ? value.replace(/-/g, ' to ') : '—'
 
 const SESSION_CONDITION_ICON_SIZE = 26
@@ -75,6 +72,7 @@ export const SessionLogRow = (props: SessionLogRowProps) => {
   const { session, formatSessionDate } = props
   const { user } = useUserContext()
   const { showSuccess, showError } = useToastContext()
+  const { endSession, isEnding } = useEndLiveSession()
   const navigate = useNavigate()
   const { pathname } = useLocation()
   const [expanded, setExpanded] = useState(false)
@@ -85,6 +83,8 @@ export const SessionLogRow = (props: SessionLogRowProps) => {
   const provider = session.externalSessionProvider
   const externalSyncSourceLabel =
     provider == null ? null : EXTERNAL_SESSION_PROVIDER_LABELS[provider] ?? provider
+
+  const isInProgress = session.status === SessionStatus.IN_PROGRESS
 
   const {
     uploadFiles,
@@ -103,7 +103,7 @@ export const SessionLogRow = (props: SessionLogRowProps) => {
   })
 
   const mediaActionFetcher = useFetcher<SessionMediaActionData>()
-  const sessionDeleteFetcher = useFetcher<SessionDeleteActionData>()
+  const sessionDeleteFetcher = useFetcher<BaseActionData>()
   const {
     busy: deleteModalBusy,
     beginSubmit: beginSessionDeleteSubmit,
@@ -158,32 +158,60 @@ export const SessionLogRow = (props: SessionLogRowProps) => {
   const mediaItems = session.media ?? []
 
   const sessionSpotMenuItems = useMemo(() => {
-    const base = session.spotPath.replace(/\/+$/, '')
-    return [
+    const base = session.spotPath?.replace(/\/+$/, '')
+    const items = [
       {
-        label: 'Go to spot',
+        label: session.spotPath ? 'Go to spot' : 'Add surf spot',
         iconKey: 'pin',
-        onClick: () => navigate(session.spotPath),
+        onClick: () => {
+          if (session.spotPath) {
+            navigate(session.spotPath)
+            return
+          }
+          const addSpotPath = buildAddSurfSpotPathForUnassignedSession(session)
+          navigate(addSpotPath ?? '/add-surf-spot')
+        },
       },
-      {
+    ]
+
+    if (!isInProgress) {
+      items.push({
         label: 'Add session',
         iconKey: 'stopwatch',
         onClick: () => navigate(`${base}/session`),
-      },
-      {
-        label: 'Edit session',
-        iconKey: 'edit',
-        onClick: () => navigate(`/edit-session/${session.id}`),
-      },
-      {
+      })
+    }
+
+    items.push(
+      isInProgress
+        ? {
+            label: 'End session',
+            iconKey: 'stopwatch',
+            onClick: () => {
+              if (!isEnding) {
+                endSession(session.id, {
+                  onSuccess: () => navigate(liveSessionDetailsPath(session.id)),
+                })
+              }
+            },
+          }
+        : {
+            label: 'Edit session',
+            iconKey: 'edit',
+            onClick: () => navigate(`/edit-session/${session.id}`),
+          },
+    )
+    if (!isInProgress) {
+      items.push({
         label: 'Delete session',
         iconKey: 'bin',
         onClick: () => {
           setShowDeleteConfirm(true)
         },
-      },
-    ]
-  }, [navigate, session.spotPath, session.id])
+      })
+    }
+    return items
+  }, [endSession, isEnding, navigate, session])
 
   const handleFileUpload = (files: FileList) => {
     if (!user?.id) return
@@ -247,8 +275,11 @@ export const SessionLogRow = (props: SessionLogRowProps) => {
                 <span className="session-log-card-date-line">
                   {formatSessionDate(session.sessionDate)}
                 </span>
-                {(sessionTimeRange || externalSyncSourceLabel) && (
+                {(sessionTimeRange || externalSyncSourceLabel || isInProgress) && (
                   <span className="session-log-card-meta-detail">
+                    {isInProgress && (
+                      <span className="session-log-card-live-line bold">In progress</span>
+                    )}
                     {!!sessionTimeRange && (
                       <span className="session-log-card-time-range">
                         {sessionTimeRange}
@@ -514,5 +545,3 @@ export const SessionLogRow = (props: SessionLogRowProps) => {
     </article>
   )
 }
-
-SessionLogRow.displayName = 'SessionLogRow'

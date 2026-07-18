@@ -110,5 +110,3 @@ export const LocationSelector = memo(
     )
   },
 )
-
-LocationSelector.displayName = 'LocationSelector'

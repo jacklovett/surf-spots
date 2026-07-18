@@ -1,6 +1,8 @@
-import { post, deleteData, get } from './networkService'
+import { post, deleteData, get, isNetworkError } from './networkService'
 import type {
   CreateSurfSessionMediaRequest,
+  EndLiveSurfSessionRequest,
+  StartLiveSurfSessionRequest,
   SurfSessionListItem,
   SurfSessionMedia,
 } from '~/types/surfSpots'
@@ -65,4 +67,74 @@ export const deleteSurfSessionMedia = async (
   options?: RequestInit,
 ): Promise<void> => {
   await deleteData(`${surfSessionsEndpoint}/media/${mediaId}`, options)
+}
+
+export const startLiveSurfSession = async (
+  request: StartLiveSurfSessionRequest,
+  options?: RequestInit,
+): Promise<SurfSessionListItem> => {
+  const response = await post<StartLiveSurfSessionRequest, SurfSessionListItem>(
+    `${surfSessionsEndpoint}/start`,
+    request,
+    options,
+  )
+  return response?.data as SurfSessionListItem
+}
+
+export const getInProgressSurfSession = async (
+  options?: RequestInit,
+): Promise<SurfSessionListItem | null> => {
+  try {
+    const response = await get<SurfSessionListItem>(
+      `${surfSessionsEndpoint}/in-progress`,
+      options,
+    )
+    return response?.data ?? null
+  } catch (error) {
+    if (isNetworkError(error) && error.status === 404) {
+      return null
+    }
+    throw error
+  }
+}
+
+export const endLiveSurfSession = async (
+  sessionId: string,
+  request: EndLiveSurfSessionRequest,
+  options?: RequestInit,
+): Promise<SurfSessionListItem> => {
+  const response = await post<EndLiveSurfSessionRequest, SurfSessionListItem>(
+    `${surfSessionsEndpoint}/${encodeURIComponent(sessionId)}/end`,
+    request,
+    options,
+  )
+  return response?.data as SurfSessionListItem
+}
+
+export interface LinkSessionsToSpotRequest {
+  surfSpotId: number
+  anchorLatitude: number
+  anchorLongitude: number
+  sessionId?: number
+}
+
+export interface LinkSessionsToSpotResult {
+  linkedSessionCount: number
+  message?: string
+}
+
+export const linkSessionsToSpot = async (
+  request: LinkSessionsToSpotRequest,
+  options?: RequestInit,
+): Promise<LinkSessionsToSpotResult> => {
+  const response = await post<
+    LinkSessionsToSpotRequest,
+    Pick<LinkSessionsToSpotResult, 'linkedSessionCount'>
+  >(`${surfSessionsEndpoint}/link-to-spot`, request, options)
+
+  const payload = response?.data
+  return {
+    linkedSessionCount: payload?.linkedSessionCount ?? 0,
+    message: response?.message,
+  }
 }

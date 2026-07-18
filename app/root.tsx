@@ -20,6 +20,7 @@ import {
   TripProvider,
   ToastProvider,
   SignUpPromptProvider,
+  LiveSessionProvider,
 } from './contexts'
 import { ErrorBoundary as AppErrorBoundary, FloatingSpeedDial, ToastContainer, WelcomeFromUrlToast } from './components'
 import { ERROR_BOUNDARY_APP } from './utils/errorUtils'
@@ -28,12 +29,17 @@ export { ErrorBoundary } from './RootErrorBoundary'
 
 import { useScrollToTopOnNavigation } from './hooks'
 import { getSession } from './services/session.server'
+import { isNetworkError } from './services/networkService'
+import { loadInProgressSurfSessionForUser } from './services/surfSession.server'
 import { SessionUser } from './types/user'
+import { SurfSessionListItem } from './types/surfSpots'
 
 import './styles/main.scss'
 
 interface LoaderData {
   user: SessionUser | null
+  inProgressSession: SurfSessionListItem | null
+  liveSessionRefreshFailed: boolean
 }
 
 const securityHeaders: Record<string, string> = {
@@ -43,9 +49,29 @@ const securityHeaders: Record<string, string> = {
 }
 
 export const loader: LoaderFunction = async ({ request }) => {
-  const session = await getSession(request.headers.get('Cookie'))
+  const cookie = request.headers.get('Cookie') ?? ''
+  const session = await getSession(cookie)
   const user = session.get('user')
-  return data({ user: user ?? null }, { headers: securityHeaders })
+
+  let inProgressSession: SurfSessionListItem | null = null
+  let liveSessionRefreshFailed = false
+  if (user?.id) {
+    try {
+      inProgressSession = await loadInProgressSurfSessionForUser(cookie)
+    } catch (error) {
+      liveSessionRefreshFailed = true
+      console.error('Root loader: failed to load in-progress session', {
+        status: isNetworkError(error) ? error.status : undefined,
+        responseSummary: isNetworkError(error) ? error.responseSummary : undefined,
+        message: error instanceof Error ? error.message : String(error),
+      })
+    }
+  }
+
+  return data(
+    { user: user ?? null, inProgressSession, liveSessionRefreshFailed },
+    { headers: securityHeaders },
+  )
 }
 
 export const headers: HeadersFunction = ({ loaderHeaders }) => loaderHeaders
@@ -99,14 +125,15 @@ export function Layout({ children }: { children: React.ReactNode }) {
 }
 
 export default function App() {
-  const { user } = useLoaderData<LoaderData>()
+  const { user, inProgressSession, liveSessionRefreshFailed } =
+    useLoaderData<LoaderData>()
 
   // Set CSS custom property for accurate mobile viewport height
   // This fixes the issue where 100vh includes browser UI on mobile
   useEffect(() => {
     const setViewportHeight = () => {
-      const vh = window.innerHeight * 0.01
-      document.documentElement.style.setProperty('--vh', `${vh}px`)
+      const viewportHeightUnit = window.innerHeight * 0.01
+      document.documentElement.style.setProperty('--vh', `${viewportHeightUnit}px`)
     }
 
     setViewportHeight()
@@ -129,9 +156,14 @@ export default function App() {
                 <ToastProvider>
                   <WelcomeFromUrlToast />
                   <SignUpPromptProvider>
-                    <Outlet />
-                    <FloatingSpeedDial />
-                    <ToastContainer />
+                    <LiveSessionProvider
+                      initialInProgressSession={inProgressSession}
+                      initialLiveSessionRefreshFailed={liveSessionRefreshFailed}
+                    >
+                      <Outlet />
+                      <FloatingSpeedDial />
+                      <ToastContainer />
+                    </LiveSessionProvider>
                   </SignUpPromptProvider>
                 </ToastProvider>
               </TripProvider>

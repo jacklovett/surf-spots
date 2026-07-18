@@ -3,6 +3,7 @@
 
 .time-input-wrapper {
   position: relative;
+  padding: 0;
 
   &.time-input-wrapper-open {
     z-index: $z-index-dropdown;

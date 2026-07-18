@@ -63,6 +63,45 @@ const navigateToAddSessionForm = async (page: Page): Promise<boolean> => {
   return true
 }
 
+/**
+ * Open the global start-session flow from the floating speed dial.
+ */
+const navigateToStartLiveSessionForm = async (page: Page): Promise<boolean> => {
+  await page.goto('/sessions')
+  await page.waitForLoadState('networkidle')
+
+  await page.getByRole('button', { name: 'Open quick add menu' }).click()
+  await page.getByRole('menuitem', { name: 'Start live surf session' }).click()
+
+  await expect(page).toHaveURL(/\/start-session\/?$/, { timeout: 15000 })
+  await expect(page.getByRole('heading', { name: /Start session/i })).toBeVisible({
+    timeout: 10000,
+  })
+
+  const startButton = page.getByRole('button', { name: 'Start session' }).last()
+
+  await expect(startButton).toBeVisible({ timeout: 15000 })
+  await expect(startButton).toBeEnabled({ timeout: 15000 })
+
+  return true
+}
+
+const endInProgressSessionIfPresent = async (page: Page): Promise<void> => {
+  await page.goto('/sessions')
+  await page.waitForLoadState('networkidle')
+
+  const endSessionButton = page.getByRole('button', { name: 'End session' }).first()
+  if (!(await endSessionButton.isVisible().catch(() => false))) {
+    return
+  }
+
+  await endSessionButton.click()
+  await expect(page).toHaveURL(/\/end-session\/\d+\/?$/, { timeout: 20000 })
+  await expect(page.getByRole('heading', { name: 'Session details' })).toBeVisible({
+    timeout: 20000,
+  })
+}
+
 const fillRequiredSurfSessionFields = async (page: Page) => {
   const skillLevelSelect = page.locator('select[name="skillLevel"]')
   if (await skillLevelSelect.isVisible()) {
@@ -349,5 +388,246 @@ test.describe('My sessions list', () => {
     await expect(
       page.getByText(/Edits and deletes here apply only in Surf Spots/i),
     ).toBeVisible({ timeout: 10000 })
+  })
+
+  test('should start a live session and show in-progress banner', async ({ page, context }) => {
+    await endInProgressSessionIfPresent(page)
+    await context.grantPermissions(['geolocation'])
+    await context.setGeolocation({ latitude: 54.4783, longitude: -8.2779 })
+
+    const reachedForm = await navigateToStartLiveSessionForm(page)
+    if (!reachedForm) {
+      test.skip(true, 'Could not open start session form')
+      return
+    }
+
+    await page.getByRole('button', { name: 'Start session' }).last().click()
+    await expect(page.getByText(/Your session has started/i)).toBeVisible({ timeout: 20000 })
+
+    await page.goto('/sessions')
+    await expect(page.getByText(/Surf session in progress/i)).toBeVisible({
+      timeout: 15000,
+    })
+    await expect(page.getByText(/Time in the water:/i)).toBeVisible({ timeout: 15000 })
+    await page.getByRole('button', { name: 'End session' }).first().click()
+    await expect(page).toHaveURL(/\/end-session\/\d+\/?$/, { timeout: 20000 })
+    await expect(page.getByRole('heading', { name: 'Session details' })).toBeVisible({
+      timeout: 15000,
+    })
+    await expect(
+      page.locator('.toast--success .toast-message').filter({ hasText: /Your session has ended/i }),
+    ).toBeVisible({ timeout: 15000 })
+
+    await page.getByRole('button', { name: 'Open quick add menu' }).click()
+    await expect(page.getByRole('menuitem', { name: 'Start live surf session' })).toBeVisible({
+      timeout: 10000,
+    })
+
+    await page.goto('/start-session')
+    await expect(page.getByRole('heading', { name: 'Start session' })).toBeVisible({
+      timeout: 15000,
+    })
+    await expect(page.getByText(/Surf session in progress/i)).not.toBeVisible({
+      timeout: 5000,
+    })
+  })
+
+  test('should allow manual map placement when geolocation is denied', async ({ page, context }) => {
+    await endInProgressSessionIfPresent(page)
+    await context.clearPermissions()
+    await context.setGeolocation({ latitude: 0, longitude: 0 })
+
+    const reachedForm = await navigateToStartLiveSessionForm(page)
+    if (!reachedForm) {
+      test.skip(true, 'Could not open start session form')
+      return
+    }
+
+    await expect(page.getByText(/Could not get your location automatically/i)).toBeVisible({
+      timeout: 20000,
+    })
+    await expect(page.getByText(/Click the map to set your starting location/i)).toBeVisible({
+      timeout: 10000,
+    })
+
+    const startButton = page.getByRole('button', { name: 'Start session' }).last()
+    await expect(startButton).toBeDisabled()
+
+    await page.locator('.start-live-session-map .map').click({ position: { x: 180, y: 120 } })
+    await expect(startButton).toBeEnabled({ timeout: 10000 })
+  })
+
+  test('should redirect from start-session when a session is already in progress', async ({
+    page,
+    context,
+  }) => {
+    await endInProgressSessionIfPresent(page)
+    await context.grantPermissions(['geolocation'])
+    await context.setGeolocation({ latitude: 54.4783, longitude: -8.2779 })
+
+    const reachedForm = await navigateToStartLiveSessionForm(page)
+    if (!reachedForm) {
+      test.skip(true, 'Could not open start session form')
+      return
+    }
+
+    await page.getByRole('button', { name: 'Start session' }).last().click()
+    await expect(page.getByText(/Your session has started/i)).toBeVisible({ timeout: 20000 })
+
+    await page.goto('/start-session')
+    await expect(page).toHaveURL(/\/surf-spots\/?$/, { timeout: 15000 })
+    await expect(page.getByText(/Surf session in progress/i)).toBeVisible({ timeout: 15000 })
+  })
+
+  test('should recover when end fails on end session page', async ({ page, context }) => {
+    await endInProgressSessionIfPresent(page)
+    await context.grantPermissions(['geolocation'])
+    await context.setGeolocation({ latitude: 54.4783, longitude: -8.2779 })
+
+    const reachedForm = await navigateToStartLiveSessionForm(page)
+    if (!reachedForm) {
+      test.skip(true, 'Could not open start session form')
+      return
+    }
+
+    await page.getByRole('button', { name: 'Start session' }).last().click()
+    await expect(page.getByText(/Your session has started/i)).toBeVisible({ timeout: 20000 })
+
+    let endAttempts = 0
+    await page.route('**/resources/end-live-session', async (route) => {
+      endAttempts += 1
+      if (endAttempts === 1) {
+        await route.fulfill({
+          status: 500,
+          contentType: 'application/json',
+          body: JSON.stringify({
+            success: false,
+            hasError: true,
+            submitStatus: 'Unable to end your surf session right now. Please try again.',
+          }),
+        })
+        return
+      }
+      await route.continue()
+    })
+
+    await page.goto('/end-session')
+    await expect(page).toHaveURL(/\/end-session\/\d+\/?$/, { timeout: 20000 })
+
+    await expect(page.getByRole('button', { name: 'Try again' })).toBeVisible({
+      timeout: 20000,
+    })
+    await page.getByRole('button', { name: 'Try again' }).click()
+    await expect(page.getByRole('heading', { name: 'Session details' })).toBeVisible({
+      timeout: 20000,
+    })
+  })
+
+  test('should save session details after ending', async ({ page, context }) => {
+    await endInProgressSessionIfPresent(page)
+    await context.grantPermissions(['geolocation'])
+    await context.setGeolocation({ latitude: 54.4783, longitude: -8.2779 })
+
+    const reachedForm = await navigateToStartLiveSessionForm(page)
+    if (!reachedForm) {
+      test.skip(true, 'Could not open start session form')
+      return
+    }
+
+    await page.getByRole('button', { name: 'Start session' }).last().click()
+    await expect(page.getByText(/Your session has started/i)).toBeVisible({ timeout: 20000 })
+
+    await page.goto('/sessions')
+    await page.getByRole('button', { name: 'End session' }).first().click()
+    await expect(page.getByRole('heading', { name: 'Session details' })).toBeVisible({
+      timeout: 20000,
+    })
+
+    await fillRequiredSurfSessionFields(page)
+    await page.getByRole('button', { name: 'Save details' }).click()
+    await expect(page.getByText(/Session saved/i)).toBeVisible({ timeout: 20000 })
+  })
+
+  test('should require expected return when emailing emergency contact', async ({ page, context }) => {
+    await endInProgressSessionIfPresent(page)
+    await context.grantPermissions(['geolocation'])
+    await context.setGeolocation({ latitude: 54.4783, longitude: -8.2779 })
+
+    await page.goto('/profile')
+    await page.waitForLoadState('networkidle')
+
+    const emergencyContactInput = page.locator('input[name="emergencyContactEmail"]')
+    if (!(await emergencyContactInput.isVisible().catch(() => false))) {
+      test.skip(true, 'Emergency contact field not available on profile')
+      return
+    }
+
+    await emergencyContactInput.fill('contact@example.com')
+    await page.getByRole('button', { name: 'Save Changes' }).click()
+    await expect(page.locator('.toast--success')).toBeVisible({ timeout: 15000 })
+
+    const reachedForm = await navigateToStartLiveSessionForm(page)
+    if (!reachedForm) {
+      test.skip(true, 'Could not open start session form')
+      return
+    }
+
+    const emergencyContactCheckbox = page.locator(
+      'input[name="shareLocationWithEmergencyContact"]',
+    )
+    await expect(emergencyContactCheckbox).toBeEnabled({ timeout: 10000 })
+    await emergencyContactCheckbox.check()
+
+    const startButton = page.getByRole('button', { name: 'Start session' }).last()
+    await expect(startButton).toBeDisabled()
+
+    await page.locator('input[name="expectedReturnTime"]').fill('23:59')
+    await expect(startButton).toBeEnabled({ timeout: 10000 })
+  })
+
+  test('should select a nearby spot after ending', async ({ page, context }) => {
+    await endInProgressSessionIfPresent(page)
+    await context.grantPermissions(['geolocation'])
+    await context.setGeolocation({ latitude: 54.4783, longitude: -8.2779 })
+
+    const reachedForm = await navigateToStartLiveSessionForm(page)
+    if (!reachedForm) {
+      test.skip(true, 'Could not open start session form')
+      return
+    }
+
+    await page.getByRole('button', { name: 'Start session' }).last().click()
+    await expect(page.getByText(/Your session has started/i)).toBeVisible({ timeout: 20000 })
+
+    await page.goto('/sessions')
+    await page.getByRole('button', { name: 'End session' }).first().click()
+    await expect(page.getByRole('heading', { name: 'Session details' })).toBeVisible({
+      timeout: 20000,
+    })
+
+    const nearbySpotButton = page.locator('.end-session-spot-list-button').first()
+    if (!(await nearbySpotButton.isVisible().catch(() => false))) {
+      test.skip(true, 'No nearby surf spots seeded for test coordinates')
+      return
+    }
+
+    const spotLabel = (await nearbySpotButton.textContent())?.trim() ?? ''
+    await nearbySpotButton.click()
+    await page.getByRole('button', { name: 'Use this spot' }).click()
+    await expect(page.locator('.toast--success .toast-message')).toContainText(
+      /selected for this session/i,
+      { timeout: 15000 },
+    )
+
+    if (spotLabel !== '') {
+      const spotName = spotLabel.replace(/\s*\(.*\)$/, '').trim()
+      await expect(page.getByText(new RegExp(`Selected:.*${spotName}`, 'i'))).toBeVisible({
+        timeout: 10000,
+      })
+    }
+
+    await fillRequiredSurfSessionFields(page)
+    await page.getByRole('button', { name: 'Save details' }).click()
+    await expect(page.getByText(/Session saved/i)).toBeVisible({ timeout: 20000 })
   })
 })

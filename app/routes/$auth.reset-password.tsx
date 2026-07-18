@@ -93,16 +93,20 @@ const ResetPassword = () => {
         />
         {!token && (
           <div className="center-text">
-            <ContentStatus isError>
+            <ContentStatus
+              isError
+              actions={
+                <div className="mt">
+                  <Link to="/auth/forgot-password" className="button">
+                    Request New Link
+                  </Link>
+                </div>
+              }
+            >
               <p className="bold">
                 This password reset attempt is no longer valid.
               </p>
               <p>For your security, please request a new password reset.</p>
-              <div className="mt">
-                <Link to="/auth/forgot-password" className="button">
-                  Request New Link
-                </Link>
-              </div>
             </ContentStatus>
           </div>
         )}

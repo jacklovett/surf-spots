@@ -19,6 +19,7 @@ import {
   MediaGallery,
   MediaUpload,
   Page,
+  PageErrorRecoveryActions,
   SurfboardSelectionModal,
   TextButton,
 } from '~/components'
@@ -464,7 +465,7 @@ export default function TripDetail() {
   if (error || !initialTrip?.id || !trip?.id) {
     return (
       <Page showHeader>
-        <ContentStatus isError>
+        <ContentStatus isError actions={<PageErrorRecoveryActions />}>
           <p>{error ?? 'Trip not found'}</p>
         </ContentStatus>
       </Page>

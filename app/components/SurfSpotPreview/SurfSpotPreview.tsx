@@ -21,10 +21,11 @@ interface IProps {
   user: User | null
   navigate: (path: string) => void
   onFetcherSubmit?: SurfSpotQuickActionSubmitHandler
+  sessionDistanceLabel?: string
 }
 
 export const SurfSpotPreview = memo((props: IProps) => {
-  const { surfSpot, navigate } = props
+  const { surfSpot, navigate, sessionDistanceLabel } = props
 
   const {
     beachBottomType,
@@ -56,6 +57,11 @@ export const SurfSpotPreview = memo((props: IProps) => {
   return (
     <div className="surf-spot-preview">
       <div className="surf-spot-preview-content">
+        {!!sessionDistanceLabel && (
+          <p className="surf-spot-preview-session-distance font-small text-secondary">
+            {sessionDistanceLabel}
+          </p>
+        )}
         {hasStatusChips && (
           <div className="surf-spot-preview-status-chips">
             {noveltyLabel && <Chip label={noveltyLabel} isFilled={false} />}
@@ -139,5 +145,3 @@ export const SurfSpotPreview = memo((props: IProps) => {
     </div>
   )
 })
-
-SurfSpotPreview.displayName = 'SurfSpotPreview'

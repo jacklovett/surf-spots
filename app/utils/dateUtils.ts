@@ -21,6 +21,14 @@ export const formatDateForInput = (date: Date): string => {
   return `${year}-${month}-${day}`
 }
 
+/** IANA zone from the device (e.g. Europe/Dublin), sent when starting a live session. */
+export const getBrowserIanaTimeZone = (): string => {
+  if (typeof Intl === 'undefined' || typeof Intl.DateTimeFormat === 'undefined') {
+    return 'UTC'
+  }
+  return Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC'
+}
+
 export type SurfSessionTimingFields = {
   durationMinutes?: number | null
   sessionStartTime?: string | null
@@ -39,16 +47,26 @@ const formatDurationMinutesLabel = (minutes: number): string => {
   return `${hours} hr ${min} min`
 }
 
-/** Parses HH:mm or HH:mm:ss to minutes since midnight (time inputs, API strings). */
+/** Parses HH:mm, HH:mm:ss, or HH:mm:ss.fff… to minutes since midnight (time inputs, API strings). */
 export const parseLocalTimeToMinutes = (value: string): number | null => {
   const trimmed = value.trim()
-  const match = /^(\d{1,2}):(\d{2})(?::(\d{2}))?$/.exec(trimmed)
+  const withoutFraction = trimmed.replace(/\.\d+$/, '')
+  const match = /^(\d{1,2}):(\d{2})(?::(\d{2}))?$/.exec(withoutFraction)
   if (!match) {
     return null
   }
   const hours = Number.parseInt(match[1], 10)
   const minutes = Number.parseInt(match[2], 10)
-  if (hours < 0 || hours > 23 || minutes < 0 || minutes > 59) {
+  const seconds =
+    match[3] != null && match[3] !== '' ? Number.parseInt(match[3], 10) : 0
+  if (
+    hours < 0 ||
+    hours > 23 ||
+    minutes < 0 ||
+    minutes > 59 ||
+    seconds < 0 ||
+    seconds > 59
+  ) {
     return null
   }
   return hours * 60 + minutes
@@ -247,6 +265,68 @@ export const formatDurationCompact = (totalMinutes: number): string => {
     return `${h}h`
   }
   return `${h}h ${m}m`
+}
+
+export const LIVE_SESSION_REMINDER_MS = 4 * 60 * 60 * 1000
+
+export const elapsedMsSinceInstant = (isoInstant: string): number => {
+  const startedAt = Date.parse(isoInstant)
+  if (Number.isNaN(startedAt)) {
+    return 0
+  }
+  return Math.max(0, Date.now() - startedAt)
+}
+
+export const elapsedMinutesSinceInstant = (isoInstant: string): number =>
+  Math.floor(elapsedMsSinceInstant(isoInstant) / 60_000)
+
+const padStopwatchSegment = (value: number): string =>
+  String(value).padStart(2, '0')
+
+/** Live session stopwatch: MM:SS under one hour, otherwise H:MM:SS. */
+export const formatElapsedStopwatchFromMs = (elapsedMs: number): string => {
+  const totalSeconds = Math.floor(Math.max(0, elapsedMs) / 1000)
+  const hours = Math.floor(totalSeconds / 3600)
+  const minutes = Math.floor((totalSeconds % 3600) / 60)
+  const seconds = totalSeconds % 60
+  if (hours > 0) {
+    return `${hours}:${padStopwatchSegment(minutes)}:${padStopwatchSegment(seconds)}`
+  }
+  return `${padStopwatchSegment(minutes)}:${padStopwatchSegment(seconds)}`
+}
+
+export const formatElapsedStopwatchSinceInstant = (isoInstant: string): string =>
+  formatElapsedStopwatchFromMs(elapsedMsSinceInstant(isoInstant))
+
+/** True when `isoInstant` parses and is strictly before now. */
+export const isInstantInPast = (isoInstant: string): boolean => {
+  const parsed = Date.parse(isoInstant)
+  if (Number.isNaN(parsed)) {
+    return false
+  }
+  return parsed < Date.now()
+}
+
+/**
+ * Builds an ISO-8601 UTC instant for the next occurrence of a local wall time (HH:mm).
+ * If that time today is not after `referenceDate`, uses tomorrow.
+ */
+export const buildExpectedReturnInstantFromLocalTime = (
+  timeHHmm: string,
+  referenceDate: Date = new Date(),
+): string | null => {
+  const minutes = parseLocalTimeToMinutes(timeHHmm)
+  if (minutes == null) {
+    return null
+  }
+  const result = new Date(referenceDate)
+  result.setSeconds(0, 0)
+  result.setMilliseconds(0)
+  result.setHours(Math.floor(minutes / 60), minutes % 60)
+  if (result.getTime() <= referenceDate.getTime()) {
+    result.setDate(result.getDate() + 1)
+  }
+  return result.toISOString()
 }
 
 /**

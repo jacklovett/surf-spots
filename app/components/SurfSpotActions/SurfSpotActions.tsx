@@ -213,5 +213,3 @@ export const SurfSpotActions = memo((props: IProps) => {
     </div>
   )
 })
-
-SurfSpotActions.displayName = 'SurfSpotActions'

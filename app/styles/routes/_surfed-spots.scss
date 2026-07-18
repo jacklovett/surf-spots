@@ -16,18 +16,6 @@
   align-items: center;
 }
 
-/* Achievement Badge */
-.achievement-badge {
-  @include flex-center;
-  gap: $spacing-large;
-  margin-bottom: $spacing-large;
-
-  @media (max-width: 768px) {
-    flex-direction: column;
-    gap: $spacing-unit;
-  }
-}
-
 /* Stats Overview */
 .stats-overview {
   display: grid;
@@ -35,8 +23,7 @@
   gap: $spacing-large;
   margin-bottom: $spacing-x-large;
 
-  @media (max-width: 640px) {
-    grid-template-columns: 1fr;
+  @include single-column-grid-below(sm) {
     gap: $spacing-unit;
     padding: 0 $spacing-unit;
   }
@@ -73,8 +60,7 @@
     border: none;
   }
 
-  @media (max-width: 640px) {
-    padding: $spacing-large;
+  @include tight-padding-below(sm, $spacing-large, $spacing-large) {
     min-height: 120px;
   }
 }
@@ -99,7 +85,7 @@
 .wave-preferences {
   margin-bottom: $spacing-x-large;
 
-  @media (max-width: 640px) {
+  @include media(sm) {
     padding: 0 $spacing-unit;
   }
 
@@ -114,8 +100,7 @@
   grid-template-columns: repeat(3, 1fr);
   gap: $spacing-large;
 
-  @media (max-width: 640px) {
-    grid-template-columns: 1fr;
+  @include single-column-grid-below(sm) {
     gap: $spacing-unit;
   }
 }
@@ -137,8 +122,7 @@
     border-color: $primary-color;
   }
 
-  @media (max-width: 640px) {
-    padding: $spacing-large;
+  @include tight-padding-below(sm, $spacing-large, $spacing-large) {
     min-height: 100px;
   }
 }
@@ -155,7 +139,7 @@
   font-size: $font-size-x-large;
   text-align: center;
 
-  @media (max-width: 640px) {
+  @include media(sm) {
     font-size: $font-size-large;
   }
 }
@@ -169,7 +153,7 @@
   padding: $spacing-small 4px;
   @include horizontal-scrollbar;
 
-  @media (max-width: 640px) {
+  @include media(sm) {
     gap: $spacing-unit;
   }
 }
@@ -190,7 +174,7 @@
     border-color: $primary-color;
   }
 
-  @media (max-width: 640px) {
+  @include media(sm) {
     flex: 0 0 280px;
     min-width: 280px;
   }

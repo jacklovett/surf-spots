@@ -144,7 +144,8 @@ export default function SurfSpots() {
 
   /** Add session lives under this layout but should match add-surf-spot: header + form only (no map toolbar or trail). */
   const isAddSessionRoute =
-    pathname.startsWith('/surf-spots/') && /\/session\/?$/.test(pathname)
+    pathname.startsWith('/surf-spots/') &&
+    /\/session\/?$/.test(pathname)
 
   const loadingComponent = (
     <div className="page-loading-state">

@@ -18,7 +18,7 @@ import {
 import { roundCoordinate } from '~/utils/coordinateUtils'
 
 export const MAP_ACCESS_TOKEN = import.meta.env.VITE_MAP_ACCESS_TOKEN
-export const ICON_IMAGE_PATH = `/images/png/pin.png`
+export const MAP_PIN_IMAGE_PATH = '/images/png/pin.png'
 
 export const defaultMapCenter = {
   longitude: -9.2398383,
@@ -87,6 +87,28 @@ export const fitMapToSurfSpots = (
       duration: 1000, // Smooth animation
     },
   )
+}
+
+/**
+ * Fits the map viewport to a set of coordinates (e.g. session location plus nearby spots).
+ */
+export const fitMapToCoordinates = (
+  map: mapboxgl.Map,
+  coordinates: Coordinates[],
+  options: { padding?: number; maxZoom?: number; duration?: number } = {},
+): void => {
+  if (coordinates.length === 0) {
+    return
+  }
+
+  const { padding = 48, maxZoom = 14, duration = 800 } = options
+  const bounds = new mapboxgl.LngLatBounds()
+
+  coordinates.forEach((point) => {
+    bounds.extend([point.longitude, point.latitude])
+  })
+
+  map.fitBounds(bounds, { padding, maxZoom, duration })
 }
 
 /**
@@ -457,15 +479,13 @@ const addClusterLayers = (map: mapboxgl.Map) => {
 }
 
 const addMarkerLayers = (map: mapboxgl.Map) => {
-  // Check if source exists before trying to add layers
   const source = map.getSource('surfSpots')
   if (!source) {
     console.warn('SurfSpots source not found, skipping marker layers')
     return
   }
 
-  // Load the pin icon image
-  map.loadImage(`/images/png/pin.png`, (error, image) => {
+  map.loadImage(MAP_PIN_IMAGE_PATH, (error, image) => {
     if (error) {
       console.error('Error loading pin image:', error)
       return
@@ -476,17 +496,13 @@ const addMarkerLayers = (map: mapboxgl.Map) => {
       return
     }
 
-    // Check again if source still exists (map might have been reinitialized)
-    const currentSource = map.getSource('surfSpots')
-    if (!currentSource) {
+    if (!map.getSource('surfSpots')) {
       console.warn('Surf spots source no longer exists, skipping marker layer')
       return
     }
 
-    // Add the custom image to the map
     map.addImage('custom-pin', image)
 
-    // Add a layer using the custom icon
     try {
       map.addLayer({
         id: 'marker',
@@ -494,13 +510,13 @@ const addMarkerLayers = (map: mapboxgl.Map) => {
         source: 'surfSpots',
         filter: ['!', ['has', 'point_count']],
         layout: {
-          'icon-image': 'custom-pin', // Use the custom icon
-          'icon-size': 0.5, // Adjust size as needed
+          'icon-image': 'custom-pin',
+          'icon-size': 0.5,
           'icon-allow-overlap': true,
         },
       })
-    } catch (error) {
-      console.error('Error adding marker layer:', error)
+    } catch (layerError) {
+      console.error('Error adding marker layer:', layerError)
     }
   })
 }
@@ -571,6 +587,215 @@ const setupLayerInteractions = (
   map.on('mouseleave', ['clusters', 'marker'], setCursorStyle(''))
 }
 
+/** Keeps the map canvas sized to its container after layout changes. */
+export const resizeMap = (map?: mapboxgl.Map | null): void => {
+  if (map != null && !map._removed) {
+    map.resize()
+  }
+}
+
+type DomMarkerElementOptions = {
+  ariaHidden?: boolean
+  ariaLabel?: string
+  ariaPressed?: boolean
+  role?: string
+  tabIndex?: number
+  zIndex?: string
+}
+
+/**
+ * Creates a styled DOM element for {@link mapboxgl.Marker}. Prefer this over ad-hoc
+ * {@code document.createElement} in map components so marker setup stays consistent.
+ */
+export const createDomMarkerElement = (
+  classNames: string | string[],
+  options: DomMarkerElementOptions = {},
+): HTMLDivElement => {
+  if (typeof document === 'undefined') {
+    throw new Error('createDomMarkerElement can only be called on the client')
+  }
+
+  const element = document.createElement('div')
+  const classNameList = Array.isArray(classNames) ? classNames : [classNames]
+  classNameList.filter((className) => className !== '').forEach((className) => {
+    element.classList.add(className)
+  })
+
+  if (options.ariaHidden) {
+    element.setAttribute('aria-hidden', 'true')
+  }
+  if (options.ariaLabel != null) {
+    element.setAttribute('aria-label', options.ariaLabel)
+  }
+  if (options.ariaPressed != null) {
+    element.setAttribute('aria-pressed', String(options.ariaPressed))
+  }
+  if (options.role != null) {
+    element.setAttribute('role', options.role)
+  }
+  if (options.tabIndex != null) {
+    element.tabIndex = options.tabIndex
+  }
+  if (options.zIndex != null) {
+    element.style.zIndex = options.zIndex
+  }
+
+  return element
+}
+
+/** Wires click and keyboard activation for map markers that act as buttons. */
+export const attachDomMarkerButton = (
+  element: HTMLElement,
+  onActivate: () => void,
+): void => {
+  element.addEventListener('click', (event) => {
+    event.stopPropagation()
+    onActivate()
+  })
+
+  element.addEventListener('keydown', (event) => {
+    if (event.key !== 'Enter' && event.key !== ' ') {
+      return
+    }
+    event.preventDefault()
+    event.stopPropagation()
+    onActivate()
+  })
+}
+
+/** Adds a DOM-backed marker; used by feature maps that need custom pin styling. */
+export const addDomMarker = (
+  map: mapboxgl.Map,
+  coordinates: Coordinates,
+  element: HTMLElement,
+  anchor: mapboxgl.Anchor = 'bottom',
+): mapboxgl.Marker =>
+  new mapboxgl.Marker({ element, anchor })
+    .setLngLat([coordinates.longitude, coordinates.latitude])
+    .addTo(map)
+
+export const removeDomMarkers = (markers: mapboxgl.Marker[]): void => {
+  markers.forEach((marker) => marker.remove())
+}
+
+/** Creates or moves a DOM marker when coordinates change. */
+export const syncDomMarkerAtCoordinates = (
+  map: mapboxgl.Map,
+  markerRef: { current: mapboxgl.Marker | null },
+  coordinates: Coordinates,
+  createElement: () => HTMLElement,
+): mapboxgl.Marker => {
+  if (markerRef.current == null) {
+    const marker = addDomMarker(map, coordinates, createElement())
+    markerRef.current = marker
+    return marker
+  }
+
+  markerRef.current.setLngLat([coordinates.longitude, coordinates.latitude])
+  return markerRef.current
+}
+
+const EDGE_PAN_THRESHOLD_PX = 50
+const EDGE_PAN_SPEED_PX = 8
+
+/** Pans the map when a dragged marker nears the viewport edge. */
+export const panMapIfMarkerNearEdge = (
+  map: mapboxgl.Map,
+  lngLat: { lng: number; lat: number },
+): void => {
+  const mapContainer = map.getContainer()
+  const point = map.project([lngLat.lng, lngLat.lat])
+
+  let panX = 0
+  let panY = 0
+
+  if (point.x < EDGE_PAN_THRESHOLD_PX) {
+    panX = -EDGE_PAN_SPEED_PX
+  } else if (point.x > mapContainer.clientWidth - EDGE_PAN_THRESHOLD_PX) {
+    panX = EDGE_PAN_SPEED_PX
+  }
+
+  if (point.y < EDGE_PAN_THRESHOLD_PX) {
+    panY = -EDGE_PAN_SPEED_PX
+  } else if (point.y > mapContainer.clientHeight - EDGE_PAN_THRESHOLD_PX) {
+    panY = EDGE_PAN_SPEED_PX
+  }
+
+  if (panX !== 0 || panY !== 0) {
+    map.panBy([panX, panY], { duration: 0 })
+  }
+}
+
+interface AddDraggablePinMarkerOptions {
+  pinSize?: number
+  onDragEnd: (coordinates: Coordinates) => void
+  flyToZoom?: number
+  flyToDurationMs?: number
+}
+
+/** Places a draggable pin marker with edge-pan while dragging. */
+export const addDraggablePinMarker = (
+  map: mapboxgl.Map,
+  coordinates: Coordinates,
+  options: AddDraggablePinMarkerOptions,
+): mapboxgl.Marker => {
+  const pinElement = createPinElement(options.pinSize ?? 32)
+  pinElement.style.cursor = 'grab'
+
+  const marker = new mapboxgl.Marker({
+    element: pinElement,
+    draggable: true,
+  })
+    .setLngLat([coordinates.longitude, coordinates.latitude])
+    .addTo(map)
+
+  marker.on('dragstart', () => {
+    pinElement.style.cursor = 'grabbing'
+    document.body.style.overflow = 'hidden'
+    document.body.style.touchAction = 'none'
+  })
+
+  marker.on('drag', () => {
+    panMapIfMarkerNearEdge(map, marker.getLngLat())
+  })
+
+  marker.on('dragend', () => {
+    pinElement.style.cursor = 'grab'
+    document.body.style.overflow = ''
+    document.body.style.touchAction = ''
+    const lngLat = marker.getLngLat()
+    options.onDragEnd({
+      longitude: roundCoordinate(lngLat.lng),
+      latitude: roundCoordinate(lngLat.lat),
+    })
+  })
+
+  map.flyTo({
+    center: [coordinates.longitude, coordinates.latitude],
+    zoom: options.flyToZoom ?? 14,
+    duration: options.flyToDurationMs ?? 2000,
+  })
+
+  return marker
+}
+
+/** Removes any existing marker on the ref, then places a draggable pin. */
+export const setDraggablePinAtCoordinates = (
+  map: mapboxgl.Map,
+  markerRef: { current: mapboxgl.Marker | null },
+  coordinates: Coordinates,
+  onDragEnd: (coordinates: Coordinates) => void,
+): mapboxgl.Marker => {
+  if (markerRef.current != null) {
+    markerRef.current.remove()
+    markerRef.current = null
+  }
+
+  const marker = addDraggablePinMarker(map, coordinates, { onDragEnd })
+  markerRef.current = marker
+  return marker
+}
+
 /**
  * Simple add marker function used to plot coordinate when no extras are needed.
  * Used for surf details page where we don't need additional pop up
@@ -579,27 +804,11 @@ const setupLayerInteractions = (
  * @returns
  **/
 export const addMarkerForCoordinate = (coordinates: Coordinates, map: mapboxgl.Map) => {
-  // Load the pin icon image
-  map.loadImage(ICON_IMAGE_PATH, (error, image) => {
-    if (error) {
-      console.error('Error loading pin image:', error)
-      return
-    }
-
-    if (!image) {
-      console.error('No icon image found for marker!')
-      return
-    }
-
-    // Add the custom image to the map
-    map.addImage('custom-pin', image)
-    // Create the marker using the custom pin image
-    new mapboxgl.Marker({
-      element: createPinElement(),
-    })
-      .setLngLat([coordinates.longitude, coordinates.latitude])
-      .addTo(map)
+  new mapboxgl.Marker({
+    element: createPinElement(),
   })
+    .setLngLat([coordinates.longitude, coordinates.latitude])
+    .addTo(map)
 }
 
 /**
@@ -615,10 +824,6 @@ export const createPinElement = (size: number = 42) => {
   markerDiv.className = 'custom-pin'
   markerDiv.style.width = `${size}px`
   markerDiv.style.height = `${size}px`
-  markerDiv.style.backgroundImage = `url(${ICON_IMAGE_PATH})`
-  markerDiv.style.backgroundSize = 'contain'
-  markerDiv.style.backgroundRepeat = 'no-repeat'
-  markerDiv.style.backgroundPosition = 'center'
   return markerDiv
 }
 

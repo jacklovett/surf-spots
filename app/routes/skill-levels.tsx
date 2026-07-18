@@ -21,9 +21,21 @@ const SkillLevels = () => {
           />
         </div>
         <h1>Skill Levels</h1>
-        <p className="mb">
-          Understanding your skill level helps us provide better recommendations
-          and personalized statistics. Here's what each level means:
+
+        <section className="mb-l">
+          <h2 className="mb-s">Why we ask</h2>
+          <p className="mb">
+            Your skill level is saved on your profile and used when you log or end
+            sessions. It helps us show spot insights that match your experience,
+            such as typical crowd levels and how other surfers at your level rate
+            sessions at a break.
+          </p>
+        </section>
+
+        <h2 className="mb">What each level means</h2>
+        <p className="mb text-secondary">
+          Pick the level that best matches you today. You can change it on your
+          profile any time.
         </p>
 
         <section>

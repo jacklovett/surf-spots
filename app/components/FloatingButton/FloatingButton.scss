@@ -3,6 +3,7 @@
 button.floating-button {
   @include flex-center;
   position: relative;
+  right: $spacing-small;
   background: $white;
   border: 1px solid rgba(13, 22, 25, 0.1);
   cursor: pointer;
@@ -112,6 +113,10 @@ button.floating-button {
     &:hover {
       transform: none;
     }
+  }
+
+  @include media(desktop) {
+    right: $spacing-unit;
   }
 }
 

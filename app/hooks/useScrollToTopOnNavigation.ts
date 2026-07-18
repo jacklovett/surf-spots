@@ -86,7 +86,7 @@ export const useScrollToTopOnNavigation = () => {
       } catch {
         return
       }
-      scrollPageToTop({ smooth: true })
+      scrollPageToTop()
     }
 
     document.addEventListener('click', onLinkClick, true)
@@ -98,7 +98,7 @@ export const useScrollToTopOnNavigation = () => {
     if (!isNavigatingAway) {
       return
     }
-    scrollPageToTop({ smooth: true })
+    scrollPageToTop()
   }, [isNavigatingAway])
 
   // Forward navigations: stay at top after ScrollRestoration runs (child effect order).
@@ -106,6 +106,6 @@ export const useScrollToTopOnNavigation = () => {
     if (navigationType === 'POP') {
       return
     }
-    scrollPageToTop({ smooth: false })
+    scrollPageToTop()
   }, [location.key, navigationType])
 }

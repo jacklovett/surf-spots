@@ -1,11 +1,10 @@
-import classNames from 'classnames'
 import {
   AddSurfSpotMap,
   FormInput,
   InfoMessage,
   ViewSwitch,
   ErrorBoundary,
-  Icon,
+  UseMyLocationButton,
 } from '~/components'
 import { ERROR_BOUNDARY_MAP } from '~/utils/errorUtils'
 import { roundCoordinate } from '~/utils/coordinateUtils'
@@ -63,6 +62,7 @@ export const LocationSection = ({
     isAtUserLocation,
     setIsMapReady,
   } = locationSelection
+
   return (
     <>
       <h3 className="mv pt">Set Location</h3>
@@ -74,86 +74,34 @@ export const LocationSection = ({
           secondaryLabel="Enter Manually"
         />
         {findOnMap && (
-          <div className="find-by-location">
-            <button
-              type="button"
-              className={classNames('text-button', 'use-my-location-button', {
-                'use-my-location-button-requesting': isRequestingUserLocation,
-              })}
-              onClick={handleUseMyLocation}
-              disabled={
-                !isMapReady || isAtUserLocation || isRequestingUserLocation
-              }
-              aria-busy={isRequestingUserLocation}
-              aria-label={
-                isRequestingUserLocation
-                  ? 'Use my location - Processing'
-                  : 'Use my location'
-              }
-            >
-              <span className="text-button-content">
-                <span
-                  className={classNames('text-button-icon', {
-                    filled: !isRequestingUserLocation,
-                  })}
-                  aria-hidden="true"
-                >
-                  {isRequestingUserLocation ? (
-                    <span className="button-loading-spinner use-my-location-spinner" />
-                  ) : (
-                    <Icon iconKey="crosshair" useCurrentColor />
-                  )}
-                </span>
-                <span className="text-button-text">Use my location</span>
-              </span>
-            </button>
-          </div>
+          <UseMyLocationButton
+            onClick={handleUseMyLocation}
+            disabled={!isMapReady || isAtUserLocation}
+            isRequesting={isRequestingUserLocation}
+          />
         )}
       </div>
-      {findOnMap && (
-        <div className="find-spot-map">
-          <ErrorBoundary message={ERROR_BOUNDARY_MAP}>
-            <AddSurfSpotMap
-              onLocationUpdate={handleLocationUpdate}
-              initialCoordinates={
-                formState.longitude && formState.latitude
-                  ? {
-                      longitude: formState.longitude,
-                      latitude: formState.latitude,
-                    }
-                  : undefined
-              }
-              onMapReady={setIsMapReady}
-              ref={mapRef}
-            />
-          </ErrorBoundary>
-        </div>
-      )}
-      {!findOnMap && (
-        <FormInput
-          field={{
-            label: 'Continent',
-            name: 'continent',
-            type: 'select',
-            options: [
-              { key: '', value: '', label: 'Select a continent' },
-              ...continents.map((c) => ({
-                key: c.slug,
-                value: c.slug,
-                label: c.name,
-              })),
-            ],
-          }}
-          value={formState.continent}
-          onChange={(e) => onLocationChange('continent', e.target.value)}
-          errorMessage={errors.continent || ''}
-          showLabel={!!formState.continent}
-          required
-        />
-      )}
-      <div className="form-inline">
-        {findOnMap ? (
-          <>
+
+      {findOnMap ? (
+        <>
+          <div className="find-spot-map">
+            <ErrorBoundary message={ERROR_BOUNDARY_MAP}>
+              <AddSurfSpotMap
+                onLocationUpdate={handleLocationUpdate}
+                initialCoordinates={
+                  formState.longitude && formState.latitude
+                    ? {
+                        longitude: formState.longitude,
+                        latitude: formState.latitude,
+                      }
+                    : undefined
+                }
+                onMapReady={setIsMapReady}
+                ref={mapRef}
+              />
+            </ErrorBoundary>
+          </div>
+          <div className="form-inline">
             <FormInput
               field={{
                 label: 'Country',
@@ -188,9 +136,46 @@ export const LocationSection = ({
               disabled
               readOnly
             />
-          </>
-        ) : (
-          <>
+          </div>
+          {formState.longitude !== undefined && (
+            <input
+              type="hidden"
+              name="longitude"
+              value={formState.longitude}
+            />
+          )}
+          {formState.latitude !== undefined && (
+            <input type="hidden" name="latitude" value={formState.latitude} />
+          )}
+          {!!regionNotFoundMessage && !formState.region && (
+            <InfoMessage message={regionNotFoundMessage} />
+          )}
+        </>
+      ) : (
+        <>
+          <FormInput
+            field={{
+              label: 'Continent',
+              name: 'continent',
+              type: 'select',
+              options: [
+                { key: '', value: '', label: 'Select a continent' },
+                ...continents.map((continentOption) => ({
+                  key: continentOption.slug,
+                  value: continentOption.slug,
+                  label: continentOption.name,
+                })),
+              ],
+            }}
+            value={formState.continent}
+            onChange={(event) =>
+              onLocationChange('continent', event.target.value)
+            }
+            errorMessage={errors.continent || ''}
+            showLabel={!!formState.continent}
+            required
+          />
+          <div className="form-inline">
             <FormInput
               field={{
                 label: 'Country',
@@ -202,15 +187,17 @@ export const LocationSection = ({
                     value: '',
                     label: 'Select a country',
                   },
-                  ...filteredCountries.map((c) => ({
-                    key: c.id,
-                    value: c.id,
-                    label: c.name,
+                  ...filteredCountries.map((countryOption) => ({
+                    key: countryOption.id,
+                    value: countryOption.id,
+                    label: countryOption.name,
                   })),
                 ],
               }}
               value={formState.country || ''}
-              onChange={(e) => onLocationChange('country', e.target.value)}
+              onChange={(event) =>
+                onLocationChange('country', event.target.value)
+              }
               errorMessage={errors.country || ''}
               showLabel={!!formState.country}
               disabled={!formState.continent}
@@ -227,34 +214,28 @@ export const LocationSection = ({
                     value: '',
                     label: 'Select a region',
                   },
-                  ...filteredRegions.map((r) => ({
-                    key: r.id,
-                    value: r.id,
-                    label: r.name,
+                  ...filteredRegions.map((regionOption) => ({
+                    key: regionOption.id,
+                    value: regionOption.id,
+                    label: regionOption.name,
                   })),
                 ],
               }}
               value={formState.region || ''}
-              onChange={(e) => onLocationChange('region', e.target.value)}
+              onChange={(event) =>
+                onLocationChange('region', event.target.value)
+              }
               errorMessage={errors.region || ''}
               showLabel={!!formState.region}
               disabled={!formState.country}
               required
             />
-          </>
-        )}
-      </div>
-      {/* Hidden inputs to ensure region, longitude, and latitude are always included in form submission */}
+          </div>
+        </>
+      )}
+
+      {/* Hidden region so map mode still submits the resolved id (disabled fields are omitted). */}
       <input type="hidden" name="region" value={formState.region || ''} />
-      {findOnMap && formState.longitude !== undefined && (
-        <input type="hidden" name="longitude" value={formState.longitude} />
-      )}
-      {findOnMap && formState.latitude !== undefined && (
-        <input type="hidden" name="latitude" value={formState.latitude} />
-      )}
-      {regionNotFoundMessage && findOnMap && !formState.region && (
-        <InfoMessage message={regionNotFoundMessage} />
-      )}
       <div className="form-inline">
         <FormInput
           field={{
@@ -263,10 +244,10 @@ export const LocationSection = ({
             type: 'number',
           }}
           value={formState.longitude}
-          onChange={(e) =>
+          onChange={(event) =>
             onLocationChange(
               'longitude',
-              roundCoordinate(parseFloat(e.target.value)),
+              roundCoordinate(parseFloat(event.target.value)),
             )
           }
           errorMessage={errors.longitude || ''}
@@ -282,10 +263,10 @@ export const LocationSection = ({
             type: 'number',
           }}
           value={formState.latitude}
-          onChange={(e) =>
+          onChange={(event) =>
             onLocationChange(
               'latitude',
-              roundCoordinate(parseFloat(e.target.value)),
+              roundCoordinate(parseFloat(event.target.value)),
             )
           }
           errorMessage={errors.latitude || ''}

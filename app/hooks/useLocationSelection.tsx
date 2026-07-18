@@ -98,11 +98,7 @@ export const useLocationSelection = ({
     latitude: number
   } | null>(null)
   const onLocationChangeRef = useRef(onLocationChange)
-
-  // Keep ref updated with latest callback
-  useEffect(() => {
-    onLocationChangeRef.current = onLocationChange
-  }, [onLocationChange])
+  onLocationChangeRef.current = onLocationChange
 
   // Fetch initial countries/regions when editing
   useEffect(() => {

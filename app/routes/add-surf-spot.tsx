@@ -3,6 +3,8 @@ import { ActionFunction, data, LoaderFunction, useNavigate } from 'react-router'
 import { requireSessionCookie } from '~/services/session.server'
 import { cacheControlHeader, get, post, getDisplayMessage } from '~/services/networkService'
 import { createSurfSpotFromFormData } from '~/services/surfSpot.server'
+import { linkSessionsToSpot } from '~/services/surfSession'
+import { parseAddSpotSessionLinkParams } from '~/utils/surfSessionFormUtils'
 
 import SurfSpotForm, { LoaderData } from '~/components/SurfSpotForm'
 import { Continent, SurfSpot } from '~/types/surfSpots'
@@ -11,7 +13,7 @@ import {
   ERROR_BOUNDARY_GENERIC,
   ERROR_ADD_SURF_SPOT,
   ERROR_LOAD_CONTINENTS_ADD_SURF_SPOT,
-  SUCCESS_SURF_SPOT_ADDED,
+  surfSpotAddedSuccessMessage,
   httpStatusFromActionError,
 } from '~/utils/errorUtils'
 
@@ -45,7 +47,9 @@ export const loader: LoaderFunction = async ({ request }) => {
 
 export const action: ActionFunction = async ({ request }) => {
   try {
-    const payload = await createSurfSpotFromFormData(request)
+    const formData = await request.formData()
+    const sessionLinkParams = parseAddSpotSessionLinkParams(formData)
+    const payload = await createSurfSpotFromFormData(request, formData)
     const cookie = request.headers.get('Cookie') || ''
     const postResponse = await post<typeof payload, SurfSpot>(
       'surf-spots/management',
@@ -56,9 +60,33 @@ export const action: ActionFunction = async ({ request }) => {
     )
     const createdSurfSpot = postResponse?.data
 
+    let linkSessionsMessage: string | undefined
+    const createdSurfSpotId = createdSurfSpot?.id
+      ? Number(createdSurfSpot.id)
+      : NaN
+    if (sessionLinkParams && !Number.isNaN(createdSurfSpotId)) {
+      try {
+        const linkResult = await linkSessionsToSpot(
+          {
+            surfSpotId: createdSurfSpotId,
+            anchorLatitude: sessionLinkParams.anchorLatitude,
+            anchorLongitude: sessionLinkParams.anchorLongitude,
+            sessionId: sessionLinkParams.sessionId,
+          },
+          { headers: { Cookie: cookie } },
+        )
+        linkSessionsMessage = linkResult.message
+      } catch (linkError) {
+        console.error(
+          'Add surf spot: spot saved but linking GPS sessions failed',
+          linkError,
+        )
+      }
+    }
+
     return data(
       {
-        submitStatus: SUCCESS_SURF_SPOT_ADDED,
+        submitStatus: surfSpotAddedSuccessMessage(linkSessionsMessage),
         hasError: false,
         surfSpot: createdSurfSpot,
       },

@@ -73,6 +73,11 @@ $status-viewport-offset: $spacing-x-large;
 $form-input-height: 40px;
 $button-height: 56px;
 
+/* Breakpoints — use via media() / stack-below() etc. Component one-offs (420, 752…) stay local. */
+$bp-sm: 640px;
+$bp-md: 768px;
+$bp-lg: 1024px;
+
 /* Borders & Shadows */
 $form-border-radius: $spacing-unit;
 $content-border-radius: $spacing-unit;
@@ -86,16 +91,19 @@ $button-primary-border: #023d4d;
 $button-primary-hover-bg: #046380;
 $button-primary-active-bg: #022a36;
 
-/* Z-Index Layers */
+/* Z-index stack (leave gaps so new layers can slot in) */
 $z-index-base: 1;
-$z-index-overlay: 2;
-$z-index-toolbar: 10;
-$z-index-drawer: 30;
-$z-index-modal: 1000;
-$z-index-toast: 9999;
-$z-index-dropdown: 10000;
+$z-index-overlay: 10;
+$z-index-toolbar: 100;
+$z-index-floating: 200; // live-session banner, speed dial
+$z-index-header: 300;
+$z-index-drawer: 400;
+$z-index-modal: 500;
+$z-index-dropdown: 600; // form pickers above modals
+$z-index-toast: 700;
 
 :root {
   --primary-color: #046380;
   --accent-color: #3fc1c9;
+  --spacing-unit: #{$spacing-unit};
 }

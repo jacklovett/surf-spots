@@ -10,7 +10,10 @@ import { ErrorBoundary, SurfSpotPreview, SurfSpotActions } from '~/components'
 import { ERROR_BOUNDARY_SECTION } from '~/utils/errorUtils'
 import { ActionData, SurfSpotQuickActionSubmitHandler } from '~/types/api'
 
-export const useMapDrawer = (
+/**
+ * Opens the surf-spot preview drawer from a Mapbox marker/feature click.
+ */
+export const useSurfSpotDrawer = (
   onFetcherSubmit?: SurfSpotQuickActionSubmitHandler,
   surfActionFetcher?: FetcherWithComponents<ActionData>,
 ) => {
@@ -19,7 +22,7 @@ export const useMapDrawer = (
   const { openDrawer } = useLayoutContext()
   const { mergeSurfSpots } = useSurfSpotsContext()
 
-  const handleMarkerClick = useCallback(
+  const openSurfSpotDrawer = useCallback(
     (event: MapMouseEvent) => {
       if (event.originalEvent) {
         event.originalEvent.stopPropagation()
@@ -40,7 +43,6 @@ export const useMapDrawer = (
         // can update map markers and other context consumers.
         mergeSurfSpots([surfSpot])
 
-        // Open drawer with surf spot content
         const drawerContent = (
           <ErrorBoundary message={ERROR_BOUNDARY_SECTION}>
             <SurfSpotPreview
@@ -64,11 +66,11 @@ export const useMapDrawer = (
 
         openDrawer(drawerContent, 'right', surfSpot.name, drawerActions)
       } catch (error) {
-        console.error('Error handling marker click:', error)
+        console.error('Error opening surf spot drawer:', error)
       }
     },
     [user, navigate, openDrawer, onFetcherSubmit, surfActionFetcher, mergeSurfSpots],
   )
 
-  return { handleMarkerClick }
+  return { openSurfSpotDrawer }
 }

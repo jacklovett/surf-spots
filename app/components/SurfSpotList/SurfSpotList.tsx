@@ -57,12 +57,12 @@ const SurfSpotList = memo((props: IProps): JSX.Element => {
                   <tbody>
                     {/* Iterate over surf spots in the country */}
                     {groupedSurfSpots[continent][country].map((spot) => {
-                      const { id, name, region, type } = spot
+                      const { id, name, path,region, type } = spot
                       return (
                         <tr
                           key={id}
                           className="table-row"
-                          onClick={() => navigate(spot.path)}
+                          onClick={() => navigate(path)}
                         >
                           <td>{name}</td>
                           <td>{region?.name}</td>
@@ -80,7 +80,5 @@ const SurfSpotList = memo((props: IProps): JSX.Element => {
     </>
   )
 })
-
-SurfSpotList.displayName = 'SurfSpotList'
 
 export default SurfSpotList

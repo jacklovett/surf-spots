@@ -2,6 +2,7 @@ import {
   ActionFunction,
   data,
   LoaderFunction,
+  redirect,
   useFetcher,
   useLoaderData,
   useNavigate,
@@ -13,13 +14,18 @@ import {
   getDisplayMessage,
   httpStatusFromNetworkError,
 } from '~/services/networkService'
-import { requireFullUserProfile } from '~/services/session.server'
+import {
+  requireFullUserProfile,
+  requireSessionCookie,
+} from '~/services/session.server'
 import { handleUpdateSurfSession } from '~/services/surfSpot.server'
 import { getSurfSessionById } from '~/services/surfSession'
 import { Surfboard } from '~/types/surfboard'
 import {
   EXTERNAL_SESSION_PROVIDER_LABELS,
   ExternalSessionProvider,
+  SessionStatus,
+  SkillLevel,
   SurfSessionListItem,
 } from '~/types/surfSpots'
 import { ActionData } from '~/types/api'
@@ -28,13 +34,14 @@ import {
   ERROR_LOAD_SURF_SESSION,
   ERROR_METHOD_NOT_ALLOWED,
   ERROR_SESSION_ID_REQUIRED,
-  ERROR_SESSION_SKILL_LEVEL_REQUIRED,
   ERROR_SURF_SESSION_NOT_FOUND,
   ERROR_UPDATE_SURF_SESSION,
 } from '~/utils/errorUtils'
+import { sessionHasRecordedLiveStartLocation, parseSubmittedSkillLevel } from '~/utils/surfSessionFormUtils'
 import {
   ErrorBoundary,
   Page,
+  PageErrorRecoveryActions,
   SurfSessionForm,
   ContentStatus,
 } from '~/components'
@@ -60,7 +67,7 @@ const loadSurfboardsForUser = async (
 }
 
 export const loader: LoaderFunction = async ({ request, params }) => {
-  const user = await requireFullUserProfile(request)
+  await requireSessionCookie(request)
   const sessionId = params.id
   if (!sessionId || sessionId.trim() === '') {
     return data<LoaderData>(
@@ -81,18 +88,22 @@ export const loader: LoaderFunction = async ({ request, params }) => {
       return data<LoaderData>(
         {
           surfboards,
-          requiresSkillLevel: !user.skillLevel,
+          requiresSkillLevel: false,
           error: ERROR_SURF_SESSION_NOT_FOUND,
         },
         { status: 404 },
       )
     }
 
+    if (session.status === SessionStatus.IN_PROGRESS) {
+      throw redirect(`/end-session/${session.id}`)
+    }
+
     return data<LoaderData>(
       {
         session,
         surfboards,
-        requiresSkillLevel: !user.skillLevel,
+        requiresSkillLevel: false,
       },
       { headers: cacheControlHeader },
     )
@@ -130,23 +141,20 @@ export const action: ActionFunction = async ({ request, params }) => {
   try {
     const user = await requireFullUserProfile(request)
     const cookie = request.headers.get('Cookie') || ''
+    const session = await getSurfSessionById(sessionId, { headers: { Cookie: cookie } })
     const submittedSkillLevel = formData.get('skillLevel')
-    const skillLevel =
+    const skillLevel: SkillLevel | undefined =
       user.skillLevel ??
-      (typeof submittedSkillLevel === 'string' ? submittedSkillLevel : undefined)
+      session?.skillLevel ??
+      parseSubmittedSkillLevel(submittedSkillLevel)
 
-    if (!skillLevel) {
-      return data<ActionData>(
-        {
-          submitStatus: ERROR_SESSION_SKILL_LEVEL_REQUIRED,
-          hasError: true,
-        },
-        { status: 400 },
-      )
+    if (skillLevel != null) {
+      formData.set('skillLevel', skillLevel)
     }
 
-    formData.set('skillLevel', skillLevel)
-    return await handleUpdateSurfSession(formData, sessionId, cookie)
+    return await handleUpdateSurfSession(formData, sessionId, cookie, {
+      allowOptionalSurfSpotId: sessionHasRecordedLiveStartLocation(session),
+    })
   } catch (error) {
     console.error('Edit session action failed', error)
     if (error instanceof Response) {
@@ -180,7 +188,7 @@ export default function EditSessionRoute() {
   if (error || session == null) {
     return (
       <Page showHeader>
-        <ContentStatus isError={!!error}>
+        <ContentStatus isError={!!error} actions={<PageErrorRecoveryActions />}>
           <p>{error ?? ERROR_SURF_SESSION_NOT_FOUND}</p>
         </ContentStatus>
       </Page>
@@ -194,7 +202,9 @@ export default function EditSessionRoute() {
           <SurfSessionForm
             mode="edit"
             initialSession={session}
-            surfSpotId={String(session.surfSpotId)}
+            surfSpotId={
+              session.surfSpotId != null ? String(session.surfSpotId) : ''
+            }
             surfSpotName={session.surfSpotName || 'Surf spot'}
             formActionPath={`/edit-session/${session.id}`}
             fetcher={fetcher}

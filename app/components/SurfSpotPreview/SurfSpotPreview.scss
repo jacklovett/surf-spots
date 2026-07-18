@@ -11,6 +11,10 @@
     padding-bottom: $spacing-x-large;
   }
 
+  .surf-spot-preview-session-distance {
+    margin: 0 0 $spacing-unit;
+  }
+
   .surf-spot-preview-status-chips {
     @include flex-row;
     flex-wrap: wrap;

@@ -43,7 +43,7 @@ const Menu = () => {
       return
     }
 
-    scrollPageToTop({ smooth: true })
+    scrollPageToTop()
     navigate(path)
     closeDrawer()
   }

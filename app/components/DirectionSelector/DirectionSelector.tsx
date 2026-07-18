@@ -245,6 +245,4 @@ const DirectionSelector = memo(
   },
 )
 
-DirectionSelector.displayName = 'DirectionSelector'
-
 export default DirectionSelector

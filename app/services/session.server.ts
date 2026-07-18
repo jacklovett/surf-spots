@@ -41,14 +41,18 @@ export const requireSessionCookie = async (
 
 /**
  * Throws a redirect to /auth and destroys the session when an API call returns
- * 401 (session cookie valid but user no longer exists in the database).
+ * 401, 403, or 404 (Remix session is present but the API cannot authenticate
+ * the forwarded cookie or the user no longer exists in the database).
  * Call this in action/loader catch blocks before other error handling.
  */
 export const redirectOnUnauthorized = async (
   error: unknown,
   request: Request,
 ): Promise<never | void> => {
-  if (isNetworkError(error) && error.status === 401) {
+  if (
+    isNetworkError(error) &&
+    (error.status === 401 || error.status === 403 || error.status === 404)
+  ) {
     const session = await getSession(request.headers.get('Cookie'))
     throw redirect('/auth', {
       headers: { 'Set-Cookie': await destroySession(session) },
@@ -62,7 +66,8 @@ export const redirectOnUnauthorized = async (
  * skill level, emergency contact, etc.). The session cookie is forwarded so
  * the API can authenticate the call.
  *
- * Automatically redirects to /auth if the API returns 401 (user no longer exists).
+ * Automatically redirects to /auth if the API returns 401, 403, or 404 for
+ * the profile request (stale or invalid session relative to the API database).
  */
 export const requireFullUserProfile = async (
   request: Request,

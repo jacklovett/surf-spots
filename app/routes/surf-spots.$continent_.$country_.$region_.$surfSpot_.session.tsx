@@ -13,7 +13,10 @@ import {
   get,
   getDisplayMessage,
 } from '~/services/networkService'
-import { requireFullUserProfile } from '~/services/session.server'
+import {
+  requireFullUserProfile,
+  requireSessionCookie,
+} from '~/services/session.server'
 import { handleSaveSurfSession } from '~/services/surfSpot.server'
 import { SurfSpot } from '~/types/surfSpots'
 import { Surfboard } from '~/types/surfboard'
@@ -25,7 +28,6 @@ import {
   ERROR_LOAD_SURF_SPOT_FOR_ADD_SESSION,
   ERROR_METHOD_NOT_ALLOWED,
   ERROR_SAVE_SURF_SESSION,
-  ERROR_SESSION_SKILL_LEVEL_REQUIRED,
   ERROR_SURF_SPOT_SLUG_REQUIRED,
 } from '~/utils/errorUtils'
 
@@ -50,7 +52,7 @@ const loadSurfboardsForUser = async (
 }
 
 export const loader: LoaderFunction = async ({ request, params }) => {
-  const user = await requireFullUserProfile(request)
+  await requireSessionCookie(request)
   const { surfSpot: surfSpotSlug, country: countrySlug, region: regionSlug } =
     params
 
@@ -79,7 +81,7 @@ export const loader: LoaderFunction = async ({ request, params }) => {
     ])
 
     return data<LoaderData>(
-      { surfSpotDetails, surfboards, requiresSkillLevel: !user.skillLevel },
+      { surfSpotDetails, surfboards, requiresSkillLevel: false },
       {
         headers: cacheControlHeader,
       },
@@ -113,19 +115,13 @@ export const action: ActionFunction = async ({ request }) => {
     const submittedSkillLevel = formData.get('skillLevel')
     const skillLevel =
       user.skillLevel ??
-      (typeof submittedSkillLevel === 'string' ? submittedSkillLevel : undefined)
+      (typeof submittedSkillLevel === 'string' && submittedSkillLevel.trim() !== ''
+        ? submittedSkillLevel.trim()
+        : undefined)
 
-    if (!skillLevel) {
-      return data<ActionData>(
-        {
-          submitStatus: ERROR_SESSION_SKILL_LEVEL_REQUIRED,
-          hasError: true,
-        },
-        { status: 400 },
-      )
+    if (skillLevel != null) {
+      formData.set('skillLevel', skillLevel)
     }
-
-    formData.set('skillLevel', skillLevel)
     return await handleSaveSurfSession(formData, cookie)
   } catch (error) {
     console.error('Add session action failed', error)

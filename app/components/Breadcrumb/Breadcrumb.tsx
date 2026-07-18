@@ -84,5 +84,3 @@ export const Breadcrumb = memo(({ items }: IProps) => {
     </nav>
   )
 })
-
-Breadcrumb.displayName = 'Breadcrumb'

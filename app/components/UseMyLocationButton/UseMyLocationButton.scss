@@ -1,0 +1,28 @@
+@use 'styles/shared' as *;
+
+.find-by-location {
+  @media (max-width: 435px) {
+    margin-top: $spacing-unit;
+  }
+}
+
+button.text-button.use-my-location-button:disabled {
+  color: $disabled-text-color;
+  cursor: not-allowed;
+
+  .text-button-icon {
+    opacity: 0.7;
+  }
+}
+
+.use-my-location-button-requesting {
+  pointer-events: none;
+}
+
+.use-my-location-spinner {
+  width: 18px;
+  height: 18px;
+  border-width: 2px;
+  border-color: $primary-color;
+  border-top-color: transparent;
+}

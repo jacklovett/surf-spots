@@ -7,7 +7,7 @@ import {
   useLocation,
   useNavigate,
 } from 'react-router'
-import { ContentStatus } from '~/components'
+import { ContentStatus, PageErrorRecoveryActions } from '~/components'
 import { cacheControlHeader, get, post } from '~/services/networkService'
 import type { SurfSpot, Region, SurfSpotFilters } from '~/types/surfSpots'
 import { useSurfSpotsContext } from '~/contexts'
@@ -109,7 +109,7 @@ export default function Region() {
 
   if (error || !regionDetails) {
     return (
-      <ContentStatus isError>
+      <ContentStatus isError actions={<PageErrorRecoveryActions />}>
         <p>{error ?? "Couldn't find details for this region"}</p>
       </ContentStatus>
     )

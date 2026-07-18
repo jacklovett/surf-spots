@@ -1,5 +1,5 @@
 import { data, Link, useLoaderData } from 'react-router'
-import { ContentStatus } from '~/components'
+import { ContentStatus, PageErrorRecoveryActions } from '~/components'
 import { cacheControlHeader, get, getDisplayMessage } from '~/services/networkService'
 import { Continent } from '~/types/surfSpots'
 import { ERROR_LOAD_CONTINENTS } from '~/utils/errorUtils'
@@ -44,7 +44,7 @@ export default function Continents() {
 
   if (error || continents.length === 0) {
     return (
-      <ContentStatus isError>
+      <ContentStatus isError actions={<PageErrorRecoveryActions />}>
         <p>{error ?? ERROR_LOAD_CONTINENTS}</p>
       </ContentStatus>
     )

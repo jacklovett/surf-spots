@@ -9,7 +9,7 @@ const setScrollY = (y: number): void => {
   document.body.scrollTop = y
 }
 
-export const scrollPageToTop = (options?: { smooth?: boolean }) => {
+export const scrollPageToTop = () => {
   if (typeof window === 'undefined') {
     return
   }
@@ -19,10 +19,9 @@ export const scrollPageToTop = (options?: { smooth?: boolean }) => {
   const prefersReducedMotion = window.matchMedia(
     '(prefers-reduced-motion: reduce)',
   ).matches
-  const smooth = options?.smooth !== false && !prefersReducedMotion
   const startY = getScrollY()
 
-  if (startY <= 0 || !smooth) {
+  if (startY <= 0 || prefersReducedMotion) {
     setScrollY(0)
     return
   }

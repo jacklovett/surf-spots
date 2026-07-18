@@ -1,10 +1,13 @@
-import { HTMLInputTypeAttribute } from 'react'
+import { ChangeEvent, HTMLInputTypeAttribute } from 'react'
 import { FormInput } from './FormInput'
 
 export type InputElementType =
   | HTMLInputElement
   | HTMLTextAreaElement
   | HTMLSelectElement
+
+export const valueFromSelectChange = (event: ChangeEvent<InputElementType>) =>
+  (event.target as HTMLSelectElement).value
 
 export type FormInputType =
   | 'text'

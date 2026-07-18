@@ -14,7 +14,7 @@ export const Header = () => {
       <div
         className="center logo"
         onClick={() => {
-          scrollPageToTop({ smooth: true })
+          scrollPageToTop()
           navigate('/')
         }}
       >

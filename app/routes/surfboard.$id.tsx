@@ -13,6 +13,7 @@ import {
   ContentStatus,
   ConfirmDestructiveModal,
   Page,
+  PageErrorRecoveryActions,
   TextButton,
   MediaUpload,
   Details,
@@ -316,7 +317,7 @@ export default function SurfboardDetail() {
   if (error || !initialSurfboard?.id || !surfboard?.id) {
     return (
       <Page showHeader>
-        <ContentStatus isError>
+        <ContentStatus isError actions={<PageErrorRecoveryActions />}>
           <p>{error ?? ERROR_SURFBOARD_NOT_FOUND}</p>
         </ContentStatus>
       </Page>

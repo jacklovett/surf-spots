@@ -23,24 +23,55 @@
   }
 }
 
-/* Media Queries */
+/* Media Queries — named tokens from _variables.scss; mobile/tablet/desktop aliases kept for callers */
 @mixin media($breakpoint) {
-  @if $breakpoint == mobile {
-    @media (max-width: 600px) {
+  @if $breakpoint == sm or $breakpoint == mobile {
+    @media (max-width: $bp-sm) {
       @content;
     }
-  } @else if $breakpoint == tablet {
-    @media (max-width: 900px) {
+  } @else if $breakpoint == md or $breakpoint == tablet {
+    @media (max-width: $bp-md) {
+      @content;
+    }
+  } @else if $breakpoint == lg {
+    @media (max-width: $bp-lg) {
       @content;
     }
   } @else if $breakpoint == desktop {
-    @media (min-width: 900px) {
+    @media (min-width: $bp-lg) {
       @content;
     }
+  } @else {
+    @error "Unknown breakpoint `#{$breakpoint}`. Use sm, md, lg, mobile, tablet, or desktop.";
   }
 }
 
-/* Container Mixin */
+/* Shared responsive patterns */
+@mixin stack-below($breakpoint: md) {
+  @include media($breakpoint) {
+    flex-direction: column;
+    align-items: flex-start;
+    @content;
+  }
+}
+
+@mixin tight-padding-below(
+  $breakpoint: md,
+  $block: $spacing-large,
+  $inline: $spacing-small
+) {
+  @include media($breakpoint) {
+    padding: $block $inline;
+    @content;
+  }
+}
+
+@mixin single-column-grid-below($breakpoint: md) {
+  @include media($breakpoint) {
+    grid-template-columns: 1fr;
+    @content;
+  }
+}
 
 /* Generalized Container Mixin */
 @mixin container(
@@ -54,13 +85,13 @@
   padding: 0 $spacing-unit;
 
   @if $tablet-width {
-    @media (max-width: 900px) {
+    @include media(md) {
       max-width: $tablet-width;
     }
   }
 
   @if $desktop-width {
-    @media (min-width: 901px) {
+    @include media(desktop) {
       max-width: $desktop-width;
     }
   }

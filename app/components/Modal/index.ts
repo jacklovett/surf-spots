@@ -17,8 +17,4 @@ export type InfoModalState = {
   message: string
 }
 
-import ConfirmDestructiveModal from '../ConfirmDestructiveModal'
-import InfoModal from '../InfoModal'
-
-export { ConfirmDestructiveModal, InfoModal }
 export default Modal

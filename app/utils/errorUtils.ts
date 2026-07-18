@@ -92,11 +92,26 @@ export const SESSION_TIMING_INVALID_START_TIME =
   'Enter a valid start time (hour 00–23, minute 00–59).'
 export const SESSION_TIMING_INVALID_END_TIME =
   'Enter a valid end time (hour 00–23, minute 00–59).'
-/** Add session form: user has no profile skill and did not choose one on the form. */
-export const ERROR_SESSION_SKILL_LEVEL_REQUIRED =
-  'Select your skill level before saving this session.'
 export const SUCCESS_SURF_SESSION_SAVED = 'Your session was saved.'
 export const SUCCESS_SURF_SESSION_UPDATED = 'Your session was updated.'
+export const SUCCESS_SURF_SESSION_STARTED = 'Your session has started.'
+export const SUCCESS_SURF_SESSION_ENDED = 'Your session has ended.'
+export const ERROR_START_LIVE_SURF_SESSION =
+  'Unable to start your surf session right now. Please try again.'
+export const ERROR_LIVE_SESSION_EXPECTED_RETURN_REQUIRED =
+  'Choose when you expect to be back if you email your emergency contact.'
+export const ERROR_END_LIVE_SURF_SESSION =
+  'Unable to end your surf session right now. Please try again.'
+export const ERROR_END_SESSION_SPOT_SELECTION =
+  'Could not select that spot. Try again.'
+export const SUCCESS_END_SESSION_SPOT_CLEARED =
+  'Spot cleared. This session will save without a linked spot.'
+export const ERROR_SURF_SESSION_ALREADY_IN_PROGRESS =
+  'You already have a session in progress. End it before starting another.'
+export const ERROR_SURF_SESSION_IN_PROGRESS_USE_END =
+  'This session is still in progress. End it to add your session details.'
+export const ERROR_SURF_SESSION_NOT_IN_PROGRESS =
+  'This surf session is not in progress.'
 export const ERROR_LOAD_REGION_DATA = 'Failed to load region data. Please try again later.'
 export const ERROR_LOAD_CONTINENTS = "We couldn't load the continents. Please try again."
 /** Loader: continents for add-surf-spot form failed. */
@@ -128,6 +143,16 @@ export const ERROR_SURF_SPOT_SLUG_REQUIRED = 'Surf spot is required'
 export const SUCCESS_SURF_SPOT_UPDATED = 'Surf spot updated'
 export const ERROR_SURF_SPOT_ID_REQUIRED = 'Surf spot ID is required'
 export const SUCCESS_SURF_SPOT_ADDED = 'Surf spot added'
+
+/** Success copy after add-spot when GPS sessions were linked to the new spot. */
+export const surfSpotAddedSuccessMessage = (linkSessionsMessage?: string | null): string => {
+  const trimmedLinkMessage = linkSessionsMessage?.trim()
+  if (!trimmedLinkMessage) {
+    return SUCCESS_SURF_SPOT_ADDED
+  }
+  return `${SUCCESS_SURF_SPOT_ADDED}. ${trimmedLinkMessage}`
+}
+
 export const SUCCESS_NOTE_SAVED = 'Note saved successfully'
 
 /** Loader: GET user surf spots failed (any cause; details only in server logs). */
@@ -274,6 +299,8 @@ const INTERNAL_INDICATORS = [
   'null is not',
   'is not a function',
   'is not iterable',
+  'validation failed for object',
+  'error count:',
 ]
 
 /**

@@ -13,9 +13,7 @@
     white-space: nowrap;
   }
 
-  @media (max-width: 768px) {
-    flex-direction: column;
-    align-items: flex-start;
+  @include stack-below(md) {
     justify-content: flex-start;
     gap: $spacing-small;
 
@@ -59,9 +57,7 @@
   grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
   gap: $spacing-unit;
 
-  @media (max-width: 768px) {
-    grid-template-columns: 1fr;
-  }
+  @include single-column-grid-below(md);
 }
 
 @mixin page-actions {
@@ -125,9 +121,7 @@ h2 {
   width: 100%;
   margin: 0 auto;
 
-  @media (max-width: 768px) {
-    padding: $spacing-large $spacing-small;
-  }
+  @include tight-padding-below(md);
 
   .back-nav {
     margin-bottom: $spacing-unit;
@@ -143,7 +137,7 @@ h2 {
       margin: 0;
     }
 
-    @media (max-width: 768px) {
+    @include media(md) {
       flex-wrap: wrap;
       align-items: flex-start;
     }
@@ -164,7 +158,7 @@ h2 {
       margin: 0;
     }
 
-    @media (max-width: 768px) {
+    @include media(md) {
       flex-wrap: wrap;
       align-items: flex-start;
     }
@@ -212,7 +206,7 @@ h2 {
     gap: $spacing-small;
     flex-wrap: wrap;
 
-    @media (max-width: 768px) {
+    @include media(md) {
       margin-bottom: $spacing-unit;
     }
   }
@@ -229,9 +223,7 @@ h2 {
   }
 
   .row.space-between {
-    @media (max-width: 768px) {
-      flex-direction: column;
-      align-items: flex-start;
+    @include stack-below(md) {
       justify-content: flex-start;
       gap: 0;
 
@@ -325,8 +317,7 @@ h2 {
   gap: $spacing-unit;
   align-items: flex-start;
 
-  @media (max-width: 768px) {
-    flex-direction: column;
+  @include stack-below(md) {
     gap: 0;
   }
 

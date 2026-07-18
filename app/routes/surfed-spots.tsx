@@ -13,6 +13,7 @@ import {
   ErrorBoundary,
   Loading,
   Page,
+  PageErrorRecoveryActions,
   SurfMap,
   SurfSpotList,
 } from '~/components'
@@ -94,7 +95,7 @@ export default function SurfedSpots() {
   if (error) {
     return (
       <Page showHeader>
-        <ContentStatus isError>
+        <ContentStatus isError actions={<PageErrorRecoveryActions />}>
           <p>{error}</p>
         </ContentStatus>
       </Page>

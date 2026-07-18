@@ -39,6 +39,7 @@
 @use '../components/SurfSpotPreview/SurfSpotPreview';
 @use '../components/TextButton/TextButton';
 @use '../components/TimeInput/TimeInput';
+@use '../components/UseMyLocationButton/UseMyLocationButton';
 @use '../components/Toolbar/Toolbar';
 @use '../components/ViewSwitch/ViewSwitch';
 @use '../components/FeedItem/FeedItem';
@@ -48,6 +49,7 @@
 @use '../components/EmptyState/EmptyState';
 @use '../components/FloatingButton/FloatingButton';
 @use '../components/FloatingSpeedDial/FloatingSpeedDial';
+@use '../components/LiveSessionBanner/LiveSessionBanner';
 @use '../components/MediaUpload/MediaUpload';
 @use '../components/MediaGallery/MediaGallery';
 @use '../components/Toast/Toast';

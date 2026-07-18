@@ -374,6 +374,35 @@ export interface CreateSurfSessionMediaRequest {
   mediaType?: string
 }
 
+export enum SessionStatus {
+  IN_PROGRESS = 'IN_PROGRESS',
+  COMPLETED = 'COMPLETED',
+}
+
+export interface StartLiveSurfSessionRequest {
+  startLatitude?: number
+  startLongitude?: number
+  startIanaZoneId?: string
+  shareLocationWithEmergencyContact?: boolean
+  expectedReturnInstant?: string
+  skillLevel?: SkillLevel
+  surfboardId?: string
+}
+
+export interface EndLiveSurfSessionRequest {
+  surfSpotId?: number
+  waveSize?: SurfSessionWaveSize
+  crowdLevel?: CrowdLevel
+  waveFace?: WaveFace
+  sessionRating?: number
+  tide?: Tide
+  swellDirection?: string
+  windDirection?: string
+  sessionNotes?: string
+  skillLevel?: SkillLevel
+  surfboardId?: string
+}
+
 export interface SurfSessionListItem {
   id: number
   sessionDate: string
@@ -385,14 +414,19 @@ export interface SurfSessionListItem {
   /** ISO-8601 UTC instants when stored (wearables / partner sync). */
   sessionStartInstant?: string | null
   sessionEndInstant?: string | null
+  status?: SessionStatus | null
+  shareLocationWithEmergencyContact?: boolean
+  expectedReturnInstant?: string | null
   /** Integration source when synced; pairs with externalSessionId. */
   externalSessionProvider?: ExternalSessionProvider | null
   /** Provider-local id when synced. */
   externalSessionId?: string | null
   createdAt: string
-  surfSpotId: number
+  surfSpotId?: number | null
   surfSpotName: string
-  spotPath: string
+  startLatitude?: number | null
+  startLongitude?: number | null
+  spotPath?: string | null
   waveSize?: SurfSessionWaveSize | null
   crowdLevel?: CrowdLevel | null
   waveFace?: WaveFace | null
