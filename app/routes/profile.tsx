@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import {
   ActionFunction,
   data,
@@ -6,8 +6,10 @@ import {
   LoaderFunction,
   MetaFunction,
   redirect,
+  useActionData,
   useLoaderData,
   useFetcher,
+  useNavigation,
 } from 'react-router'
 import fs from 'fs/promises'
 import path from 'path'
@@ -26,7 +28,7 @@ import {
   requireSessionCookie,
   requireFullUserProfile,
 } from '~/services/session.server'
-import { useSettingsContext } from '~/contexts'
+import { useSettingsContext, useToastContext } from '~/contexts'
 import type { User } from '~/types/user'
 
 import {
@@ -43,7 +45,8 @@ import {
   SkillLevelHelpLink,
 } from '~/components'
 import { Location } from '~/components/LocationSelector'
-import { useSubmitStatus, useFormSubmission, useDestructiveConfirmBusy } from '~/hooks'
+import { useFormSubmission, useDestructiveConfirmBusy } from '~/hooks'
+import type { ActionData } from '~/types/api'
 import useFormValidation, {
   validateEmail,
   validateRequired,
@@ -63,8 +66,10 @@ import {
   ERROR_INVALID_WEIGHT,
   ERROR_POPULATE_LOCATION,
   ERROR_RETRIEVE_PROFILE,
+  DEFAULT_ERROR_MESSAGE,
   ERROR_UPDATE_PROFILE,
   SUCCESS_PROFILE_UPDATED,
+  messageForDisplay,
 } from '~/utils/errorUtils'
 import {
   convertHeightToDisplay,
@@ -273,11 +278,14 @@ export const action: ActionFunction = async ({ request }) => {
 
 const Profile = () => {
   const { settings } = useSettingsContext()
+  const { showSuccess, showError } = useToastContext()
   const { isFormSubmitting } = useFormSubmission()
+  const navigation = useNavigation()
+  const actionData = useActionData<ActionData>()
+  const profileSubmitPendingRef = useRef(false)
 
   const { locationData = [], user, error } = useLoaderData<LoaderData>()
 
-  const submitStatus = useSubmitStatus()
   const deleteFetcher = useFetcher()
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
   const {
@@ -285,6 +293,36 @@ const Profile = () => {
     beginSubmit: beginDeleteAccountSubmit,
     clearArmed: clearDeleteAccountArmed,
   } = useDestructiveConfirmBusy(showDeleteConfirm, deleteFetcher.state !== 'idle')
+
+  // Toast only when a profile save finishes — not when stale actionData is
+  // re-read after later revalidations (e.g. window focus).
+  useEffect(() => {
+    if (
+      navigation.state === 'submitting' &&
+      navigation.formMethod?.toUpperCase() === 'PUT'
+    ) {
+      profileSubmitPendingRef.current = true
+      return
+    }
+    if (
+      navigation.state !== 'idle' ||
+      !profileSubmitPendingRef.current ||
+      actionData?.submitStatus == null ||
+      typeof actionData.submitStatus !== 'string'
+    ) {
+      return
+    }
+    profileSubmitPendingRef.current = false
+    const message = messageForDisplay(
+      actionData.submitStatus.trim(),
+      actionData.hasError ? ERROR_UPDATE_PROFILE : DEFAULT_ERROR_MESSAGE,
+    )
+    if (actionData.hasError) {
+      showError(message)
+      return
+    }
+    showSuccess(message)
+  }, [navigation.state, navigation.formMethod, actionData, showSuccess, showError])
 
   useEffect(() => {
     if (deleteFetcher.state !== 'idle' || !showDeleteConfirm) {
@@ -390,7 +428,7 @@ const Profile = () => {
         <FormComponent
           isDisabled={!hasUnsavedChanges || !isFormValid}
           submitLabel="Save Changes"
-          submitStatus={submitStatus}
+          submitStatus={null}
           method="put"
         >
           <FormInput

@@ -120,24 +120,59 @@
     margin-left: 0;
   }
 
-  .emergency-contact-country-select-list {
+  .emergency-contact-country-select-dropdown {
     position: absolute;
     top: calc(100% + 4px);
     left: 0;
     z-index: $z-index-dropdown;
+    @include flex-column;
     min-width: min(352px, 88vw);
     max-width: min(448px, 88vw);
     max-height: 320px;
+    background: $background-color;
+    border: 1px solid $outline-color;
+    box-sizing: border-box;
+    overflow: hidden;
+  }
+
+  .emergency-contact-country-select-search {
+    flex-shrink: 0;
+    width: 100%;
+    min-height: 36px;
+    margin: 0;
+    padding: $spacing-small;
+    border: none;
+    border-bottom: 1px solid $outline-color;
+    border-radius: 0;
+    background: $background-color;
+    box-sizing: border-box;
+    font: inherit;
+    font-size: $font-size-small;
+    color: inherit;
+
+    &:focus {
+      outline: none;
+      box-shadow: inset 0 0 0 2px $focus-color;
+    }
+  }
+
+  .emergency-contact-country-select-list {
+    flex: 1;
+    min-height: 0;
     margin: 0;
     padding: 0;
     list-style: none;
-    background: $background-color;
-    border: 1px solid $outline-color;
-    border-radius: 0;
-    box-shadow: none;
     overflow-y: auto;
     box-sizing: border-box;
     @include vertical-scrollbar;
+  }
+
+  .emergency-contact-country-select-empty {
+    margin: 0;
+    padding: $spacing-unit $spacing-small;
+    list-style: none;
+    color: $text-secondary;
+    font-size: $font-size-small;
   }
 
   .emergency-contact-country-select-divider {
@@ -172,14 +207,19 @@
     line-height: 1.5;
     text-align: left;
 
-    &:hover,
-    &:focus-visible {
+    &:hover {
       background: $text-hover-background;
     }
   }
 
   .emergency-contact-country-select-option.emergency-contact-country-select-option-selected {
     background: $background-section;
+  }
+
+  // Keyboard focus via aria-activedescendant (DOM focus stays on the combobox).
+  .emergency-contact-country-select-option.emergency-contact-country-select-option-active {
+    background: $text-hover-background;
+    box-shadow: inset 0 0 0 2px $focus-color;
   }
 
   .emergency-contact-country-select-option-label {

@@ -56,6 +56,7 @@ export const EmergencyContactPhoneField = ({
         numberInputProps={{
           id: 'emergencyContactPhone-input',
           'aria-invalid': errorMessage ? true : undefined,
+          autoComplete: 'tel-national',
         }}
         placeholder="Phone number"
       />
