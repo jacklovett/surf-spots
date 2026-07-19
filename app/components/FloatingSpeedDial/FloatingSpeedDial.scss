@@ -5,34 +5,21 @@
   right: $spacing-small;
   bottom: $spacing-unit;
   z-index: $z-index-floating;
+  pointer-events: none;
 
   @include media(desktop) {
     right: $spacing-unit;
   }
 
-  body.drawer-open & {
+  body.drawer-open & .speed-dial-trigger {
     pointer-events: none;
   }
-}
-
-.speed-dial-backdrop {
-  position: fixed;
-  inset: 0;
-  background: transparent;
-  z-index: -1;
-  cursor: default;
-  border: none;
-  padding: 0;
-  margin: 0;
 }
 
 .speed-dial-container {
   @include flex-column;
   align-items: flex-end;
   gap: $spacing-small;
-  // The invisible action items above the trigger inflate this container's hit area.
-  // Disable pointer events on the container and re-enable them per interactive child.
-  pointer-events: none;
 }
 
 .speed-dial-trigger {

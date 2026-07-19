@@ -1,4 +1,4 @@
-import { useState, useEffect, CSSProperties, useMemo } from 'react'
+import { useState, useEffect, useRef, CSSProperties, useMemo } from 'react'
 import { useNavigate, useLocation } from 'react-router'
 import classNames from 'classnames'
 
@@ -7,7 +7,7 @@ import Icon, { IconKey } from '../Icon'
 import { POST_AUTH_REDIRECT_PATH } from '~/constants/postAuthRedirect'
 import { liveSessionDetailsPath } from '~/constants/liveSessionPaths'
 import { useLiveSessionContext, useUserContext } from '~/contexts'
-import { useEndLiveSession } from '~/hooks/useEndLiveSession'
+import { useClickOutside, useEndLiveSession } from '~/hooks'
 
 const CONTENT_PATH_PREFIXES = [
   '/surf-spots',
@@ -52,6 +52,7 @@ export const FloatingSpeedDial = () => {
   const { inProgressSession } = useLiveSessionContext()
   const { endSession, isEnding } = useEndLiveSession()
   const [isOpen, setIsOpen] = useState(false)
+  const dialRef = useRef<HTMLDivElement>(null)
   const navigate = useNavigate()
   const { pathname } = useLocation()
 
@@ -98,6 +99,8 @@ export const FloatingSpeedDial = () => {
     }
   }
 
+  useClickOutside(dialRef, close, isOpen)
+
   useEffect(() => {
     if (!isOpen) {
       return
@@ -116,15 +119,10 @@ export const FloatingSpeedDial = () => {
   }
 
   return (
-    <div className={classNames('floating-speed-dial', { open: isOpen })}>
-      {isOpen && (
-        <button
-          className="speed-dial-backdrop"
-          onClick={close}
-          aria-label="Close quick add menu"
-          type="button"
-        />
-      )}
+    <div
+      ref={dialRef}
+      className={classNames('floating-speed-dial', { open: isOpen })}
+    >
       <div className="speed-dial-container">
         <ul
           className="speed-dial-actions"
