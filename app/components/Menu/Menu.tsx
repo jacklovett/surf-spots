@@ -4,6 +4,7 @@ import {
   profileMenuItems,
   spotsMenuItems,
   collectionMenuItems,
+  infoMenuItems,
 } from './index'
 import { ErrorBoundary } from '../index'
 import { ERROR_BOUNDARY_SECTION } from '~/utils/errorUtils'
@@ -66,6 +67,12 @@ const Menu = () => {
         <MenuSection
           title="Account"
           items={profileMenuItems}
+          onItemClick={handleMenuItemClick}
+          defaultOpen
+        />
+        <MenuSection
+          title="Info"
+          items={infoMenuItems}
           onItemClick={handleMenuItemClick}
           defaultOpen
         />

@@ -1,6 +1,32 @@
 import { test, expect } from '@playwright/test'
 
 test.describe('Navigation', () => {
+  test('should list About Us, FAQ, and Contact under Info, not Account', async ({
+    page,
+  }) => {
+    await page.goto('/')
+    await page.getByRole('button', { name: 'Open menu' }).click()
+
+    const drawer = page.locator('.menu-drawer-content')
+    await expect(drawer).toBeVisible()
+
+    const accountSection = drawer.locator('.menu-section').filter({
+      has: page.getByRole('button', { name: 'Account' }),
+    })
+    const infoSection = drawer.locator('.menu-section').filter({
+      has: page.getByRole('button', { name: 'Info' }),
+    })
+
+    await expect(infoSection.getByText('About Us')).toBeVisible()
+    await expect(infoSection.getByText('FAQ')).toBeVisible()
+    await expect(infoSection.getByText('Contact')).toBeVisible()
+
+    await expect(accountSection.getByText('Profile')).toBeVisible()
+    await expect(accountSection.getByText('About Us')).toHaveCount(0)
+    await expect(accountSection.getByText('FAQ')).toHaveCount(0)
+    await expect(accountSection.getByText('Contact')).toHaveCount(0)
+  })
+
   test('should navigate between main pages', async ({ page }) => {
     // Start from landing page
     await page.goto('/')

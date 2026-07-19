@@ -61,10 +61,13 @@ export const collectionMenuItems: MenuItem[] = [
 export const profileMenuItems: MenuItem[] = [
   { key: 'profile', icon: 'profile', label: 'Profile', path: '/profile' },
   { key: 'settings', icon: 'cog', label: 'Settings', path: '/settings' },
+  { key: 'logout', icon: 'logout', label: 'Logout', path: '/auth/logout' },
+]
+
+export const infoMenuItems: MenuItem[] = [
   { key: 'about-us', icon: 'info-inverted', label: 'About Us', path: '/about-us' },
   { key: 'faq', icon: 'question', label: 'FAQ', path: '/faq' },
   { key: 'contact', icon: 'envelope', label: 'Contact', path: '/contact' },
-  { key: 'logout', icon: 'logout', label: 'Logout', path: '/auth/logout' },
 ]
 
 export default Menu
