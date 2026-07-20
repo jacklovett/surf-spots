@@ -131,16 +131,12 @@ export const SignUpPromptProvider = ({
             <>
               <p>Save every surf session and build your personal timeline.</p>
               <ul className="benefits-list">
-              <li>
-                  Start a live session to record where you surfed and how long you
-                  were out
-                </li>
                 <li>
-                  Share your location with your emergency contact so they can rest easy knowing you are safe.
+                  Start a live session: where you surfed and how long you were out
                 </li>
-                <li>Note conditions, crowd level, and how it went</li>
-                  <li>Remember the board you rode</li>
-                  <li>Build a clean history of your progression</li>
+                <li>Share your location with your emergency contact</li>
+                <li>Note conditions, crowd, board, and how it went</li>
+                <li>Build a clean history of your progression</li>
               </ul>
             </>
           ),

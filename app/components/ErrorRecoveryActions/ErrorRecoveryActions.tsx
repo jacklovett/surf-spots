@@ -1,16 +1,17 @@
 import Button from '../Button'
 
-import type { ErrorRecoverySecondaryAction } from './index'
-
 interface ErrorRecoveryActionsProps {
   onRetry: () => void
   retryLabel?: string
   retryLoading?: boolean
-  secondaryAction?: ErrorRecoverySecondaryAction
+  secondaryAction?: {
+    label: string
+    onClick: () => void
+  }
 }
 
 /**
- * Composable recovery button row. No destinations baked in — callers pass them.
+ * Composable recovery button row. No destinations baked in. Callers pass them.
  */
 export const ErrorRecoveryActions = ({
   onRetry,
