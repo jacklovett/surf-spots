@@ -1,5 +1,8 @@
 import { post } from '~/services/networkService'
-import { calculateDistance } from '~/services/mapService'
+import {
+  calculateDistance,
+  SURF_SPOTS_WITHIN_BOUNDS_PATH,
+} from '~/services/mapService'
 import { BoundingBox, Coordinates, SurfSpot } from '~/types/surfSpots'
 
 export const NEARBY_SPOTS_RADIUS_KM = 25
@@ -59,7 +62,7 @@ export const fetchNearbySurfSpots = async (
   }
 
   const response = await post<BoundingBox & { userId?: string }, SurfSpot[]>(
-    'surf-spots/within-bounds',
+    SURF_SPOTS_WITHIN_BOUNDS_PATH,
     payload,
   )
 

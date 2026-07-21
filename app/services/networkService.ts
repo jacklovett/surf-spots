@@ -4,9 +4,13 @@ import {
   ERROR_REQUEST_TIMEOUT,
 } from '~/utils/errorUtils'
 
+// TODO(auth-cookie-domain): INTERIM BFF prefix — remove with the /api/backend proxy
+// when shared-domain cookies ship (surf-spots-api/docs/staging-domain-setup.md).
+export const BACKEND_PROXY_PREFIX = '/api/backend'
+
 // Use process.env for server-side (Remix actions) and import.meta.env for client-side
 // In production builds, Vite env vars need to be available to server code
-const API_URL = 
+const API_URL =
   (typeof process !== 'undefined' && process.env?.VITE_API_URL) ||
   import.meta.env?.VITE_API_URL ||
   ''
@@ -22,6 +26,57 @@ const SERVER_SIDE_ORIGIN =
   typeof process !== 'undefined' && typeof window === 'undefined'
     ? process.env?.BASE_URL
     : undefined
+
+/**
+ * Resolve where a networkService call should go.
+ *
+ * - Absolute http(s) → external (e.g. S3); no credentials
+ * - Path starting with `/` → same-origin Remix route
+ * - Spring-relative path (`countries/...`):
+ *   - Browser → `/api/backend/...` (interim BFF; see TODO below)
+ *   - Server → `VITE_API_URL/...` directly
+ *
+ * TODO(auth-cookie-domain): INTERIM — browser should call VITE_API_URL directly
+ * once app + API share a parent domain and SESSION_COOKIE_DOMAIN is set. Then
+ * TODO(auth-cookie-domain): delete the browser branch that rewrites to BACKEND_PROXY_PREFIX,
+ * and remove the BFF (`backendProxy.server.ts`, `routes/api.backend.$.ts`, and
+ * BACKEND_PROXY_PREFIX above). Guide: surf-spots-api/docs/staging-domain-setup.md.
+ * Correct approach is shared-domain cookies, not a permanent Remix proxy.
+ */
+export const resolveNetworkRequestUrl = (
+  endpoint: string,
+  options?: { isBrowser?: boolean },
+): {
+  url: string
+  injectServerOrigin: boolean
+  credentials: RequestCredentials
+} => {
+  const isBrowser = options?.isBrowser ?? typeof window !== 'undefined'
+
+  if (endpoint.startsWith('http://') || endpoint.startsWith('https://')) {
+    return { url: endpoint, injectServerOrigin: false, credentials: 'omit' }
+  }
+
+  if (endpoint.startsWith('/')) {
+    return { url: endpoint, injectServerOrigin: false, credentials: 'include' }
+  }
+
+  const springPath = endpoint.replace(/^\/+/, '')
+  // TODO(auth-cookie-domain): remove this browser→BFF rewrite after shared-domain cutover.
+  if (isBrowser) {
+    return {
+      url: `${BACKEND_PROXY_PREFIX}/${springPath}`,
+      injectServerOrigin: false,
+      credentials: 'include',
+    }
+  }
+
+  return {
+    url: `${API_URL}/${springPath}`,
+    injectServerOrigin: true,
+    credentials: 'include',
+  }
+}
 
 export const cacheControlHeader = {
   'Cache-Control': 'public, max-age=3600, stale-while-revalidate=86400',
@@ -233,10 +288,13 @@ const performFetch = async <B = undefined>(
   options: RequestOptions = {},
   requestBody?: B,
 ): Promise<Response> => {
-  const isFullUrl = endpoint.startsWith('http://') || endpoint.startsWith('https://')
-  const fullUrl = isFullUrl ? endpoint : `${API_URL}/${endpoint}`
+  const { url: fullUrl, injectServerOrigin, credentials } =
+    resolveNetworkRequestUrl(endpoint)
 
-  if (!isFullUrl && !API_URL) {
+  const isFullUrl = endpoint.startsWith('http://') || endpoint.startsWith('https://')
+  const isSpringRelativePath = !isFullUrl && !endpoint.startsWith('/')
+
+  if (isSpringRelativePath && !API_URL && typeof window === 'undefined') {
     const error = new Error(DEFAULT_ERROR_MESSAGE) as NetworkError
     error.status = 500
     error.responseSummary = {
@@ -261,26 +319,24 @@ const performFetch = async <B = undefined>(
     ...(fetchInit.headers as Record<string, string>),
   }
   if (!isFullUrl) {
-    (headers as Record<string, string>)['Accept'] = 'application/json'
+    ;(headers as Record<string, string>)['Accept'] = 'application/json'
   }
   const isFileOrBlob = requestBody instanceof File || requestBody instanceof Blob
   if (requestBody && !isFileOrBlob) {
-    (headers as Record<string, string>)['Content-Type'] = 'application/json'
+    ;(headers as Record<string, string>)['Content-Type'] = 'application/json'
   }
   if (
-    !isFullUrl &&
+    injectServerOrigin &&
     SERVER_SIDE_ORIGIN &&
     !(headers as Record<string, string>)['Origin']
   ) {
-    (headers as Record<string, string>)['Origin'] = SERVER_SIDE_ORIGIN
+    ;(headers as Record<string, string>)['Origin'] = SERVER_SIDE_ORIGIN
   }
 
   try {
     const response = await fetch(fullUrl, {
       ...fetchInit,
-      // Always include credentials for API requests to send session cookies
-      // Only omit for external URLs (like S3 uploads)
-      credentials: isFullUrl ? 'omit' : 'include',
+      credentials,
       body: requestBody
         ? isFileOrBlob
           ? requestBody

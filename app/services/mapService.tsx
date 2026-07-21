@@ -305,6 +305,13 @@ export const getRegionAndCountryFromCoordinates = async (
 /** Timeout for within-bounds request (e.g. cold start). Generous for production. */
 export const WITHIN_BOUNDS_TIMEOUT_MS = 30_000
 
+/**
+ * Spring path for viewport surf-spot queries (`POST .../surf-spots/within-bounds`).
+ * TODO(auth-cookie-domain): browser currently reaches this via interim `/api/backend`
+ * BFF; after shared-domain cookies, networkService will call VITE_API_URL directly.
+ */
+export const SURF_SPOTS_WITHIN_BOUNDS_PATH = 'surf-spots/within-bounds'
+
 export const fetchSurfSpotsByBounds = async (
   map: mapboxgl.Map,
   userId?: string,
@@ -332,7 +339,7 @@ export const fetchSurfSpotsByBounds = async (
     const withinBoundsResponse = await post<
       BoundingBox & Partial<BackendFilterFormat> & { userId?: string },
       SurfSpot[]
-    >('surf-spots/within-bounds', payload, {
+    >(SURF_SPOTS_WITHIN_BOUNDS_PATH, payload, {
       timeoutMs: options?.timeoutMs ?? WITHIN_BOUNDS_TIMEOUT_MS,
     })
     return withinBoundsResponse?.data ?? []
