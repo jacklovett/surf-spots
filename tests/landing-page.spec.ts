@@ -15,14 +15,14 @@ test.describe('Landing Page', () => {
     await expect(heroCtaButton).toBeVisible()
   })
 
-  test('should navigate to sign up when clicking hero CTA', async ({
+  test('should navigate to surf spots when clicking hero CTA', async ({
     page,
   }) => {
     await page.goto('/')
 
     await page.click('.hero-cta .button')
 
-    await expect(page).toHaveURL(/\/auth\/sign-up/)
+    await expect(page).toHaveURL(/\/surf-spots/)
   })
 
   test('should display features sections', async ({ page }) => {
@@ -62,5 +62,8 @@ test.describe('Landing Page', () => {
 
     const finalCtaButton = page.locator('.cta .button')
     await expect(finalCtaButton).toBeVisible()
+
+    await finalCtaButton.click()
+    await expect(page).toHaveURL(/\/surf-spots/)
   })
 })

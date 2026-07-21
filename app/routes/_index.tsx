@@ -52,9 +52,9 @@ export default function Index() {
                 <div className="hero-cta">
                   <NavButton
                     label="Start Your Surf Map"
-                    to="/auth/sign-up"
+                    to="/surf-spots"
                     variant="secondary"
-                    ariaLabel="Create a free account to start your surf map"
+                    ariaLabel="Explore surf spots and start your surf map"
                   />
                 </div>
               </div>
@@ -218,15 +218,15 @@ export default function Index() {
           <div className="container">
             <h2>Ready to Never Forget a Wave?</h2>
             <p>
-              Create a free account and start mapping the spots you have
-              surfed.
+              Browse spots worldwide, then sign up free when you are ready to
+              map the ones you have surfed.
             </p>
             <div className="cta-buttons">
               <NavButton
                 label="Start Your Surf Map"
-                to="/auth/sign-up"
+                to="/surf-spots"
                 variant="secondary"
-                ariaLabel="Create a free account to start your surf map"
+                ariaLabel="Explore surf spots to start your surf map"
               />
             </div>
           </div>
