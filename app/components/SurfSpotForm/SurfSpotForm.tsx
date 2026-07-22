@@ -17,6 +17,7 @@ import {
   directionStringToArray,
   directionArrayToString,
 } from '~/utils/surfSpotUtils'
+import { getDistanceUnits } from '~/utils/unitUtils'
 import { ActionData } from '~/types/api'
 import { determineInitialOptions, LoaderData } from './index'
 import {
@@ -83,8 +84,7 @@ export const SurfSpotForm = (props: SurfSpotFormProps) => {
   const { settings } = useSettingsContext()
   const { preferredUnits } = settings
 
-  const distanceUnits = preferredUnits === 'metric' ? 'km' : 'mi'
-  const waveUnits = preferredUnits === 'metric' ? 'm' : 'ft'
+  const distanceUnits = getDistanceUnits(preferredUnits)
 
   const fetcher = useFetcher<ActionData>()
   const [searchParams] = useSearchParams()
@@ -256,8 +256,8 @@ export const SurfSpotForm = (props: SurfSpotFormProps) => {
         windDirection: directionArrayToString(initialWindDirection),
         tide: surfSpot?.tide || '',
         waveDirection: surfSpot?.waveDirection || '',
-        minSurfHeight: surfSpot?.minSurfHeight ?? '',
-        maxSurfHeight: surfSpot?.maxSurfHeight ?? '',
+        minSurfHeight: surfSpot?.minSurfHeight,
+        maxSurfHeight: surfSpot?.maxSurfHeight,
         parking: surfSpot?.parking || '',
         foodNearby: !!surfSpot?.foodNearby,
         skillLevel: surfSpot?.skillLevel || '',
@@ -705,7 +705,7 @@ export const SurfSpotForm = (props: SurfSpotFormProps) => {
               }}
               swellDirectionArray={swellDirectionArray}
               windDirectionArray={windDirectionArray}
-              waveUnits={waveUnits}
+              preferredUnits={preferredUnits}
               onSwellDirectionChange={setSwellDirectionArray}
               onWindDirectionChange={setWindDirectionArray}
               onChange={handleChange}

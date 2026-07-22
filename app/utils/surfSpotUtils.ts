@@ -1,21 +1,9 @@
 import { Direction, SwellSeason } from '~/types/surfSpots'
 import { DIRECTIONS } from '~/components/ConditionIcons/DirectionIcon'
-
-/**
- * Rounds a value to appropriate precision for surf height display
- * - Feet: Always rounded to whole numbers (e.g., 2ft, 3ft, 4-6ft)
- * - Meters: 1 decimal place if < 1m (e.g., 0.6m), otherwise round to 1 decimal if meaningful (e.g., 1.2m), or whole number (e.g., 1m, 2m)
- */
-const roundSurfHeight = (value: number, isImperial: boolean): number => {
-  if (isImperial) {
-    // Feet: Always round to whole number
-    return Math.round(value)
-  } else {
-    // Meters: 1 decimal if < 1m, otherwise round to nearest 0.1
-    // If the decimal is .0, it will be formatted as a whole number
-    return Math.round(value * 10) / 10
-  }
-}
+import {
+  convertSurfHeightToDisplay,
+  type PreferredUnits,
+} from '~/utils/unitUtils'
 
 export const formatSurfHeightRange = (
   preferredUnits: string,
@@ -26,22 +14,15 @@ export const formatSurfHeightRange = (
     return '-'
   }
 
-  const isImperial = preferredUnits === 'imperial'
-
-  // Convert meters to feet if imperial
-  const convertToDisplayValue = (height: number): number => {
-    if (isImperial) {
-      // Convert meters to feet (1m ≈ 3.28084ft)
-      return height * 3.28084
-    }
-    return height
-  }
+  const units: PreferredUnits =
+    preferredUnits === 'imperial' ? 'imperial' : 'metric'
+  const isImperial = units === 'imperial'
 
   const min = minSurfHeight
-    ? roundSurfHeight(convertToDisplayValue(minSurfHeight), isImperial)
+    ? (convertSurfHeightToDisplay(minSurfHeight, units) ?? 0)
     : 0
   const max = maxSurfHeight
-    ? roundSurfHeight(convertToDisplayValue(maxSurfHeight), isImperial)
+    ? convertSurfHeightToDisplay(maxSurfHeight, units) ?? null
     : null
 
   const unit = isImperial ? 'ft' : 'm'

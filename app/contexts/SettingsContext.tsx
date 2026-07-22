@@ -8,10 +8,10 @@ import {
   ReactNode,
 } from 'react'
 
-export type units = 'metric' | 'imperial'
+import type { PreferredUnits } from '~/utils/unitUtils'
 
 interface Settings {
-  preferredUnits: units
+  preferredUnits: PreferredUnits
 }
 
 interface SettingsProviderProps {
@@ -24,38 +24,56 @@ const defaultSettings: Settings = {
 
 interface SettingsContextValue {
   settings: Settings
-  updateSetting: (key: string, value: string | units) => void
+  updateSetting: (key: string, value: string | PreferredUnits) => void
 }
 
 const SettingsContext = createContext<SettingsContextValue | undefined>(
   undefined,
 )
 
+const readStoredSettings = (): Settings => {
+  try {
+    const storedSettings = localStorage.getItem('settings')
+    if (!storedSettings) {
+      return defaultSettings
+    }
+    const parsed = JSON.parse(storedSettings) as Partial<Settings>
+    return {
+      ...defaultSettings,
+      ...parsed,
+      preferredUnits:
+        parsed.preferredUnits === 'imperial' || parsed.preferredUnits === 'metric'
+          ? parsed.preferredUnits
+          : defaultSettings.preferredUnits,
+    }
+  } catch (error) {
+    console.error('Error parsing stored settings:', error)
+    return defaultSettings
+  }
+}
+
 export const SettingsProvider = ({ children }: SettingsProviderProps) => {
   const [settings, setSettings] = useState<Settings>(defaultSettings)
+  const [hasHydrated, setHasHydrated] = useState(false)
 
   useEffect(() => {
-    const storedSettings = localStorage.getItem('settings')
-
-    if (storedSettings) {
-      try {
-        setSettings(JSON.parse(storedSettings))
-      } catch (error) {
-        console.error('Error parsing stored settings:', error)
-      }
-    }
+    setSettings(readStoredSettings())
+    setHasHydrated(true)
   }, [])
 
   useEffect(() => {
+    if (!hasHydrated) {
+      return
+    }
     try {
       localStorage.setItem('settings', JSON.stringify(settings))
     } catch (error) {
       console.error('Error saving settings to localStorage:', error)
     }
-  }, [settings])
+  }, [hasHydrated, settings])
 
   const updateSetting = useCallback(
-    (key: string, value: string | units) =>
+    (key: string, value: string | PreferredUnits) =>
       setSettings((prev) => ({ ...prev, [key]: value })),
     [],
   )

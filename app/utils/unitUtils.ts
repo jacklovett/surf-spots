@@ -5,20 +5,80 @@
 
 import { ERROR_INVALID_HEIGHT, ERROR_INVALID_WEIGHT } from './errorUtils'
 
+export type PreferredUnits = 'metric' | 'imperial'
+
+const FEET_PER_METER = 3.28084
+const MILES_PER_KM = 0.621371
+
 /**
  * Converts meters to feet - 1m ≈ 3.28ft
  * @param meters - distance in meters
  * @returns number - distance in feet
  */
 export const metersToFeet = (meters: number): number =>
-  Math.round(meters * 3.28084 * 10) / 10
+  Math.round(meters * FEET_PER_METER * 10) / 10
 
 /**
  * Converts km to miles - 1km ≈ 0.621371mi
  * @param km - distance in kilometers
  * @returns number - distance in miles
  */
-export const kmToMiles = (km: number): number => km * 0.621371
+export const kmToMiles = (km: number): number => km * MILES_PER_KM
+
+/**
+ * Converts stored surf height (meters) to the user's preferred display unit.
+ * Imperial rounds to whole feet (matches spot detail formatting).
+ */
+export const convertSurfHeightToDisplay = (
+  heightMeters?: number,
+  units: PreferredUnits = 'metric',
+): number | undefined => {
+  if (typeof heightMeters !== 'number' || Number.isNaN(heightMeters)) {
+    return undefined
+  }
+  if (units === 'imperial') {
+    return Math.round(heightMeters * FEET_PER_METER)
+  }
+  return Math.round(heightMeters * 10) / 10
+}
+
+/**
+ * Converts a surf height entered in preferred units back to meters for storage.
+ */
+export const convertSurfHeightToStored = (
+  heightDisplay?: number,
+  units: PreferredUnits = 'metric',
+): number | undefined => {
+  if (typeof heightDisplay !== 'number' || Number.isNaN(heightDisplay)) {
+    return undefined
+  }
+  if (units === 'imperial') {
+    return heightDisplay / FEET_PER_METER
+  }
+  return heightDisplay
+}
+
+/**
+ * Formats a distance stored in kilometers for display.
+ * Metric: meters below 1 km, otherwise km.
+ * Imperial: feet below 1 mi, otherwise mi.
+ */
+export const formatDistanceKm = (
+  distanceKm: number,
+  units: PreferredUnits = 'metric',
+): string => {
+  if (units === 'imperial') {
+    const distanceMiles = kmToMiles(distanceKm)
+    if (distanceMiles < 1) {
+      return `${Math.round(distanceKm * 1000 * FEET_PER_METER)} ft`
+    }
+    return `${distanceMiles.toFixed(1)} mi`
+  }
+  if (distanceKm < 1) {
+    return `${Math.round(distanceKm * 1000)} m`
+  }
+  return `${distanceKm.toFixed(1)} km`
+}
 
 /**
  * Converts stored height (cm) to display format (same format as surfboard length)
@@ -27,8 +87,8 @@ export const kmToMiles = (km: number): number => km * 0.621371
  * @returns height in display format (cm number for metric, "5'10" string for imperial)
  */
 export const convertHeightToDisplay = (
-  heightCm: number | undefined,
-  units: 'metric' | 'imperial',
+  heightCm?: number,
+  units: PreferredUnits = 'metric',
 ): string | number | undefined => {
   if (!heightCm) return undefined
   if (units === 'metric') return heightCm
@@ -79,8 +139,8 @@ export const parseHeightImperial = (value: string): number | undefined => {
  * @returns height in centimeters
  */
 export const convertHeightFromDisplay = (
-  heightDisplay: string | number | undefined,
-  units: 'metric' | 'imperial',
+  heightDisplay?: string | number,
+  units: PreferredUnits = 'metric',
 ): number | undefined => {
   if (!heightDisplay) return undefined
   if (units === 'metric') {
@@ -169,8 +229,8 @@ export const formatWeightImperial = (totalLbs: number): string => {
  * @returns weight in display format (kg number for metric, "12st 5lbs" string for imperial)
  */
 export const convertWeightToDisplay = (
-  weightKg: number | undefined,
-  units: 'metric' | 'imperial',
+  weightKg?: number,
+  units: PreferredUnits = 'metric',
 ): string | number | undefined => {
   if (!weightKg) return undefined
   if (units === 'metric') return weightKg
@@ -186,8 +246,8 @@ export const convertWeightToDisplay = (
  * @returns weight in kilograms
  */
 export const convertWeightFromDisplay = (
-  weightDisplay: string | number | undefined,
-  units: 'metric' | 'imperial',
+  weightDisplay?: string | number,
+  units: PreferredUnits = 'metric',
 ): number | undefined => {
   if (!weightDisplay) return undefined
   if (units === 'metric') {
@@ -207,7 +267,7 @@ export const convertWeightFromDisplay = (
  * @param units - preferred display units
  * @returns label string
  */
-export const getHeightLabel = (units: 'metric' | 'imperial'): string => {
+export const getHeightLabel = (units: PreferredUnits): string => {
   return units === 'metric' ? 'Height (cm)' : 'Height (ft/in)'
 }
 
@@ -216,7 +276,7 @@ export const getHeightLabel = (units: 'metric' | 'imperial'): string => {
  * @param units - preferred display units
  * @returns label string
  */
-export const getWeightLabel = (units: 'metric' | 'imperial'): string => {
+export const getWeightLabel = (units: PreferredUnits): string => {
   return units === 'metric' ? 'Weight (kg)' : 'Weight (st/lbs)'
 }
 
@@ -225,8 +285,17 @@ export const getWeightLabel = (units: 'metric' | 'imperial'): string => {
  * @param units - preferred display units
  * @returns wave unit string ('m' for metric, 'ft' for imperial)
  */
-export const getWaveUnits = (units: 'metric' | 'imperial'): string => {
+export const getWaveUnits = (units: PreferredUnits): string => {
   return units === 'metric' ? 'm' : 'ft'
+}
+
+/**
+ * Gets the distance units based on preferred units
+ * @param units - preferred display units
+ * @returns distance unit string ('km' for metric, 'mi' for imperial)
+ */
+export const getDistanceUnits = (units: PreferredUnits): string => {
+  return units === 'metric' ? 'km' : 'mi'
 }
 
 /**
@@ -236,8 +305,8 @@ export const getWaveUnits = (units: 'metric' | 'imperial'): string => {
  * @returns object with isValid flag, error message, and converted value in cm
  */
 export const validateAndConvertHeight = (
-  heightDisplay: string | undefined,
-  units: 'metric' | 'imperial',
+  heightDisplay?: string,
+  units: PreferredUnits = 'metric',
 ): { isValid: boolean; error?: string; value?: number } => {
   if (!heightDisplay || !heightDisplay.trim()) {
     return { isValid: true, value: undefined }
@@ -266,8 +335,8 @@ export const validateAndConvertHeight = (
  * @returns object with isValid flag, error message, and converted value in kg
  */
 export const validateAndConvertWeight = (
-  weightDisplay: string | undefined,
-  units: 'metric' | 'imperial',
+  weightDisplay?: string,
+  units: PreferredUnits = 'metric',
 ): { isValid: boolean; error?: string; value?: number } => {
   if (!weightDisplay || !weightDisplay.trim()) {
     return { isValid: true, value: undefined }

@@ -1,11 +1,12 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 
+import { useSettingsContext } from '~/contexts'
 import { Coordinates } from '~/types/surfSpots'
 import {
   fetchNearbySurfSpots,
-  formatNearbySpotDistance,
   NearbySurfSpot,
 } from '~/utils/nearbySurfSpots'
+import { formatDistanceKm } from '~/utils/unitUtils'
 
 export const UNKNOWN_SESSION_SPOT_LABEL = 'Unknown location'
 
@@ -42,6 +43,8 @@ export const useEndSessionSpotResolution = (
 ): EndSessionSpotViewModel => {
   const { startLatitude, startLongitude, userId, initialSurfSpotId, initialSurfSpotName } =
     params
+  const { settings } = useSettingsContext()
+  const { preferredUnits } = settings
 
   const normalizedInitialSurfSpotId = initialSurfSpotId?.trim() ?? ''
 
@@ -148,10 +151,13 @@ export const useEndSessionSpotResolution = (
     setSelectedSpotIdState('')
   }, [])
 
-  const formatSpotOptionLabel = useCallback((spot: NearbySurfSpot) => {
-    const spotName = spot.name ?? 'Surf spot'
-    return `${spotName} (${formatNearbySpotDistance(spot.distanceKm)})`
-  }, [])
+  const formatSpotOptionLabel = useCallback(
+    (spot: NearbySurfSpot) => {
+      const spotName = spot.name ?? 'Surf spot'
+      return `${spotName} (${formatDistanceKm(spot.distanceKm, preferredUnits)})`
+    },
+    [preferredUnits],
+  )
 
   const retryNearbySpots = useCallback((): void => {
     setRetryToken((currentToken) => currentToken + 1)

@@ -1,5 +1,5 @@
 import { useFormValidation } from './useFormValidation'
-import { parseHeightImperial, parseWeightImperial } from '~/utils/unitUtils'
+import { parseHeightImperial, parseWeightImperial, type PreferredUnits } from '~/utils/unitUtils'
 import { isValidHttpUrl } from '~/utils/commonUtils'
 
 // Validation helpers
@@ -109,10 +109,10 @@ export const validateLatitude: ValidationFn<number | undefined> = (
 }
 
 export const validateNumberRange = (
-  value: string | undefined,
-  min: number,
-  max: number,
-  fieldName: string
+  value?: string,
+  min = 0,
+  max = Number.POSITIVE_INFINITY,
+  fieldName = 'Value',
 ): string => {
   if (!value || value.trim() === '') {
     return '' // Optional fields don't need validation if empty
@@ -130,11 +130,11 @@ export const validateNumberRange = (
   return ''
 }
 
-export const validateAge = (value: string | undefined): string => validateNumberRange(value, 13, 120, 'Age')
+export const validateAge = (value?: string): string => validateNumberRange(value, 13, 120, 'Age')
 
 export const validateHeight = (
-  value: string | undefined,
-  units: 'metric' | 'imperial',
+  value?: string,
+  units: PreferredUnits = 'metric',
 ): string => {
   if (!value || value.trim() === '') {
     return '' // Optional fields don't need validation if empty
@@ -156,8 +156,8 @@ export const validateHeight = (
 }
 
 export const validateWeight = (
-  value: string | undefined,
-  units: 'metric' | 'imperial',
+  value?: string,
+  units: PreferredUnits = 'metric',
 ): string => {
   if (!value || value.trim() === '') {
     return '' // Optional fields don't need validation if empty

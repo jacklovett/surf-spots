@@ -2,6 +2,12 @@ import { FormInput, DirectionSelectors } from '~/components'
 import { TIDE_OPTIONS } from '~/types/formData/surfSpots'
 import { Tide, SurfSpotFormState } from '~/types/surfSpots'
 import { directionArrayToString } from '~/utils/surfSpotUtils'
+import {
+  convertSurfHeightToDisplay,
+  convertSurfHeightToStored,
+  getWaveUnits,
+  type PreferredUnits,
+} from '~/utils/unitUtils'
 
 type FormChangeHandler = <K extends keyof SurfSpotFormState>(
   field: K,
@@ -25,7 +31,7 @@ interface BestConditionsSectionProps {
   }
   swellDirectionArray: string[]
   windDirectionArray: string[]
-  waveUnits: string
+  preferredUnits: PreferredUnits
   onSwellDirectionChange: (directions: string[]) => void
   onWindDirectionChange: (directions: string[]) => void
   onChange: FormChangeHandler
@@ -35,18 +41,38 @@ interface BestConditionsSectionProps {
   tideRequired?: boolean
 }
 
+const parseSurfHeightInput = (
+  rawValue: string,
+  preferredUnits: PreferredUnits,
+): number | undefined => {
+  if (rawValue === '') {
+    return undefined
+  }
+  return convertSurfHeightToStored(parseFloat(rawValue), preferredUnits)
+}
+
 export const BestConditionsSection = ({
   formState,
   errors,
   swellDirectionArray,
   windDirectionArray,
-  waveUnits,
+  preferredUnits,
   onSwellDirectionChange,
   onWindDirectionChange,
   onChange,
   swellWindRequired = true,
   tideRequired = false,
 }: BestConditionsSectionProps) => {
+  const waveUnits = getWaveUnits(preferredUnits)
+  const minSurfHeightDisplay = convertSurfHeightToDisplay(
+    formState.minSurfHeight,
+    preferredUnits,
+  )
+  const maxSurfHeightDisplay = convertSurfHeightToDisplay(
+    formState.maxSurfHeight,
+    preferredUnits,
+  )
+
   return (
     <div>
       <h3>Best Conditions</h3>
@@ -90,16 +116,15 @@ export const BestConditionsSection = ({
               name: 'minSurfHeight',
               type: 'number',
             }}
-            value={formState.minSurfHeight}
-            onChange={(e) => {
-              const value = e.target.value
+            value={minSurfHeightDisplay ?? ''}
+            onChange={(event) => {
               onChange(
                 'minSurfHeight',
-                value === '' ? undefined : parseFloat(value),
+                parseSurfHeightInput(event.target.value, preferredUnits),
               )
             }}
             errorMessage={errors.minSurfHeight || ''}
-            showLabel={!!formState.minSurfHeight}
+            showLabel={minSurfHeightDisplay != null}
           />
           <FormInput
             field={{
@@ -107,16 +132,15 @@ export const BestConditionsSection = ({
               name: 'maxSurfHeight',
               type: 'number',
             }}
-            value={formState.maxSurfHeight}
-            onChange={(e) => {
-              const value = e.target.value
+            value={maxSurfHeightDisplay ?? ''}
+            onChange={(event) => {
               onChange(
                 'maxSurfHeight',
-                value === '' ? undefined : parseFloat(value),
+                parseSurfHeightInput(event.target.value, preferredUnits),
               )
             }}
             errorMessage={errors.maxSurfHeight || ''}
-            showLabel={!!formState.maxSurfHeight}
+            showLabel={maxSurfHeightDisplay != null}
           />
         </div>
       </>

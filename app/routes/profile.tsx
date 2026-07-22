@@ -80,6 +80,7 @@ import {
   getWeightLabel,
   validateAndConvertHeight,
   validateAndConvertWeight,
+  type PreferredUnits,
 } from '~/utils/unitUtils'
 import { validateEmergencyContactPhone } from '~/utils/emergencyContactPhone'
 
@@ -166,7 +167,7 @@ export const action: ActionFunction = async ({ request }) => {
   const gender = formData.get('gender')?.toString().trim() || undefined
   
   // Get units preference and convert display values to stored values (cm/kg)
-  const preferredUnits = (formData.get('preferredUnits')?.toString() || 'metric') as 'metric' | 'imperial'
+  const preferredUnits = (formData.get('preferredUnits')?.toString() || 'metric') as PreferredUnits
   
   // Validate and convert height
   const heightDisplay = formData.get('height')?.toString().trim() || undefined
@@ -334,11 +335,13 @@ const Profile = () => {
   }, [deleteFetcher.state, deleteFetcher.data, showDeleteConfirm, clearDeleteAccountArmed])
 
   // Convert stored values (cm/kg) to display units for form initialization
-  const getDisplayValue = (storedValue: number | undefined, converter: (val: number, units: 'metric' | 'imperial') => string | number | undefined) =>
-    storedValue ? converter(storedValue, settings.preferredUnits) : undefined
+  const getDisplayValue = (
+    converter: (val: number, units: PreferredUnits) => string | number | undefined,
+    storedValue?: number,
+  ) => (storedValue ? converter(storedValue, settings.preferredUnits) : undefined)
   
-  const heightDisplay = getDisplayValue(user?.height, convertHeightToDisplay)
-  const weightDisplay = getDisplayValue(user?.weight, convertWeightToDisplay)
+  const heightDisplay = getDisplayValue(convertHeightToDisplay, user?.height)
+  const weightDisplay = getDisplayValue(convertWeightToDisplay, user?.weight)
 
   const { formState, errors, isFormValid, handleChange, handleBlur } =
     useFormValidation({
@@ -378,11 +381,13 @@ const Profile = () => {
   useEffect(
     () => {
       // Convert form values back to stored units for comparison
-      const convertForComparison = (displayValue: string, converter: (val: string | number | undefined, units: 'metric' | 'imperial') => number | undefined) =>
-        displayValue ? converter(displayValue, settings.preferredUnits) : undefined
+      const convertForComparison = (
+        converter: (val?: string | number, units?: PreferredUnits) => number | undefined,
+        displayValue: string,
+      ) => (displayValue ? converter(displayValue, settings.preferredUnits) : undefined)
       
-      const heightFormValue = convertForComparison(formState.height, convertHeightFromDisplay)
-      const weightFormValue = convertForComparison(formState.weight, convertWeightFromDisplay)
+      const heightFormValue = convertForComparison(convertHeightFromDisplay, formState.height)
+      const weightFormValue = convertForComparison(convertWeightFromDisplay, formState.weight)
       const userSkillLevel = user?.skillLevel ? String(user.skillLevel) : ''
       const formSkillLevel = formState.skillLevel || ''
       

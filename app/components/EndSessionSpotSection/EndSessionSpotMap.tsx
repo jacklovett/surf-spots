@@ -14,12 +14,13 @@ import {
   fitMapToCoordinates,
   removeDomMarkers,
 } from '~/services/mapService'
-import { useMapInstance } from '~/hooks/useMapInstance'
+import { useMapInstance } from '~/hooks'
+import { useSettingsContext } from '~/contexts'
 import {
   AT_SPOT_RADIUS_KM,
-  formatNearbySpotDistance,
   NearbySurfSpot,
 } from '~/utils/nearbySurfSpots'
+import { formatDistanceKm, type PreferredUnits } from '~/utils/unitUtils'
 import { ERROR_BOUNDARY_MAP } from '~/utils/errorUtils'
 
 interface EndSessionSpotMapProps {
@@ -32,9 +33,10 @@ interface EndSessionSpotMapProps {
 const buildEndSessionSpotPinLabel = (
   spot: NearbySurfSpot,
   isSelected: boolean,
+  preferredUnits: PreferredUnits,
 ): string => {
   const spotName = spot.name ?? 'surf spot'
-  const distanceLabel = formatNearbySpotDistance(spot.distanceKm)
+  const distanceLabel = formatDistanceKm(spot.distanceKm, preferredUnits)
   return isSelected
     ? `${spotName} selected for this session (${distanceLabel})`
     : `Preview ${spotName} (${distanceLabel})`
@@ -44,31 +46,32 @@ const updateSpotPinSelection = (
   spotMarkers: Map<string, HTMLDivElement>,
   selectedSpotId: string,
   nearbySpots: NearbySurfSpot[],
+  preferredUnits: PreferredUnits,
 ) => {
   spotMarkers.forEach((pinElement, spotId) => {
     const isSelected = spotId === selectedSpotId
     const spot = nearbySpots.find(
       (candidate) => candidate.id != null && String(candidate.id) === spotId,
     )
-    const spotName = spot?.name ?? 'surf spot'
-    const distanceLabel =
-      spot != null ? formatNearbySpotDistance(spot.distanceKm) : ''
+    const ariaLabel =
+      spot != null
+        ? buildEndSessionSpotPinLabel(spot, isSelected, preferredUnits)
+        : isSelected
+          ? 'Selected surf spot'
+          : 'Surf spot'
 
     pinElement.classList.toggle('map-marker-pin-selected', isSelected)
     pinElement.style.zIndex = isSelected ? '3' : '2'
     pinElement.setAttribute('aria-pressed', String(isSelected))
-    pinElement.setAttribute(
-      'aria-label',
-      isSelected
-        ? `${spotName} selected for this session (${distanceLabel})`
-        : `Preview ${spotName} (${distanceLabel})`,
-    )
+    pinElement.setAttribute('aria-label', ariaLabel)
   })
 }
 
 export const EndSessionSpotMap = memo((props: EndSessionSpotMapProps) => {
   const { sessionCoordinates, nearbySpots, selectedSpotId, onOpenSpotPreview } =
     props
+  const { settings } = useSettingsContext()
+  const { preferredUnits } = settings
   const sessionMarkerRef = useRef<mapboxgl.Marker | null>(null)
   const spotMarkersRef = useRef<Map<string, HTMLDivElement>>(new Map())
   const spotMarkerInstancesRef = useRef<mapboxgl.Marker[]>([])
@@ -153,7 +156,11 @@ export const EndSessionSpotMap = memo((props: EndSessionSpotMapProps) => {
             role: 'button',
             tabIndex: 0,
             ariaPressed: isSelected,
-            ariaLabel: buildEndSessionSpotPinLabel(spot, isSelected),
+            ariaLabel: buildEndSessionSpotPinLabel(
+              spot,
+              isSelected,
+              preferredUnits,
+            ),
             zIndex: isSelected ? '3' : '2',
           },
         )
@@ -172,7 +179,7 @@ export const EndSessionSpotMap = memo((props: EndSessionSpotMapProps) => {
         spotMarkerInstancesRef.current.push(marker)
       })
     },
-    [clearSpotMarkers, nearbySpots],
+    [clearSpotMarkers, nearbySpots, preferredUnits],
   )
 
   renderSpotMarkersRef.current = renderSpotMarkers
@@ -220,8 +227,13 @@ export const EndSessionSpotMap = memo((props: EndSessionSpotMapProps) => {
   }, [fitMapToSessionAndSpots, loading, mapRef, nearbySpots, renderSpotMarkers])
 
   useEffect(() => {
-    updateSpotPinSelection(spotMarkersRef.current, selectedSpotId, nearbySpots)
-  }, [nearbySpots, selectedSpotId])
+    updateSpotPinSelection(
+      spotMarkersRef.current,
+      selectedSpotId,
+      nearbySpots,
+      preferredUnits,
+    )
+  }, [nearbySpots, preferredUnits, selectedSpotId])
 
   useEffect(() => {
     const sessionMarker = sessionMarkerRef.current

@@ -4,6 +4,7 @@ import {
   SURF_SPOTS_WITHIN_BOUNDS_PATH,
 } from '~/services/mapService'
 import { BoundingBox, Coordinates, SurfSpot } from '~/types/surfSpots'
+import { formatDistanceKm, type PreferredUnits } from '~/utils/unitUtils'
 
 export const NEARBY_SPOTS_RADIUS_KM = 25
 export const NEARBY_SPOTS_LIMIT = 12
@@ -88,17 +89,13 @@ export const fetchNearbySurfSpots = async (
     .slice(0, NEARBY_SPOTS_LIMIT)
 }
 
-export const formatNearbySpotDistance = (distanceKm: number): string => {
-  if (distanceKm < 1) {
-    return `${Math.round(distanceKm * 1000)} m`
-  }
-  return `${distanceKm.toFixed(1)} km`
-}
-
 /** Distance from the live session start to a nearby spot, for end-session spot picking. */
-export const formatSessionSpotDistanceLabel = (distanceKm: number): string => {
+export const formatSessionSpotDistanceLabel = (
+  distanceKm: number,
+  preferredUnits: PreferredUnits = 'metric',
+): string => {
   if (distanceKm < 0.05) {
     return 'At your surfed location'
   }
-  return `${formatNearbySpotDistance(distanceKm)} from your surfed location`
+  return `${formatDistanceKm(distanceKm, preferredUnits)} from your surfed location`
 }

@@ -5,7 +5,11 @@ import ErrorBoundary from '~/components/ErrorBoundary'
 import SurfSpotPreview from '~/components/SurfSpotPreview'
 import EndSessionSpotConfirmButton from '~/components/EndSessionSpotSection/EndSessionSpotConfirmButton'
 
-import { useLayoutContext, useUserContext } from '~/contexts'
+import {
+  useLayoutContext,
+  useSettingsContext,
+  useUserContext,
+} from '~/contexts'
 import {
   formatSessionSpotDistanceLabel,
   NearbySurfSpot,
@@ -26,6 +30,8 @@ export const useEndSessionSpotPreviewDrawer = ({
   const navigate = useNavigate()
   const { user } = useUserContext()
   const { openDrawer } = useLayoutContext()
+  const { settings } = useSettingsContext()
+  const { preferredUnits } = settings
 
   const openSpotPreview = useCallback(
     (spot: NearbySurfSpot) => {
@@ -45,7 +51,10 @@ export const useEndSessionSpotPreviewDrawer = ({
                 surfSpot={spot}
                 user={user}
                 navigate={navigate}
-                sessionDistanceLabel={formatSessionSpotDistanceLabel(spot.distanceKm)}
+                sessionDistanceLabel={formatSessionSpotDistanceLabel(
+                  spot.distanceKm,
+                  preferredUnits,
+                )}
               />
             </ErrorBoundary>
           </div>
@@ -61,7 +70,7 @@ export const useEndSessionSpotPreviewDrawer = ({
 
       openDrawer(drawerContent, 'right', spotName)
     },
-    [navigate, onClearSpot, onConfirmSpot, openDrawer, selectedSpotId, user],
+    [navigate, onClearSpot, onConfirmSpot, openDrawer, preferredUnits, selectedSpotId, user],
   )
 
   return { openSpotPreview }

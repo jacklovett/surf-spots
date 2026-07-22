@@ -18,7 +18,7 @@ import {
 } from '~/components'
 import { SelectOption } from '~/components/FormInput'
 import { useSettingsContext, useUserContext } from '~/contexts'
-import { units } from '~/contexts/SettingsContext'
+import type { PreferredUnits } from '~/utils/unitUtils'
 import {
   ERROR_UPDATE_SETTINGS,
   SUCCESS_SETTINGS_UPDATED,
@@ -106,7 +106,7 @@ export default function Settings() {
   const { user } = useUserContext()
   const { settings: serverSettings } = useLoaderData<LoaderData>()
 
-  const [preferredUnits, setPreferredUnits] = useState<units>(
+  const [preferredUnits, setPreferredUnits] = useState<PreferredUnits>(
     settings.preferredUnits,
   )
   const [emailSettings, setEmailSettings] = useState({
@@ -179,7 +179,7 @@ export default function Settings() {
                   options: unitOptions,
                 }}
                 value={preferredUnits}
-                onChange={(e) => setPreferredUnits(e.target.value as units)}
+                onChange={(e) => setPreferredUnits(e.target.value as PreferredUnits)}
                 showLabel={!!preferredUnits}
                 disabled={loading}
               />
