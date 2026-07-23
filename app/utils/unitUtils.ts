@@ -5,7 +5,21 @@
 
 import { ERROR_INVALID_HEIGHT, ERROR_INVALID_WEIGHT } from './errorUtils'
 
-export type PreferredUnits = 'metric' | 'imperial'
+export const PREFERRED_UNITS = ['metric', 'imperial'] as const
+
+export type PreferredUnits = (typeof PREFERRED_UNITS)[number]
+
+/** Returns a known unit preference, or null when the value is missing/unknown. */
+export const parsePreferredUnits = (
+  value?: string | null,
+): PreferredUnits | null => {
+  if (value == null) {
+    return null
+  }
+  return (PREFERRED_UNITS as readonly string[]).includes(value)
+    ? (value as PreferredUnits)
+    : null
+}
 
 const FEET_PER_METER = 3.28084
 const MILES_PER_KM = 0.621371
@@ -39,7 +53,7 @@ export const convertSurfHeightToDisplay = (
   if (units === 'imperial') {
     return Math.round(heightMeters * FEET_PER_METER)
   }
-  return Math.round(heightMeters * 10) / 10
+  return heightMeters
 }
 
 /**

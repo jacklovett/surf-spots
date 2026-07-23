@@ -278,7 +278,7 @@ export const action: ActionFunction = async ({ request }) => {
 }
 
 const Profile = () => {
-  const { settings } = useSettingsContext()
+  const { hydratePreferredUnitsFromServer } = useSettingsContext()
   const { showSuccess, showError } = useToastContext()
   const { isFormSubmitting } = useFormSubmission()
   const navigation = useNavigation()
@@ -286,6 +286,10 @@ const Profile = () => {
   const profileSubmitPendingRef = useRef(false)
 
   const { locationData = [], user, error } = useLoaderData<LoaderData>()
+
+  useEffect(() => {
+    hydratePreferredUnitsFromServer(user?.settings?.preferredUnits)
+  }, [hydratePreferredUnitsFromServer, user?.settings?.preferredUnits])
 
   const deleteFetcher = useFetcher()
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
@@ -334,16 +338,25 @@ const Profile = () => {
     }
   }, [deleteFetcher.state, deleteFetcher.data, showDeleteConfirm, clearDeleteAccountArmed])
 
-  // Convert stored values (cm/kg) to display units for form initialization
-  const getDisplayValue = (
-    converter: (val: number, units: PreferredUnits) => string | number | undefined,
-    storedValue?: number,
-  ) => (storedValue ? converter(storedValue, settings.preferredUnits) : undefined)
-  
-  const heightDisplay = getDisplayValue(convertHeightToDisplay, user?.height)
-  const weightDisplay = getDisplayValue(convertWeightToDisplay, user?.weight)
+  // Height/weight must use server preferredUnits only. Context defaults to metric
+  // before hydrate, which would flash the wrong conversion then switch.
+  const preferredUnits =
+    user?.settings?.preferredUnits === 'imperial' ||
+    user?.settings?.preferredUnits === 'metric'
+      ? user.settings.preferredUnits
+      : null
+  const unitsReady = preferredUnits != null
 
-  const { formState, errors, isFormValid, handleChange, handleBlur } =
+  const heightDisplay =
+    unitsReady && user?.height != null
+      ? convertHeightToDisplay(user.height, preferredUnits)?.toString() || ''
+      : ''
+  const weightDisplay =
+    unitsReady && user?.weight != null
+      ? convertWeightToDisplay(user.weight, preferredUnits)?.toString() || ''
+      : ''
+
+  const { formState, errors, isFormValid, handleChange, handleBlur, setFormState } =
     useFormValidation({
       initialFormState: {
         country: user?.country || '',
@@ -352,8 +365,8 @@ const Profile = () => {
         city: user?.city || '',
         age: user?.age?.toString() || '',
         gender: user?.gender || '',
-        height: heightDisplay?.toString() || '',
-        weight: weightDisplay?.toString() || '',
+        height: heightDisplay,
+        weight: weightDisplay,
         skillLevel: user?.skillLevel ? String(user.skillLevel) : '',
         emergencyContactName: user?.emergencyContactName || '',
         emergencyContactEmail: user?.emergencyContactEmail || '',
@@ -364,12 +377,33 @@ const Profile = () => {
         email: validateEmail,
         name: (value?: string) => validateRequired(value, 'Name'),
         age: (value?: string) => validateAge(value),
-        height: (value?: string) => validateHeight(value, settings.preferredUnits),
-        weight: (value?: string) => validateWeight(value, settings.preferredUnits),
+        height: (value?: string) =>
+          unitsReady ? validateHeight(value, preferredUnits) : '',
+        weight: (value?: string) =>
+          unitsReady ? validateWeight(value, preferredUnits) : '',
         emergencyContactEmail: (value: string) => value ? validateEmail(value) : '',
         emergencyContactPhone: validateEmergencyContactPhone,
       },
     })
+
+  // Keep fields empty until units are known; fill only with the correct conversion.
+  useEffect(() => {
+    if (!unitsReady) {
+      setFormState((previous) => {
+        if (previous.height === '' && previous.weight === '') {
+          return previous
+        }
+        return { ...previous, height: '', weight: '' }
+      })
+      return
+    }
+    setFormState((previous) => {
+      if (previous.height === heightDisplay && previous.weight === weightDisplay) {
+        return previous
+      }
+      return { ...previous, height: heightDisplay, weight: weightDisplay }
+    })
+  }, [unitsReady, heightDisplay, weightDisplay, setFormState])
 
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false)
 
@@ -384,21 +418,24 @@ const Profile = () => {
       const convertForComparison = (
         converter: (val?: string | number, units?: PreferredUnits) => number | undefined,
         displayValue: string,
-      ) => (displayValue ? converter(displayValue, settings.preferredUnits) : undefined)
-      
+      ) =>
+        unitsReady && displayValue
+          ? converter(displayValue, preferredUnits)
+          : undefined
+
       const heightFormValue = convertForComparison(convertHeightFromDisplay, formState.height)
       const weightFormValue = convertForComparison(convertWeightFromDisplay, formState.weight)
       const userSkillLevel = user?.skillLevel ? String(user.skillLevel) : ''
       const formSkillLevel = formState.skillLevel || ''
-      
+
       setHasUnsavedChanges(
         (formState.country || '') !== (user?.country || '') ||
           (formState.city || '') !== (user?.city || '') ||
           (formState.name || '') !== (user?.name || '') ||
           (formState.age || '') !== (user?.age?.toString() || '') ||
           (formState.gender || '') !== (user?.gender || '') ||
-          heightFormValue !== (user?.height ?? undefined) ||
-          weightFormValue !== (user?.weight ?? undefined) ||
+          (unitsReady && heightFormValue !== (user?.height ?? undefined)) ||
+          (unitsReady && weightFormValue !== (user?.weight ?? undefined)) ||
           formSkillLevel !== userSkillLevel ||
           (formState.emergencyContactName || '') !== (user?.emergencyContactName || '') ||
           (formState.emergencyContactEmail || '') !== (user?.emergencyContactEmail || '') ||
@@ -407,7 +444,7 @@ const Profile = () => {
             (user?.emergencyContactRelationship || ''),
       )
     },
-    [formState, user, settings.preferredUnits],
+    [formState, user, unitsReady, preferredUnits],
   )
 
   if (error || !user) {
@@ -503,34 +540,52 @@ const Profile = () => {
             <div className="form-inline">
               <FormInput
                 field={{
-                  label: getHeightLabel(settings.preferredUnits),
+                  label: unitsReady ? getHeightLabel(preferredUnits) : 'Height',
                   name: 'height',
-                  type: settings.preferredUnits === 'metric' ? 'number' : 'text',
-                  validationRules: settings.preferredUnits === 'metric' ? { min: 0 } : undefined,
+                  type: preferredUnits === 'imperial' ? 'text' : 'number',
+                  validationRules:
+                    preferredUnits === 'metric' ? { min: 0 } : undefined,
                 }}
-                value={formState.height}
+                value={unitsReady ? formState.height : ''}
                 onChange={(e) => handleChange('height', e.target.value.trim())}
                 onBlur={() => handleBlur('height')}
                 errorMessage={errors.height || ''}
-                showLabel={!!formState.height}
-                placeholder={settings.preferredUnits === 'metric' ? 'Your height (cm)' : 'Your height (e.g. 5\'10)'}
+                showLabel={unitsReady && !!formState.height}
+                placeholder={
+                  !unitsReady
+                    ? '-'
+                    : preferredUnits === 'metric'
+                      ? 'Your height (cm)'
+                      : 'Your height (e.g. 5\'10)'
+                }
+                disabled={!unitsReady}
               />
               <FormInput
                 field={{
-                  label: getWeightLabel(settings.preferredUnits),
+                  label: unitsReady ? getWeightLabel(preferredUnits) : 'Weight',
                   name: 'weight',
-                  type: settings.preferredUnits === 'metric' ? 'number' : 'text',
-                  validationRules: settings.preferredUnits === 'metric' ? { min: 0 } : undefined,
+                  type: preferredUnits === 'imperial' ? 'text' : 'number',
+                  validationRules:
+                    preferredUnits === 'metric' ? { min: 0 } : undefined,
                 }}
-                value={formState.weight}
+                value={unitsReady ? formState.weight : ''}
                 onChange={(e) => handleChange('weight', e.target.value.trim())}
                 onBlur={() => handleBlur('weight')}
                 errorMessage={errors.weight || ''}
-                showLabel={!!formState.weight}
-                placeholder={settings.preferredUnits === 'metric' ? 'Your weight (kg)' : 'Your weight (e.g. 12st 5lbs)'}
+                showLabel={unitsReady && !!formState.weight}
+                placeholder={
+                  !unitsReady
+                    ? '-'
+                    : preferredUnits === 'metric'
+                      ? 'Your weight (kg)'
+                      : 'Your weight (e.g. 12st 5lbs)'
+                }
+                disabled={!unitsReady}
               />
             </div>
-            <input type="hidden" name="preferredUnits" value={settings.preferredUnits} />
+            {unitsReady && (
+              <input type="hidden" name="preferredUnits" value={preferredUnits} />
+            )}
             
             <FormInput
               field={{

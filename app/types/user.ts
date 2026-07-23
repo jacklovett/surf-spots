@@ -15,6 +15,7 @@ export interface AuthRequest {
 }
 
 import { EmergencyContactRelationship, SkillLevel } from './surfSpots'
+import type { PreferredUnits } from '~/utils/unitUtils'
 
 /**
  * Minimal identity claims we store in the signed session cookie. Anything
@@ -69,4 +70,5 @@ export interface UserSettings {
   swellSeasonEmails: boolean
   eventEmails: boolean
   promotionEmails: boolean
+  preferredUnits?: PreferredUnits
 }

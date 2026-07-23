@@ -5,10 +5,11 @@ import {
   useEffect,
   useCallback,
   useMemo,
+  useRef,
   ReactNode,
 } from 'react'
 
-import type { PreferredUnits } from '~/utils/unitUtils'
+import { parsePreferredUnits, type PreferredUnits } from '~/utils/unitUtils'
 
 interface Settings {
   preferredUnits: PreferredUnits
@@ -25,6 +26,8 @@ const defaultSettings: Settings = {
 interface SettingsContextValue {
   settings: Settings
   updateSetting: (key: string, value: string | PreferredUnits) => void
+  /** Server preference wins for signed-in users (cross-device). */
+  hydratePreferredUnitsFromServer: (preferredUnits?: string | null) => void
 }
 
 const SettingsContext = createContext<SettingsContextValue | undefined>(
@@ -38,13 +41,12 @@ const readStoredSettings = (): Settings => {
       return defaultSettings
     }
     const parsed = JSON.parse(storedSettings) as Partial<Settings>
+    const preferredUnits =
+      parsePreferredUnits(parsed.preferredUnits) ?? defaultSettings.preferredUnits
     return {
       ...defaultSettings,
       ...parsed,
-      preferredUnits:
-        parsed.preferredUnits === 'imperial' || parsed.preferredUnits === 'metric'
-          ? parsed.preferredUnits
-          : defaultSettings.preferredUnits,
+      preferredUnits,
     }
   } catch (error) {
     console.error('Error parsing stored settings:', error)
@@ -55,9 +57,17 @@ const readStoredSettings = (): Settings => {
 export const SettingsProvider = ({ children }: SettingsProviderProps) => {
   const [settings, setSettings] = useState<Settings>(defaultSettings)
   const [hasHydrated, setHasHydrated] = useState(false)
+  // Child routes may hydrate server units before this provider's localStorage
+  // effect runs; keep that override so storage load cannot clobber it.
+  const serverPreferredUnitsRef = useRef<PreferredUnits | null>(null)
 
   useEffect(() => {
-    setSettings(readStoredSettings())
+    const stored = readStoredSettings()
+    setSettings(
+      serverPreferredUnitsRef.current != null
+        ? { ...stored, preferredUnits: serverPreferredUnitsRef.current }
+        : stored,
+    )
     setHasHydrated(true)
   }, [])
 
@@ -78,9 +88,29 @@ export const SettingsProvider = ({ children }: SettingsProviderProps) => {
     [],
   )
 
+  const hydratePreferredUnitsFromServer = useCallback(
+    (preferredUnits?: string | null) => {
+      const parsed = parsePreferredUnits(preferredUnits)
+      if (parsed == null) {
+        return
+      }
+      serverPreferredUnitsRef.current = parsed
+      setSettings((prev) =>
+        prev.preferredUnits === parsed
+          ? prev
+          : { ...prev, preferredUnits: parsed },
+      )
+    },
+    [],
+  )
+
   const value = useMemo(
-    (): SettingsContextValue => ({ settings, updateSetting }),
-    [settings, updateSetting],
+    (): SettingsContextValue => ({
+      settings,
+      updateSetting,
+      hydratePreferredUnitsFromServer,
+    }),
+    [settings, updateSetting, hydratePreferredUnitsFromServer],
   )
 
   return (

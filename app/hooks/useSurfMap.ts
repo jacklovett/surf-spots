@@ -13,7 +13,7 @@ import {
   updateMapSourceData,
   WITHIN_BOUNDS_TIMEOUT_MS,
 } from '~/services/mapService'
-import { getDisplayMessage } from '~/services/networkService'
+import { getDisplayMessage, post } from '~/services/networkService'
 import { ActionData, SurfSpotQuickActionSubmitHandler } from '~/types/api'
 import { Coordinates, SurfSpot } from '~/types/surfSpots'
 import { debounce } from '~/utils/commonUtils'
@@ -21,6 +21,19 @@ import { ERROR_LOAD_MAP, ERROR_LOAD_MAP_DATA } from '~/utils/errorUtils'
 
 import { useMapInstance } from './useMapInstance'
 import { useSurfSpotDrawer } from './useSurfSpotDrawer'
+
+/** Nearby-travel alerts; failures must not break map browsing. */
+const reportUserLocationForTravelAlerts = async (
+  userId: string,
+  latitude: number,
+  longitude: number,
+): Promise<void> => {
+  try {
+    await post('user/location', { latitude, longitude })
+  } catch {
+    // ignore
+  }
+}
 
 export interface UseSurfMapParams {
   surfSpots?: SurfSpot[]
@@ -42,6 +55,11 @@ export const useSurfMap = (params: UseSurfMapParams) => {
   const [spotsRetryLoading, setSpotsRetryLoading] = useState(false)
   const [userLocation, setUserLocation] = useState<Coordinates | null>(null)
   const [locationFetched, setLocationFetched] = useState(false)
+  const pendingLocationReportRef = useRef<{
+    latitude: number
+    longitude: number
+  } | null>(null)
+  const reportedLocationUserIdRef = useRef<string | null>(null)
 
   // surfSpots prop provided = use only those spots (even if empty array)
   // surfSpots prop undefined = fetch spots dynamically based on map bounds
@@ -105,11 +123,18 @@ export const useSurfMap = (params: UseSurfMapParams) => {
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
         (position) => {
+          const latitude = position.coords.latitude
+          const longitude = position.coords.longitude
           setUserLocation({
-            longitude: position.coords.longitude,
-            latitude: position.coords.latitude,
+            longitude,
+            latitude,
           })
           setLocationFetched(true)
+          pendingLocationReportRef.current = { latitude, longitude }
+          if (user?.id) {
+            reportedLocationUserIdRef.current = user.id
+            void reportUserLocationForTravelAlerts(user.id, latitude, longitude)
+          }
         },
         () => {
           setUserLocation(defaultMapCenter)
@@ -121,7 +146,21 @@ export const useSurfMap = (params: UseSurfMapParams) => {
       setUserLocation(defaultMapCenter)
       setLocationFetched(true)
     }
+    // user?.id intentionally omitted: login must not re-prompt GPS; a separate
+    // effect reports a stashed location once the user appears.
   }, [disableInteractions, locationFetched])
+
+  useEffect(() => {
+    if (!user?.id || pendingLocationReportRef.current == null) {
+      return
+    }
+    if (reportedLocationUserIdRef.current === user.id) {
+      return
+    }
+    const { latitude, longitude } = pendingLocationReportRef.current
+    reportedLocationUserIdRef.current = user.id
+    void reportUserLocationForTravelAlerts(user.id, latitude, longitude)
+  }, [user?.id])
 
   const initialCenter = useMemo((): Coordinates => {
     if (

@@ -4,7 +4,22 @@ import {
   convertSurfHeightToDisplay,
   convertSurfHeightToStored,
   formatDistanceKm,
+  parsePreferredUnits,
 } from './unitUtils'
+
+describe('parsePreferredUnits', () => {
+  it('should accept known unit values', () => {
+    expect(parsePreferredUnits('metric')).toBe('metric')
+    expect(parsePreferredUnits('imperial')).toBe('imperial')
+  })
+
+  it('should reject missing or unknown values', () => {
+    expect(parsePreferredUnits(null)).toBeNull()
+    expect(parsePreferredUnits(undefined)).toBeNull()
+    expect(parsePreferredUnits('')).toBeNull()
+    expect(parsePreferredUnits('us')).toBeNull()
+  })
+})
 
 describe('formatDistanceKm', () => {
   it('should format sub-kilometer distances in meters', () => {

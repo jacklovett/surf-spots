@@ -18,7 +18,7 @@ import {
 } from '~/components'
 import { SelectOption } from '~/components/FormInput'
 import { useSettingsContext, useUserContext } from '~/contexts'
-import type { PreferredUnits } from '~/utils/unitUtils'
+import { parsePreferredUnits, type PreferredUnits } from '~/utils/unitUtils'
 import {
   ERROR_UPDATE_SETTINGS,
   SUCCESS_SETTINGS_UPDATED,
@@ -68,8 +68,8 @@ export const action: ActionFunction = async ({ request }) => {
   }
 
   const settings = {
-    newSurfSpotsEmails: formData.get('newSurfSpots') === 'on',
-    nearbySurfSpotEmails: formData.get('nearbySurfSpots') === 'on',
+    newSurfSpotEmails: formData.get('newSurfSpots') === 'on',
+    nearbySurfSpotsEmails: formData.get('nearbySurfSpots') === 'on',
     swellSeasonEmails: formData.get('swellSeasons') === 'on',
     eventEmails: formData.get('events') === 'on',
     promotionEmails: formData.get('promotions') === 'on',
@@ -102,12 +102,15 @@ export default function Settings() {
   const { state } = useNavigation()
   const loading = state === 'loading'
   const submitStatus = useSubmitStatus()
-  const { settings, updateSetting } = useSettingsContext()
+  const { settings, updateSetting, hydratePreferredUnitsFromServer } =
+    useSettingsContext()
   const { user } = useUserContext()
   const { settings: serverSettings } = useLoaderData<LoaderData>()
 
   const [preferredUnits, setPreferredUnits] = useState<PreferredUnits>(
-    settings.preferredUnits,
+    () =>
+      parsePreferredUnits(serverSettings?.preferredUnits) ??
+      settings.preferredUnits,
   )
   const [emailSettings, setEmailSettings] = useState({
     newSurfSpots: serverSettings?.newSurfSpotEmails ?? true,
@@ -117,26 +120,36 @@ export default function Settings() {
     promotions: serverSettings?.promotionEmails ?? true,
   })
 
-  // Track if we've already saved to avoid infinite loop
-  const hasSavedRef = useRef<string | null>(null)
-
-  // Save preferredUnits to localStorage after successful form submission
   useEffect(() => {
-    if (
-      submitStatus &&
-      !submitStatus.isError &&
-      submitStatus.message &&
-      submitStatus.message !== hasSavedRef.current
-    ) {
-      hasSavedRef.current = submitStatus.message
-      updateSetting('preferredUnits', preferredUnits)
+    if (serverSettings?.preferredUnits) {
+      hydratePreferredUnitsFromServer(serverSettings.preferredUnits)
     }
-  }, [submitStatus?.message, preferredUnits, updateSetting])
+  }, [hydratePreferredUnitsFromServer, serverSettings?.preferredUnits])
+
+  // Sync preferredUnits into localStorage after each successful save (not keyed
+  // on the success message alone — that blocked a second save with the same toast).
+  const lastSyncedUnitsRef = useRef<PreferredUnits | null>(null)
+
+  useEffect(() => {
+    if (!submitStatus || submitStatus.isError || !submitStatus.message) {
+      return
+    }
+    if (lastSyncedUnitsRef.current === preferredUnits) {
+      return
+    }
+    lastSyncedUnitsRef.current = preferredUnits
+    updateSetting('preferredUnits', preferredUnits)
+  }, [submitStatus, preferredUnits, updateSetting])
 
   // Check if any settings have changed
   const hasChanges = useMemo(() => {
-    if (preferredUnits !== settings.preferredUnits) return true
-    if (!serverSettings) return false
+    if (!serverSettings) {
+      return preferredUnits !== settings.preferredUnits
+    }
+    const serverUnits =
+      parsePreferredUnits(serverSettings.preferredUnits) ??
+      settings.preferredUnits
+    if (preferredUnits !== serverUnits) return true
     return (
       emailSettings.newSurfSpots !== serverSettings.newSurfSpotEmails ||
       emailSettings.nearbySurfSpots !== serverSettings.nearbySurfSpotsEmails ||
