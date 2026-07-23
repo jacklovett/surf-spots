@@ -114,7 +114,7 @@ export default function Settings() {
   )
   const [emailSettings, setEmailSettings] = useState({
     newSurfSpots: serverSettings?.newSurfSpotEmails ?? true,
-    nearbySurfSpots: serverSettings?.nearbySurfSpotsEmails ?? true,
+    nearbySurfSpots: serverSettings?.nearbySurfSpotsEmails ?? false,
     swellSeasons: serverSettings?.swellSeasonEmails ?? true,
     events: serverSettings?.eventEmails ?? true,
     promotions: serverSettings?.promotionEmails ?? true,

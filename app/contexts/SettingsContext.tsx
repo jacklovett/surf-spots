@@ -23,7 +23,7 @@ interface SettingsProviderProps {
 
 const defaultSettings: Settings = {
   preferredUnits: 'metric',
-  nearbySurfSpotsEmails: true,
+  nearbySurfSpotsEmails: false,
 }
 
 type SettingsValue = Settings[keyof Settings]
