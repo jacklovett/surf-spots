@@ -278,7 +278,8 @@ export const action: ActionFunction = async ({ request }) => {
 }
 
 const Profile = () => {
-  const { hydratePreferredUnitsFromServer } = useSettingsContext()
+  const { hydratePreferredUnitsFromServer, hydrateNearbySurfSpotsEmailsFromServer } =
+    useSettingsContext()
   const { showSuccess, showError } = useToastContext()
   const { isFormSubmitting } = useFormSubmission()
   const navigation = useNavigation()
@@ -289,7 +290,16 @@ const Profile = () => {
 
   useEffect(() => {
     hydratePreferredUnitsFromServer(user?.settings?.preferredUnits)
-  }, [hydratePreferredUnitsFromServer, user?.settings?.preferredUnits])
+    if (user?.settings != null) {
+      hydrateNearbySurfSpotsEmailsFromServer(user.settings.nearbySurfSpotsEmails)
+    }
+  }, [
+    hydratePreferredUnitsFromServer,
+    hydrateNearbySurfSpotsEmailsFromServer,
+    user?.settings,
+    user?.settings?.preferredUnits,
+    user?.settings?.nearbySurfSpotsEmails,
+  ])
 
   const deleteFetcher = useFetcher()
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)

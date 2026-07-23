@@ -29,9 +29,20 @@ const DataPolicy = () => (
           interaction with features. This data helps us improve our services and
           user experience.
         </p>
+        <p>
+          <strong>Location (optional):</strong> If you enable Nearby Surf Spots
+          emails and allow location access on the map, we store your most recent
+          approximate coordinates so we can detect travel and email nearby
+          spots. We do not keep a location history. Turning that setting off
+          stops collection and clears the stored location.
+        </p>
       </div>
       <h2>How We Use Your Data</h2>
       <ul>
+        <li>
+          To send optional alerts you opt into (for example nearby spots when
+          you travel, or watch-list swell and event updates).
+        </li>
         <li>
           To provide and personalize your experience on Surf Spots, including
           content and recommendations tailored to your preferences.

@@ -13,6 +13,8 @@ import { parsePreferredUnits, type PreferredUnits } from '~/utils/unitUtils'
 
 interface Settings {
   preferredUnits: PreferredUnits
+  /** Client cache of the nearby-travel email opt-in (gates location POSTs). */
+  nearbySurfSpotsEmails: boolean
 }
 
 interface SettingsProviderProps {
@@ -21,13 +23,17 @@ interface SettingsProviderProps {
 
 const defaultSettings: Settings = {
   preferredUnits: 'metric',
+  nearbySurfSpotsEmails: true,
 }
+
+type SettingsValue = Settings[keyof Settings]
 
 interface SettingsContextValue {
   settings: Settings
-  updateSetting: (key: string, value: string | PreferredUnits) => void
+  updateSetting: (key: keyof Settings, value: SettingsValue) => void
   /** Server preference wins for signed-in users (cross-device). */
   hydratePreferredUnitsFromServer: (preferredUnits?: string | null) => void
+  hydrateNearbySurfSpotsEmailsFromServer: (enabled: boolean) => void
 }
 
 const SettingsContext = createContext<SettingsContextValue | undefined>(
@@ -43,10 +49,15 @@ const readStoredSettings = (): Settings => {
     const parsed = JSON.parse(storedSettings) as Partial<Settings>
     const preferredUnits =
       parsePreferredUnits(parsed.preferredUnits) ?? defaultSettings.preferredUnits
+    const nearbySurfSpotsEmails =
+      typeof parsed.nearbySurfSpotsEmails === 'boolean'
+        ? parsed.nearbySurfSpotsEmails
+        : defaultSettings.nearbySurfSpotsEmails
     return {
       ...defaultSettings,
       ...parsed,
       preferredUnits,
+      nearbySurfSpotsEmails,
     }
   } catch (error) {
     console.error('Error parsing stored settings:', error)
@@ -57,17 +68,22 @@ const readStoredSettings = (): Settings => {
 export const SettingsProvider = ({ children }: SettingsProviderProps) => {
   const [settings, setSettings] = useState<Settings>(defaultSettings)
   const [hasHydrated, setHasHydrated] = useState(false)
-  // Child routes may hydrate server units before this provider's localStorage
-  // effect runs; keep that override so storage load cannot clobber it.
+  // Child routes may hydrate server prefs before this provider's localStorage
+  // effect runs; keep those overrides so storage load cannot clobber them.
   const serverPreferredUnitsRef = useRef<PreferredUnits | null>(null)
+  const serverNearbyEmailsRef = useRef<boolean | null>(null)
 
   useEffect(() => {
     const stored = readStoredSettings()
-    setSettings(
-      serverPreferredUnitsRef.current != null
-        ? { ...stored, preferredUnits: serverPreferredUnitsRef.current }
-        : stored,
-    )
+    setSettings({
+      ...stored,
+      ...(serverPreferredUnitsRef.current != null
+        ? { preferredUnits: serverPreferredUnitsRef.current }
+        : {}),
+      ...(serverNearbyEmailsRef.current != null
+        ? { nearbySurfSpotsEmails: serverNearbyEmailsRef.current }
+        : {}),
+    })
     setHasHydrated(true)
   }, [])
 
@@ -83,7 +99,7 @@ export const SettingsProvider = ({ children }: SettingsProviderProps) => {
   }, [hasHydrated, settings])
 
   const updateSetting = useCallback(
-    (key: string, value: string | PreferredUnits) =>
+    (key: keyof Settings, value: SettingsValue) =>
       setSettings((prev) => ({ ...prev, [key]: value })),
     [],
   )
@@ -104,13 +120,31 @@ export const SettingsProvider = ({ children }: SettingsProviderProps) => {
     [],
   )
 
+  const hydrateNearbySurfSpotsEmailsFromServer = useCallback(
+    (enabled: boolean) => {
+      serverNearbyEmailsRef.current = enabled
+      setSettings((prev) =>
+        prev.nearbySurfSpotsEmails === enabled
+          ? prev
+          : { ...prev, nearbySurfSpotsEmails: enabled },
+      )
+    },
+    [],
+  )
+
   const value = useMemo(
     (): SettingsContextValue => ({
       settings,
       updateSetting,
       hydratePreferredUnitsFromServer,
+      hydrateNearbySurfSpotsEmailsFromServer,
     }),
-    [settings, updateSetting, hydratePreferredUnitsFromServer],
+    [
+      settings,
+      updateSetting,
+      hydratePreferredUnitsFromServer,
+      hydrateNearbySurfSpotsEmailsFromServer,
+    ],
   )
 
   return (

@@ -102,7 +102,7 @@ export default function Settings() {
   const { state } = useNavigation()
   const loading = state === 'loading'
   const submitStatus = useSubmitStatus()
-  const { settings, updateSetting, hydratePreferredUnitsFromServer } =
+  const { settings, updateSetting, hydratePreferredUnitsFromServer, hydrateNearbySurfSpotsEmailsFromServer } =
     useSettingsContext()
   const { user } = useUserContext()
   const { settings: serverSettings } = useLoaderData<LoaderData>()
@@ -124,22 +124,40 @@ export default function Settings() {
     if (serverSettings?.preferredUnits) {
       hydratePreferredUnitsFromServer(serverSettings.preferredUnits)
     }
-  }, [hydratePreferredUnitsFromServer, serverSettings?.preferredUnits])
+    if (serverSettings != null) {
+      hydrateNearbySurfSpotsEmailsFromServer(serverSettings.nearbySurfSpotsEmails)
+    }
+  }, [
+    hydratePreferredUnitsFromServer,
+    hydrateNearbySurfSpotsEmailsFromServer,
+    serverSettings,
+    serverSettings?.preferredUnits,
+    serverSettings?.nearbySurfSpotsEmails,
+  ])
 
-  // Sync preferredUnits into localStorage after each successful save (not keyed
-  // on the success message alone — that blocked a second save with the same toast).
+  // Sync client-cached prefs after each successful save (not keyed on the
+  // success message alone — that blocked a second save with the same toast).
   const lastSyncedUnitsRef = useRef<PreferredUnits | null>(null)
+  const lastSyncedNearbyEmailsRef = useRef<boolean | null>(null)
 
   useEffect(() => {
     if (!submitStatus || submitStatus.isError || !submitStatus.message) {
       return
     }
-    if (lastSyncedUnitsRef.current === preferredUnits) {
-      return
+    if (lastSyncedUnitsRef.current !== preferredUnits) {
+      lastSyncedUnitsRef.current = preferredUnits
+      updateSetting('preferredUnits', preferredUnits)
     }
-    lastSyncedUnitsRef.current = preferredUnits
-    updateSetting('preferredUnits', preferredUnits)
-  }, [submitStatus, preferredUnits, updateSetting])
+    if (lastSyncedNearbyEmailsRef.current !== emailSettings.nearbySurfSpots) {
+      lastSyncedNearbyEmailsRef.current = emailSettings.nearbySurfSpots
+      updateSetting('nearbySurfSpotsEmails', emailSettings.nearbySurfSpots)
+    }
+  }, [
+    submitStatus,
+    preferredUnits,
+    emailSettings.nearbySurfSpots,
+    updateSetting,
+  ])
 
   // Check if any settings have changed
   const hasChanges = useMemo(() => {
@@ -215,7 +233,7 @@ export default function Settings() {
                     <CheckboxOption
                       name="nearbySurfSpots"
                       title="Nearby Surf Spots"
-                      description="Get alerts about surf spots near your location when you travel."
+                      description="When you travel, we may store your last map location to email you nearby spots. Turn this off to stop emails and clear stored location."
                       checked={emailSettings.nearbySurfSpots}
                       onChange={() => toggleEmailSetting('nearbySurfSpots')}
                     />
