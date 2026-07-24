@@ -22,7 +22,7 @@ export const parsePreferredUnits = (
 }
 
 const FEET_PER_METER = 3.28084
-const MILES_PER_KM = 0.621371
+const KM_PER_MILE = 1.609344
 
 /**
  * Converts meters to feet - 1m ≈ 3.28ft
@@ -37,7 +37,7 @@ export const metersToFeet = (meters: number): number =>
  * @param km - distance in kilometers
  * @returns number - distance in miles
  */
-export const kmToMiles = (km: number): number => km * MILES_PER_KM
+export const kmToMiles = (km: number): number => km / KM_PER_MILE
 
 /**
  * Converts stored surf height (meters) to the user's preferred display unit.
