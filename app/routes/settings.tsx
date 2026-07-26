@@ -23,7 +23,7 @@ import {
   ERROR_UPDATE_SETTINGS,
   SUCCESS_SETTINGS_UPDATED,
 } from '~/utils/errorUtils'
-import { edit } from '~/services/networkService'
+import { edit, privateCacheControlHeader } from '~/services/networkService'
 import {
   requireSessionCookie,
   requireFullUserProfile,
@@ -48,9 +48,15 @@ interface LoaderData {
 export const loader: LoaderFunction = async ({ request }) => {
   try {
     const profile = await requireFullUserProfile(request)
-    return data<LoaderData>({ settings: profile.settings ?? null })
+    return data<LoaderData>(
+      { settings: profile.settings ?? null },
+      { headers: privateCacheControlHeader },
+    )
   } catch {
-    return data<LoaderData>({ settings: null })
+    return data<LoaderData>(
+      { settings: null },
+      { headers: privateCacheControlHeader },
+    )
   }
 }
 
@@ -102,7 +108,7 @@ export default function Settings() {
   const { state } = useNavigation()
   const loading = state === 'loading'
   const submitStatus = useSubmitStatus()
-  const { settings, updateSetting, hydratePreferredUnitsFromServer, hydrateNearbySurfSpotsEmailsFromServer } =
+  const { settings, updateSetting, applyServerPreferredUnits, applyServerNearbySurfSpotsEmails } =
     useSettingsContext()
   const { user } = useUserContext()
   const { settings: serverSettings } = useLoaderData<LoaderData>()
@@ -122,14 +128,14 @@ export default function Settings() {
 
   useEffect(() => {
     if (serverSettings?.preferredUnits) {
-      hydratePreferredUnitsFromServer(serverSettings.preferredUnits)
+      applyServerPreferredUnits(serverSettings.preferredUnits)
     }
     if (serverSettings != null) {
-      hydrateNearbySurfSpotsEmailsFromServer(serverSettings.nearbySurfSpotsEmails)
+      applyServerNearbySurfSpotsEmails(serverSettings.nearbySurfSpotsEmails)
     }
   }, [
-    hydratePreferredUnitsFromServer,
-    hydrateNearbySurfSpotsEmailsFromServer,
+    applyServerPreferredUnits,
+    applyServerNearbySurfSpotsEmails,
     serverSettings,
     serverSettings?.preferredUnits,
     serverSettings?.nearbySurfSpotsEmails,

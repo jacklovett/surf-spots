@@ -1,6 +1,6 @@
 import { data, Link, useLoaderData, useParams } from 'react-router'
 import { ContentStatus, PageErrorRecoveryActions } from '~/components'
-import { cacheControlHeader, get } from '~/services/networkService'
+import { publicCacheControlHeader, get } from '~/services/networkService'
 import type { Continent, Country } from '~/types/surfSpots'
 import { ERROR_LOAD_COUNTRIES_FOR_CONTINENT } from '~/utils/errorUtils'
 
@@ -29,7 +29,7 @@ export const loader = async ({ params }: { params: LoaderParams }) => {
         continentDetails,
       },
       {
-        headers: cacheControlHeader,
+        headers: publicCacheControlHeader,
       },
     )
   } catch (error) {

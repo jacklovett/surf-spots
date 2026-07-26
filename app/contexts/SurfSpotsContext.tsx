@@ -2,6 +2,7 @@ import {
   createContext,
   ReactNode,
   useContext,
+  useEffect,
   useState,
   useCallback,
   useMemo,
@@ -12,6 +13,7 @@ import {
   SurfSpot,
   SurfSpotNote,
 } from '~/types/surfSpots'
+import { useUserContext } from './UserContext'
 
 interface SurfSpotsProviderProps {
   children: ReactNode
@@ -36,6 +38,7 @@ const SurfSpotsContext = createContext<SurfSpotsContextType | undefined>(
 )
 
 export const SurfSpotsProvider = ({ children }: SurfSpotsProviderProps) => {
+  const { user } = useUserContext()
   const [filters, setFilters] = useState<SurfSpotFilters>(
     defaultSurfSpotFilters,
   )
@@ -45,6 +48,14 @@ export const SurfSpotsProvider = ({ children }: SurfSpotsProviderProps) => {
   )
   const [noteSubmissionComplete, setNoteSubmissionCompleteState] =
     useState<boolean>(false)
+
+  // Clear user-specific spot/note data on login, logout, or account switch.
+  // Keeps the map shell mounted; markers refresh from the empty list + refetch.
+  useEffect(() => {
+    setSurfSpots([])
+    setNotes(new Map())
+    setNoteSubmissionCompleteState(false)
+  }, [user?.id])
 
   const updateSurfSpot = useCallback(
     (surfSpotId: string, updates: Partial<SurfSpot>) => 

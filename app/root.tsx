@@ -29,7 +29,7 @@ export { ErrorBoundary } from './RootErrorBoundary'
 
 import { useScrollToTopOnNavigation } from './hooks'
 import { getSession } from './services/session.server'
-import { isNetworkError } from './services/networkService'
+import { isNetworkError, privateCacheControlHeader } from './services/networkService'
 import { loadInProgressSurfSessionForUser } from './services/surfSession.server'
 import { SessionUser } from './types/user'
 import { SurfSessionListItem } from './types/surfSpots'
@@ -70,7 +70,12 @@ export const loader: LoaderFunction = async ({ request }) => {
 
   return data(
     { user: user ?? null, inProgressSession, liveSessionRefreshFailed },
-    { headers: securityHeaders },
+    {
+      headers: {
+        ...securityHeaders,
+        ...privateCacheControlHeader,
+      },
+    },
   )
 }
 

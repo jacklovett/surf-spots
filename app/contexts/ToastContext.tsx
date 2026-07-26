@@ -5,8 +5,10 @@ import {
   useState,
   useCallback,
   useMemo,
+  useEffect,
 } from 'react'
 import { IToast, ToastType } from '~/components/Toast'
+import { useUserContext } from './UserContext'
 
 interface ToastContextType {
   toasts: IToast[]
@@ -29,7 +31,13 @@ interface ToastProviderProps {
 }
 
 export const ToastProvider = ({ children }: ToastProviderProps) => {
+  const { user } = useUserContext()
   const [toasts, setToasts] = useState<IToast[]>([])
+
+  // Drop toasts on login/logout/account switch so user-specific messages cannot linger.
+  useEffect(() => {
+    setToasts([])
+  }, [user?.id])
 
   const removeToast = useCallback((id: string) => {
     setToasts((prev) => prev.filter((toast) => toast.id !== id))
@@ -121,4 +129,3 @@ export const useToastContext = () => {
   }
   return context
 }
-

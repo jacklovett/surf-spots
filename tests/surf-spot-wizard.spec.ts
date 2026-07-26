@@ -470,6 +470,66 @@ test.describe('Surf Spot Wizard (Add/Edit Contract)', () => {
     await expect(page.locator('h1')).toContainText(spotName)
   })
 
+  test('logout clears private spot and user pages for anon', async ({
+    page,
+  }) => {
+    const { spotName } = await createPrivateSurfSpotAndOpenDetails(page)
+    const privateSpotUrl = page.url()
+    const privateSpotPath = new URL(privateSpotUrl).pathname
+
+    // Soft-nav to map so client spot cache holds the private spot.
+    await page.getByRole('button', { name: 'Open menu' }).click()
+    await page.locator('.menu-item').filter({ hasText: 'Surf Spots' }).click()
+    await page.waitForURL(/\/surf-spots\/?$/, { timeout: 15000 })
+
+    // Soft logout (SPA navigate). Header swaps Menu for Sign in.
+    await page.getByRole('button', { name: 'Open menu' }).click()
+    await page.locator('.menu-item').filter({ hasText: 'Logout' }).click()
+    await page.waitForURL(/\/surf-spots/, { timeout: 15000 })
+    await expect(
+      page.getByRole('navigation', { name: 'Authentication' }).getByRole('link', {
+        name: 'Sign in',
+      }),
+    ).toBeVisible({ timeout: 15000 })
+    await expect(page.getByRole('button', { name: 'Open menu' })).toHaveCount(0)
+
+    // After logout, map bounds refetch must not return the private spot.
+    const withinBoundsResponsePromise = page.waitForResponse(
+      (response) =>
+        response.url().includes('within-bounds') && response.status() === 200,
+      { timeout: 20000 },
+    )
+    await page.mouse.wheel(0, -400)
+    const withinBoundsResponse = await withinBoundsResponsePromise
+    const withinBoundsBody = await withinBoundsResponse.text()
+    expect(withinBoundsBody).not.toContain(spotName)
+
+    await expect(page.getByText(spotName)).toHaveCount(0)
+
+    // Soft-nav to private detail (same-origin anchor; RR should SPA navigate).
+    await page.evaluate((path) => {
+      const existing = document.getElementById('e2e-soft-nav')
+      existing?.remove()
+      const link = document.createElement('a')
+      link.id = 'e2e-soft-nav'
+      link.href = path
+      link.textContent = 'e2e-soft-nav'
+      document.body.appendChild(link)
+    }, privateSpotPath)
+    await page.locator('#e2e-soft-nav').click()
+    await page.waitForURL(new RegExp(privateSpotPath.replace(/\//g, '\\/')), {
+      timeout: 15000,
+    })
+    await expect(page.locator('h1')).not.toContainText(spotName, {
+      timeout: 15000,
+    })
+    await expect(page.getByText(spotName)).toHaveCount(0)
+
+    // User list routes must not serve cached signed-in content after logout.
+    await page.goto('/sessions', { waitUntil: 'domcontentloaded' })
+    await expect(page).toHaveURL(/\/auth/, { timeout: 15000 })
+  })
+
   test('Edit success shows single button and navigates via updated slug path', async ({
     page,
   }) => {

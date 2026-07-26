@@ -31,7 +31,7 @@ export const TripSelectionModal = ({
   const location = useLocation()
   const { closeDrawer } = useLayoutContext()
   const { showSuccess, showError } = useToastContext()
-  const { trips: tripsFromContext, hydrateTrips, updateTripLocal } =
+  const { trips: tripsFromContext, replaceTrips, updateTripLocal } =
     useTripContext()
 
   const lastActionRef = useRef<{ type: 'add' | 'remove'; tripName: string } | null>(null)
@@ -93,7 +93,7 @@ export const TripSelectionModal = ({
       // Update context with fetched trips
       const trips = tripsFetcher.data.trips
       if (Array.isArray(trips)) {
-        hydrateTrips(trips)
+        replaceTrips(trips)
       }
       if (tripsFetcher.data.error) {
         showError(getSafeFetcherErrorMessage(tripsFetcher.data, ERROR_LOAD_TRIPS))
@@ -101,14 +101,14 @@ export const TripSelectionModal = ({
     } else if (tripsFetcher.state === 'loading' && !tripsFetcher.data) {
       setIsLoadingTrips(true)
     }
-  }, [tripsFetcher.state, tripsFetcher.data, hydrateTrips, showError])
+  }, [tripsFetcher.state, tripsFetcher.data, replaceTrips, showError])
 
   // Initialize trips from props into context when modal opens
   useEffect(() => {
     if (isOpen && tripsFromProps) {
-      hydrateTrips(tripsFromProps)
+      replaceTrips(tripsFromProps)
     }
-  }, [isOpen, tripsFromProps, hydrateTrips])
+  }, [isOpen, tripsFromProps, replaceTrips])
 
   // Clear loading states when action completes and show feedback toast
   useEffect(() => {

@@ -62,6 +62,9 @@ export const LayoutProvider = ({ children }: LayoutProviderProps) => {
     setDrawer((prev) => ({
       ...prev,
       isOpen: false,
+      content: null,
+      title: undefined,
+      actions: undefined,
     })), [])
 
   const value = useMemo(

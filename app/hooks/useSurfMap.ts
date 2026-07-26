@@ -79,6 +79,8 @@ export const useSurfMap = (params: UseSurfMapParams) => {
   const isPreloadedModeRef = useRef(isPreloadedMode)
   const isStaticModeRef = useRef(isStaticMode)
   const surfSpotsRef = useRef(surfSpots)
+  const userIdRef = useRef(user?.id)
+  const spotsFetchGenerationRef = useRef(0)
   const handleMapBoundsUpdateRef = useRef<(() => void) | null>(null)
 
   filtersRef.current = filters
@@ -86,6 +88,13 @@ export const useSurfMap = (params: UseSurfMapParams) => {
   isPreloadedModeRef.current = isPreloadedMode
   isStaticModeRef.current = isStaticMode
   surfSpotsRef.current = surfSpots
+  userIdRef.current = user?.id
+
+  // Drop in-flight within-bounds results after login/logout/account switch so a
+  // response started while signed in cannot merge private spots back after logout.
+  useEffect(() => {
+    spotsFetchGenerationRef.current += 1
+  }, [user?.id])
 
   const { openSurfSpotDrawer } = useSurfSpotDrawer(
     onFetcherSubmit,
@@ -94,23 +103,56 @@ export const useSurfMap = (params: UseSurfMapParams) => {
   const openSurfSpotDrawerRef = useRef(openSurfSpotDrawer)
   openSurfSpotDrawerRef.current = openSurfSpotDrawer
 
+  const applyFetchedSurfSpots = useCallback(
+    (
+      newSurfSpots: SurfSpot[],
+      requestGeneration: number,
+      requestUserId: string | undefined,
+      mode: 'merge' | 'replace',
+    ) => {
+      if (requestGeneration !== spotsFetchGenerationRef.current) {
+        return false
+      }
+      if (requestUserId !== userIdRef.current) {
+        return false
+      }
+      if (mode === 'replace') {
+        setSurfSpots(newSurfSpots)
+      } else {
+        mergeSurfSpots(newSurfSpots)
+      }
+      setSpotsLoadError(null)
+      return true
+    },
+    [mergeSurfSpots, setSurfSpots],
+  )
+
   const debouncedFetchSurfSpots = useCallback(
     debounce(async (map: mapboxgl.Map) => {
+      const requestUserId = userIdRef.current
+      const requestGeneration = spotsFetchGenerationRef.current
       try {
         const newSurfSpots = await fetchSurfSpotsByBounds(
           map,
-          user?.id,
+          requestUserId,
           filtersRef.current,
           { timeoutMs: WITHIN_BOUNDS_TIMEOUT_MS },
         )
-        mergeSurfSpots(newSurfSpots)
-        setSpotsLoadError(null)
+        applyFetchedSurfSpots(
+          newSurfSpots,
+          requestGeneration,
+          requestUserId,
+          'merge',
+        )
       } catch (error) {
+        if (requestGeneration !== spotsFetchGenerationRef.current) {
+          return
+        }
         console.error('Error fetching surf spots:', error)
         setSpotsLoadError(getDisplayMessage(error, ERROR_LOAD_MAP_DATA))
       }
     }, 500),
-    [user?.id, mergeSurfSpots],
+    [applyFetchedSurfSpots],
   )
   const debouncedFetchSurfSpotsRef = useRef(debouncedFetchSurfSpots)
   debouncedFetchSurfSpotsRef.current = debouncedFetchSurfSpots
@@ -249,24 +291,39 @@ export const useSurfMap = (params: UseSurfMapParams) => {
       return
     }
 
-    fetchSurfSpotsByBounds(mapRef.current, user?.id, filters, {
+    const requestUserId = user?.id
+    const requestGeneration = spotsFetchGenerationRef.current
+    const map = mapRef.current
+
+    fetchSurfSpotsByBounds(map, requestUserId, filters, {
       timeoutMs: WITHIN_BOUNDS_TIMEOUT_MS,
     })
       .then((newSurfSpots) => {
-        setSpotsLoadError(null)
-        setSurfSpots(newSurfSpots)
-        if (mapRef.current && !mapRef.current._removed) {
+        const applied = applyFetchedSurfSpots(
+          newSurfSpots,
+          requestGeneration,
+          requestUserId,
+          'replace',
+        )
+        if (
+          applied &&
+          mapRef.current &&
+          !mapRef.current._removed
+        ) {
           updateMapSourceData(mapRef.current, newSurfSpots)
         }
       })
       .catch((error) => {
+        if (requestGeneration !== spotsFetchGenerationRef.current) {
+          return
+        }
         console.error('Error fetching surf spots on filter change:', error)
         setSpotsLoadError(getDisplayMessage(error, ERROR_LOAD_MAP_DATA))
       })
   }, [
     filters,
     user?.id,
-    setSurfSpots,
+    applyFetchedSurfSpots,
     disableInteractions,
     isPreloadedMode,
     mapRef,
@@ -278,16 +335,15 @@ export const useSurfMap = (params: UseSurfMapParams) => {
     }
 
     const spotsToDisplay = isPreloadedMode ? surfSpots || [] : contextSurfSpots
-    if (spotsToDisplay.length || isPreloadedMode) {
-      updateMapSourceData(mapRef.current, spotsToDisplay)
+    // Always sync (including empty) so auth-change clears remove private markers.
+    updateMapSourceData(mapRef.current, spotsToDisplay)
 
-      if (isPreloadedMode && spotsToDisplay.length > 0) {
-        setTimeout(() => {
-          if (mapRef.current && !mapRef.current._removed) {
-            fitMapToSurfSpots(mapRef.current, spotsToDisplay)
-          }
-        }, 100)
-      }
+    if (isPreloadedMode && spotsToDisplay.length > 0) {
+      setTimeout(() => {
+        if (mapRef.current && !mapRef.current._removed) {
+          fitMapToSurfSpots(mapRef.current, spotsToDisplay)
+        }
+      }, 100)
     }
   }, [
     surfSpots,
@@ -303,23 +359,32 @@ export const useSurfMap = (params: UseSurfMapParams) => {
       return
     }
 
+    const requestUserId = userIdRef.current
+    const requestGeneration = spotsFetchGenerationRef.current
     setSpotsRetryLoading(true)
     try {
       const newSurfSpots = await fetchSurfSpotsByBounds(
         map,
-        user?.id,
+        requestUserId,
         filtersRef.current,
         { timeoutMs: WITHIN_BOUNDS_TIMEOUT_MS },
       )
-      mergeSurfSpots(newSurfSpots)
-      setSpotsLoadError(null)
+      applyFetchedSurfSpots(
+        newSurfSpots,
+        requestGeneration,
+        requestUserId,
+        'merge',
+      )
     } catch (error) {
+      if (requestGeneration !== spotsFetchGenerationRef.current) {
+        return
+      }
       console.error('Error fetching surf spots:', error)
       setSpotsLoadError(getDisplayMessage(error, ERROR_LOAD_MAP_DATA))
     } finally {
       setSpotsRetryLoading(false)
     }
-  }, [mapRef, mergeSurfSpots, user?.id])
+  }, [mapRef, applyFetchedSurfSpots])
 
   const handleRetryMapInit = useCallback(() => {
     setSpotsRetryLoading(true)

@@ -78,9 +78,28 @@ export const resolveNetworkRequestUrl = (
   }
 }
 
-export const cacheControlHeader = {
+/**
+ * Geography/catalog responses with no per-user data.
+ * Safe for shared HTTP caches.
+ */
+export const publicCacheControlHeader = {
   'Cache-Control': 'public, max-age=3600, stale-while-revalidate=86400',
 }
+
+/**
+ * Cookie-varying or user-specific loader responses (sessions, trips, notes,
+ * private/pending spots, profile, etc.). Do not store in the browser cache
+ * across login/logout.
+ */
+export const privateCacheControlHeader = {
+  'Cache-Control': 'private, no-store',
+}
+
+/**
+ * Default for app loaders. Prefer {@link publicCacheControlHeader} only when
+ * the response cannot include signed-in user data.
+ */
+export const cacheControlHeader = privateCacheControlHeader
 
 export interface NetworkError extends Error {
   status?: number

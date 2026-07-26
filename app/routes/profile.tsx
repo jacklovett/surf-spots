@@ -278,7 +278,7 @@ export const action: ActionFunction = async ({ request }) => {
 }
 
 const Profile = () => {
-  const { hydratePreferredUnitsFromServer, hydrateNearbySurfSpotsEmailsFromServer } =
+  const { applyServerPreferredUnits, applyServerNearbySurfSpotsEmails } =
     useSettingsContext()
   const { showSuccess, showError } = useToastContext()
   const { isFormSubmitting } = useFormSubmission()
@@ -289,13 +289,13 @@ const Profile = () => {
   const { locationData = [], user, error } = useLoaderData<LoaderData>()
 
   useEffect(() => {
-    hydratePreferredUnitsFromServer(user?.settings?.preferredUnits)
+    applyServerPreferredUnits(user?.settings?.preferredUnits)
     if (user?.settings != null) {
-      hydrateNearbySurfSpotsEmailsFromServer(user.settings.nearbySurfSpotsEmails)
+      applyServerNearbySurfSpotsEmails(user.settings.nearbySurfSpotsEmails)
     }
   }, [
-    hydratePreferredUnitsFromServer,
-    hydrateNearbySurfSpotsEmailsFromServer,
+    applyServerPreferredUnits,
+    applyServerNearbySurfSpotsEmails,
     user?.settings,
     user?.settings?.preferredUnits,
     user?.settings?.nearbySurfSpotsEmails,

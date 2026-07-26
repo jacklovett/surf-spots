@@ -2,15 +2,17 @@ import {
   createContext,
   ReactNode,
   useContext,
+  useEffect,
   useState,
   useCallback,
 } from 'react'
 import { Trip } from '~/types/trip'
+import { useUserContext } from './UserContext'
 
 interface TripContextType {
   trips: Trip[]
   /** Replace the in-memory trip list (e.g. from a loader or resource route). */
-  hydrateTrips: (next: Trip[]) => void
+  replaceTrips: (next: Trip[]) => void
   /** Update one trip immutably (e.g. optimistic add/remove spot on a trip). */
   updateTripLocal: (tripId: string, updater: (trip: Trip) => Trip) => void
 }
@@ -22,16 +24,22 @@ interface TripProviderProps {
 }
 
 export const TripProvider = ({ children }: TripProviderProps) => {
+  const { user } = useUserContext()
   const [trips, setTrips] = useState<Trip[]>([])
 
-  const hydrateTrips = useCallback((next: Trip[]) => {
+  // Clear trips on login, logout, or account switch.
+  useEffect(() => {
+    setTrips([])
+  }, [user?.id])
+
+  const replaceTrips = useCallback((next: Trip[]) => {
     setTrips(next)
   }, [])
 
   const updateTripLocal = useCallback(
     (tripId: string, updater: (trip: Trip) => Trip) => {
       setTrips((prev) =>
-        prev.map((t) => (t.id === tripId ? updater(t) : t)),
+        prev.map((trip) => (trip.id === tripId ? updater(trip) : trip)),
       )
     },
     [],
@@ -39,7 +47,7 @@ export const TripProvider = ({ children }: TripProviderProps) => {
 
   const value: TripContextType = {
     trips,
-    hydrateTrips,
+    replaceTrips,
     updateTripLocal,
   }
 
