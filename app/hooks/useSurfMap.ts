@@ -10,6 +10,7 @@ import {
   fetchSurfSpotsByBounds,
   fitMapToSurfSpots,
   removeSource,
+  syncSurfedCountryLayers,
   updateMapSourceData,
   WITHIN_BOUNDS_TIMEOUT_MS,
 } from '~/services/mapService'
@@ -17,6 +18,7 @@ import { getDisplayMessage, post } from '~/services/networkService'
 import { ActionData, SurfSpotQuickActionSubmitHandler } from '~/types/api'
 import { Coordinates, SurfSpot } from '~/types/surfSpots'
 import { debounce } from '~/utils/commonUtils'
+import { getSurfedCountryIsoCodes } from '~/utils/countryNameToIsoAlpha2'
 import { ERROR_LOAD_MAP, ERROR_LOAD_MAP_DATA } from '~/utils/errorUtils'
 
 import { useMapInstance } from './useMapInstance'
@@ -37,6 +39,8 @@ const reportUserLocationForTravelAlerts = async (
 export interface UseSurfMapParams {
   surfSpots?: SurfSpot[]
   disableInteractions?: boolean
+  /** Journey map: soft-green fill for countries with surfed spots. */
+  highlightCountries?: boolean
   onFetcherSubmit?: SurfSpotQuickActionSubmitHandler
   surfActionFetcher?: FetcherWithComponents<ActionData>
 }
@@ -45,6 +49,7 @@ export const useSurfMap = (params: UseSurfMapParams) => {
   const {
     surfSpots,
     disableInteractions,
+    highlightCountries = false,
     onFetcherSubmit,
     surfActionFetcher,
   } = params
@@ -78,6 +83,7 @@ export const useSurfMap = (params: UseSurfMapParams) => {
   const contextSurfSpotsRef = useRef(contextSurfSpots)
   const isPreloadedModeRef = useRef(isPreloadedMode)
   const isStaticModeRef = useRef(isStaticMode)
+  const highlightCountriesRef = useRef(highlightCountries)
   const surfSpotsRef = useRef(surfSpots)
   const userIdRef = useRef(user?.id)
   const spotsFetchGenerationRef = useRef(0)
@@ -87,6 +93,7 @@ export const useSurfMap = (params: UseSurfMapParams) => {
   contextSurfSpotsRef.current = contextSurfSpots
   isPreloadedModeRef.current = isPreloadedMode
   isStaticModeRef.current = isStaticMode
+  highlightCountriesRef.current = highlightCountries
   surfSpotsRef.current = surfSpots
   userIdRef.current = user?.id
 
@@ -237,6 +244,10 @@ export const useSurfMap = (params: UseSurfMapParams) => {
       ? surfSpotsRef.current || []
       : contextSurfSpotsRef.current || []
 
+    if (highlightCountriesRef.current) {
+      syncSurfedCountryLayers(map, getSurfedCountryIsoCodes(initialSpots))
+    }
+
     addSourceData(map, initialSpots)
     addLayers(map, (event) => openSurfSpotDrawerRef.current(event))
 
@@ -338,6 +349,13 @@ export const useSurfMap = (params: UseSurfMapParams) => {
     // Always sync (including empty) so auth-change clears remove private markers.
     updateMapSourceData(mapRef.current, spotsToDisplay)
 
+    if (highlightCountries) {
+      syncSurfedCountryLayers(
+        mapRef.current,
+        getSurfedCountryIsoCodes(spotsToDisplay),
+      )
+    }
+
     if (isPreloadedMode && spotsToDisplay.length > 0) {
       setTimeout(() => {
         if (mapRef.current && !mapRef.current._removed) {
@@ -349,6 +367,7 @@ export const useSurfMap = (params: UseSurfMapParams) => {
     surfSpots,
     contextSurfSpots,
     disableInteractions,
+    highlightCountries,
     isPreloadedMode,
     mapRef,
   ])

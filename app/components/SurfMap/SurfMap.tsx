@@ -13,11 +13,21 @@ import { ContentStatus, ErrorRecoveryActions } from '~/components'
 interface IProps {
   surfSpots?: SurfSpot[]
   disableInteractions?: boolean
+  /** Journey map: soft-green fill for countries with surfed spots. */
+  highlightCountries?: boolean
   onFetcherSubmit?: SurfSpotQuickActionSubmitHandler
   surfActionFetcher?: FetcherWithComponents<ActionData>
 }
 
 export const SurfMap = memo((props: IProps) => {
+  const {
+    disableInteractions,
+    highlightCountries,
+    onFetcherSubmit,
+    surfActionFetcher,
+    surfSpots,
+  } = props
+
   const {
     mapContainerRef,
     loading,
@@ -27,8 +37,13 @@ export const SurfMap = memo((props: IProps) => {
     spotsRetryLoading,
     handleRetrySpotsLoad,
     handleRetryMapInit,
+  } = useSurfMap({
     disableInteractions,
-  } = useSurfMap(props)
+    highlightCountries,
+    onFetcherSubmit,
+    surfActionFetcher,
+    surfSpots,
+  })
 
   return (
     <div className={classNames({ 'map-container': true, border: mapReady })}>

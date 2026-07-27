@@ -388,6 +388,111 @@ export const initializeMap = (
   })
 }
 
+/** Toast success greens from `_variables.scss` (`$toast-success-bg` / `$toast-success-text`). */
+const SURFED_COUNTRY_FILL = '#d4edda'
+const SURFED_COUNTRY_OUTLINE = '#0f5132'
+
+const SURFED_COUNTRIES_SOURCE_ID = 'surfedCountries'
+const SURFED_COUNTRIES_FILL_LAYER_ID = 'surfedCountriesFill'
+const SURFED_COUNTRIES_OUTLINE_LAYER_ID = 'surfedCountriesOutline'
+
+const buildSurfedCountryFilter = (
+  isoCodes: string[],
+): mapboxgl.ExpressionSpecification => {
+  if (isoCodes.length === 0) {
+    return ['==', ['get', 'iso_3166_1'], '']
+  }
+
+  // Worldview + disputed filters avoid overlapping polygons for contested borders.
+  return [
+    'all',
+    ['==', ['get', 'disputed'], 'false'],
+    [
+      'any',
+      ['==', 'all', ['get', 'worldview']],
+      ['in', 'US', ['get', 'worldview']],
+    ],
+    ['in', ['get', 'iso_3166_1'], ['literal', isoCodes]],
+  ]
+}
+
+const getFirstSymbolLayerId = (map: mapboxgl.Map): string | undefined =>
+  map.getStyle().layers?.find((layer) => layer.type === 'symbol')?.id
+
+/**
+ * Soft-green country fills for places the user has surfed (journey map).
+ * Creates layers on first call; later calls only update the ISO filter.
+ */
+export const syncSurfedCountryLayers = (
+  map: mapboxgl.Map,
+  isoCodes: string[],
+): void => {
+  if (!map.getSource(SURFED_COUNTRIES_SOURCE_ID)) {
+    map.addSource(SURFED_COUNTRIES_SOURCE_ID, {
+      type: 'vector',
+      url: 'mapbox://mapbox.country-boundaries-v1',
+    })
+  }
+
+  const filter = buildSurfedCountryFilter(isoCodes)
+  const beforeId = getFirstSymbolLayerId(map)
+
+  if (!map.getLayer(SURFED_COUNTRIES_FILL_LAYER_ID)) {
+    map.addLayer(
+      {
+        id: SURFED_COUNTRIES_FILL_LAYER_ID,
+        type: 'fill',
+        source: SURFED_COUNTRIES_SOURCE_ID,
+        'source-layer': 'country_boundaries',
+        filter,
+        paint: {
+          'fill-color': SURFED_COUNTRY_FILL,
+          'fill-opacity': 0.55,
+        },
+      },
+      beforeId,
+    )
+  } else {
+    map.setFilter(SURFED_COUNTRIES_FILL_LAYER_ID, filter)
+  }
+
+  if (!map.getLayer(SURFED_COUNTRIES_OUTLINE_LAYER_ID)) {
+    map.addLayer(
+      {
+        id: SURFED_COUNTRIES_OUTLINE_LAYER_ID,
+        type: 'line',
+        source: SURFED_COUNTRIES_SOURCE_ID,
+        'source-layer': 'country_boundaries',
+        filter,
+        paint: {
+          'line-color': SURFED_COUNTRY_OUTLINE,
+          'line-width': 1,
+          'line-opacity': 0.7,
+        },
+      },
+      beforeId,
+    )
+  } else {
+    map.setFilter(SURFED_COUNTRIES_OUTLINE_LAYER_ID, filter)
+  }
+}
+
+export const removeSurfedCountryLayers = (map: mapboxgl.Map): void => {
+  try {
+    if (map.getLayer(SURFED_COUNTRIES_OUTLINE_LAYER_ID)) {
+      map.removeLayer(SURFED_COUNTRIES_OUTLINE_LAYER_ID)
+    }
+    if (map.getLayer(SURFED_COUNTRIES_FILL_LAYER_ID)) {
+      map.removeLayer(SURFED_COUNTRIES_FILL_LAYER_ID)
+    }
+    if (map.getSource(SURFED_COUNTRIES_SOURCE_ID)) {
+      map.removeSource(SURFED_COUNTRIES_SOURCE_ID)
+    }
+  } catch (error) {
+    console.warn('Error during surfed country layer cleanup:', error)
+  }
+}
+
 /**
  * Adds a source containing surf spots to the map.
  * @param map - the initialized map
@@ -848,6 +953,8 @@ export const updateMapSourceData = (map: mapboxgl.Map, surfSpots: SurfSpot[]): v
 
 export const removeSource = (map: mapboxgl.Map) => {
   try {
+    removeSurfedCountryLayers(map)
+
     // Check if source exists before trying to remove it
     const source = map.getSource('surfSpots')
     if (!source) {

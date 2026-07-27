@@ -217,6 +217,7 @@ export default function SurfedSpots() {
           <ErrorBoundary message={ERROR_BOUNDARY_MAP}>
             <SurfMap
               surfSpots={surfSpots}
+              highlightCountries
               onFetcherSubmit={onFetcherSubmit}
               surfActionFetcher={fetcher}
             />
