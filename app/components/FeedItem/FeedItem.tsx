@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react'
 import { Link } from 'react-router'
 import type { WatchListNotification } from '~/types/watchedSurfSpotsSummary'
 import Icon, { type IconKey } from '../Icon'
@@ -24,11 +25,14 @@ export const FeedItem = ({ notification }: FeedItemProps) => {
 
   const iconKey = getNotificationIcon(type) as IconKey
   const badgeLabel = getFeedBadgeLabel(type, status)
-  const timeAgo = formatTimeAgo(createdAt)
+  // formatTimeAgo uses Date.now(); set after mount so SSR HTML matches hydrate.
+  const [timeAgo, setTimeAgo] = useState('')
+  useEffect(() => {
+    setTimeAgo(formatTimeAgo(createdAt))
+  }, [createdAt])
   const dateRange =
     startDate && endDate ? formatDateRange(startDate, endDate) : null
   const { externalHref, internalPath } = resolveNotificationLink(link)
-  const isClickable = Boolean(externalHref || internalPath)
   const spotLabel = surfSpotName || 'Watch list'
 
   const body = (
@@ -45,8 +49,8 @@ export const FeedItem = ({ notification }: FeedItemProps) => {
           </div>
           <div className="feed-item-main">
             <div className="feed-item-topline">
-              <span className="feed-item-spot bold">{spotLabel}</span>
-              {timeAgo && (
+              <span className="feed-item-spot bold font-small">{spotLabel}</span>
+              {timeAgo !== '' && (
                 <span className="feed-item-time text-secondary font-small">
                   {timeAgo}
                 </span>
@@ -75,16 +79,23 @@ export const FeedItem = ({ notification }: FeedItemProps) => {
         </Link>
       )}
       {!internalPath && externalHref && (
-        <a
-          href={externalHref}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="feed-item-link-wrapper"
-        >
+        <div className="feed-item-static">
           {body}
-        </a>
+          <div className="feed-item-actions">
+            <a
+              href={externalHref}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="feed-item-external-link font-small"
+            >
+              Learn more
+            </a>
+          </div>
+        </div>
       )}
-      {!isClickable && <div className="feed-item-static">{body}</div>}
+      {!internalPath && !externalHref && (
+        <div className="feed-item-static">{body}</div>
+      )}
     </article>
   )
 }

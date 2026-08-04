@@ -150,6 +150,7 @@ export const HAZARDS: Option[] = [
   { key: 'reef', value: 'Reef', label: 'Reef' },
   { key: 'crocodiles', value: 'Crocodiles', label: 'Crocodiles' },
   { key: 'localism', value: 'Localism', label: 'Localism Issues' },
+  { key: 'pollution', value: 'Pollution', label: 'Pollution' },
 ]
 
 export const ACCOMMODATION_TYPES: Option[] = [

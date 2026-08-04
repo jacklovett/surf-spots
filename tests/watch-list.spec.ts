@@ -1,5 +1,6 @@
 import { test, expect } from '@playwright/test'
 import { login } from './utils/auth-helper'
+import { expectNoHydrationNoise } from './utils/hydration'
 
 test.describe('Watch List Page', () => {
   test.describe('Unauthenticated User', () => {
@@ -16,6 +17,35 @@ test.describe('Watch List Page', () => {
   test.describe('Authenticated User', () => {
     test.beforeEach(async ({ page }) => {
       await login(page)
+    })
+
+    test('should display hazard feed card from e2e fixture', async ({
+      page,
+    }) => {
+      const hydration = expectNoHydrationNoise(page)
+      const response = await page.goto('/e2e/feed-hazard')
+
+      if (response?.status() === 404) {
+        test.skip(
+          true,
+          'ALLOW_E2E_FIXTURES is not enabled on the running app. Use Playwright webServer or set ALLOW_E2E_FIXTURES=1 before npm run dev.',
+        )
+        return
+      }
+
+      await expect(page).toHaveURL(/\/e2e\/feed-hazard/)
+      const hazardCard = page.locator('.feed-item[data-type="hazard"]')
+      await expect(hazardCard).toBeVisible({ timeout: 15000 })
+      await expect(hazardCard.locator('.feed-item-badge')).toHaveText(
+        'Sewage alert',
+      )
+      await expect(hazardCard.locator('.feed-item-headline')).toContainText(
+        'Sewage overflow',
+      )
+      await expect(
+        hazardCard.getByRole('link', { name: 'View on Scottish Water' }),
+      ).toHaveAttribute('href', 'https://example.com/e2e-overflow-source')
+      hydration.assertNone()
     })
 
     test('should display watch list page title', async ({ page }) => {

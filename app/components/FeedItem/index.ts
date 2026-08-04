@@ -35,6 +35,15 @@ export const getFeedBadgeLabel = (type: string, status?: string): string => {
   if (type === 'event' && status) {
     return getEventStatusLabel(status)
   }
+  if (type === 'hazard') {
+    if (status === 'WARNING') {
+      return 'Sewage alert'
+    }
+    if (status === 'CAUTION') {
+      return 'Recent overflow'
+    }
+    return 'Alert'
+  }
   return getNotificationLabel(type)
 }
 

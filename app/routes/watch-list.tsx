@@ -129,8 +129,8 @@ export default function Watchlist() {
         {surfSpotsFound ? (
           <>
             <p>
-              Stay updated on swell seasons, local news, events, and travel
-              deals for the spots you're following.
+              Stay updated on swell seasons, events, water quality alerts, and
+              travel deals for the spots you're following.
             </p>
 
             <ErrorBoundary message={ERROR_BOUNDARY_SECTION}>
