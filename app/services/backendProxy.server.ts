@@ -23,6 +23,8 @@
  * Loaders/actions still call Spring directly (they already forward Cookie).
  */
 
+import { DEFAULT_ERROR_MESSAGE } from '~/utils/errorUtils'
+
 const API_URL =
   (typeof process !== 'undefined' && process.env?.VITE_API_URL) || ''
 
@@ -105,12 +107,24 @@ export const proxyToBackendApi = async (args: {
   }
 
   const hasBody = request.method !== 'GET' && request.method !== 'HEAD'
-  const upstream = await fetch(targetUrl, {
-    method: request.method,
-    headers,
-    body: hasBody ? await request.arrayBuffer() : undefined,
-    redirect: 'manual',
-  })
+  let upstream: Response
+  try {
+    upstream = await fetch(targetUrl, {
+      method: request.method,
+      headers,
+      body: hasBody ? await request.arrayBuffer() : undefined,
+      redirect: 'manual',
+    })
+  } catch (error) {
+    // Spring down / refused / DNS: return Response so RR loaders do not dump raw TypeError.
+    const detail =
+      error instanceof Error ? error.message : String(error)
+    console.warn(`Backend proxy unreachable (${targetUrl}): ${detail}`)
+    return Response.json(
+      { message: DEFAULT_ERROR_MESSAGE },
+      { status: 502, statusText: 'Bad Gateway' },
+    )
+  }
 
   const responseHeaders = new Headers()
   const upstreamContentType = upstream.headers.get('Content-Type')

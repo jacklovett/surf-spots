@@ -19,24 +19,13 @@ export const sessionStorage = createCookieSessionStorage({
   },
 })
 
-/**
- * Require an authenticated session and return the minimal identity stored in
- * the cookie (id / email / name only). Loaders that need richer profile data
- * should call requireFullUserProfile instead so PII stays out of the cookie.
- */
-export const requireSessionCookie = async (
+export const { getSession, commitSession, destroySession } = sessionStorage
+
+const readSessionUser = async (
   request: Request,
-): Promise<SessionUser> => {
-  const cookie = request.headers.get('Cookie')
-  const session = await sessionStorage.getSession(cookie)
-
-  const user = session.get('user') as SessionUser | undefined
-
-  if (!user) {
-    throw redirect('/auth')
-  }
-
-  return { ...user }
+): Promise<SessionUser | undefined> => {
+  const session = await sessionStorage.getSession(request.headers.get('Cookie'))
+  return session.get('user') as SessionUser | undefined
 }
 
 /**
@@ -61,6 +50,26 @@ export const redirectOnUnauthorized = async (
 }
 
 /**
+ * Require an authenticated session and return the minimal identity stored in
+ * the cookie (id / email / name only). Cookie-only: root clears stale sessions
+ * when the in-progress session call returns 401/403; loaders/actions that hit
+ * the API should call redirectOnUnauthorized on auth failures. Loaders that need
+ * richer profile data should call requireFullUserProfile instead so PII stays
+ * out of the cookie.
+ */
+export const requireSessionCookie = async (
+  request: Request,
+): Promise<SessionUser> => {
+  const user = await readSessionUser(request)
+
+  if (!user) {
+    throw redirect('/auth')
+  }
+
+  return { ...user }
+}
+
+/**
  * Require an authenticated session and fetch the current profile from the API.
  * Use this in loaders/actions that need fields beyond id/email/name (settings,
  * skill level, emergency contact, etc.). The session cookie is forwarded so
@@ -72,7 +81,11 @@ export const redirectOnUnauthorized = async (
 export const requireFullUserProfile = async (
   request: Request,
 ): Promise<User> => {
-  await requireSessionCookie(request)
+  const user = await readSessionUser(request)
+  if (!user) {
+    throw redirect('/auth')
+  }
+
   const cookie = request.headers.get('Cookie') ?? ''
   try {
     const profileResponse = await get<User>('user/me', {
@@ -84,5 +97,3 @@ export const requireFullUserProfile = async (
     throw error
   }
 }
-
-export const { getSession, commitSession, destroySession } = sessionStorage

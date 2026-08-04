@@ -85,12 +85,13 @@ export const getInProgressSurfSession = async (
   options?: RequestInit,
 ): Promise<SurfSessionListItem | null> => {
   try {
-    const response = await get<SurfSessionListItem>(
+    const response = await get<SurfSessionListItem | null>(
       `${surfSessionsEndpoint}/in-progress`,
       options,
     )
     return response?.data ?? null
   } catch (error) {
+    // Older API returned 404 when idle; treat as no session.
     if (isNetworkError(error) && error.status === 404) {
       return null
     }

@@ -1,6 +1,10 @@
-import { describe, expect, it } from 'vitest'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 
-import { buildBackendProxyTargetUrl } from '~/services/backendProxy.server'
+import {
+  buildBackendProxyTargetUrl,
+  proxyToBackendApi,
+} from '~/services/backendProxy.server'
+import { DEFAULT_ERROR_MESSAGE } from '~/utils/errorUtils'
 
 const TEST_API_BASE = 'https://api.example.com/api'
 
@@ -27,5 +31,29 @@ describe('buildBackendProxyTargetUrl', () => {
     expect(() =>
       buildBackendProxyTargetUrl('https://evil.example/x', '', TEST_API_BASE),
     ).toThrow('Invalid backend proxy path')
+  })
+})
+
+describe('proxyToBackendApi', () => {
+  afterEach(() => {
+    vi.unstubAllGlobals()
+    vi.restoreAllMocks()
+  })
+
+  it('should return 502 JSON when upstream fetch fails', async () => {
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockRejectedValue(new TypeError('fetch failed')),
+    )
+
+    const response = await proxyToBackendApi({
+      request: new Request('http://localhost/api/backend/countries'),
+      splatPath: 'countries',
+    })
+
+    expect(response.status).toBe(502)
+    await expect(response.json()).resolves.toEqual({
+      message: DEFAULT_ERROR_MESSAGE,
+    })
   })
 })
