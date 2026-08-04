@@ -72,34 +72,27 @@ export const FormComponent = (props: IProps) => {
         ref: props.formRef,
         className: formClassName,
       }
-    : propFetcher && action
-      ? {
-          method,
-          noValidate: true,
-          action,
-          id: props.formId,
-          ref: props.formRef,
-          className: formClassName,
-        }
-      : {
-          method,
-          noValidate: true,
-          id: props.formId,
-          ref: props.formRef,
-          className: formClassName,
-        }
+    : {
+        method,
+        noValidate: true,
+        ...(action ? { action } : {}),
+        id: props.formId,
+        ref: props.formRef,
+        className: formClassName,
+      }
 
   return (
     <ErrorBoundary>
-      <FormElement {...formProps}>        
-        {!!submitStatus && (
-          <div className="form-status-container">
-            {!submitStatus?.isError && (
-              <span className="form-success">{submitStatus?.message}</span>
-            )}
-            {submitStatus?.isError && (
-              <span className="form-error">{submitStatus.message}</span>
-            )}
+      <FormElement {...formProps}>
+        {submitStatus && (
+          <div className="form-status-container" aria-live="polite">
+            <span
+              className={
+                submitStatus.isError ? 'form-error' : 'form-success'
+              }
+            >
+              {submitStatus.message}
+            </span>
           </div>
         )}
         {children}

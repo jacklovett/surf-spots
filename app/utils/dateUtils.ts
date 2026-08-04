@@ -1,13 +1,21 @@
 /**
- * Format a date string to a consistent display format
- * This ensures server and client render the same output
+ * Format a date string to a consistent display format.
+ * Date-only `YYYY-MM-DD` uses calendar parts from the string so Node TZ and
+ * browser TZ cannot disagree (UTC midnight parse + local getters flips the day).
  * Format: "DD/MM/YYYY" (e.g., "25/12/2024")
  */
 export const formatDate = (dateString: string): string => {
-  const date = new Date(dateString)
-  const day = String(date.getDate()).padStart(2, '0')
-  const month = String(date.getMonth() + 1).padStart(2, '0')
-  const year = date.getFullYear()
+  const trimmed = dateString.trim()
+  const dateOnlyMatch = /^(\d{4})-(\d{2})-(\d{2})$/.exec(trimmed)
+  if (dateOnlyMatch) {
+    const [, year, month, day] = dateOnlyMatch
+    return `${day}/${month}/${year}`
+  }
+
+  const date = new Date(trimmed)
+  const day = String(date.getUTCDate()).padStart(2, '0')
+  const month = String(date.getUTCMonth() + 1).padStart(2, '0')
+  const year = date.getUTCFullYear()
   return `${day}/${month}/${year}`
 }
 
@@ -269,12 +277,15 @@ export const formatDurationCompact = (totalMinutes: number): string => {
 
 export const LIVE_SESSION_REMINDER_MS = 4 * 60 * 60 * 1000
 
-export const elapsedMsSinceInstant = (isoInstant: string): number => {
+export const elapsedMsSinceInstant = (
+  isoInstant: string,
+  nowMs: number = Date.now(),
+): number => {
   const startedAt = Date.parse(isoInstant)
   if (Number.isNaN(startedAt)) {
     return 0
   }
-  return Math.max(0, Date.now() - startedAt)
+  return Math.max(0, nowMs - startedAt)
 }
 
 export const elapsedMinutesSinceInstant = (isoInstant: string): number =>
@@ -295,16 +306,21 @@ export const formatElapsedStopwatchFromMs = (elapsedMs: number): string => {
   return `${padStopwatchSegment(minutes)}:${padStopwatchSegment(seconds)}`
 }
 
-export const formatElapsedStopwatchSinceInstant = (isoInstant: string): string =>
-  formatElapsedStopwatchFromMs(elapsedMsSinceInstant(isoInstant))
+export const formatElapsedStopwatchSinceInstant = (
+  isoInstant: string,
+  nowMs: number = Date.now(),
+): string => formatElapsedStopwatchFromMs(elapsedMsSinceInstant(isoInstant, nowMs))
 
 /** True when `isoInstant` parses and is strictly before now. */
-export const isInstantInPast = (isoInstant: string): boolean => {
+export const isInstantInPast = (
+  isoInstant: string,
+  nowMs: number = Date.now(),
+): boolean => {
   const parsed = Date.parse(isoInstant)
   if (Number.isNaN(parsed)) {
     return false
   }
-  return parsed < Date.now()
+  return parsed < nowMs
 }
 
 /**
@@ -379,9 +395,9 @@ export const formatSurfSessionTimeRange = (
     durationLabel = formatDurationMinutesLabel(session.durationMinutes)
   }
   if (durationLabel) {
-    return `${startLabel} – ${endLabel} · ${durationLabel}`
+    return `${startLabel} - ${endLabel} · ${durationLabel}`
   }
-  return `${startLabel} – ${endLabel}`
+  return `${startLabel} - ${endLabel}`
 }
 
 /**
@@ -417,7 +433,7 @@ const parseIsoDateOnly = (dateString: string): Date => {
   return new Date(year, month - 1, day)
 }
 
-/** Formats an inclusive ISO date range for notification feeds (e.g. "1 Feb – 15 Feb 2026"). */
+/** Formats an inclusive ISO date range for notification feeds (e.g. "1 Feb - 15 Feb 2026"). */
 export const formatDateRange = (startDate: string, endDate: string): string => {
   const start = parseIsoDateOnly(startDate)
   const end = parseIsoDateOnly(endDate)
@@ -434,5 +450,5 @@ export const formatDateRange = (startDate: string, endDate: string): string => {
     year: 'numeric',
   })
 
-  return `${startLabel} – ${endLabel}`
+  return `${startLabel} - ${endLabel}`
 }

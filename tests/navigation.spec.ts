@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test'
+import { expectNoHydrationNoise } from './utils/hydration'
 
 test.describe('Navigation', () => {
   test('should list About Us, FAQ, and Contact under Info, not Account', async ({
@@ -256,8 +257,11 @@ test.describe('Navigation', () => {
   })
 
   test('should maintain state during navigation', async ({ page }) => {
+    const hydration = expectNoHydrationNoise(page)
+
     await page.goto('/surf-spots')
     await page.waitForSelector('.map-container', { state: 'visible', timeout: 15000 })
+    hydration.assertNone('Unexpected hydration console noise on /surf-spots')
 
     // Navigate away and back
     await page.goto('/')

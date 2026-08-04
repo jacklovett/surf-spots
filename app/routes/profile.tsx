@@ -468,7 +468,7 @@ const Profile = () => {
   }
 
   return (
-    <Page showHeader overrideLoading={isFormSubmitting}>
+    <Page showHeader>
       {/* Announce form submission state to screen readers */}
       {isFormSubmitting && (
         <div role="status" aria-live="polite" className="sr-only">

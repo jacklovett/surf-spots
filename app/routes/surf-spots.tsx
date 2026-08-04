@@ -154,7 +154,7 @@ export default function SurfSpots() {
   )
 
   return (
-    <Page showHeader overrideLoading>
+    <Page showHeader>
       {!isAddSessionRoute && (
         <>
           <Toolbar

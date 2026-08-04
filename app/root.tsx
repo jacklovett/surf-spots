@@ -28,7 +28,7 @@ import { ERROR_BOUNDARY_APP } from './utils/errorUtils'
 export { ErrorBoundary } from './RootErrorBoundary'
 
 import { useScrollToTopOnNavigation } from './hooks'
-import { getSession } from './services/session.server'
+import { destroySession, getSession } from './services/session.server'
 import { isNetworkError, privateCacheControlHeader } from './services/networkService'
 import { loadInProgressSurfSessionForUser } from './services/surfSession.server'
 import { SessionUser } from './types/user'
@@ -51,7 +51,8 @@ const securityHeaders: Record<string, string> = {
 export const loader: LoaderFunction = async ({ request }) => {
   const cookie = request.headers.get('Cookie') ?? ''
   const session = await getSession(cookie)
-  const user = session.get('user')
+  let user = session.get('user') as SessionUser | undefined
+  let clearedSessionCookie: string | undefined
 
   let inProgressSession: SurfSessionListItem | null = null
   let liveSessionRefreshFailed = false
@@ -59,12 +60,25 @@ export const loader: LoaderFunction = async ({ request }) => {
     try {
       inProgressSession = await loadInProgressSurfSessionForUser(cookie)
     } catch (error) {
-      liveSessionRefreshFailed = true
-      console.error('Root loader: failed to load in-progress session', {
-        status: isNetworkError(error) ? error.status : undefined,
-        responseSummary: isNetworkError(error) ? error.responseSummary : undefined,
-        message: error instanceof Error ? error.message : String(error),
-      })
+      const status = isNetworkError(error) ? error.status : undefined
+      // Once-per-navigation session check: in-progress requires auth. Stale
+      // cookie after wipe/delete → drop session so nav shows logged-out.
+      // Do not redirect (public pages stay put). Protected loaders still use
+      // redirectOnUnauthorized when their own API calls return 401/403.
+      if (status === 401 || status === 403) {
+        clearedSessionCookie = await destroySession(session)
+        user = undefined
+        inProgressSession = null
+      } else {
+        liveSessionRefreshFailed = true
+        console.error('Root loader: failed to load in-progress session', {
+          status,
+          responseSummary: isNetworkError(error)
+            ? error.responseSummary
+            : undefined,
+          message: error instanceof Error ? error.message : String(error),
+        })
+      }
     }
   }
 
@@ -74,6 +88,9 @@ export const loader: LoaderFunction = async ({ request }) => {
       headers: {
         ...securityHeaders,
         ...privateCacheControlHeader,
+        ...(clearedSessionCookie
+          ? { 'Set-Cookie': clearedSessionCookie }
+          : {}),
       },
     },
   )

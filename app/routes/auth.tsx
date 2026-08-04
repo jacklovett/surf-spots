@@ -167,6 +167,7 @@ export default function Auth() {
       </div>
       <div className="page-content mt">
         <FormComponent
+          action="/auth"
           isDisabled={!isFormValid}
           submitLabel="Sign in"
           submitStatus={submitStatus}

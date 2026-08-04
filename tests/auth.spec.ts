@@ -4,6 +4,7 @@ import {
   POST_AUTH_REDIRECT_PATH,
   WELCOME_TOAST_SEARCH_PARAM,
 } from '../app/constants/postAuthRedirect'
+import { expectNoHydrationNoise } from './utils/hydration'
 
 test.describe('Authentication', () => {
   test.beforeEach(async ({ page }) => {
@@ -93,6 +94,24 @@ test.describe('Authentication', () => {
     // Check if continue as guest link exists
     const guestLink = page.locator('a[href="/surf-spots"]')
     await expect(guestLink).toBeVisible()
+  })
+
+  test('should show OAuth error banner and keep auth layout', async ({
+    page,
+  }) => {
+    const hydration = expectNoHydrationNoise(page)
+
+    await page.goto(
+      '/auth?error=google&message=Sign+in+failed.+Please+try+again.',
+    )
+
+    await expect(page.locator('.auth-layout')).toBeVisible()
+    await expect(page.locator('.form-error')).toHaveText(
+      'Sign in failed. Please try again.',
+    )
+    await expect(page.locator('input[name="email"]')).toBeVisible()
+    await expect(page.locator('form')).toHaveAttribute('action', '/auth')
+    hydration.assertNone()
   })
 
   test('should have social login options', async ({ page }) => {

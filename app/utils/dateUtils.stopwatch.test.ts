@@ -1,11 +1,22 @@
 import { describe, expect, it } from 'vitest'
 
 import {
+  formatDate,
   formatElapsedStopwatchFromMs,
   formatElapsedStopwatchSinceInstant,
   formatSurfSessionTimeRange,
   formatTimeForDisplay,
 } from './dateUtils'
+
+describe('formatDate', () => {
+  it('should format date-only strings from calendar parts (TZ-safe)', () => {
+    expect(formatDate('2024-12-25')).toBe('25/12/2024')
+  })
+
+  it('should format ISO instants with UTC calendar parts', () => {
+    expect(formatDate('2024-07-01T00:00:00.000Z')).toBe('01/07/2024')
+  })
+})
 
 describe('formatElapsedStopwatchFromMs', () => {
   it('should format zero elapsed time as 00:00', () => {
@@ -41,6 +52,6 @@ describe('formatSurfSessionTimeRange', () => {
         sessionEndTime: '10:42:30.987654',
         durationMinutes: 87,
       }),
-    ).toBe('09:15 – 10:42 · 1 hr 27 min')
+    ).toBe('09:15 - 10:42 · 1 hr 27 min')
   })
 })

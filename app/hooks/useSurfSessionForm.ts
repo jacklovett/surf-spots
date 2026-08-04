@@ -86,9 +86,7 @@ export const useSurfSessionForm = (params: UseSurfSessionFormParams) => {
   const [showSuccessScreen, setShowSuccessScreen] = useState(
     initialShowSuccessScreen,
   )
-  const [sessionDate, setSessionDate] = useState(() =>
-    formatDateForInput(new Date()),
-  )
+  const [sessionDate, setSessionDate] = useState('')
   const [swellDirectionArray, setSwellDirectionArray] = useState<string[]>([])
   const [windDirectionArray, setWindDirectionArray] = useState<string[]>([])
   const [tide, setTide] = useState('')

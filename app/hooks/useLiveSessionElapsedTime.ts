@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 
 import {
   elapsedMsSinceInstant,
-  formatElapsedStopwatchSinceInstant,
+  formatElapsedStopwatchFromMs,
   isInstantInPast,
   LIVE_SESSION_REMINDER_MS,
 } from '~/utils/dateUtils'
@@ -12,17 +12,23 @@ interface UseLiveSessionElapsedTimeParams {
   expectedReturnInstant?: string | null
 }
 
+/**
+ * Live timer / reminder flags. `nowTick` stays null until mount so SSR and the
+ * first client paint match (Date.now() must not run during hydrate).
+ */
 export const useLiveSessionElapsedTime = ({
   sessionStartInstant,
   expectedReturnInstant,
 }: UseLiveSessionElapsedTimeParams) => {
-  const [nowTick, setNowTick] = useState(Date.now())
+  const [nowTick, setNowTick] = useState<number | null>(null)
 
   useEffect(() => {
     if (sessionStartInstant == null || sessionStartInstant === '') {
+      setNowTick(null)
       return
     }
 
+    setNowTick(Date.now())
     const intervalId = window.setInterval(() => {
       setNowTick(Date.now())
     }, 1000)
@@ -31,24 +37,41 @@ export const useLiveSessionElapsedTime = ({
   }, [sessionStartInstant])
 
   const elapsedTimerLabel = useMemo(() => {
-    if (sessionStartInstant == null || sessionStartInstant === '') {
+    if (
+      nowTick == null ||
+      sessionStartInstant == null ||
+      sessionStartInstant === ''
+    ) {
       return ''
     }
-    return formatElapsedStopwatchSinceInstant(sessionStartInstant)
+    return formatElapsedStopwatchFromMs(
+      elapsedMsSinceInstant(sessionStartInstant, nowTick),
+    )
   }, [sessionStartInstant, nowTick])
 
   const showStillSurfingPrompt = useMemo(() => {
-    if (sessionStartInstant == null || sessionStartInstant === '') {
+    if (
+      nowTick == null ||
+      sessionStartInstant == null ||
+      sessionStartInstant === ''
+    ) {
       return false
     }
-    return elapsedMsSinceInstant(sessionStartInstant) >= LIVE_SESSION_REMINDER_MS
+    return (
+      elapsedMsSinceInstant(sessionStartInstant, nowTick) >=
+      LIVE_SESSION_REMINDER_MS
+    )
   }, [sessionStartInstant, nowTick])
 
   const isPastExpectedReturn = useMemo(() => {
-    if (expectedReturnInstant == null || expectedReturnInstant === '') {
+    if (
+      nowTick == null ||
+      expectedReturnInstant == null ||
+      expectedReturnInstant === ''
+    ) {
       return false
     }
-    return isInstantInPast(expectedReturnInstant)
+    return isInstantInPast(expectedReturnInstant, nowTick)
   }, [expectedReturnInstant, nowTick])
 
   return {

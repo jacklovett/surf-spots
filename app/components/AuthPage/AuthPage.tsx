@@ -1,10 +1,10 @@
 import { ReactNode } from 'react'
-import { useNavigation } from 'react-router'
 import classNames from 'classnames'
 
 import { ErrorBoundary } from '../index'
+import ContentStatus from '../ContentStatus'
+import { PageErrorRecoveryActions } from '../ErrorRecoveryActions'
 import { ERROR_BOUNDARY_SECTION } from '~/utils/errorUtils'
-import { renderContent } from '../Page'
 import { COPYRIGHT_TEXT } from '../Footer'
 
 interface IProps {
@@ -13,12 +13,13 @@ interface IProps {
   reversed?: boolean
 }
 
+/**
+ * Auth layout never swaps children for a navigation loading shell.
+ * That tree replace is a hydration footgun (SSR idle vs client loading)
+ * and is why a failed OAuth redirect can look like "CSS died".
+ */
 export const AuthPage = (props: IProps) => {
   const { children, error, reversed } = props
-
-  const { state } = useNavigation()
-
-  const loading = state === 'loading'
 
   return (
     <main className="page">
@@ -31,7 +32,14 @@ export const AuthPage = (props: IProps) => {
         >
           <div className="center column h-full flex-1">
             <div className="column center auth-content">
-              {renderContent(children, loading, error)}
+              {error ? (
+                <ContentStatus isError actions={<PageErrorRecoveryActions />}>
+                  <h1>Error</h1>
+                  <p>{error}</p>
+                </ContentStatus>
+              ) : (
+                children
+              )}
             </div>
             <div className="auth-copyright">
               <p>{COPYRIGHT_TEXT}</p>

@@ -50,11 +50,13 @@ export const StartLiveSessionForm = (props: StartLiveSessionFormProps) => {
   const sessionLocation = useStartLiveSessionLocation({ showError })
   const [shareLocationWithEmergencyContact, setShareLocationWithEmergencyContact] =
     useState(false)
-  const [expectedReturnTime, setExpectedReturnTime] = useState(defaultExpectedReturnTime)
+  // Local clock default - set after mount so SSR and hydrate match.
+  const [expectedReturnTime, setExpectedReturnTime] = useState('')
   const [startIanaZoneId, setStartIanaZoneId] = useState('')
 
   useEffect(() => {
     setStartIanaZoneId(getBrowserIanaTimeZone())
+    setExpectedReturnTime(defaultExpectedReturnTime())
   }, [])
 
   const [showSuccessScreen, setShowSuccessScreen] = useState(false)

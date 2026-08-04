@@ -66,9 +66,10 @@ export const LiveSessionBanner = () => {
   return (
     <div
       className={classNames({
-          'live-session-banner': true,
-          'live-session-banner-reminder': showStillSurfingPrompt || isPastExpectedReturn
-        })}
+        'live-session-banner': true,
+        'live-session-banner-reminder':
+          showStillSurfingPrompt || isPastExpectedReturn,
+      })}
       role="status"
       aria-live="polite"
     >

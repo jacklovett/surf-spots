@@ -46,7 +46,7 @@ export const FormInput = (props: IProps) => {
         error: !!errorMessage,
       })}
     >
-      <label className={showLabel ? 'visible' : ''}>
+      <label className={showLabel ? 'visible' : undefined}>
         {label}
         {required && (
           <span className="form-label-required" aria-hidden="true">
@@ -62,9 +62,9 @@ export const FormInput = (props: IProps) => {
           onChange={onChange}
           onBlur={onBlur}
           placeholder={inputPlaceholder}
-          disabled={disabled}
-          aria-disabled={disabled}
-          readOnly={readOnly}
+          disabled={disabled || undefined}
+          aria-disabled={disabled ? true : undefined}
+          readOnly={readOnly || undefined}
           maxLength={field.validationRules?.maxLength}
         />
       ) : type === 'select' ? (
@@ -74,8 +74,8 @@ export const FormInput = (props: IProps) => {
           value={safeValue as string}
           onChange={onChange}
           onBlur={onBlur}
-          disabled={disabled || readOnly}
-          aria-disabled={disabled || readOnly}
+          disabled={disabled || readOnly || undefined}
+          aria-disabled={disabled || readOnly ? true : undefined}
         >
           {options?.map((option) => (
             <option key={option.key} value={option.value}>
@@ -92,9 +92,9 @@ export const FormInput = (props: IProps) => {
           onChange={onChange}
           onBlur={onBlur}
           placeholder={inputPlaceholder}
-          disabled={disabled}
-          aria-disabled={disabled}
-          readOnly={readOnly}
+          disabled={disabled || undefined}
+          aria-disabled={disabled ? true : undefined}
+          readOnly={readOnly || undefined}
           min={type === 'number' && field.validationRules?.min !== undefined ? field.validationRules.min : type === 'number' ? 0 : undefined}
           max={type === 'number' && field.validationRules?.max !== undefined ? field.validationRules.max : undefined}
         />

@@ -1,17 +1,22 @@
 import { ReactNode } from 'react'
-import { useNavigation, useLocation } from 'react-router'
 import classNames from 'classnames'
 
-import { Drawer, ErrorBoundary, Footer, Header, LiveSessionBanner } from '../index'
+import {
+  Drawer,
+  ErrorBoundary,
+  Footer,
+  Header,
+  LiveSessionBanner,
+} from '../index'
+import ContentStatus from '../ContentStatus'
+import { PageErrorRecoveryActions } from '../ErrorRecoveryActions'
 import { ERROR_BOUNDARY_SECTION } from '~/utils/errorUtils'
-import { renderContent } from './renderContent'
 
 interface IProps {
   children: ReactNode
   showHeader?: boolean
   isAlternate?: boolean
   error?: string | null
-  overrideLoading?: boolean
 }
 
 export const Page = (props: IProps) => {
@@ -20,16 +25,7 @@ export const Page = (props: IProps) => {
     error,
     isAlternate = false,
     showHeader,
-    overrideLoading,
   } = props
-
-  const navigation = useNavigation()
-  const { pathname } = useLocation()
-
-  const loading =
-    navigation.state === 'loading' &&
-    (!navigation.location || navigation.location.pathname !== pathname) &&
-    !overrideLoading
 
   return (
     <div className="page-wrapper">
@@ -43,7 +39,14 @@ export const Page = (props: IProps) => {
       >
         <section className="content-container">
           <ErrorBoundary message={ERROR_BOUNDARY_SECTION}>
-            {renderContent(children, loading, error)}
+            {error ? (
+              <ContentStatus isError actions={<PageErrorRecoveryActions />}>
+                <h1>Error</h1>
+                <p>{error}</p>
+              </ContentStatus>
+            ) : (
+              children
+            )}
           </ErrorBoundary>
         </section>
       </main>
