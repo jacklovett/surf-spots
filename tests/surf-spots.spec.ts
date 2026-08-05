@@ -2,6 +2,29 @@ import { test, expect } from '@playwright/test'
 import { getDrawer, getVisibleDrawerOrNull } from './utils/drawer'
 import { login } from './utils/auth-helper'
 
+test.describe('Surf Spots map loading', () => {
+  test('should show loading UI while map spots are fetching', async ({ page }) => {
+    let releaseSpots: (() => void) | undefined
+    const spotsGate = new Promise<void>((resolve) => {
+      releaseSpots = resolve
+    })
+
+    await page.route('**/api/backend/surf-spots/within-bounds', async (route) => {
+      await spotsGate
+      await route.continue()
+    })
+
+    await page.goto('/surf-spots')
+    await page.waitForSelector('.map-container', { state: 'visible', timeout: 15000 })
+
+    const loadingChip = page.getByRole('status', { name: 'Loading spots' })
+    await expect(loadingChip).toBeVisible({ timeout: 20000 })
+
+    releaseSpots?.()
+    await expect(loadingChip).toBeHidden({ timeout: 45000 })
+  })
+})
+
 test.describe('Surf Spots', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('/surf-spots')

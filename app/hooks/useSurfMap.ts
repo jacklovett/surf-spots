@@ -56,6 +56,7 @@ export const useSurfMap = (params: UseSurfMapParams) => {
 
   const [mapInitError, setMapInitError] = useState<string | null>(null)
   const [spotsLoadError, setSpotsLoadError] = useState<string | null>(null)
+  const [spotsLoading, setSpotsLoading] = useState(false)
   const [spotsRetryLoading, setSpotsRetryLoading] = useState(false)
   const [userLocation, setUserLocation] = useState<Coordinates | null>(null)
   const [locationFetched, setLocationFetched] = useState(false)
@@ -138,6 +139,7 @@ export const useSurfMap = (params: UseSurfMapParams) => {
     debounce(async (map: mapboxgl.Map) => {
       const requestUserId = userIdRef.current
       const requestGeneration = spotsFetchGenerationRef.current
+      setSpotsLoading(true)
       try {
         const newSurfSpots = await fetchSurfSpotsByBounds(
           map,
@@ -157,6 +159,8 @@ export const useSurfMap = (params: UseSurfMapParams) => {
         }
         console.error('Error fetching surf spots:', error)
         setSpotsLoadError(getDisplayMessage(error, ERROR_LOAD_MAP_DATA))
+      } finally {
+        setSpotsLoading(false)
       }
     }, 500),
     [applyFetchedSurfSpots],
@@ -306,6 +310,7 @@ export const useSurfMap = (params: UseSurfMapParams) => {
     const requestGeneration = spotsFetchGenerationRef.current
     const map = mapRef.current
 
+    setSpotsLoading(true)
     fetchSurfSpotsByBounds(map, requestUserId, filters, {
       timeoutMs: WITHIN_BOUNDS_TIMEOUT_MS,
     })
@@ -330,6 +335,9 @@ export const useSurfMap = (params: UseSurfMapParams) => {
         }
         console.error('Error fetching surf spots on filter change:', error)
         setSpotsLoadError(getDisplayMessage(error, ERROR_LOAD_MAP_DATA))
+      })
+      .finally(() => {
+        setSpotsLoading(false)
       })
   }, [
     filters,
@@ -381,6 +389,7 @@ export const useSurfMap = (params: UseSurfMapParams) => {
     const requestUserId = userIdRef.current
     const requestGeneration = spotsFetchGenerationRef.current
     setSpotsRetryLoading(true)
+    setSpotsLoading(true)
     try {
       const newSurfSpots = await fetchSurfSpotsByBounds(
         map,
@@ -401,6 +410,7 @@ export const useSurfMap = (params: UseSurfMapParams) => {
       console.error('Error fetching surf spots:', error)
       setSpotsLoadError(getDisplayMessage(error, ERROR_LOAD_MAP_DATA))
     } finally {
+      setSpotsLoading(false)
       setSpotsRetryLoading(false)
     }
   }, [mapRef, applyFetchedSurfSpots])
@@ -418,6 +428,7 @@ export const useSurfMap = (params: UseSurfMapParams) => {
     mapContainerRef,
     loading,
     mapReady,
+    spotsLoading,
     contentError,
     mapInitError,
     spotsRetryLoading,

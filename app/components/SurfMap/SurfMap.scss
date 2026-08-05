@@ -111,6 +111,29 @@ ellipse {
   }
 }
 
+.map-spots-loading-overlay {
+  @include flex-center;
+  position: absolute;
+  inset: 0;
+  z-index: $z-index-overlay;
+  pointer-events: none;
+}
+
+.map-spots-loading-chip {
+  @include flex-center;
+  background: $white;
+  color: $primary-color;
+  padding: $spacing-small;
+  border-radius: 6px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+
+  .button-loading-spinner {
+    width: 18px;
+    height: 18px;
+    border-width: 2px;
+  }
+}
+
 .map-error-retry-wrap {
   @include flex-base;
   justify-content: center;

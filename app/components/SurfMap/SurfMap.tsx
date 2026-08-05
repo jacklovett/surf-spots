@@ -32,6 +32,7 @@ export const SurfMap = memo((props: IProps) => {
     mapContainerRef,
     loading,
     mapReady,
+    spotsLoading,
     contentError,
     mapInitError,
     spotsRetryLoading,
@@ -56,6 +57,18 @@ export const SurfMap = memo((props: IProps) => {
         })}
       />
       {loading && contentError == null && <SkeletonLoader />}
+      {spotsLoading && contentError == null && mapReady && (
+        <div
+          className="map-spots-loading-overlay"
+          role="status"
+          aria-live="polite"
+          aria-label="Loading spots"
+        >
+          <div className="map-spots-loading-chip">
+            <span className="button-loading-spinner" aria-hidden="true" />
+          </div>
+        </div>
+      )}
       {contentError != null && (
         <div className="map-spots-error-overlay">
           <ContentStatus
@@ -78,4 +91,3 @@ export const SurfMap = memo((props: IProps) => {
     </div>
   )
 })
-
