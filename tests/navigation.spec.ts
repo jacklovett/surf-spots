@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test'
+import { login } from './utils/auth-helper'
 import { expectNoHydrationNoise } from './utils/hydration'
 
 test.describe('Navigation', () => {
@@ -296,5 +297,66 @@ test.describe('Navigation', () => {
     // Navigate to a region
     await page.goto('/surf-spots/africa/algeria/boumerdes')
     await expect(page).toHaveURL(/\/surf-spots\/africa\/algeria\/boumerdes/)
+  })
+})
+
+test.describe('Menu attention badges', () => {
+  const watchPayload = {
+    surfSpots: [],
+    notifications: [
+      {
+        id: 'e2e-menu-attention-1',
+        title: 'E2E swell update',
+        description: 'Fixture notification for menu attention badge',
+        type: 'swell',
+      },
+    ],
+  }
+
+  test.beforeEach(async ({ page }) => {
+    await page.route('**/api/backend/watch**', async (route) => {
+      if (route.request().method() !== 'GET') {
+        await route.continue()
+        return
+      }
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify(watchPayload),
+      })
+    })
+    await login(page)
+    await page.evaluate(() => {
+      Object.keys(localStorage)
+        .filter((key) => key.startsWith('menu-attention:'))
+        .forEach((key) => localStorage.removeItem(key))
+    })
+  })
+
+  test('should show hamburger and Watch List dots, then clear after visit', async ({
+    page,
+  }) => {
+    await page.goto('/', { waitUntil: 'domcontentloaded' })
+
+    const hamburgerDot = page.getByTestId('menu-attention-dot')
+    await expect(hamburgerDot).toBeVisible({ timeout: 15000 })
+
+    await page.getByRole('button', { name: /Open menu/ }).click()
+    const drawer = page.locator('.menu-drawer-content')
+    await expect(drawer).toBeVisible()
+
+    const watchListDot = page.getByTestId('menu-item-attention-dot-watch-list')
+    await expect(watchListDot).toBeVisible()
+
+    await drawer.getByText('Watch List', { exact: true }).click()
+    await expect(page).toHaveURL(/\/watch-list/)
+
+    await page.goto('/', { waitUntil: 'domcontentloaded' })
+    await expect(page.getByTestId('menu-attention-dot')).toHaveCount(0)
+
+    await page.getByRole('button', { name: 'Open menu' }).click()
+    await expect(
+      page.getByTestId('menu-item-attention-dot-watch-list'),
+    ).toHaveCount(0)
   })
 })

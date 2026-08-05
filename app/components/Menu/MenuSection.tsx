@@ -5,7 +5,8 @@ import { MenuItem } from './index'
 interface MenuSectionProps {
   title: string
   items: MenuItem[]
-  onItemClick: (path: string) => void
+  onItemClick: (item: MenuItem) => void
+  hasAttention?: (menuKey: string) => boolean
   defaultOpen?: boolean
 }
 
@@ -13,25 +14,38 @@ export const MenuSection = ({
   title,
   items,
   onItemClick,
+  hasAttention,
   defaultOpen = true,
 }: MenuSectionProps) => {
   const [isOpen, setIsOpen] = useState(defaultOpen)
 
-  const toggle = () => 
-    setIsOpen((prev) => !prev)
+  const toggle = () => setIsOpen((previous) => !previous)
 
-  const createMenuList = (items: MenuItem[]) => (
+  const createMenuList = (sectionItems: MenuItem[]) => (
     <ul className="menu-list">
-      {items.map((item: MenuItem) => {
-        const { key, icon, label, path } = item
+      {sectionItems.map((item: MenuItem) => {
+        const { key, icon, label } = item
+        const itemHasAttention = hasAttention?.(key) ?? false
         return (
           <li
             key={key}
             className="menu-item ph"
-            onClick={() => onItemClick(path)}
+            onClick={() => onItemClick(item)}
+            aria-label={
+              itemHasAttention ? `${label}, has updates` : undefined
+            }
           >
-            <Icon iconKey={icon} />
-            {label}
+            <span className="menu-item-icon">
+              <Icon iconKey={icon} />
+              {itemHasAttention && (
+                <span
+                  className="menu-item-attention-dot"
+                  data-testid={`menu-item-attention-dot-${key}`}
+                  aria-hidden
+                />
+              )}
+            </span>
+            <span className="menu-item-label">{label}</span>
           </li>
         )
       })}
@@ -42,8 +56,8 @@ export const MenuSection = ({
     <div className="menu-section">
       <button
         className="menu-section-header"
-        onClick={(e) => {
-          e.stopPropagation()
+        onClick={(event) => {
+          event.stopPropagation()
           toggle()
         }}
         aria-expanded={isOpen}

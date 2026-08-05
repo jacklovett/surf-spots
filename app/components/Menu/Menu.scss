@@ -70,6 +70,7 @@
   .hamburger-icon {
     @include flex-center;
     flex-direction: column;
+    position: relative;
     cursor: pointer;
     padding: $spacing-unit;
     background: none;
@@ -81,12 +82,26 @@
       transform: scale(1.1);
     }
 
-    span {
+    > span:not(.menu-attention-dot) {
       width: 24px;
       height: 2px;
       background: $primary-color;
       margin: 2px 0;
       transition: all 0.3s ease;
+    }
+
+    .menu-attention-dot {
+      position: absolute;
+      // Sit on the bottom-left of the bar stack (button padding is $spacing-unit)
+      bottom: calc(#{$spacing-unit} - 2px);
+      left: calc(#{$spacing-unit} - 2px);
+      width: 10px;
+      height: 10px;
+      margin: 0;
+      border-radius: 50%;
+      background: $accent-color;
+      box-shadow: 0 0 0 2px $white;
+      z-index: 1;
     }
   }
 
@@ -209,6 +224,27 @@
 
     &:last-child::before {
       display: none;
+    }
+
+    .menu-item-icon {
+      position: relative;
+      flex-shrink: 0;
+      @include flex-center;
+    }
+
+    .menu-item-label {
+      min-width: 0;
+    }
+
+    .menu-item-attention-dot {
+      position: absolute;
+      top: -2px;
+      right: -2px;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: $accent-color;
+      box-shadow: 0 0 0 2px $white;
     }
   }
 }

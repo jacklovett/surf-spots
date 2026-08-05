@@ -18,6 +18,7 @@ import { useFormSubmission } from './useFormSubmission'
 import { useSurfSpotActions } from './useSurfSpotActions'
 import { useSurfSpotWizard } from './useSurfSpotWizard'
 import { useSurfSessionForm } from './useSurfSessionForm'
+import { useMenuAttention } from './useMenuAttention'
 
 export {
   useActionFetcher,
@@ -40,6 +41,7 @@ export {
   useSurfSpotActions,
   useSurfSpotWizard,
   useSurfSessionForm,
+  useMenuAttention,
 }
 
 export { useMediaGallery, isVideoMediaItem } from './useMediaGallery'
