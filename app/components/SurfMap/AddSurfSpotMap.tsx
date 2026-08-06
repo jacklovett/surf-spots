@@ -9,8 +9,6 @@ import {
 import classNames from 'classnames'
 import { Map, MapMouseEvent } from 'mapbox-gl'
 
-import 'mapbox-gl/dist/mapbox-gl.css'
-
 import SkeletonLoader from '../SkeletonLoader'
 import { Coordinates } from '~/types/surfSpots'
 import {

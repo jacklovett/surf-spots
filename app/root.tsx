@@ -34,7 +34,8 @@ import { loadInProgressSurfSessionForUser } from './services/surfSession.server'
 import { SessionUser } from './types/user'
 import { SurfSessionListItem } from './types/surfSpots'
 
-import './styles/main.scss'
+import mainStylesheet from './styles/main.scss?url'
+import mapboxStylesheet from 'mapbox-gl/dist/mapbox-gl.css?url'
 
 interface LoaderData {
   user: SessionUser | null
@@ -99,6 +100,8 @@ export const loader: LoaderFunction = async ({ request }) => {
 export const headers: HeadersFunction = ({ loaderHeaders }) => loaderHeaders
 
 export const links: LinksFunction = () => [
+  { rel: 'stylesheet', href: mainStylesheet },
+  { rel: 'stylesheet', href: mapboxStylesheet },
   { rel: 'preconnect', href: 'https://fonts.googleapis.com' },
   {
     rel: 'preconnect',
@@ -130,14 +133,15 @@ export function Layout({ children }: { children: React.ReactNode }) {
   useScrollToTopOnNavigation()
 
   return (
-    <html lang="en">
+    // suppressHydrationWarning: browser extensions often mutate html/body attrs
+    <html lang="en" suppressHydrationWarning>
       <head>
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <Meta />
         <Links />
       </head>
-      <body>
+      <body suppressHydrationWarning>
         {children}
         <ScrollRestoration />
         <Scripts />

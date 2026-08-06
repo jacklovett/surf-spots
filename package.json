@@ -1,7 +1,7 @@
 {
   "name": "surf-spots",
   "private": true,
-  "sideEffects": false,
+  "sideEffects": ["**/*.css", "**/*.scss"],
   "type": "module",
   "scripts": {
     "build": "react-router build",

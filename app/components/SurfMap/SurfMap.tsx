@@ -2,8 +2,6 @@ import { memo } from 'react'
 import { FetcherWithComponents } from 'react-router'
 import classNames from 'classnames'
 
-import 'mapbox-gl/dist/mapbox-gl.css'
-
 import SkeletonLoader from '../SkeletonLoader'
 import { SurfSpot } from '~/types/surfSpots'
 import { useSurfMap } from '~/hooks'

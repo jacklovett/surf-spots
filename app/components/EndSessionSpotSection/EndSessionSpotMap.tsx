@@ -2,8 +2,6 @@ import { memo, useCallback, useEffect, useMemo, useRef } from 'react'
 import classNames from 'classnames'
 import mapboxgl from 'mapbox-gl'
 
-import 'mapbox-gl/dist/mapbox-gl.css'
-
 import SkeletonLoader from '../SkeletonLoader'
 import ErrorBoundary from '../ErrorBoundary'
 import { Coordinates } from '~/types/surfSpots'

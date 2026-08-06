@@ -106,15 +106,21 @@ export const debounce = <T extends unknown[]>(
   }
 }
 
+const CSS_VARIABLE_DEFAULTS: Record<string, string> = {
+  '--primary-color': '#046380',
+  '--accent-color': '#3fc1c9',
+}
+
 /**
  * Gets a CSS variable value from the document
  * @param variable - CSS variable name (e.g., '--primary-color')
  * @returns CSS variable value or default
  */
 export const getCssVariable = (variable: string) => {
+  const fallback = CSS_VARIABLE_DEFAULTS[variable] ?? '#046380'
   if (typeof window === 'undefined' || !document.body) {
-    // Return defaults during SSR
-    return variable === '--primary-color' ? '#046380' : '#20c6f8'
+    return fallback
   }
-  return getComputedStyle(document.body).getPropertyValue(variable)
+  const value = getComputedStyle(document.body).getPropertyValue(variable).trim()
+  return value || fallback
 }
