@@ -39,9 +39,11 @@ export const loader: LoaderFunction = async ({ request, params }) => {
     const regionResponse = await get<Region>(`regions/country/${country}/${region}`)
     const regionDetails = regionResponse?.data
 
-    // Get surf spots by region id; if this fails we still show region name and description
+    const hasSubRegions = (regionDetails?.subRegions?.length ?? 0) > 0
+
+    // Spots under sub-regions are listed on the sub-region page only.
     let surfSpots: SurfSpot[] = []
-    if (regionDetails?.id != null) {
+    if (!hasSubRegions && regionDetails?.id != null) {
       try {
         const response = await post<typeof filters, SurfSpot[]>(
           `surf-spots/region-id/${regionDetails.id}`,
@@ -116,51 +118,50 @@ export default function Region() {
   }
 
   const { name, description, subRegions } = regionDetails
+  const hasSubRegions = (subRegions?.length ?? 0) > 0
 
   return (
     <div className="content mb-l">
       <h1>{name}</h1>
       {(description != null && description !== '') && <p className="description">{description}</p>}
 
-      {/* Show sub-regions if they exist */}
-      {subRegions && subRegions.length > 0 && (
+      {hasSubRegions ? (
         <div className="sub-regions">
           <h2>Sub-Regions</h2>
           <div className="list-map">
             {subRegions.map((subRegion) => {
-              const { id, name, slug } = subRegion
+              const { id, name: subRegionName, slug } = subRegion
               return (
                 <Link
                   key={id}
                   to={`${location.pathname}/sub-regions/${slug}`}
                   prefetch="intent"
                 >
-                  {name}
+                  {subRegionName}
                 </Link>
               )
             })}
           </div>
         </div>
-      )}
-
-      {/* Show surf spots that are directly in this region (not in sub-regions) */}
-      <div className="surf-spots">
-        <h2>Surf Spots</h2>
-        <div className="list-map">
-          {surfSpots.length > 0 ? (
-            surfSpots.map((surfSpot) => {
-              const { id, name, path } = surfSpot
-              return (
-                <Link key={id} to={path} prefetch="intent">
-                  {name}
-                </Link>
-              )
-            })
-          ) : (
-            <p>No surf spots found</p>
-          )}
+      ) : (
+        <div className="surf-spots">
+          <h2>Surf Spots</h2>
+          <div className="list-map">
+            {surfSpots.length > 0 ? (
+              surfSpots.map((surfSpot) => {
+                const { id, name: spotName, path } = surfSpot
+                return (
+                  <Link key={id} to={path} prefetch="intent">
+                    {spotName}
+                  </Link>
+                )
+              })
+            ) : (
+              <p>No surf spots found</p>
+            )}
+          </div>
         </div>
-      </div>
+      )}
     </div>
   )
 }
