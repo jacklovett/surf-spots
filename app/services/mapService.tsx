@@ -375,7 +375,7 @@ export const initializeMap = (
     style: 'mapbox://styles/mapbox/light-v11',
     center: [initLongitude, initLatitude],
     zoom: 12,
-    minZoom: 1,
+    minZoom: 1.5,
     maxZoom: 15,
     interactive,
     scrollZoom: interactive,
