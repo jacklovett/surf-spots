@@ -19,25 +19,47 @@ interface LoaderData {
 }
 
 export const loader: LoaderFunction = async ({ request, params }) => {
-  const { continent, country, region, subRegion } = params
+  const { subRegion } = params
   const url = new URL(request.url)
   const searchParams = Object.fromEntries(url.searchParams.entries())
+
+  if (!subRegion) {
+    return data<LoaderData>(
+      {
+        surfSpots: [],
+        error: "Couldn't find details for this sub-region",
+      },
+      { status: 404 },
+    )
+  }
 
   try {
     const cookie = request.headers.get('Cookie') ?? ''
     const filters = { ...searchParams }
 
-    // Try to get sub-region details
     const subRegionResponse = await get<SubRegion>(`sub-regions/${subRegion}`)
     const subRegionDetails = subRegionResponse?.data
+    if (!subRegionDetails) {
+      return data<LoaderData>(
+        {
+          surfSpots: [],
+          error: "Couldn't find details for this sub-region",
+        },
+        { status: 404 },
+      )
+    }
 
-    // Then get surf spots for this sub-region
-    const response = await post<typeof filters, SurfSpot[]>(
-      `surf-spots/sub-region/${subRegion}`,
-      { ...filters },
-      { headers: { Cookie: cookie } },
-    )
-    const surfSpots = response?.data ?? []
+    let surfSpots: SurfSpot[] = []
+    try {
+      const response = await post<typeof filters, SurfSpot[]>(
+        `surf-spots/sub-region/${subRegion}`,
+        { ...filters },
+        { headers: { Cookie: cookie } },
+      )
+      surfSpots = response?.data ?? []
+    } catch (spotsError) {
+      console.error('Error loading surf spots for sub-region:', spotsError)
+    }
 
     return data<LoaderData>(
       { surfSpots, subRegionDetails },
@@ -47,15 +69,13 @@ export const loader: LoaderFunction = async ({ request, params }) => {
     )
   } catch (error) {
     console.error('Error loading sub-region data:', error)
-
-    // If sub-region doesn't exist, redirect to the surf spot route
-    // This will let React Router try the surf spot route
-    throw new Response('', {
-      status: 302,
-      headers: {
-        Location: `/surf-spots/${continent}/${country}/${region}/${subRegion}`,
+    return data<LoaderData>(
+      {
+        surfSpots: [],
+        error: "Couldn't find details for this sub-region",
       },
-    })
+      { status: 404 },
+    )
   }
 }
 
